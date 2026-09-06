@@ -40,6 +40,11 @@ Confirmed on hardware:
 | Device | PID | Family |
 |---|---|---|
 | ATK Zero (8K dongle "dongle-L1") | `0x1155` → mouse `0x1154` | BITMOUSE |
+| ATK A9 Mini + | `0x1251` | BITMOUSE |
+| ATK A9 Mini + | `0x1269`, `0x128E` | COMPX |
+| ATK F1 Ultimate 2.0 | `0x11E4` | COMPX |
+| ATK F1 EXTREME 2.0 | `0x11E3` | COMPX |
+| ATK F1 Ultra Max 2.0 | `0x126E`, `0x11ED` | COMPX |
 
 Should work, not yet confirmed on hardware — same protocol, identified from the vendor registry:
 
@@ -52,8 +57,10 @@ Should work, not yet confirmed on hardware — same protocol, identified from th
 | ATK Zero Plus Gengar Edition | `0x1331` | BITMOUSE |
 | ATK A9 Mini | `0x1268` | BITMOUSE |
 | ATK A9 Mini | `0x1256`, `0x125A` | COMPX |
-| ATK A9 Mini + | `0x1251` | BITMOUSE |
-| ATK A9 Mini + | `0x1269`, `0x128E` | COMPX |
+| ATK F1 LEVIATAN 2.0 | `0x11F0` | COMPX |
+| ATK F1 Ultimate 2.0 + | `0x129C` | COMPX |
+
+Note that F1 Ultra Max 2.0 ships under two PIDs with different sensors — `0x126E` is a PAW3950 Ultra, `0x11ED` a PAW3395 Ultra. They use different DPI encodings and different lift-off ranges, and the app picks the right one per device.
 
 The app carries a name registry covering **251 product IDs and 195 CID/MID pairs** across both families, so most ATK and VXE mice on these two interfaces should at least connect and identify. Anything on a different vendor interface won't appear in the browser's device picker at all.
 
@@ -69,7 +76,7 @@ Wireless receivers report a generic product name — "Wireless mouse 8k dongle-L
 |---|---|
 | Sensitivity | 800 / 1600 / 3200 DPI, written to the active stage |
 | Polling rate | 125 – 8000 Hz |
-| Lift-off distance | 0.7 – 1.7 mm in 0.1 mm steps |
+| Lift-off distance | 0.7 – 1.7 mm in 0.1 mm steps, or three fixed steps depending on sensor |
 | Movement smoothing | on / off |
 | Straight line correction | on / off |
 | Ripple correction | on / off |
