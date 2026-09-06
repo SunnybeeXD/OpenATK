@@ -174,10 +174,11 @@
         <div class="t">Lift-off distance</div>
         <div class="d">Maximum working distance from the bottom of the mouse to the
           surface. Lower suits low-sensitivity players who reposition often.</div>
-        <div class="slider">
+        <div class="slider" id="lodSlider">
           <input type="range" id="lod" min="0.7" max="1.7" step="0.1" value="0.7">
           <output id="lodOut">0.7 mm</output>
         </div>
+        <div class="seg hidden" id="segLod"></div>
       </div>
     </div>
 
@@ -277,7 +278,7 @@
      Nearly every stored value is followed by its own 85−value inverse.
 ──────────────────────────────────────────────────────────────────── */
 
-const REGISTRY = {"pids":{"1084":["VXE R1S+","cx"],"10e7":["VXE V3 NK","cx"],"1135":["ATK A9 SE NK","cx"],"1149":["ATK U2 SE NK","cx"],"115d":["ATK Y9 SE NK","cx"],"114c":["DRAGONFLY F1 V2 SE NK","cx"],"121f":["VXE R1 S NK","cx"],"123d":["VXE R2 SE","cx"],"1248":["VXE X3","cx"],"103f":["MAD R","cx"],"104b":["MAD R +","cx"],"113e":["ATK X1 Lite","cx"],"1106":["ATK X1 S NK","cx"],"1115":["ATK A9 Plus NK","cx"],"110d":["ATK U2 Plus NK","cx"],"115b":["ATK Y9 Plus NK","cx"],"114a":["DRAGONFLY F1 V2 Plus NK","cx"],"11d2":["VXE R1 UlTRA","cx"],"123f":["VXE R2 PLUS","cx"],"1240":["VXE R2 PRO MAX","cx"],"1116":["ATK A9 NK","cx"],"113f":["ATK X1E","cx"],"1157":["ATK A9","cx"],"11aa":["ATK U2","cx"],"1107":["ATK X1 SE NK","cx"],"1065":["VXE R1 NK","cx"],"1066":["VXE R1 NK","cx"],"10c7":["VXE R1 NK","cx"],"10c8":["VXE R1 NK","cx"],"10e8":["VXE V3 PRO NK","cx"],"110e":["ATK U2 NK","cx"],"115c":["ATK Y9 NK","cx"],"114b":["DRAGONFLY F1 V2 NK","cx"],"11a0":["ATK A9 X","cx"],"1249":["VXE X3 Pro","cx"],"124a":["VXE X3 Turbo","cx"],"123e":["VXE R2","cx"],"1245":["ATK A9 NB","cx"],"12bf":["VXE R1SE+ Silent","cx"],"1117":["ATK A9 Pro Max","cx"],"1158":["ATK U2 Pro Max","cx"],"11ab":["DRAGONFLY F1 V2 PRO MAX","cx"],"11dd":["ATK A9 Ultra Max 2.0","cx"],"11f2":["ATK A9 Ultra Max 2.0 Tri-Mode","cx"],"11ed":["ATK F1 Ultra Max 2.0","cx"],"11ec":["ATK X1 Ultra Max 2.0","cx"],"11f7":["ATK U2 Ultra Max 2.0","cx"],"11f9":["VXE R1 Ultra","cx"],"1014":["ATK F1 PRO","cx"],"1015":["ATK F1 PRO MAX","cx"],"1016":["ATK X1 PRO","cx"],"1017":["ATK X1 PRO MAX","cx"],"1018":["ATK Z1 PRO","cx"],"1019":["ATK Z1 PRO MAX","cx"],"1086":["ATK U2 MINI","cx"],"10ac":["ATK U2 Ultra","cx"],"10fd":["ATK Y9 PRO MAX","cx"],"103e":["MAD R MAJOR","cx"],"104c":["MAD R MAJOR+","cx"],"12ff":["ATK X1 Ultra Max 2.0","cx"],"102e":["ATK F1 Ultimate","cxu"],"102f":["ATK X1 Ultra","cxu"],"1030":["ATK FIERCE X","cxu"],"103c":["ATK F1 Ultra","cxu"],"103d":["ATK X1 Ultimate","cxu"],"1045":["ATK F1 EXTREME","cxu"],"104a":["ATK Z1 Ultra","cxu"],"105b":["ATK F1 LEVIATAN","cxu"],"1087":["ATK U2 Ultimate","cxu"],"10e9":["ATK X1 EXTREME","cxu"],"1119":["ATK A9 Ultra","cxu"],"11f3":["ATK A9 NB ULTRA","cxu"],"11b6":["ATK A9 Ultimate","cxu"],"120a":["ATK A9 Air","cxu"],"11cf":["ATK Y9 Ultimate","cxu"],"11e4":["ATK F1 Ultimate 2.0","cxu"],"11e7":["ATK X1 Ultimate 2.0","cxu"],"11a6":["ATK Duckbill Ultra","cxu"],"1230":["ATK Duckbill EXTREME","cxu"],"11cc":["ATK ZERO EX","cxu"],"11e5":["ATK X1 EXTREME 2.0","cxu"],"120b":["ATK X1 EXTREME GT","cxu"],"11e3":["ATK F1 EXTREME 2.0","cxu"],"11f0":["ATK F1 LEVIATAN 2.0","cxu"],"11f6":["ATK U2 Mini 2.0","cxu"],"1201":["ATK Z1 Ultimate 2.0","cxu"],"11f5":["ATK U2 Ultimate 2.0","cxu"],"120d":["ATK Ghost EXTREME","cxu"],"120e":["ATK Ghost Ultimate","cxu"],"124e":["ATK ZERO","cxu"],"1256":["ATK A9 Mini","cxu"],"1266":["ATK X EXTREME","cxu"],"1274":["ATK X1 Ultra Max 2.0","cxu"],"126e":["ATK F1 Ultra Max 2.0","cxu"],"1270":["ATK A9 Ultra Max 2.0 Tri-Mode","cxu"],"126f":["ATK A9 Ultra Max 2.0","cxu"],"126c":["ATK U2 Plus NK","cxu"],"1271":["VXE R1","cxu"],"1272":["VXE R1 PRO","cxu"],"1273":["VXE R1 PRO MAX","cxu"],"125a":["ATK A9 Mini","cxu"],"126d":["ATK U2 Pro Max","cxu"],"12d7":["Flow 7","cxu"],"12fa":["ATK F1 V3 ULTIMATE","cxu"],"132b":["MAD R","cxu"],"131a":["ATK X1 S NK","cxu"],"1269":["ATK A9 Mini +","cxu"],"128e":["ATK A9 Mini +","cxu"],"1289":["ATK ZERO EX +","cxu"],"1286":["ATK X1 Ultimate 2.0 +","cxu"],"129b":["ATK F1 V3 EXTREME +","cxu"],"129d":["ATK F1 V3 LEVIATAN +","cxu"],"1293":["ATK A9 Air +","cxu"],"1292":["ATK A9 Ultimate +","cxu"],"128d":["ATK U2 Mini 2.0 +","cxu"],"128c":["ATK U2 Ultimate 2.0 +","cxu"],"1296":["ATK PHANTOM ULTIMATE","cxu"],"1285":["ATK X1 EXTREME 2.0 +","cxu"],"12a2":["ATK X1 Air +","cxu"],"128b":["ATK Ghost Ultimate +","cxu"],"128a":["ATK Ghost EXTREME +","cxu"],"129c":["ATK F1 Ultimate 2.0 +","cxu"],"127c":["ATK X1 Air +","cxu"],"12a7":["ATK F1 V3 ULTIMATE +","cxu"],"12ab":["ATK A9 NB ULTRA +","cxu"],"12af":["ATK Y9 Ultimate +","cxu"],"12b0":["ATK Z1 Ultimate 2.0 +","cxu"],"127f":["ATK A9 Air +","cxu"],"127e":["ATK A9 Ultimate +","cxu"],"12a8":["ATK F1 V3 ULTIMATE +","cxu"],"12a9":["ATK F1 V3 ULTIMATE +","cxu"],"132a":["ATK F1 V3 PIKACHU Edition","cxu"],"12b4":["ATK X1 Ultimate 2.0 Silent","cxu"],"12b3":["ATK A9 Ultimate Silent","cxu"],"12e4":["ATK ONE","cxu"],"12c5":["ATK X1 Wireless Charging","cxu"],"12c6":["ATK A9 Wireless Charging","cxu"],"104d":["MAD 1K Dongle","cxr"],"1085":["Wireless mouse 1k dongle  ","cxr"],"1067":["R1 NK","cx"],"1068":["R1 NK","cx"],"1069":["R1 NK","cx"],"106a":["R1 NK","cx"],"10c9":["NK Mouse Dongle","cx"],"10ca":["R1 NK","cx"],"10cb":["R1 NK","cx"],"10cc":["R1 NK","cx"],"101a":["ATK Mouse 1K Dongle","cxr"],"101b":["ATK Mouse 8K Dongle","cxr"],"111a":["Wireless mouse -8K NANO dongle","cxr"],"111b":["Wireless mouse -8K NANO dongle","cxr"],"11a7":["ATK Mouse 8K Dongle","cxr"],"11a9":["Wireless mouse 4k dongle","cxr"],"1040":["MAD 8K Dongle","cxr"],"1031":["ATK 8K Dongle Light Version","cxr"],"1159":["ATK 8K Dongle Light Version","cxr"],"115e":["Wireless mouse 8k dongle","cxr"],"11c8":["Wireless mouse -8K TypeC dongle","cxr"],"11ce":["Wireless mouse-8K NANO dongle","cxr"],"11cd":["Wireless mouse -8K TypeC dongle","cxr"],"11d8":["Wireless mouse 8k dongle-H","cxr"],"11d9":["Wireless mouse 8k dongle-L","cxr"],"1278":["Wireless mouse 8k dongle-L","cxr"],"11fe":["Wireless mouse 8k NANO dongle-L","cxr"],"127a":["Wireless mouse 8k NANO dongle-L","cxr"],"11fd":["Wireless mouse 8k NANO dongle-L","cxr"],"1279":["Wireless mouse 8k NANO dongle-L","cxr"],"11f4":["Wireless mouse -8K TOWER dongle","cxr"],"1246":["Wireless mouse -1K TOWER dongle","cxr"],"12cc":["Wireless mouse 8k dongle-H","cxr"],"11b3":["Flow 7","cxr"],"12e9":["Wireless mouse 8k NANO dongle-M","cxr"],"1303":["Wireless mouse 8k dongle-M","cxr"],"12da":["ATK Wireless Charging dongle","cxr"],"124d":["VXE R1 S NK","bm"],"1222":["ATK A9 SE NK","bm"],"1213":["VXE V3 NK","bm"],"12b1":["VXE R2 SE NK","bm"],"12d2":["VXE V3 X","bm"],"1310":["VXE R1 S NK","bm"],"1311":["VXE R1N NK","bm"],"130f":["ATK A9 SE 3.0 NK","bm"],"1223":["ATK A9 NK","bm"],"1305":["ATK A9 3.0 NK","bm"],"1214":["VXE V3 PRO NK","bm"],"1306":["VXE V3 PRO NK","bm"],"124c":["VXE R1 NK","bm"],"1299":["ATK X1 SE Nearlink","bm"],"130e":["ATK X1 SE NK","bm"],"12dc":["VXE R1 SE+","bm"],"1319":["VXE R1 SE+","bm"],"127b":["VXE V3 PRO Max","bm"],"1215":["VXE V3 Plus","bm"],"1224":["ATK A9 Plus NK","bm"],"11db":["ATK A9 Pro Max 2.0 NK","bm"],"1301":["ATK A9 Pro Max 2.0 NK","bm"],"1300":["ATK A9 Plus NK","bm"],"1154":["ATK ZERO","bmu"],"1211":["ATK A9 Ultimate 3.0","bmu"],"1268":["ATK A9 Mini","bmu"],"123a":["ATK Ghost Ultimate","bmu"],"1263":["ATK A9 Plus NK","bmu"],"1264":["ATK A9 Pro Max 2.0 NK","bmu"],"12a3":["VXE R2 ULTRA NK","bmu"],"12d0":["ATK A9 NB ULTRA","bmu"],"12e1":["VXE T1","bmu"],"128f":["ATK A9 Ultra Max 2.0 +","bmu"],"12e3":["ATK U2 Plus NK","bmu"],"1307":["ATK F1 V3 Ultra Max","bmu"],"129a":["VXE R1 PRO MAX 2.0 NK","bmu"],"1314":["ATK A9 Ultimate","bmu"],"1337":["ATK A9 Plus 3.0 NK","bmu"],"1338":["ATK A9 Pro Max 3.0 NK","bmu"],"133d":["ATK X1 V3 PRO MAX","bmu"],"1326":["ATK X1 V3 ULTRA MAX","bmu"],"129e":["ATK ZERO +","bmu"],"1287":["ATK A9 Ultimate +","bmu"],"12f1":["ATK A9 Ultimate +","bmu"],"1288":["ATK A9 Air +","bmu"],"12ce":["ATK PHANTOM ULTIMATE","bmu"],"1312":["ATK PHANTOM ULTIMATE","bmu"],"12d9":["ATK X1 ULTIMATE 2.0+","bmu"],"12de":["ATK X1 Ultra Max 2.0 + Tri-Mode","bmu"],"12d8":["ATK ENZO ULTIMATE","bmu"],"130b":["ATK ENZO ULTIMATE","bmu"],"12ec":["ATK X1 Air+","bmu"],"1324":["ATK X1 V3 ULTIMATE+","bmu"],"12db":["VELOTA EVO","bmu"],"1333":["VELOTA EVO","bmu"],"1304":["ATK F1 V3 ULTIMATE+","bmu"],"1308":["ATK F1 V3 ULTIMATE+","bmu"],"1251":["ATK A9 Mini +","bmu"],"1331":["ATK ZERO PLUS GENGAR EDITION","bmu"],"133c":["ATK N1 Ultimate+","bmu"],"1155":["Wireless mouse 8k dongle-L1","bmr"],"11dc":["NK mouse 8K NANO dongle","bmr"],"1216":["NK mouse NANO dongle","bmr"],"124f":["Wireless mouse 8k dongle-L0","bmr"],"1290":["Wireless mouse 8k dongle-M1","bmr"],"1291":["Wireless mouse 8k NANO dongle-M1","bmr"],"12d1":["Wireless mouse -8K TOWER dongle","bmr"],"12cd":["Wireless mouse 8k NANO dongle-M1","bmr"],"1315":["Wireless mouse 8k NANO dongle-M1","bmr"],"12f5":["Wireless mouse 8k dongle-M1","bmr"],"12ea":["Wireless mouse 8k dongle-G","bmr"],"1332":["Wireless mouse 8k dongle-G","bmr"],"1302":["Wireless mouse 8k dongle-O","bmr"],"133e":["Wireless mouse 8k NANO dongle-A1","bmr"],"133f":["Wireless mouse -1k dongle","bmr"],"1346":["Wireless mouse 8k dongle-M1","bmr"],"1347":["Wireless mouse 8k NANO dongle-M1","bmr"]},"cid":{"cx:2,63":["VXE R1S+",""],"cx:2,72":["VXE V3 NK",""],"cx:2,88":["ATK A9 SE NK",""],"cx:2,92":["ATK U2 SE NK",""],"cx:2,98":["ATK Y9 SE NK",""],"cx:2,95":["DRAGONFLY F1 V2 SE NK",""],"cx:2,117":["VXE R1 S NK",""],"cx:2,91":["VXE R2 SE",""],"cx:2,121":["VXE X3",""],"cx:2,49":["MAD R",""],"cx:2,54":["MAD R +",""],"cx:2,89":["ATK X1 Lite",""],"cx:2,76":["ATK X1 S NK",""],"cx:2,83":["ATK A9 Plus NK",""],"cx:2,78":["ATK U2 Plus NK",""],"cx:2,96":["ATK Y9 Plus NK",""],"cx:2,93":["DRAGONFLY F1 V2 Plus NK",""],"cx:2,114":["VXE R1 UlTRA",""],"cx:2,101":["VXE R2 PLUS",""],"cx:2,84":["ATK A9 NK",""],"cx:2,90":["ATK X1E",""],"cx:2,99":["ATK A9",""],"cx:2,109":["ATK U2",""],"cx:2,77":["ATK X1 SE NK",""],"cx:2,57":["VXE R1 NK",""],"cx:2,67":["VXE R1 NK",""],"cx:2,73":["VXE V3 PRO NK",""],"cx:2,79":["ATK U2 NK",""],"cx:2,97":["ATK Y9 NK",""],"cx:2,94":["DRAGONFLY F1 V2 NK",""],"cx:2,107":["ATK A9 X",""],"cx:2,122":["VXE X3 Pro",""],"cx:2,123":["VXE X3 Turbo",""],"cx:2,68":["VXE R2",""],"cx:2,120":["ATK A9 NB",""],"cx:2,130":["VXE R1SE+ Silent",""],"cx:2,85":["ATK A9 Pro Max",""],"cx:2,100":["ATK U2 Pro Max",""],"cx:2,110":["DRAGONFLY F1 V2 PRO MAX",""],"cx:1,6":["ATK A9 Ultra Max 2.0",""],"cx:1,15":["ATK A9 Ultra Max 2.0 Tri-Mode",""],"cx:1,12":["ATK F1 Ultra Max 2.0",""],"cx:1,11":["ATK X1 Ultra Max 2.0",""],"cx:1,18":["ATK U2 Ultra Max 2.0",""],"cx:1,20":["VXE R1 Ultra",""],"cx:2,36":["ATK F1 PRO",""],"cx:2,37":["ATK F1 PRO MAX",""],"cx:2,38":["ATK X1 PRO",""],"cx:2,39":["ATK X1 PRO MAX",""],"cx:2,40":["ATK Z1 PRO",""],"cx:2,41":["ATK Z1 PRO MAX",""],"cx:2,64":["ATK U2 MINI",""],"cx:2,66":["ATK U2 Ultra",""],"cx:2,108":["ATK Y9 PRO MAX",""],"cx:2,47":["MAD R MAJOR",""],"cx:2,55":["MAD R MAJOR+",""],"cx:1,87":["ATK X1 Ultra Max 2.0",""],"cx:2,42":["ATK F1 Ultimate","u"],"cx:2,43":["ATK X1 Ultra","u"],"cx:2,44":["ATK FIERCE X","u"],"cx:2,45":["ATK F1 Ultra","u"],"cx:2,46":["ATK X1 Ultimate","u"],"cx:2,50":["ATK F1 EXTREME","u"],"cx:2,53":["ATK Z1 Ultra","u"],"cx:2,56":["ATK F1 LEVIATAN","u"],"cx:2,65":["ATK U2 Ultimate","u"],"cx:2,70":["ATK X1 EXTREME","u"],"cx:2,87":["ATK A9 Ultra","u"],"cx:2,115":["ATK A9 NB ULTRA","u"],"cx:1,3":["ATK A9 Ultimate","u"],"cx:1,21":["ATK A9 Air","u"],"cx:1,5":["ATK Y9 Ultimate","u"],"cx:1,8":["ATK F1 Ultimate 2.0","u"],"cx:1,10":["ATK X1 Ultimate 2.0","u"],"cx:1,2":["ATK Duckbill Ultra","u"],"cx:1,25":["ATK Duckbill EXTREME","u"],"cx:1,4":["ATK ZERO EX","u"],"cx:1,9":["ATK X1 EXTREME 2.0","u"],"cx:1,22":["ATK X1 EXTREME GT","u"],"cx:1,7":["ATK F1 EXTREME 2.0","u"],"cx:1,13":["ATK F1 LEVIATAN 2.0","u"],"cx:1,17":["ATK U2 Mini 2.0","u"],"cx:1,19":["ATK Z1 Ultimate 2.0","u"],"cx:1,16":["ATK U2 Ultimate 2.0","u"],"cx:1,23":["ATK Ghost EXTREME","u"],"cx:1,24":["ATK Ghost Ultimate","u"],"cx:1,26":["ATK ZERO","u"],"cx:1,27":["ATK A9 Mini","u"],"cx:1,30":["ATK X EXTREME","u"],"cx:1,32":["ATK X1 Ultra Max 2.0","u"],"cx:1,33":["ATK F1 Ultra Max 2.0","u"],"cx:1,37":["ATK A9 Ultra Max 2.0 Tri-Mode","u"],"cx:1,38":["ATK A9 Ultra Max 2.0","u"],"cx:2,124":["ATK U2 Plus NK","u"],"cx:2,127":["VXE R1","u"],"cx:2,125":["VXE R1 PRO","u"],"cx:2,126":["VXE R1 PRO MAX","u"],"cx:1,28":["ATK A9 Mini","u"],"cx:2,128":["ATK U2 Pro Max","u"],"cx:2,131":["Flow 7","u"],"cx:1,85":["ATK F1 V3 ULTIMATE","u"],"cx:2,133":["MAD R","u"],"cx:2,132":["ATK X1 S NK","u"],"cx:1,31":["ATK A9 Mini +","u"],"cx:1,52":["ATK A9 Mini +","u"],"cx:1,88":["ATK A9 Mini SPRIGATITO Edition","u"],"cx:1,47":["ATK ZERO EX +","u"],"cx:1,46":["ATK X1 Ultimate 2.0 +","u"],"cx:1,58":["ATK F1 V3 EXTREME +","u"],"cx:1,60":["ATK F1 V3 LEVIATAN +","u"],"cx:1,54":["ATK A9 Air +","u"],"cx:1,53":["ATK A9 Ultimate +","u"],"cx:1,51":["ATK U2 Mini 2.0 +","u"],"cx:1,50":["ATK U2 Ultimate 2.0 +","u"],"cx:1,55":["ATK PHANTOM ULTIMATE","u"],"cx:1,45":["ATK X1 EXTREME 2.0 +","u"],"cx:1,61":["ATK X1 Air +","u"],"cx:1,49":["ATK Ghost Ultimate +","u"],"cx:1,48":["ATK Ghost EXTREME +","u"],"cx:1,59":["ATK F1 Ultimate 2.0 +","u"],"cx:1,42":["ATK X1 Air +","u"],"cx:1,62":["ATK F1 V3 ULTIMATE +","u"],"cx:2,129":["ATK A9 NB ULTRA +","u"],"cx:1,66":["ATK Y9 Ultimate +","u"],"cx:1,67":["ATK Z1 Ultimate 2.0 +","u"],"cx:1,40":["ATK A9 Air +","u"],"cx:1,39":["ATK A9 Ultimate +","u"],"cx:1,63":["ATK F1 V3 ULTIMATE +","u"],"cx:1,64":["ATK F1 V3 ULTIMATE +","u"],"cx:1,90":["ATK F1 V3 PIKACHU Edition","u"],"cx:1,76":["ATK X1 Ultimate 2.0 Silent","u"],"cx:1,75":["ATK A9 Ultimate Silent","u"],"cx:1,77":["ATK ONE","u"],"cx:1,70":["ATK X1 Wireless Charging","u"],"cx:1,71":["ATK A9 Wireless Charging","u"],"bm:2,9":["VXE R1 S NK",""],"bm:2,2":["ATK A9 SE NK",""],"bm:2,5":["VXE V3 NK",""],"bm:2,19":["VXE R2 SE NK",""],"bm:2,21":["VXE V3 X",""],"bm:2,31":["VXE R1 S NK",""],"bm:2,28":["VXE R1N NK",""],"bm:2,32":["ATK A9 SE 3.0 NK",""],"bm:2,3":["ATK A9 NK",""],"bm:2,29":["ATK A9 3.0 NK",""],"bm:2,6":["VXE V3 PRO NK",""],"bm:2,30":["VXE V3 PRO NK",""],"bm:2,8":["VXE R1 NK",""],"bm:2,16":["ATK X1 SE Nearlink",""],"bm:2,33":["ATK X1 SE NK",""],"bm:2,22":["VXE R1 SE+",""],"bm:2,15":["VXE V3 PRO Max",""],"bm:2,7":["VXE V3 Plus",""],"bm:2,4":["ATK A9 Plus NK",""],"bm:2,1":["ATK A9 Pro Max 2.0 NK",""],"bm:2,27":["ATK A9 Pro Max 2.0 NK",""],"bm:2,26":["ATK A9 Plus NK",""],"bm:1,1":["ATK ZERO","u"],"bm:1,2":["ATK A9 Ultimate 3.0","u"],"bm:1,16":["ATK A9 Mini","u"],"bm:1,3":["ATK Ghost Ultimate","u"],"bm:2,13":["ATK A9 Plus NK","u"],"bm:2,14":["ATK A9 Pro Max 2.0 NK","u"],"bm:2,18":["VXE R2 ULTRA NK","u"],"bm:2,20":["ATK A9 NB ULTRA","u"],"bm:2,23":["VXE T1","u"],"bm:1,7":["ATK A9 Ultra Max 2.0 +","u"],"bm:2,25":["ATK U2 Plus NK","u"],"bm:1,19":["ATK F1 V3 Ultra Max","u"],"bm:2,17":["VXE R1 PRO MAX 2.0 NK","u"],"bm:1,22":["ATK A9 Ultimate","u"],"bm:2,34":["ATK A9 Plus 3.0 NK","u"],"bm:2,35":["ATK A9 Pro Max 3.0 NK","u"],"bm:2,36":["ATK X1 V3 PRO MAX","u"],"bm:1,25":["ATK X1 V3 ULTRA MAX","u"],"bm:1,8":["ATK ZERO +","u"],"bm:8,1":["ATK ZERO +","u"],"bm:1,9":["ATK A9 Ultimate +","u"],"bm:1,15":["ATK A9 Ultimate +","u"],"bm:1,6":["ATK A9 Air +","u"],"bm:1,10":["ATK PHANTOM ULTIMATE","u"],"bm:1,21":["ATK PHANTOM ULTIMATE","u"],"bm:1,12":["ATK X1 ULTIMATE 2.0+","u"],"bm:1,13":["ATK X1 Ultra Max 2.0 + Tri-Mode","u"],"bm:1,11":["ATK ENZO ULTIMATE","u"],"bm:1,20":["ATK ENZO ULTIMATE","u"],"bm:1,14":["ATK X1 Air+","u"],"bm:1,23":["ATK X1 V3 ULTIMATE+","u"],"bm:5,1":["VELOTA EVO","u"],"bm:5,2":["VELOTA EVO","u"],"bm:1,17":["ATK F1 V3 ULTIMATE+","u"],"bm:1,18":["ATK F1 V3 ULTIMATE+","u"],"bm:1,4":["ATK A9 Mini +","u"],"bm:1,24":["ATK ZERO PLUS GENGAR EDITION","u"],"bm:5,3":["ATK N1 Ultimate+","u"]}};
+const REGISTRY = {"pids":{"1084":["VXE R1S+","cxX"],"10e7":["VXE V3 NK","cxX"],"1135":["ATK A9 SE NK","cxX"],"1149":["ATK U2 SE NK","cxX"],"115d":["ATK Y9 SE NK","cxX"],"114c":["DRAGONFLY F1 V2 SE NK","cxX"],"121f":["VXE R1 S NK","cxX"],"123d":["VXE R2 SE","cxX"],"1248":["VXE X3","cxX"],"103f":["MAD R","cxB"],"104b":["MAD R +","cxB"],"113e":["ATK X1 Lite","cxB"],"1106":["ATK X1 S NK","cxB"],"1115":["ATK A9 Plus NK","cxB"],"110d":["ATK U2 Plus NK","cxB"],"115b":["ATK Y9 Plus NK","cxB"],"114a":["DRAGONFLY F1 V2 Plus NK","cxB"],"11d2":["VXE R1 UlTRA","cxB"],"123f":["VXE R2 PLUS","cxB"],"1240":["VXE R2 PRO MAX","cxB"],"1116":["ATK A9 NK","cxX"],"113f":["ATK X1E","cxX"],"1157":["ATK A9","cxX"],"11aa":["ATK U2","cxX"],"1107":["ATK X1 SE NK","cxX"],"1065":["VXE R1 NK","cxX"],"1066":["VXE R1 NK","cxX"],"10c7":["VXE R1 NK","cxX"],"10c8":["VXE R1 NK","cxX"],"10e8":["VXE V3 PRO NK","cxX"],"110e":["ATK U2 NK","cxX"],"115c":["ATK Y9 NK","cxX"],"114b":["DRAGONFLY F1 V2 NK","cxX"],"11a0":["ATK A9 X","cxX"],"1249":["VXE X3 Pro","cxX"],"124a":["VXE X3 Turbo","cxX"],"123e":["VXE R2","cxX"],"1245":["ATK A9 NB","cxX"],"12bf":["VXE R1SE+ Silent","cxX"],"1117":["ATK A9 Pro Max","cxB"],"1158":["ATK U2 Pro Max","cxB"],"11ab":["DRAGONFLY F1 V2 PRO MAX","cxB"],"11dd":["ATK A9 Ultra Max 2.0","cxB"],"11f2":["ATK A9 Ultra Max 2.0 Tri-Mode","cxB"],"11ed":["ATK F1 Ultra Max 2.0","cxB"],"11ec":["ATK X1 Ultra Max 2.0","cxB"],"11f7":["ATK U2 Ultra Max 2.0","cxB"],"11f9":["VXE R1 Ultra","cxB"],"1014":["ATK F1 PRO","cxB"],"1015":["ATK F1 PRO MAX","cxB"],"1016":["ATK X1 PRO","cxB"],"1017":["ATK X1 PRO MAX","cxB"],"1018":["ATK Z1 PRO","cxB"],"1019":["ATK Z1 PRO MAX","cxB"],"1086":["ATK U2 MINI","cxB"],"10ac":["ATK U2 Ultra","cxB"],"10fd":["ATK Y9 PRO MAX","cxB"],"103e":["MAD R MAJOR","cxB"],"104c":["MAD R MAJOR+","cxB"],"12ff":["ATK X1 Ultra Max 2.0","cxB"],"102e":["ATK F1 Ultimate","cxuA"],"102f":["ATK X1 Ultra","cxuA"],"1030":["ATK FIERCE X","cxuA"],"103c":["ATK F1 Ultra","cxuA"],"103d":["ATK X1 Ultimate","cxuA"],"1045":["ATK F1 EXTREME","cxuA"],"104a":["ATK Z1 Ultra","cxuA"],"105b":["ATK F1 LEVIATAN","cxuA"],"1087":["ATK U2 Ultimate","cxuA"],"10e9":["ATK X1 EXTREME","cxuA"],"1119":["ATK A9 Ultra","cxuA"],"11f3":["ATK A9 NB ULTRA","cxuA"],"11b6":["ATK A9 Ultimate","cxuA"],"120a":["ATK A9 Air","cxuA"],"11cf":["ATK Y9 Ultimate","cxuA"],"11e4":["ATK F1 Ultimate 2.0","cxuA"],"11e7":["ATK X1 Ultimate 2.0","cxuA"],"11a6":["ATK Duckbill Ultra","cxuA"],"1230":["ATK Duckbill EXTREME","cxuA"],"11cc":["ATK ZERO EX","cxuA"],"11e5":["ATK X1 EXTREME 2.0","cxuA"],"120b":["ATK X1 EXTREME GT","cxuA"],"11e3":["ATK F1 EXTREME 2.0","cxuA"],"11f0":["ATK F1 LEVIATAN 2.0","cxuA"],"11f6":["ATK U2 Mini 2.0","cxuA"],"1201":["ATK Z1 Ultimate 2.0","cxuA"],"11f5":["ATK U2 Ultimate 2.0","cxuA"],"120d":["ATK Ghost EXTREME","cxuA"],"120e":["ATK Ghost Ultimate","cxuA"],"124e":["ATK ZERO","cxuA"],"1256":["ATK A9 Mini","cxuA"],"1266":["ATK X EXTREME","cxuA"],"1274":["ATK X1 Ultra Max 2.0","cxuA"],"126e":["ATK F1 Ultra Max 2.0","cxuA"],"1270":["ATK A9 Ultra Max 2.0 Tri-Mode","cxuA"],"126f":["ATK A9 Ultra Max 2.0","cxuA"],"126c":["ATK U2 Plus NK","cxuA"],"1271":["VXE R1","cxuA"],"1272":["VXE R1 PRO","cxuA"],"1273":["VXE R1 PRO MAX","cxuA"],"125a":["ATK A9 Mini","cxuA"],"126d":["ATK U2 Pro Max","cxuA"],"12d7":["Flow 7","cxuA"],"12fa":["ATK F1 V3 ULTIMATE","cxuA"],"132b":["MAD R","cxuA"],"131a":["ATK X1 S NK","cxuA"],"1269":["ATK A9 Mini +","cxuM"],"128e":["ATK A9 Mini +","cxuM"],"1289":["ATK ZERO EX +","cxuM"],"1286":["ATK X1 Ultimate 2.0 +","cxuM"],"129b":["ATK F1 V3 EXTREME +","cxuM"],"129d":["ATK F1 V3 LEVIATAN +","cxuM"],"1293":["ATK A9 Air +","cxuM"],"1292":["ATK A9 Ultimate +","cxuM"],"128d":["ATK U2 Mini 2.0 +","cxuM"],"128c":["ATK U2 Ultimate 2.0 +","cxuM"],"1296":["ATK PHANTOM ULTIMATE","cxuM"],"1285":["ATK X1 EXTREME 2.0 +","cxuM"],"12a2":["ATK X1 Air +","cxuM"],"128b":["ATK Ghost Ultimate +","cxuM"],"128a":["ATK Ghost EXTREME +","cxuM"],"129c":["ATK F1 Ultimate 2.0 +","cxuM"],"127c":["ATK X1 Air +","cxuM"],"12a7":["ATK F1 V3 ULTIMATE +","cxuM"],"12ab":["ATK A9 NB ULTRA +","cxuM"],"12af":["ATK Y9 Ultimate +","cxuM"],"12b0":["ATK Z1 Ultimate 2.0 +","cxuM"],"127f":["ATK A9 Air +","cxuM"],"127e":["ATK A9 Ultimate +","cxuM"],"12a8":["ATK F1 V3 ULTIMATE +","cxuM"],"12a9":["ATK F1 V3 ULTIMATE +","cxuM"],"132a":["ATK F1 V3 PIKACHU Edition","cxuM"],"12b4":["ATK X1 Ultimate 2.0 Silent","cxuM"],"12b3":["ATK A9 Ultimate Silent","cxuM"],"12e4":["ATK ONE","cxuM"],"12c5":["ATK X1 Wireless Charging","cxuM"],"12c6":["ATK A9 Wireless Charging","cxuM"],"104d":["MAD 1K Dongle","cxr"],"1085":["Wireless mouse 1k dongle  ","cxr"],"1067":["R1 NK","cxX"],"1068":["R1 NK","cxX"],"1069":["R1 NK","cxX"],"106a":["R1 NK","cxX"],"10c9":["NK Mouse Dongle","cxX"],"10ca":["R1 NK","cxX"],"10cb":["R1 NK","cxX"],"10cc":["R1 NK","cxX"],"101a":["ATK Mouse 1K Dongle","cxr"],"101b":["ATK Mouse 8K Dongle","cxr"],"111a":["Wireless mouse -8K NANO dongle","cxr"],"111b":["Wireless mouse -8K NANO dongle","cxr"],"11a7":["ATK Mouse 8K Dongle","cxr"],"11a9":["Wireless mouse 4k dongle","cxr"],"1040":["MAD 8K Dongle","cxr"],"1031":["ATK 8K Dongle Light Version","cxr"],"1159":["ATK 8K Dongle Light Version","cxr"],"115e":["Wireless mouse 8k dongle","cxr"],"11c8":["Wireless mouse -8K TypeC dongle","cxr"],"11ce":["Wireless mouse-8K NANO dongle","cxr"],"11cd":["Wireless mouse -8K TypeC dongle","cxr"],"11d8":["Wireless mouse 8k dongle-H","cxr"],"11d9":["Wireless mouse 8k dongle-L","cxr"],"1278":["Wireless mouse 8k dongle-L","cxr"],"11fe":["Wireless mouse 8k NANO dongle-L","cxr"],"127a":["Wireless mouse 8k NANO dongle-L","cxr"],"11fd":["Wireless mouse 8k NANO dongle-L","cxr"],"1279":["Wireless mouse 8k NANO dongle-L","cxr"],"11f4":["Wireless mouse -8K TOWER dongle","cxr"],"1246":["Wireless mouse -1K TOWER dongle","cxr"],"12cc":["Wireless mouse 8k dongle-H","cxr"],"11b3":["Flow 7","cxr"],"12e9":["Wireless mouse 8k NANO dongle-M","cxr"],"1303":["Wireless mouse 8k dongle-M","cxr"],"12da":["ATK Wireless Charging dongle","cxr"],"124d":["VXE R1 S NK","bmX"],"1222":["ATK A9 SE NK","bmX"],"1213":["VXE V3 NK","bmX"],"12b1":["VXE R2 SE NK","bmX"],"12d2":["VXE V3 X","bmX"],"1310":["VXE R1 S NK","bmX"],"1311":["VXE R1N NK","bmX"],"130f":["ATK A9 SE 3.0 NK","bmX"],"1223":["ATK A9 NK","bmX"],"1305":["ATK A9 3.0 NK","bmX"],"1214":["VXE V3 PRO NK","bmX"],"1306":["VXE V3 PRO NK","bmX"],"124c":["VXE R1 NK","bmX"],"1299":["ATK X1 SE Nearlink","bmX"],"130e":["ATK X1 SE NK","bmX"],"12dc":["VXE R1 SE+","bmX"],"1319":["VXE R1 SE+","bmX"],"127b":["VXE V3 PRO Max","bmX"],"1215":["VXE V3 Plus","bmB"],"1224":["ATK A9 Plus NK","bmB"],"11db":["ATK A9 Pro Max 2.0 NK","bmB"],"1301":["ATK A9 Pro Max 2.0 NK","bmB"],"1300":["ATK A9 Plus NK","bmB"],"1154":["ATK ZERO","bmuA"],"1211":["ATK A9 Ultimate 3.0","bmuA"],"1268":["ATK A9 Mini","bmuA"],"123a":["ATK Ghost Ultimate","bmuA"],"1263":["ATK A9 Plus NK","bmuA"],"1264":["ATK A9 Pro Max 2.0 NK","bmuA"],"12a3":["VXE R2 ULTRA NK","bmuA"],"12d0":["ATK A9 NB ULTRA","bmuA"],"12e1":["VXE T1","bmuA"],"128f":["ATK A9 Ultra Max 2.0 +","bmuA"],"12e3":["ATK U2 Plus NK","bmuA"],"1307":["ATK F1 V3 Ultra Max","bmuA"],"129a":["VXE R1 PRO MAX 2.0 NK","bmuA"],"1314":["ATK A9 Ultimate","bmuA"],"1337":["ATK A9 Plus 3.0 NK","bmuA"],"1338":["ATK A9 Pro Max 3.0 NK","bmuA"],"133d":["ATK X1 V3 PRO MAX","bmuA"],"1326":["ATK X1 V3 ULTRA MAX","bmuA"],"129e":["ATK ZERO +","bmuM"],"1287":["ATK A9 Ultimate +","bmuM"],"12f1":["ATK A9 Ultimate +","bmuM"],"1288":["ATK A9 Air +","bmuM"],"12ce":["ATK PHANTOM ULTIMATE","bmuM"],"1312":["ATK PHANTOM ULTIMATE","bmuM"],"12d9":["ATK X1 ULTIMATE 2.0+","bmuM"],"12de":["ATK X1 Ultra Max 2.0 + Tri-Mode","bmuM"],"12d8":["ATK ENZO ULTIMATE","bmuM"],"130b":["ATK ENZO ULTIMATE","bmuM"],"12ec":["ATK X1 Air+","bmuM"],"1324":["ATK X1 V3 ULTIMATE+","bmuM"],"12db":["VELOTA EVO","bmuM"],"1333":["VELOTA EVO","bmuM"],"1304":["ATK F1 V3 ULTIMATE+","bmuM"],"1308":["ATK F1 V3 ULTIMATE+","bmuM"],"1251":["ATK A9 Mini +","bmuM"],"1331":["ATK ZERO PLUS GENGAR EDITION","bmuM"],"133c":["ATK N1 Ultimate+","bmuM"],"1155":["Wireless mouse 8k dongle-L1","bmr"],"11dc":["NK mouse 8K NANO dongle","bmr"],"1216":["NK mouse NANO dongle","bmr"],"124f":["Wireless mouse 8k dongle-L0","bmr"],"1290":["Wireless mouse 8k dongle-M1","bmr"],"1291":["Wireless mouse 8k NANO dongle-M1","bmr"],"12d1":["Wireless mouse -8K TOWER dongle","bmr"],"12cd":["Wireless mouse 8k NANO dongle-M1","bmr"],"1315":["Wireless mouse 8k NANO dongle-M1","bmr"],"12f5":["Wireless mouse 8k dongle-M1","bmr"],"12ea":["Wireless mouse 8k dongle-G","bmr"],"1332":["Wireless mouse 8k dongle-G","bmr"],"1302":["Wireless mouse 8k dongle-O","bmr"],"133e":["Wireless mouse 8k NANO dongle-A1","bmr"],"133f":["Wireless mouse -1k dongle","bmr"],"1346":["Wireless mouse 8k dongle-M1","bmr"],"1347":["Wireless mouse 8k NANO dongle-M1","bmr"]},"cid":{"cx:2,63":["VXE R1S+","X"],"cx:2,72":["VXE V3 NK","X"],"cx:2,88":["ATK A9 SE NK","X"],"cx:2,92":["ATK U2 SE NK","X"],"cx:2,98":["ATK Y9 SE NK","X"],"cx:2,95":["DRAGONFLY F1 V2 SE NK","X"],"cx:2,117":["VXE R1 S NK","X"],"cx:2,91":["VXE R2 SE","X"],"cx:2,121":["VXE X3","X"],"cx:2,49":["MAD R","B"],"cx:2,54":["MAD R +","B"],"cx:2,89":["ATK X1 Lite","B"],"cx:2,76":["ATK X1 S NK","B"],"cx:2,83":["ATK A9 Plus NK","B"],"cx:2,78":["ATK U2 Plus NK","B"],"cx:2,96":["ATK Y9 Plus NK","B"],"cx:2,93":["DRAGONFLY F1 V2 Plus NK","B"],"cx:2,114":["VXE R1 UlTRA","B"],"cx:2,101":["VXE R2 PLUS","B"],"cx:2,84":["ATK A9 NK","X"],"cx:2,90":["ATK X1E","X"],"cx:2,99":["ATK A9","X"],"cx:2,109":["ATK U2","X"],"cx:2,77":["ATK X1 SE NK","X"],"cx:2,57":["VXE R1 NK","X"],"cx:2,67":["VXE R1 NK","X"],"cx:2,73":["VXE V3 PRO NK","X"],"cx:2,79":["ATK U2 NK","X"],"cx:2,97":["ATK Y9 NK","X"],"cx:2,94":["DRAGONFLY F1 V2 NK","X"],"cx:2,107":["ATK A9 X","X"],"cx:2,122":["VXE X3 Pro","X"],"cx:2,123":["VXE X3 Turbo","X"],"cx:2,68":["VXE R2","X"],"cx:2,120":["ATK A9 NB","X"],"cx:2,130":["VXE R1SE+ Silent","X"],"cx:2,85":["ATK A9 Pro Max","B"],"cx:2,100":["ATK U2 Pro Max","B"],"cx:2,110":["DRAGONFLY F1 V2 PRO MAX","B"],"cx:1,6":["ATK A9 Ultra Max 2.0","B"],"cx:1,15":["ATK A9 Ultra Max 2.0 Tri-Mode","B"],"cx:1,12":["ATK F1 Ultra Max 2.0","B"],"cx:1,11":["ATK X1 Ultra Max 2.0","B"],"cx:1,18":["ATK U2 Ultra Max 2.0","B"],"cx:1,20":["VXE R1 Ultra","B"],"cx:2,36":["ATK F1 PRO","B"],"cx:2,37":["ATK F1 PRO MAX","B"],"cx:2,38":["ATK X1 PRO","B"],"cx:2,39":["ATK X1 PRO MAX","B"],"cx:2,40":["ATK Z1 PRO","B"],"cx:2,41":["ATK Z1 PRO MAX","B"],"cx:2,64":["ATK U2 MINI","B"],"cx:2,66":["ATK U2 Ultra","B"],"cx:2,108":["ATK Y9 PRO MAX","B"],"cx:2,47":["MAD R MAJOR","B"],"cx:2,55":["MAD R MAJOR+","B"],"cx:1,87":["ATK X1 Ultra Max 2.0","B"],"cx:2,42":["ATK F1 Ultimate","uA"],"cx:2,43":["ATK X1 Ultra","uA"],"cx:2,44":["ATK FIERCE X","uA"],"cx:2,45":["ATK F1 Ultra","uA"],"cx:2,46":["ATK X1 Ultimate","uA"],"cx:2,50":["ATK F1 EXTREME","uA"],"cx:2,53":["ATK Z1 Ultra","uA"],"cx:2,56":["ATK F1 LEVIATAN","uA"],"cx:2,65":["ATK U2 Ultimate","uA"],"cx:2,70":["ATK X1 EXTREME","uA"],"cx:2,87":["ATK A9 Ultra","uA"],"cx:2,115":["ATK A9 NB ULTRA","uA"],"cx:1,3":["ATK A9 Ultimate","uA"],"cx:1,21":["ATK A9 Air","uA"],"cx:1,5":["ATK Y9 Ultimate","uA"],"cx:1,8":["ATK F1 Ultimate 2.0","uA"],"cx:1,10":["ATK X1 Ultimate 2.0","uA"],"cx:1,2":["ATK Duckbill Ultra","uA"],"cx:1,25":["ATK Duckbill EXTREME","uA"],"cx:1,4":["ATK ZERO EX","uA"],"cx:1,9":["ATK X1 EXTREME 2.0","uA"],"cx:1,22":["ATK X1 EXTREME GT","uA"],"cx:1,7":["ATK F1 EXTREME 2.0","uA"],"cx:1,13":["ATK F1 LEVIATAN 2.0","uA"],"cx:1,17":["ATK U2 Mini 2.0","uA"],"cx:1,19":["ATK Z1 Ultimate 2.0","uA"],"cx:1,16":["ATK U2 Ultimate 2.0","uA"],"cx:1,23":["ATK Ghost EXTREME","uA"],"cx:1,24":["ATK Ghost Ultimate","uA"],"cx:1,26":["ATK ZERO","uA"],"cx:1,27":["ATK A9 Mini","uA"],"cx:1,30":["ATK X EXTREME","uA"],"cx:1,32":["ATK X1 Ultra Max 2.0","uA"],"cx:1,33":["ATK F1 Ultra Max 2.0","uA"],"cx:1,37":["ATK A9 Ultra Max 2.0 Tri-Mode","uA"],"cx:1,38":["ATK A9 Ultra Max 2.0","uA"],"cx:2,124":["ATK U2 Plus NK","uA"],"cx:2,127":["VXE R1","uA"],"cx:2,125":["VXE R1 PRO","uA"],"cx:2,126":["VXE R1 PRO MAX","uA"],"cx:1,28":["ATK A9 Mini","uA"],"cx:2,128":["ATK U2 Pro Max","uA"],"cx:2,131":["Flow 7","uA"],"cx:1,85":["ATK F1 V3 ULTIMATE","uA"],"cx:2,133":["MAD R","uA"],"cx:2,132":["ATK X1 S NK","uA"],"cx:1,31":["ATK A9 Mini +","uM"],"cx:1,52":["ATK A9 Mini +","uM"],"cx:1,88":["ATK A9 Mini SPRIGATITO Edition","uM"],"cx:1,47":["ATK ZERO EX +","uM"],"cx:1,46":["ATK X1 Ultimate 2.0 +","uM"],"cx:1,58":["ATK F1 V3 EXTREME +","uM"],"cx:1,60":["ATK F1 V3 LEVIATAN +","uM"],"cx:1,54":["ATK A9 Air +","uM"],"cx:1,53":["ATK A9 Ultimate +","uM"],"cx:1,51":["ATK U2 Mini 2.0 +","uM"],"cx:1,50":["ATK U2 Ultimate 2.0 +","uM"],"cx:1,55":["ATK PHANTOM ULTIMATE","uM"],"cx:1,45":["ATK X1 EXTREME 2.0 +","uM"],"cx:1,61":["ATK X1 Air +","uM"],"cx:1,49":["ATK Ghost Ultimate +","uM"],"cx:1,48":["ATK Ghost EXTREME +","uM"],"cx:1,59":["ATK F1 Ultimate 2.0 +","uM"],"cx:1,42":["ATK X1 Air +","uM"],"cx:1,62":["ATK F1 V3 ULTIMATE +","uM"],"cx:2,129":["ATK A9 NB ULTRA +","uM"],"cx:1,66":["ATK Y9 Ultimate +","uM"],"cx:1,67":["ATK Z1 Ultimate 2.0 +","uM"],"cx:1,40":["ATK A9 Air +","uM"],"cx:1,39":["ATK A9 Ultimate +","uM"],"cx:1,63":["ATK F1 V3 ULTIMATE +","uM"],"cx:1,64":["ATK F1 V3 ULTIMATE +","uM"],"cx:1,90":["ATK F1 V3 PIKACHU Edition","uM"],"cx:1,76":["ATK X1 Ultimate 2.0 Silent","uM"],"cx:1,75":["ATK A9 Ultimate Silent","uM"],"cx:1,77":["ATK ONE","uM"],"cx:1,70":["ATK X1 Wireless Charging","uM"],"cx:1,71":["ATK A9 Wireless Charging","uM"],"bm:2,9":["VXE R1 S NK","X"],"bm:2,2":["ATK A9 SE NK","X"],"bm:2,5":["VXE V3 NK","X"],"bm:2,19":["VXE R2 SE NK","X"],"bm:2,21":["VXE V3 X","X"],"bm:2,31":["VXE R1 S NK","X"],"bm:2,28":["VXE R1N NK","X"],"bm:2,32":["ATK A9 SE 3.0 NK","X"],"bm:2,3":["ATK A9 NK","X"],"bm:2,29":["ATK A9 3.0 NK","X"],"bm:2,6":["VXE V3 PRO NK","X"],"bm:2,30":["VXE V3 PRO NK","X"],"bm:2,8":["VXE R1 NK","X"],"bm:2,16":["ATK X1 SE Nearlink","X"],"bm:2,33":["ATK X1 SE NK","X"],"bm:2,22":["VXE R1 SE+","X"],"bm:2,15":["VXE V3 PRO Max","X"],"bm:2,7":["VXE V3 Plus","B"],"bm:2,4":["ATK A9 Plus NK","B"],"bm:2,1":["ATK A9 Pro Max 2.0 NK","B"],"bm:2,27":["ATK A9 Pro Max 2.0 NK","B"],"bm:2,26":["ATK A9 Plus NK","B"],"bm:1,1":["ATK ZERO","uA"],"bm:1,2":["ATK A9 Ultimate 3.0","uA"],"bm:1,16":["ATK A9 Mini","uA"],"bm:1,3":["ATK Ghost Ultimate","uA"],"bm:2,13":["ATK A9 Plus NK","uA"],"bm:2,14":["ATK A9 Pro Max 2.0 NK","uA"],"bm:2,18":["VXE R2 ULTRA NK","uA"],"bm:2,20":["ATK A9 NB ULTRA","uA"],"bm:2,23":["VXE T1","uA"],"bm:1,7":["ATK A9 Ultra Max 2.0 +","uA"],"bm:2,25":["ATK U2 Plus NK","uA"],"bm:1,19":["ATK F1 V3 Ultra Max","uA"],"bm:2,17":["VXE R1 PRO MAX 2.0 NK","uA"],"bm:1,22":["ATK A9 Ultimate","uA"],"bm:2,34":["ATK A9 Plus 3.0 NK","uA"],"bm:2,35":["ATK A9 Pro Max 3.0 NK","uA"],"bm:2,36":["ATK X1 V3 PRO MAX","uA"],"bm:1,25":["ATK X1 V3 ULTRA MAX","uA"],"bm:1,8":["ATK ZERO +","uM"],"bm:8,1":["ATK ZERO +","uM"],"bm:1,9":["ATK A9 Ultimate +","uM"],"bm:1,15":["ATK A9 Ultimate +","uM"],"bm:1,6":["ATK A9 Air +","uM"],"bm:1,10":["ATK PHANTOM ULTIMATE","uM"],"bm:1,21":["ATK PHANTOM ULTIMATE","uM"],"bm:1,12":["ATK X1 ULTIMATE 2.0+","uM"],"bm:1,13":["ATK X1 Ultra Max 2.0 + Tri-Mode","uM"],"bm:1,11":["ATK ENZO ULTIMATE","uM"],"bm:1,20":["ATK ENZO ULTIMATE","uM"],"bm:1,14":["ATK X1 Air+","uM"],"bm:1,23":["ATK X1 V3 ULTIMATE+","uM"],"bm:5,1":["VELOTA EVO","uM"],"bm:5,2":["VELOTA EVO","uM"],"bm:1,17":["ATK F1 V3 ULTIMATE+","uM"],"bm:1,18":["ATK F1 V3 ULTIMATE+","uM"],"bm:1,4":["ATK A9 Mini +","uM"],"bm:1,24":["ATK ZERO PLUS GENGAR EDITION","uM"],"bm:5,3":["ATK N1 Ultimate+","uM"]}};
 
 const VID = 0x373B;
 const $ = s => document.querySelector(s);
@@ -292,6 +293,11 @@ const codeToMm = code => (code + LOD_OFFSET) / 10;
 
 const DPIS = [800, 1600, 3200];
 const RATE_HZ = [125, 250, 500, 1000, 2000, 4000, 8000];
+/* Sensors outside the 3950-Ultra / 3955-Master pair expose three fixed
+   lift-off steps rather than the 0.7-1.7 mm range. The codes are not in
+   ascending order. */
+const LOD_LEVELS = [[3, '0.7 mm'], [1, '1 mm'], [2, '2 mm']];
+
 const DEBOUNCE = [[0, 'Off'], [1, '1 ms'], [2, '2 ms'], [4, '4 ms'],
                   [8, '8 ms'], [15, '15 ms'], [20, '20 ms']];
 const SLEEP = [[30, '30 sec'], [60, '1 min'], [120, '2 min'], [180, '3 min'],
@@ -377,12 +383,31 @@ const SENSORMODE = {0:'Auto',1:'Power saving',2:'High performance',
 
 class BitmouseDriver {
   static family = 'bm';
-  constructor(device){
+  constructor(device, isReceiver){
     this.device = device;
     this.t = new Transport(device, 8, 4);
     this.activeStage = 0;
+    /* The vendor sends target=1 only through a receiver; a mouse plugged in
+       by cable answers on target=0. Guessing wrong yields silence, so this is
+       a starting point that probe() corrects against the hardware. */
+    this.mouseTarget = isReceiver ? 1 : 0;
+    this.probed = false;
   }
-  pack(commandId, {paramLen=0, cmdLen=0, target=1, payload=[]} = {}){
+  /** Confirm which target byte this link answers on, once per session. */
+  async probe(){
+    if (this.probed) return;
+    for (const t of [this.mouseTarget, this.mouseTarget ^ 1]){
+      try {
+        await this.xfer(BM_CMD.GetCurrentMouseConfig,
+          {paramLen:19, cmdLen:17, target:t});
+        if (t !== this.mouseTarget)
+          log('', 'NOTE', `mouse answers on target=${t}, switching`);
+        this.mouseTarget = t; this.probed = true; return;
+      } catch {}
+    }
+    log('er', 'WARN', 'mouse answered on neither target — is it asleep?');
+  }
+  pack(commandId, {paramLen=0, cmdLen=0, target=this.mouseTarget, payload=[]} = {}){
     const b = new Uint8Array(63);
     b[1] = 0x72; b[2] = paramLen; b[3] = 0;
     b[4] = target; b[5] = commandId; b[6] = cmdLen;
@@ -403,6 +428,7 @@ class BitmouseDriver {
   async readState(){
     const s = { info: [] };
     const add = (k,v) => s.info.push([k,v]);
+    await this.probe();
 
     try { const v = await this.xfer(BM_CMD.GetDeviceType,{paramLen:2,cmdLen:1,target:0});
           s.conn = CONNTYPE[v.u8(0)]; add('Link', CONNDETAIL[v.u8(0)] ?? 'unknown'); } catch{}
@@ -441,23 +467,38 @@ class BitmouseDriver {
         const v = await this.addr(10*n + 1, 10);
         for (let i = 0; i < 10; i++) bytes.push(v.u8(3+i));
       }
+      log('', 'DPI ', hex(bytes.slice(0, 26)) + ' …');
       const d = new DataView(Uint8Array.from(bytes).buffer);
-      const cur = d.getUint8(0), count = d.getUint8(1);
-      if (count > 0 && cur < count){
-        this.activeStage = cur;
-        s.stages = Array.from({length:count}, (_,i) => ({
-          x: d.getUint16(2 + 8*i, true), y: d.getUint16(2 + 8*i + 2, true) }));
-        s.activeStage = cur;
-        s.dpi = s.stages[cur];
+      const cur = d.getUint8(0);
+      /* Trust the reported count only if it's sane; otherwise take every
+         stage that carries a non-zero DPI. Stage counts vary by model and a
+         cold-booted mouse can report 0 here. */
+      let count = d.getUint8(1);
+      if (!(count >= 1 && count <= 8)){
+        count = 0;
+        for (let i = 0; i < 8; i++) if (d.getUint16(2 + 8*i, true) > 0) count = i + 1;
+        if (count) log('', 'NOTE', `stage count read as ${d.getUint8(1)}, using ${count} non-empty stages`);
       }
-    } catch{}
+      if (count > 0){
+        const stages = Array.from({length:count}, (_,i) => ({
+          x: d.getUint16(2 + 8*i, true), y: d.getUint16(2 + 8*i + 2, true) }));
+        if (stages.some(v => v.x > 0)){
+          this.activeStage = cur < count ? cur : 0;
+          s.stages = stages;
+          s.activeStage = this.activeStage;
+          s.dpi = stages[this.activeStage];
+        }
+      }
+      if (!s.dpi) s.dpiNote = 'stage table empty';
+    } catch { s.dpiNote = 'stage table unreadable'; }
     return s;
   }
 
   setRate(hz){ return this.xfer(BM_CMD.SetReportRate,
     {paramLen:3, cmdLen:1, payload:[BM_RATE[hz]]}); }
-  setLod(mm){ return this.xfer(BM_CMD.SetSilentHeight,
-    {paramLen:4, cmdLen:2, payload:[0, mmToCode(mm) - 1]}); }
+  setLod(mm){ return this.setLodLevel(mmToCode(mm)); }
+  setLodLevel(code){ return this.xfer(BM_CMD.SetSilentHeight,
+    {paramLen:4, cmdLen:2, payload:[0, code - 1]}); }
   setDebounce(ms){ return this.xfer(BM_CMD.SetStabilizationTime,
     {paramLen:3, cmdLen:1, payload:[ms]}); }
   setSleep(sec){ return this.xfer(BM_CMD.SetSensorSleepTime,
@@ -488,8 +529,22 @@ const CX_RATE = { 1000:0x01, 500:0x02, 250:0x04, 125:0x08,
                   2000:0x10, 4000:0x20, 8000:0x40 };
 const CX_RATE_REV = Object.fromEntries(Object.entries(CX_RATE).map(([hz,v]) => [v, +hz]));
 
-/* PAW3950-Ultra axis packing: bit1 selects the 50-step range above 10k,
-   bit0 doubles above 30k, bits2-3 extend the value byte. */
+/* Two COMPX axis encodings share one bit layout but differ in value maths.
+   dpiEx: bits 2-3 extend x, bits 6-7 extend y; bit1/bit5 range, bit0/bit4 double.
+
+   Group A (PAW3950 Ultra): 10-DPI steps to 10k, then 50-DPI steps, doubling
+   above 30k — reaches 42,000.
+   Group B (PAW3950, PAW3950DM, PAW3395, PAW3395Ultra): flat 50-DPI steps,
+   switching to 100-DPI steps above 30k. No range bit. */
+function cxEncodeAxisB(dpi){
+  const doubled = dpi > 30000 ? 1 : 0;
+  const code = Math.round(dpi / (doubled ? 100 : 50)) - 1;
+  return { byte: code & 0xFF, nib: ((code >> 8) << 2) | doubled };
+}
+function cxDecodeAxisB(byte, nib){
+  const code = (((nib >> 2) & 3) << 8) | (byte & 0xFF);
+  return 50 * (code + 1) * ((nib & 1) ? 2 : 1);
+}
 function cxEncodeAxis(dpi){
   let v = dpi, doubled = 0;
   if (v > 30000){ doubled = 1; v = Math.round(v/2); }
@@ -502,13 +557,23 @@ function cxDecodeAxis(byte, nib){
   const base = (nib & 2) ? 10050 + c*50 : (c + 1)*10;
   return (nib & 1) ? base*2 : base;
 }
+/** Pick the axis codec for a sensor group. 'X' means we don't know it. */
+const CX_CODEC = {
+  A: { enc: cxEncodeAxis,  dec: cxDecodeAxis  },
+  B: { enc: cxEncodeAxisB, dec: cxDecodeAxisB },
+};
 
 class CompxDriver {
   static family = 'cx';
-  constructor(device, ultimate){
+  constructor(device, group){
     this.device = device;
     this.t = new Transport(device, 8, 0);
-    this.is3955 = !!ultimate;   // refined once the sensor is known
+    /* Sensor group drives the DPI format only. It is NOT the same test as
+       the lift-off "ultimate" test, which covers 3950 Ultra and 3955 Master
+       alike. 'M' keeps DPI in its own 6-byte rows; A/B use packed stages;
+       'X' is a sensor whose encoding we haven't mapped. */
+    this.group = group || 'A';
+    this.is3955 = this.group === 'M';
     this.activeStage = 0;
     this.rateBlock = null;      // cached 0x00 row, rewritten whole on change
     this.funcBlock = null;      // cached 0xA9 row, likewise
@@ -571,9 +636,15 @@ class CompxDriver {
     try { const v = await this.xfer(CX_CMD.GetFarDistanceMode);
           s.farDist = !!v.u8(0); } catch{}
 
-    try { s.stages = await this.readStages(s.stageCount ?? 4);
-          if (s.stages?.length) s.dpi = s.stages[Math.min(this.activeStage, s.stages.length-1)];
-    } catch{}
+    try {
+      const stages = await this.readStages(s.stageCount >= 1 && s.stageCount <= 8 ? s.stageCount : 4);
+      if (stages.some(v => v.x > 0)){
+        s.stages = stages;
+        s.dpi = stages[Math.min(this.activeStage, stages.length - 1)];
+      } else s.dpiNote = CX_CODEC[this.group]
+        ? 'stage table empty'
+        : 'DPI format not mapped for this sensor';
+    } catch { s.dpiNote = 'stage table unreadable'; }
     return s;
   }
 
@@ -589,14 +660,16 @@ class CompxDriver {
       }
       return out;
     }
-    /* classic: two 4-byte stages per row */
+    const codec = CX_CODEC[this.group];
+    if (!codec) return out;              // unmapped sensor — better blank than wrong
+    /* packed: two 4-byte stages per row */
     const rows = [CX_ADDR.dpi1, CX_ADDR.dpi3, CX_ADDR.dpi5, CX_ADDR.dpi7];
     for (const row of rows){
       const v = await this.read(row, 8);
       for (let half = 0; half < 2; half++){
         const o = 4*half;
-        out.push({ x: cxDecodeAxis(v.u8(o),   v.u8(o+2) & 0x0F),
-                   y: cxDecodeAxis(v.u8(o+1), (v.u8(o+2) >> 4) & 0x0F) });
+        out.push({ x: codec.dec(v.u8(o),   v.u8(o+2) & 0x0F),
+                   y: codec.dec(v.u8(o+1), (v.u8(o+2) >> 4) & 0x0F) });
       }
     }
     return out.slice(0, count);
@@ -610,6 +683,7 @@ class CompxDriver {
     this.rateBlock = b;
   }
   setLod(mm){ return this.write(CX_ADDR.silentHeight, CompxDriver.pair(mmToCode(mm))); }
+  setLodLevel(code){ return this.write(CX_ADDR.silentHeight, CompxDriver.pair(code)); }
 
   async patchFunc(index, value){
     const b = this.funcBlock ? [...this.funcBlock] : new Array(10).fill(0);
@@ -634,11 +708,13 @@ class CompxDriver {
       p.push((85 - (sum(p,0,5) & 0xFF)) & 0xFF);
       return this.write(CX_ADDR.paw3955Dpi + 6*i, p);
     }
-    /* classic rows hold two stages — read, patch one half, write back */
+    const codec = CX_CODEC[this.group];
+    if (!codec) throw new Error('DPI format unknown for this sensor');
+    /* packed rows hold two stages — read, patch one half, write back */
     const row = [CX_ADDR.dpi1, CX_ADDR.dpi3, CX_ADDR.dpi5, CX_ADDR.dpi7][i >> 1];
     const cur = await this.read(row, 8);
     const b = Array.from({length:8}, (_,k) => cur.u8(k));
-    const ex = cxEncodeAxis(v), ey = cxEncodeAxis(v);
+    const ex = codec.enc(v), ey = codec.enc(v);
     const o = 4 * (i & 1);
     const mode = ((ey.nib & 0x0F) << 4) | (ex.nib & 0x0F);
     b[o] = ex.byte; b[o+1] = ey.byte; b[o+2] = mode;
@@ -682,6 +758,15 @@ buildSeg('#segDebounce', DEBOUNCE, async (v,l) => {
   await drv.setDebounce(v); toast(`Click debounce set to ${l}`); });
 buildSeg('#segSleep', SLEEP, async (v,l) => {
   await drv.setSleep(v); toast(`Sleeps after ${l}`); });
+
+buildSeg('#segLod', LOD_LEVELS, async (code, label) => {
+  await drv.setLodLevel(code); toast(`Lift-off distance ${label}`); });
+
+/** Continuous mm slider for 3950 Ultra / 3955 Master, three steps otherwise. */
+function setLodMode(ultimate){
+  $('#lodSlider').classList.toggle('hidden', !ultimate);
+  $('#segLod').classList.toggle('hidden', ultimate);
+}
 
 let lodTimer = null;
 $('#lod').oninput = e => {
@@ -739,9 +824,11 @@ async function connect(){
   const family = page === 0xFF04 ? 'cx' : page === 0xFF05 ? 'bm'
                : flags.startsWith('cx') ? 'cx' : 'bm';
 
+  const group = (flags.match(/[ABMX]/) || ['A'])[0];
   drv = family === 'cx'
-    ? new CompxDriver(picked, flags.includes('u'))
-    : new BitmouseDriver(picked);
+    ? new CompxDriver(picked, group)
+    : new BitmouseDriver(picked, flags.includes('r'));
+  setLodMode(flags.includes('u') || flags.includes('r'));
 
   log('', 'DEV ', `${picked.productName} 0x${pidKey} page=0x${(page ?? 0).toString(16)} family=${family}`);
 
@@ -767,7 +854,12 @@ async function readAll(){
     const named = REGISTRY.cid[`${drv.constructor.family}:${s.cidMid}`];
     if (named){
       $('#devName').textContent = named[0];
-      if (drv instanceof CompxDriver) drv.is3955 = named[1] === 'u';
+      const g = (named[1].match(/[ABMX]/) || [])[0];
+      if (g && drv instanceof CompxDriver && g !== drv.group){
+        drv.group = g; drv.is3955 = g === 'M';
+        log('', 'NOTE', `sensor resolved from CID/MID, DPI group ${g}`);
+      }
+      setLodMode(named[1].includes('u'));
     }
     info.push(['CID,MID', s.cidMid]);
   }
@@ -785,6 +877,7 @@ async function readAll(){
   if (s.lodMm != null && s.lodMm >= 0.7 && s.lodMm <= 1.7){
     $('#lod').value = s.lodMm.toFixed(1);
     $('#lodOut').textContent = s.lodMm.toFixed(1) + ' mm';
+    mark('#segLod', mmToCode(s.lodMm));
     info.push(['Lift-off distance', s.lodMm.toFixed(1) + ' mm']);
   }
   if (s.debounceMs != null) mark('#segDebounce', s.debounceMs);
@@ -798,11 +891,17 @@ async function readAll(){
     $('#sDpi').textContent = s.dpi.x === s.dpi.y ? s.dpi.x : `${s.dpi.x}×${s.dpi.y}`;
     mark('#segDpi', s.dpi.x);
   }
+  if (s.dpiNote && !s.dpi){
+    $('#sDpi').textContent = '—';
+    info.push(['Sensitivity', s.dpiNote + ' — see activity log']);
+  }
   if (s.stages?.length){
     info.push(['DPI stage', `${(s.activeStage ?? 0) + 1} of ${s.stages.length}`]);
     info.push(['All stages', s.stages.map(v => v.x).join(' · ')]);
   }
-  info.push(['Protocol', drv instanceof CompxDriver ? 'COMPX (0xFF04)' : 'BITMOUSE (0xFF05)']);
+  info.push(['Protocol', drv instanceof CompxDriver
+    ? `COMPX (0xFF04), DPI group ${drv.group}`
+    : `BITMOUSE (0xFF05), target ${drv.mouseTarget}`]);
 
   if (s.stale) toast('Mouse didn’t answer — move it to wake it', 1);
 
