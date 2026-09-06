@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATK Mouse Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1013; --card:#161b21; --card2:#1c222a; --line:#262f39;
+    --ink:#eef3f8; --dim:#94a3b1; --dimmer:#64717e;
+    --acc:#3ddc84; --warn:#f5c451; --bad:#f87171;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:40px 22px 90px}
+
+  /* ── header ───────────────────────────────────────── */
+  header{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+  .logo{width:42px;height:42px;border-radius:11px;flex:0 0 auto;
+    background:linear-gradient(145deg,#232c36,#151a20);border:1px solid var(--line);
+    display:grid;place-items:center;font-size:19px}
+  h1{margin:0;font-size:21px;font-weight:650;letter-spacing:-.02em}
+  .status{color:var(--dim);font-size:13.5px;margin-top:1px}
+  .status b{color:var(--acc);font-weight:500}
+  .status.off b{color:var(--dimmer)}
+
+  .btn{font:600 14px/1 Inter,sans-serif;padding:12px 20px;border-radius:9px;
+    border:1px solid transparent;background:#3ddc84;color:#06210f;cursor:pointer;
+    transition:filter .12s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink);
+    font-weight:500;padding:9px 15px;font-size:13px}
+  .btn.ghost:hover{background:var(--card2);filter:none}
+  .btn.quiet{background:transparent;border-color:#4a2a2a;color:#ffbdbd;
+    font-weight:500;padding:9px 15px;font-size:13px}
+  .btn.quiet:hover{background:#2a1717;filter:none}
+
+  /* ── intro / empty state ──────────────────────────── */
+  .hero{margin-top:34px;padding:44px 30px;text-align:center;
+    background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .hero h2{margin:0 0 8px;font-size:18px;font-weight:600}
+  .hero p{margin:0 auto 22px;max-width:400px;color:var(--dim);font-size:14px}
+
+  /* ── overview strip ───────────────────────────────── */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+  .stat .k{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--dimmer)}
+  .stat .v{font-size:17px;font-weight:600;margin-top:3px}
+  .bar{height:5px;border-radius:3px;background:#242c35;margin-top:9px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--acc);border-radius:3px;transition:width .3s}
+
+  /* ── settings ─────────────────────────────────────── */
+  main{margin-top:12px}
+  .group{margin-top:26px}
+  .group>h3{margin:0 0 11px;font-size:12px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--dimmer)}
+  .item{background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:17px 19px;margin-bottom:10px}
+  .item .t{font-size:15px;font-weight:600}
+  .item .d{font-size:13px;color:var(--dim);margin-top:3px}
+  .item.row{display:flex;align-items:center;gap:16px}
+  .item.row>div{flex:1;min-width:0}
+
+  .seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:13px;padding:4px;
+    background:#0f1418;border:1px solid var(--line);border-radius:9px}
+  .seg button{flex:1 1 auto;min-width:62px;font:500 13.5px/1 Inter,sans-serif;
+    padding:10px 8px;border:0;border-radius:6px;background:transparent;
+    color:var(--dim);cursor:pointer;transition:background .12s,color .12s}
+  .seg button:hover{background:#1a2128;color:var(--ink)}
+  .seg button[aria-pressed=true]{background:var(--ink);color:#0d1013;font-weight:600}
+  .seg.busy{opacity:.5;pointer-events:none}
+
+  .slider{display:flex;align-items:center;gap:16px;margin-top:15px}
+  .slider input[type=range]{appearance:none;flex:1;height:6px;border-radius:4px;
+    background:#2c353f;outline:none;cursor:pointer}
+  .slider input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;
+    border-radius:50%;background:var(--ink);border:3px solid #0d1013;
+    box-shadow:0 0 0 1px var(--line);cursor:grab}
+  .slider input[type=range]::-webkit-slider-thumb:active{cursor:grabbing}
+  .slider input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+    background:var(--ink);border:3px solid #0d1013;cursor:grab}
+  .slider output{flex:0 0 auto;min-width:86px;text-align:center;
+    font-family:var(--mono);font-size:14px;font-weight:500;padding:9px 12px;
+    background:#0f1418;border:1px solid var(--line);border-radius:8px}
+
+  .sw{appearance:none;flex:0 0 auto;width:48px;height:27px;border-radius:20px;
+    background:#2c353f;border:1px solid var(--line);position:relative;cursor:pointer;
+    transition:background .15s,border-color .15s}
+  .sw::after{content:'';position:absolute;top:2px;left:2px;width:21px;height:21px;
+    border-radius:50%;background:#93a1ae;transition:transform .17s,background .17s}
+  .sw:checked{background:#1d7a48;border-color:#2fa563}
+  .sw:checked::after{transform:translateX(21px);background:#f0fff7}
+
+  /* ── advanced ─────────────────────────────────────── */
+  details{margin-top:30px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+  summary{padding:15px 19px;cursor:pointer;font-size:13.5px;color:var(--dim);
+    list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'▾';color:var(--dimmer);transition:transform .15s}
+  details[open] summary::after{transform:rotate(180deg)}
+  .adv{padding:0 19px 19px;border-top:1px solid var(--line);margin-top:-1px;padding-top:16px}
+  .kv{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+  .kv td{padding:5px 0}
+  .kv td:first-child{color:var(--dim)}
+  .kv td:last-child{text-align:right}
+  #log{font-family:var(--mono);font-size:11px;line-height:1.6;background:#080b0e;
+    border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin-top:14px;
+    height:190px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--dimmer)}
+  #log .tx{color:#7dabdd} #log .rx{color:#5fbe88} #log .er{color:var(--bad)}
+
+  /* ── toast ────────────────────────────────────────── */
+  #toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);
+    background:#eef3f8;color:#0d1013;font-size:13.5px;font-weight:600;
+    padding:11px 20px;border-radius:24px;opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:9}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #toast.bad{background:#f87171;color:#2b0808}
+
+  .hidden{display:none !important}
+  .foot{margin-top:26px;color:var(--dimmer);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">🖱</div>
+  <div style="flex:1;min-width:0">
+    <h1 id="devName">ATK Mouse</h1>
+    <div class="status off" id="status">Not connected</div>
+  </div>
+  <button class="btn" id="connect">Connect</button>
+</header>
+
+<div class="hero" id="hero">
+  <h2>Plug in your dongle, then connect</h2>
+  <p>Close the ATK HUB first if it's running — only one program can talk to the
+     mouse at a time. Works in Chrome, Edge and Opera.</p>
+  <button class="btn" id="connect2">Connect mouse</button>
+</div>
+
+<div id="app" class="hidden">
+
+  <div class="strip">
+    <div class="stat"><div class="k">Battery</div><div class="v" id="sBatt">—</div>
+      <div class="bar"><i id="sBattBar" style="width:0"></i></div></div>
+    <div class="stat"><div class="k">Connection</div><div class="v" id="sConn">—</div></div>
+    <div class="stat"><div class="k">Sensitivity</div><div class="v" id="sDpi">—</div></div>
+  </div>
+
+  <main>
+
+    <div class="group">
+      <h3>Basics</h3>
+
+      <div class="item">
+        <div class="t">Sensitivity</div>
+        <div class="d">How far the pointer travels when you move the mouse.</div>
+        <div class="seg" id="segDpi"></div>
+      </div>
+
+      <div class="item">
+        <div class="t">Polling rate</div>
+        <div class="d">How often the mouse reports its position. Higher feels smoother
+          and uses more battery.</div>
+        <div class="seg" id="segRate"></div>
+      </div>
+
+      <div class="item">
+        <div class="t">Lift-off distance</div>
+        <div class="d">Maximum working distance from the bottom of the mouse to the
+          surface. Lower suits low-sensitivity players who reposition often.</div>
+        <div class="slider">
+          <input type="range" id="lod" min="0.7" max="1.7" step="0.1" value="0.7">
+          <output id="lodOut">0.7 mm</output>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Tracking</h3>
+
+      <div class="item row">
+        <div>
+          <div class="t">Movement smoothing</div>
+          <div class="d">Cleans up your cursor path for steadier aim, at the cost of
+            a tiny bit of latency.</div>
+        </div>
+        <input type="checkbox" class="sw" id="movesync">
+      </div>
+
+      <div class="item row">
+        <div>
+          <div class="t">Straight line correction</div>
+          <div class="d">Forces perfectly straight strokes. Handy for drawing,
+            distracting for games.</div>
+        </div>
+        <input type="checkbox" class="sw" id="linecorr">
+      </div>
+
+      <div class="item row">
+        <div>
+          <div class="t">Ripple correction</div>
+          <div class="d">Smooths out wobble during fast flicks.</div>
+        </div>
+        <input type="checkbox" class="sw" id="ripple">
+      </div>
+
+      <div class="item row">
+        <div>
+          <div class="t">Long range mode</div>
+          <div class="d">Stronger wireless signal at a distance. Uses noticeably
+            more battery.</div>
+        </div>
+        <input type="checkbox" class="sw" id="fardist">
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Buttons &amp; power</h3>
+
+      <div class="item">
+        <div class="t">Click debounce</div>
+        <div class="d">Ignores repeat clicks for this long. Raise it only if a
+          worn switch starts double-clicking.</div>
+        <div class="seg" id="segDebounce"></div>
+      </div>
+
+      <div class="item">
+        <div class="t">Sleep after</div>
+        <div class="d">Idle time before the mouse naps to save battery.
+          It wakes the moment you move it.</div>
+        <div class="seg" id="segSleep"></div>
+      </div>
+    </div>
+
+    <details>
+      <summary>Device info and troubleshooting</summary>
+      <div class="adv">
+        <table class="kv" id="kv"></table>
+        <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+          <button class="btn ghost" id="refresh">Refresh</button>
+          <button class="btn ghost" id="togglelog">Show activity log</button>
+          <button class="btn quiet" id="factory">Reset mouse to factory settings</button>
+        </div>
+        <div id="log" class="hidden"></div>
+      </div>
+    </details>
+
+    <p class="foot">Changes save to the mouse immediately and survive unplugging.</p>
+  </main>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ────────────────────────────────────────────────────────────────────
+   ATK mouse control — supports both vendor protocol families.
+
+   BITMOUSE  (vendor interface 0xFF05 / usage 1)
+     63-byte OUTPUT report on ID 8. Replies arrive as input reports.
+       0 checksum(sum 1..62) · 1 cmdCode 0x72 · 2 paramLen · 3 seq
+       4 target(0 dongle,1 mouse) · 5 commandId · 6 cmdLen · 7+ payload
+     Input reports omit the checksum byte, so we prepend one to realign.
+
+   COMPX     (vendor interface 0xFF04 / usage 2)
+     16-byte OUTPUT report on ID 8. Replies arrive as input reports.
+       0 commandId · 1 status · 2-3 eepromAddress(BIG endian)
+       4 dataValidLen · 5..14 payload · 15 checksum
+     checksum = 85 − (sum([8, bytes 0..14]) & 0xFF); note the report ID
+     is folded into the sum even though it isn't in the buffer.
+     Nearly every stored value is followed by its own 85−value inverse.
+──────────────────────────────────────────────────────────────────── */
+
+const REGISTRY = {"pids":{"1084":["VXE R1S+","cx"],"10e7":["VXE V3 NK","cx"],"1135":["ATK A9 SE NK","cx"],"1149":["ATK U2 SE NK","cx"],"115d":["ATK Y9 SE NK","cx"],"114c":["DRAGONFLY F1 V2 SE NK","cx"],"121f":["VXE R1 S NK","cx"],"123d":["VXE R2 SE","cx"],"1248":["VXE X3","cx"],"103f":["MAD R","cx"],"104b":["MAD R +","cx"],"113e":["ATK X1 Lite","cx"],"1106":["ATK X1 S NK","cx"],"1115":["ATK A9 Plus NK","cx"],"110d":["ATK U2 Plus NK","cx"],"115b":["ATK Y9 Plus NK","cx"],"114a":["DRAGONFLY F1 V2 Plus NK","cx"],"11d2":["VXE R1 UlTRA","cx"],"123f":["VXE R2 PLUS","cx"],"1240":["VXE R2 PRO MAX","cx"],"1116":["ATK A9 NK","cx"],"113f":["ATK X1E","cx"],"1157":["ATK A9","cx"],"11aa":["ATK U2","cx"],"1107":["ATK X1 SE NK","cx"],"1065":["VXE R1 NK","cx"],"1066":["VXE R1 NK","cx"],"10c7":["VXE R1 NK","cx"],"10c8":["VXE R1 NK","cx"],"10e8":["VXE V3 PRO NK","cx"],"110e":["ATK U2 NK","cx"],"115c":["ATK Y9 NK","cx"],"114b":["DRAGONFLY F1 V2 NK","cx"],"11a0":["ATK A9 X","cx"],"1249":["VXE X3 Pro","cx"],"124a":["VXE X3 Turbo","cx"],"123e":["VXE R2","cx"],"1245":["ATK A9 NB","cx"],"12bf":["VXE R1SE+ Silent","cx"],"1117":["ATK A9 Pro Max","cx"],"1158":["ATK U2 Pro Max","cx"],"11ab":["DRAGONFLY F1 V2 PRO MAX","cx"],"11dd":["ATK A9 Ultra Max 2.0","cx"],"11f2":["ATK A9 Ultra Max 2.0 Tri-Mode","cx"],"11ed":["ATK F1 Ultra Max 2.0","cx"],"11ec":["ATK X1 Ultra Max 2.0","cx"],"11f7":["ATK U2 Ultra Max 2.0","cx"],"11f9":["VXE R1 Ultra","cx"],"1014":["ATK F1 PRO","cx"],"1015":["ATK F1 PRO MAX","cx"],"1016":["ATK X1 PRO","cx"],"1017":["ATK X1 PRO MAX","cx"],"1018":["ATK Z1 PRO","cx"],"1019":["ATK Z1 PRO MAX","cx"],"1086":["ATK U2 MINI","cx"],"10ac":["ATK U2 Ultra","cx"],"10fd":["ATK Y9 PRO MAX","cx"],"103e":["MAD R MAJOR","cx"],"104c":["MAD R MAJOR+","cx"],"12ff":["ATK X1 Ultra Max 2.0","cx"],"102e":["ATK F1 Ultimate","cxu"],"102f":["ATK X1 Ultra","cxu"],"1030":["ATK FIERCE X","cxu"],"103c":["ATK F1 Ultra","cxu"],"103d":["ATK X1 Ultimate","cxu"],"1045":["ATK F1 EXTREME","cxu"],"104a":["ATK Z1 Ultra","cxu"],"105b":["ATK F1 LEVIATAN","cxu"],"1087":["ATK U2 Ultimate","cxu"],"10e9":["ATK X1 EXTREME","cxu"],"1119":["ATK A9 Ultra","cxu"],"11f3":["ATK A9 NB ULTRA","cxu"],"11b6":["ATK A9 Ultimate","cxu"],"120a":["ATK A9 Air","cxu"],"11cf":["ATK Y9 Ultimate","cxu"],"11e4":["ATK F1 Ultimate 2.0","cxu"],"11e7":["ATK X1 Ultimate 2.0","cxu"],"11a6":["ATK Duckbill Ultra","cxu"],"1230":["ATK Duckbill EXTREME","cxu"],"11cc":["ATK ZERO EX","cxu"],"11e5":["ATK X1 EXTREME 2.0","cxu"],"120b":["ATK X1 EXTREME GT","cxu"],"11e3":["ATK F1 EXTREME 2.0","cxu"],"11f0":["ATK F1 LEVIATAN 2.0","cxu"],"11f6":["ATK U2 Mini 2.0","cxu"],"1201":["ATK Z1 Ultimate 2.0","cxu"],"11f5":["ATK U2 Ultimate 2.0","cxu"],"120d":["ATK Ghost EXTREME","cxu"],"120e":["ATK Ghost Ultimate","cxu"],"124e":["ATK ZERO","cxu"],"1256":["ATK A9 Mini","cxu"],"1266":["ATK X EXTREME","cxu"],"1274":["ATK X1 Ultra Max 2.0","cxu"],"126e":["ATK F1 Ultra Max 2.0","cxu"],"1270":["ATK A9 Ultra Max 2.0 Tri-Mode","cxu"],"126f":["ATK A9 Ultra Max 2.0","cxu"],"126c":["ATK U2 Plus NK","cxu"],"1271":["VXE R1","cxu"],"1272":["VXE R1 PRO","cxu"],"1273":["VXE R1 PRO MAX","cxu"],"125a":["ATK A9 Mini","cxu"],"126d":["ATK U2 Pro Max","cxu"],"12d7":["Flow 7","cxu"],"12fa":["ATK F1 V3 ULTIMATE","cxu"],"132b":["MAD R","cxu"],"131a":["ATK X1 S NK","cxu"],"1269":["ATK A9 Mini +","cxu"],"128e":["ATK A9 Mini +","cxu"],"1289":["ATK ZERO EX +","cxu"],"1286":["ATK X1 Ultimate 2.0 +","cxu"],"129b":["ATK F1 V3 EXTREME +","cxu"],"129d":["ATK F1 V3 LEVIATAN +","cxu"],"1293":["ATK A9 Air +","cxu"],"1292":["ATK A9 Ultimate +","cxu"],"128d":["ATK U2 Mini 2.0 +","cxu"],"128c":["ATK U2 Ultimate 2.0 +","cxu"],"1296":["ATK PHANTOM ULTIMATE","cxu"],"1285":["ATK X1 EXTREME 2.0 +","cxu"],"12a2":["ATK X1 Air +","cxu"],"128b":["ATK Ghost Ultimate +","cxu"],"128a":["ATK Ghost EXTREME +","cxu"],"129c":["ATK F1 Ultimate 2.0 +","cxu"],"127c":["ATK X1 Air +","cxu"],"12a7":["ATK F1 V3 ULTIMATE +","cxu"],"12ab":["ATK A9 NB ULTRA +","cxu"],"12af":["ATK Y9 Ultimate +","cxu"],"12b0":["ATK Z1 Ultimate 2.0 +","cxu"],"127f":["ATK A9 Air +","cxu"],"127e":["ATK A9 Ultimate +","cxu"],"12a8":["ATK F1 V3 ULTIMATE +","cxu"],"12a9":["ATK F1 V3 ULTIMATE +","cxu"],"132a":["ATK F1 V3 PIKACHU Edition","cxu"],"12b4":["ATK X1 Ultimate 2.0 Silent","cxu"],"12b3":["ATK A9 Ultimate Silent","cxu"],"12e4":["ATK ONE","cxu"],"12c5":["ATK X1 Wireless Charging","cxu"],"12c6":["ATK A9 Wireless Charging","cxu"],"104d":["MAD 1K Dongle","cxr"],"1085":["Wireless mouse 1k dongle  ","cxr"],"1067":["R1 NK","cx"],"1068":["R1 NK","cx"],"1069":["R1 NK","cx"],"106a":["R1 NK","cx"],"10c9":["NK Mouse Dongle","cx"],"10ca":["R1 NK","cx"],"10cb":["R1 NK","cx"],"10cc":["R1 NK","cx"],"101a":["ATK Mouse 1K Dongle","cxr"],"101b":["ATK Mouse 8K Dongle","cxr"],"111a":["Wireless mouse -8K NANO dongle","cxr"],"111b":["Wireless mouse -8K NANO dongle","cxr"],"11a7":["ATK Mouse 8K Dongle","cxr"],"11a9":["Wireless mouse 4k dongle","cxr"],"1040":["MAD 8K Dongle","cxr"],"1031":["ATK 8K Dongle Light Version","cxr"],"1159":["ATK 8K Dongle Light Version","cxr"],"115e":["Wireless mouse 8k dongle","cxr"],"11c8":["Wireless mouse -8K TypeC dongle","cxr"],"11ce":["Wireless mouse-8K NANO dongle","cxr"],"11cd":["Wireless mouse -8K TypeC dongle","cxr"],"11d8":["Wireless mouse 8k dongle-H","cxr"],"11d9":["Wireless mouse 8k dongle-L","cxr"],"1278":["Wireless mouse 8k dongle-L","cxr"],"11fe":["Wireless mouse 8k NANO dongle-L","cxr"],"127a":["Wireless mouse 8k NANO dongle-L","cxr"],"11fd":["Wireless mouse 8k NANO dongle-L","cxr"],"1279":["Wireless mouse 8k NANO dongle-L","cxr"],"11f4":["Wireless mouse -8K TOWER dongle","cxr"],"1246":["Wireless mouse -1K TOWER dongle","cxr"],"12cc":["Wireless mouse 8k dongle-H","cxr"],"11b3":["Flow 7","cxr"],"12e9":["Wireless mouse 8k NANO dongle-M","cxr"],"1303":["Wireless mouse 8k dongle-M","cxr"],"12da":["ATK Wireless Charging dongle","cxr"],"124d":["VXE R1 S NK","bm"],"1222":["ATK A9 SE NK","bm"],"1213":["VXE V3 NK","bm"],"12b1":["VXE R2 SE NK","bm"],"12d2":["VXE V3 X","bm"],"1310":["VXE R1 S NK","bm"],"1311":["VXE R1N NK","bm"],"130f":["ATK A9 SE 3.0 NK","bm"],"1223":["ATK A9 NK","bm"],"1305":["ATK A9 3.0 NK","bm"],"1214":["VXE V3 PRO NK","bm"],"1306":["VXE V3 PRO NK","bm"],"124c":["VXE R1 NK","bm"],"1299":["ATK X1 SE Nearlink","bm"],"130e":["ATK X1 SE NK","bm"],"12dc":["VXE R1 SE+","bm"],"1319":["VXE R1 SE+","bm"],"127b":["VXE V3 PRO Max","bm"],"1215":["VXE V3 Plus","bm"],"1224":["ATK A9 Plus NK","bm"],"11db":["ATK A9 Pro Max 2.0 NK","bm"],"1301":["ATK A9 Pro Max 2.0 NK","bm"],"1300":["ATK A9 Plus NK","bm"],"1154":["ATK ZERO","bmu"],"1211":["ATK A9 Ultimate 3.0","bmu"],"1268":["ATK A9 Mini","bmu"],"123a":["ATK Ghost Ultimate","bmu"],"1263":["ATK A9 Plus NK","bmu"],"1264":["ATK A9 Pro Max 2.0 NK","bmu"],"12a3":["VXE R2 ULTRA NK","bmu"],"12d0":["ATK A9 NB ULTRA","bmu"],"12e1":["VXE T1","bmu"],"128f":["ATK A9 Ultra Max 2.0 +","bmu"],"12e3":["ATK U2 Plus NK","bmu"],"1307":["ATK F1 V3 Ultra Max","bmu"],"129a":["VXE R1 PRO MAX 2.0 NK","bmu"],"1314":["ATK A9 Ultimate","bmu"],"1337":["ATK A9 Plus 3.0 NK","bmu"],"1338":["ATK A9 Pro Max 3.0 NK","bmu"],"133d":["ATK X1 V3 PRO MAX","bmu"],"1326":["ATK X1 V3 ULTRA MAX","bmu"],"129e":["ATK ZERO +","bmu"],"1287":["ATK A9 Ultimate +","bmu"],"12f1":["ATK A9 Ultimate +","bmu"],"1288":["ATK A9 Air +","bmu"],"12ce":["ATK PHANTOM ULTIMATE","bmu"],"1312":["ATK PHANTOM ULTIMATE","bmu"],"12d9":["ATK X1 ULTIMATE 2.0+","bmu"],"12de":["ATK X1 Ultra Max 2.0 + Tri-Mode","bmu"],"12d8":["ATK ENZO ULTIMATE","bmu"],"130b":["ATK ENZO ULTIMATE","bmu"],"12ec":["ATK X1 Air+","bmu"],"1324":["ATK X1 V3 ULTIMATE+","bmu"],"12db":["VELOTA EVO","bmu"],"1333":["VELOTA EVO","bmu"],"1304":["ATK F1 V3 ULTIMATE+","bmu"],"1308":["ATK F1 V3 ULTIMATE+","bmu"],"1251":["ATK A9 Mini +","bmu"],"1331":["ATK ZERO PLUS GENGAR EDITION","bmu"],"133c":["ATK N1 Ultimate+","bmu"],"1155":["Wireless mouse 8k dongle-L1","bmr"],"11dc":["NK mouse 8K NANO dongle","bmr"],"1216":["NK mouse NANO dongle","bmr"],"124f":["Wireless mouse 8k dongle-L0","bmr"],"1290":["Wireless mouse 8k dongle-M1","bmr"],"1291":["Wireless mouse 8k NANO dongle-M1","bmr"],"12d1":["Wireless mouse -8K TOWER dongle","bmr"],"12cd":["Wireless mouse 8k NANO dongle-M1","bmr"],"1315":["Wireless mouse 8k NANO dongle-M1","bmr"],"12f5":["Wireless mouse 8k dongle-M1","bmr"],"12ea":["Wireless mouse 8k dongle-G","bmr"],"1332":["Wireless mouse 8k dongle-G","bmr"],"1302":["Wireless mouse 8k dongle-O","bmr"],"133e":["Wireless mouse 8k NANO dongle-A1","bmr"],"133f":["Wireless mouse -1k dongle","bmr"],"1346":["Wireless mouse 8k dongle-M1","bmr"],"1347":["Wireless mouse 8k NANO dongle-M1","bmr"]},"cid":{"cx:2,63":["VXE R1S+",""],"cx:2,72":["VXE V3 NK",""],"cx:2,88":["ATK A9 SE NK",""],"cx:2,92":["ATK U2 SE NK",""],"cx:2,98":["ATK Y9 SE NK",""],"cx:2,95":["DRAGONFLY F1 V2 SE NK",""],"cx:2,117":["VXE R1 S NK",""],"cx:2,91":["VXE R2 SE",""],"cx:2,121":["VXE X3",""],"cx:2,49":["MAD R",""],"cx:2,54":["MAD R +",""],"cx:2,89":["ATK X1 Lite",""],"cx:2,76":["ATK X1 S NK",""],"cx:2,83":["ATK A9 Plus NK",""],"cx:2,78":["ATK U2 Plus NK",""],"cx:2,96":["ATK Y9 Plus NK",""],"cx:2,93":["DRAGONFLY F1 V2 Plus NK",""],"cx:2,114":["VXE R1 UlTRA",""],"cx:2,101":["VXE R2 PLUS",""],"cx:2,84":["ATK A9 NK",""],"cx:2,90":["ATK X1E",""],"cx:2,99":["ATK A9",""],"cx:2,109":["ATK U2",""],"cx:2,77":["ATK X1 SE NK",""],"cx:2,57":["VXE R1 NK",""],"cx:2,67":["VXE R1 NK",""],"cx:2,73":["VXE V3 PRO NK",""],"cx:2,79":["ATK U2 NK",""],"cx:2,97":["ATK Y9 NK",""],"cx:2,94":["DRAGONFLY F1 V2 NK",""],"cx:2,107":["ATK A9 X",""],"cx:2,122":["VXE X3 Pro",""],"cx:2,123":["VXE X3 Turbo",""],"cx:2,68":["VXE R2",""],"cx:2,120":["ATK A9 NB",""],"cx:2,130":["VXE R1SE+ Silent",""],"cx:2,85":["ATK A9 Pro Max",""],"cx:2,100":["ATK U2 Pro Max",""],"cx:2,110":["DRAGONFLY F1 V2 PRO MAX",""],"cx:1,6":["ATK A9 Ultra Max 2.0",""],"cx:1,15":["ATK A9 Ultra Max 2.0 Tri-Mode",""],"cx:1,12":["ATK F1 Ultra Max 2.0",""],"cx:1,11":["ATK X1 Ultra Max 2.0",""],"cx:1,18":["ATK U2 Ultra Max 2.0",""],"cx:1,20":["VXE R1 Ultra",""],"cx:2,36":["ATK F1 PRO",""],"cx:2,37":["ATK F1 PRO MAX",""],"cx:2,38":["ATK X1 PRO",""],"cx:2,39":["ATK X1 PRO MAX",""],"cx:2,40":["ATK Z1 PRO",""],"cx:2,41":["ATK Z1 PRO MAX",""],"cx:2,64":["ATK U2 MINI",""],"cx:2,66":["ATK U2 Ultra",""],"cx:2,108":["ATK Y9 PRO MAX",""],"cx:2,47":["MAD R MAJOR",""],"cx:2,55":["MAD R MAJOR+",""],"cx:1,87":["ATK X1 Ultra Max 2.0",""],"cx:2,42":["ATK F1 Ultimate","u"],"cx:2,43":["ATK X1 Ultra","u"],"cx:2,44":["ATK FIERCE X","u"],"cx:2,45":["ATK F1 Ultra","u"],"cx:2,46":["ATK X1 Ultimate","u"],"cx:2,50":["ATK F1 EXTREME","u"],"cx:2,53":["ATK Z1 Ultra","u"],"cx:2,56":["ATK F1 LEVIATAN","u"],"cx:2,65":["ATK U2 Ultimate","u"],"cx:2,70":["ATK X1 EXTREME","u"],"cx:2,87":["ATK A9 Ultra","u"],"cx:2,115":["ATK A9 NB ULTRA","u"],"cx:1,3":["ATK A9 Ultimate","u"],"cx:1,21":["ATK A9 Air","u"],"cx:1,5":["ATK Y9 Ultimate","u"],"cx:1,8":["ATK F1 Ultimate 2.0","u"],"cx:1,10":["ATK X1 Ultimate 2.0","u"],"cx:1,2":["ATK Duckbill Ultra","u"],"cx:1,25":["ATK Duckbill EXTREME","u"],"cx:1,4":["ATK ZERO EX","u"],"cx:1,9":["ATK X1 EXTREME 2.0","u"],"cx:1,22":["ATK X1 EXTREME GT","u"],"cx:1,7":["ATK F1 EXTREME 2.0","u"],"cx:1,13":["ATK F1 LEVIATAN 2.0","u"],"cx:1,17":["ATK U2 Mini 2.0","u"],"cx:1,19":["ATK Z1 Ultimate 2.0","u"],"cx:1,16":["ATK U2 Ultimate 2.0","u"],"cx:1,23":["ATK Ghost EXTREME","u"],"cx:1,24":["ATK Ghost Ultimate","u"],"cx:1,26":["ATK ZERO","u"],"cx:1,27":["ATK A9 Mini","u"],"cx:1,30":["ATK X EXTREME","u"],"cx:1,32":["ATK X1 Ultra Max 2.0","u"],"cx:1,33":["ATK F1 Ultra Max 2.0","u"],"cx:1,37":["ATK A9 Ultra Max 2.0 Tri-Mode","u"],"cx:1,38":["ATK A9 Ultra Max 2.0","u"],"cx:2,124":["ATK U2 Plus NK","u"],"cx:2,127":["VXE R1","u"],"cx:2,125":["VXE R1 PRO","u"],"cx:2,126":["VXE R1 PRO MAX","u"],"cx:1,28":["ATK A9 Mini","u"],"cx:2,128":["ATK U2 Pro Max","u"],"cx:2,131":["Flow 7","u"],"cx:1,85":["ATK F1 V3 ULTIMATE","u"],"cx:2,133":["MAD R","u"],"cx:2,132":["ATK X1 S NK","u"],"cx:1,31":["ATK A9 Mini +","u"],"cx:1,52":["ATK A9 Mini +","u"],"cx:1,88":["ATK A9 Mini SPRIGATITO Edition","u"],"cx:1,47":["ATK ZERO EX +","u"],"cx:1,46":["ATK X1 Ultimate 2.0 +","u"],"cx:1,58":["ATK F1 V3 EXTREME +","u"],"cx:1,60":["ATK F1 V3 LEVIATAN +","u"],"cx:1,54":["ATK A9 Air +","u"],"cx:1,53":["ATK A9 Ultimate +","u"],"cx:1,51":["ATK U2 Mini 2.0 +","u"],"cx:1,50":["ATK U2 Ultimate 2.0 +","u"],"cx:1,55":["ATK PHANTOM ULTIMATE","u"],"cx:1,45":["ATK X1 EXTREME 2.0 +","u"],"cx:1,61":["ATK X1 Air +","u"],"cx:1,49":["ATK Ghost Ultimate +","u"],"cx:1,48":["ATK Ghost EXTREME +","u"],"cx:1,59":["ATK F1 Ultimate 2.0 +","u"],"cx:1,42":["ATK X1 Air +","u"],"cx:1,62":["ATK F1 V3 ULTIMATE +","u"],"cx:2,129":["ATK A9 NB ULTRA +","u"],"cx:1,66":["ATK Y9 Ultimate +","u"],"cx:1,67":["ATK Z1 Ultimate 2.0 +","u"],"cx:1,40":["ATK A9 Air +","u"],"cx:1,39":["ATK A9 Ultimate +","u"],"cx:1,63":["ATK F1 V3 ULTIMATE +","u"],"cx:1,64":["ATK F1 V3 ULTIMATE +","u"],"cx:1,90":["ATK F1 V3 PIKACHU Edition","u"],"cx:1,76":["ATK X1 Ultimate 2.0 Silent","u"],"cx:1,75":["ATK A9 Ultimate Silent","u"],"cx:1,77":["ATK ONE","u"],"cx:1,70":["ATK X1 Wireless Charging","u"],"cx:1,71":["ATK A9 Wireless Charging","u"],"bm:2,9":["VXE R1 S NK",""],"bm:2,2":["ATK A9 SE NK",""],"bm:2,5":["VXE V3 NK",""],"bm:2,19":["VXE R2 SE NK",""],"bm:2,21":["VXE V3 X",""],"bm:2,31":["VXE R1 S NK",""],"bm:2,28":["VXE R1N NK",""],"bm:2,32":["ATK A9 SE 3.0 NK",""],"bm:2,3":["ATK A9 NK",""],"bm:2,29":["ATK A9 3.0 NK",""],"bm:2,6":["VXE V3 PRO NK",""],"bm:2,30":["VXE V3 PRO NK",""],"bm:2,8":["VXE R1 NK",""],"bm:2,16":["ATK X1 SE Nearlink",""],"bm:2,33":["ATK X1 SE NK",""],"bm:2,22":["VXE R1 SE+",""],"bm:2,15":["VXE V3 PRO Max",""],"bm:2,7":["VXE V3 Plus",""],"bm:2,4":["ATK A9 Plus NK",""],"bm:2,1":["ATK A9 Pro Max 2.0 NK",""],"bm:2,27":["ATK A9 Pro Max 2.0 NK",""],"bm:2,26":["ATK A9 Plus NK",""],"bm:1,1":["ATK ZERO","u"],"bm:1,2":["ATK A9 Ultimate 3.0","u"],"bm:1,16":["ATK A9 Mini","u"],"bm:1,3":["ATK Ghost Ultimate","u"],"bm:2,13":["ATK A9 Plus NK","u"],"bm:2,14":["ATK A9 Pro Max 2.0 NK","u"],"bm:2,18":["VXE R2 ULTRA NK","u"],"bm:2,20":["ATK A9 NB ULTRA","u"],"bm:2,23":["VXE T1","u"],"bm:1,7":["ATK A9 Ultra Max 2.0 +","u"],"bm:2,25":["ATK U2 Plus NK","u"],"bm:1,19":["ATK F1 V3 Ultra Max","u"],"bm:2,17":["VXE R1 PRO MAX 2.0 NK","u"],"bm:1,22":["ATK A9 Ultimate","u"],"bm:2,34":["ATK A9 Plus 3.0 NK","u"],"bm:2,35":["ATK A9 Pro Max 3.0 NK","u"],"bm:2,36":["ATK X1 V3 PRO MAX","u"],"bm:1,25":["ATK X1 V3 ULTRA MAX","u"],"bm:1,8":["ATK ZERO +","u"],"bm:8,1":["ATK ZERO +","u"],"bm:1,9":["ATK A9 Ultimate +","u"],"bm:1,15":["ATK A9 Ultimate +","u"],"bm:1,6":["ATK A9 Air +","u"],"bm:1,10":["ATK PHANTOM ULTIMATE","u"],"bm:1,21":["ATK PHANTOM ULTIMATE","u"],"bm:1,12":["ATK X1 ULTIMATE 2.0+","u"],"bm:1,13":["ATK X1 Ultra Max 2.0 + Tri-Mode","u"],"bm:1,11":["ATK ENZO ULTIMATE","u"],"bm:1,20":["ATK ENZO ULTIMATE","u"],"bm:1,14":["ATK X1 Air+","u"],"bm:1,23":["ATK X1 V3 ULTIMATE+","u"],"bm:5,1":["VELOTA EVO","u"],"bm:5,2":["VELOTA EVO","u"],"bm:1,17":["ATK F1 V3 ULTIMATE+","u"],"bm:1,18":["ATK F1 V3 ULTIMATE+","u"],"bm:1,4":["ATK A9 Mini +","u"],"bm:1,24":["ATK ZERO PLUS GENGAR EDITION","u"],"bm:5,3":["ATK N1 Ultimate+","u"]}};
+
+const VID = 0x373B;
+const $ = s => document.querySelector(s);
+const hex = b => [...b].map(v => v.toString(16).padStart(2, '0')).join(' ');
+const sum = (a, from, to) => { let s = 0; for (let i = from; i < to; i++) s += a[i]; return s; };
+
+/* lift-off: both families store tenths of a millimetre offset by 6.
+   code 1 = 0.7 mm … code 11 = 1.7 mm */
+const LOD_OFFSET = 6;
+const mmToCode = mm => Math.round(mm * 10) - LOD_OFFSET;
+const codeToMm = code => (code + LOD_OFFSET) / 10;
+
+const DPIS = [800, 1600, 3200];
+const RATE_HZ = [125, 250, 500, 1000, 2000, 4000, 8000];
+const DEBOUNCE = [[0, 'Off'], [1, '1 ms'], [2, '2 ms'], [4, '4 ms'],
+                  [8, '8 ms'], [15, '15 ms'], [20, '20 ms']];
+const SLEEP = [[30, '30 sec'], [60, '1 min'], [120, '2 min'], [180, '3 min'],
+               [300, '5 min'], [1200, '20 min'], [1500, '25 min'], [1800, '30 min']];
+
+/* ── logging + toast ─────────────────────────────────────────────── */
+function log(cls, label, detail){
+  const el = document.createElement('div');
+  el.className = cls;
+  el.textContent = `${new Date().toISOString().slice(11,23)}  ${label}  ${detail ?? ''}`;
+  $('#log').appendChild(el);
+  $('#log').scrollTop = $('#log').scrollHeight;
+}
+$('#togglelog').onclick = e => {
+  const hid = $('#log').classList.toggle('hidden');
+  e.target.textContent = hid ? 'Show activity log' : 'Hide activity log';
+};
+let toastTimer;
+function toast(msg, bad){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 1900);
+}
+
+/* ── shared request/reply plumbing ───────────────────────────────── */
+class Transport {
+  constructor(device, reportId, matchIndex){
+    this.device = device;
+    this.reportId = reportId;
+    this.matchIndex = matchIndex;      // byte of the input report holding commandId
+    this.pending = [];
+    device.oninputreport = e => this.onInput(new Uint8Array(e.data.buffer));
+  }
+  onInput(raw){
+    if (raw[1] === 0x73 && this.matchIndex === 4){    // BITMOUSE async status report
+      log('', 'RPT ', hex(raw.slice(0, 12)) + ' …');
+      return;
+    }
+    const id = raw[this.matchIndex];
+    log('rx', 'RX  ', `id=0x${id.toString(16).padStart(2,'0')} :: ${hex(raw.slice(0,18))} …`);
+    const i = this.pending.findIndex(p => p.commandId === id);
+    if (i === -1) return;
+    const p = this.pending.splice(i, 1)[0];
+    clearTimeout(p.timer);
+    p.resolve(raw);
+  }
+  async send(commandId, buf){
+    log('tx', 'TX  ', `id=0x${commandId.toString(16).padStart(2,'0')} :: ${hex(buf.slice(0,18))} …`);
+    for (let attempt = 0; attempt < 3; attempt++){
+      const p = new Promise((resolve, reject) => {
+        const rec = { commandId, resolve, timer: setTimeout(() => {
+          const k = this.pending.indexOf(rec);
+          if (k !== -1) this.pending.splice(k, 1);
+          reject(new Error('timeout'));
+        }, 600) };
+        this.pending.push(rec);
+      });
+      try { await this.device.sendReport(this.reportId, buf); return await p; }
+      catch (err) { if (attempt === 2){ log('er','ERR ', err.message); throw err; } }
+    }
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   BITMOUSE driver — 0xFF05
+   ══════════════════════════════════════════════════════════════════ */
+const BM_CMD = { SetReportRate:1, SetDpi:2, SetSilentHeight:3, GetBatteryLevel:7,
+  GetCurrentMouseConfig:9, SetLinearCorrection:11, SetRippleControl:12,
+  SetMotionSync:13, GetBatteryChargingStatus:15, Reset:19, SetSensorSleepTime:21,
+  SetStabilizationTime:22, GetAddressData:23, GetDeviceType:26, SetFarDistance:27,
+  GetDeviceVersion:28, GetChipId:71, MouseCidMid:74, GetDongleVersion:136 };
+
+const BM_RATE = { 1000:0, 500:1, 250:2, 125:3, 8000:4, 4000:5, 2000:6 };
+const BM_RATE_REV = Object.fromEntries(Object.entries(BM_RATE).map(([hz,v]) => [v, +hz]));
+const CONNTYPE = {0:'Wireless',1:'Wireless',2:'Wired',3:'Wired',
+                  4:'Wireless',5:'Wireless',6:'Wired',7:'Wired'};
+const CONNDETAIL = {0:'dongle 1K',1:'dongle 4K',2:'wired 1K',3:'wired 8K',
+                    4:'dongle 2K',5:'dongle 8K',6:'wired 2K',7:'wired 4K'};
+const SENSORMODE = {0:'Auto',1:'Power saving',2:'High performance',
+                    3:'Office',4:'Game',5:'Game (max)'};
+
+class BitmouseDriver {
+  static family = 'bm';
+  constructor(device){
+    this.device = device;
+    this.t = new Transport(device, 8, 4);
+    this.activeStage = 0;
+  }
+  pack(commandId, {paramLen=0, cmdLen=0, target=1, payload=[]} = {}){
+    const b = new Uint8Array(63);
+    b[1] = 0x72; b[2] = paramLen; b[3] = 0;
+    b[4] = target; b[5] = commandId; b[6] = cmdLen;
+    payload.forEach((v,i) => b[7+i] = v & 0xFF);
+    b[0] = sum(b, 1, 63) & 0xFF;
+    return b;
+  }
+  /* replies drop the checksum byte, so payload sits 1 earlier than on TX */
+  async xfer(commandId, opts){
+    const raw = await this.t.send(commandId, this.pack(commandId, opts));
+    return { u8:  o => raw[6 + o],
+             u16: o => raw[6+o] | (raw[7+o] << 8),
+             u32: o => (raw[6+o] | (raw[7+o]<<8) | (raw[8+o]<<16) | (raw[9+o]<<24)) >>> 0 };
+  }
+  addr(a, len){ return this.xfer(BM_CMD.GetAddressData,
+    {paramLen:10, cmdLen:13, payload:[a & 0xFF, (a>>8) & 0xFF, len]}); }
+
+  async readState(){
+    const s = { info: [] };
+    const add = (k,v) => s.info.push([k,v]);
+
+    try { const v = await this.xfer(BM_CMD.GetDeviceType,{paramLen:2,cmdLen:1,target:0});
+          s.conn = CONNTYPE[v.u8(0)]; add('Link', CONNDETAIL[v.u8(0)] ?? 'unknown'); } catch{}
+    try { const v = await this.xfer(BM_CMD.GetBatteryLevel,{paramLen:2,cmdLen:1});
+          s.battery = v.u8(0); } catch{}
+    try { const v = await this.xfer(BM_CMD.GetBatteryChargingStatus,{paramLen:2,cmdLen:1});
+          add('Charging', v.u8(0) === 1 ? 'yes' : 'no'); } catch{}
+    try { const v = await this.xfer(BM_CMD.GetDeviceVersion,{paramLen:5,cmdLen:3});
+          add('Mouse firmware', [v.u8(0),v.u8(1),v.u8(2)].join('.')); } catch{}
+    try { const v = await this.xfer(BM_CMD.GetDongleVersion,{paramLen:5,cmdLen:3,target:0});
+          add('Dongle firmware', [v.u8(0),v.u8(1),v.u8(2)].join('.')); } catch{}
+    try { const v = await this.xfer(BM_CMD.MouseCidMid,{paramLen:8,cmdLen:6,payload:[0]});
+          s.cidMid = `${v.u8(1)},${v.u32(2)}`; } catch{}
+    try { const v = await this.xfer(BM_CMD.GetChipId,{paramLen:10,cmdLen:8});
+          add('Serial', `${v.u32(0).toString(16)}·${v.u32(4).toString(16)}`); } catch{}
+
+    try {
+      const v = await this.xfer(BM_CMD.GetCurrentMouseConfig,{paramLen:19,cmdLen:17});
+      s.rateHz     = BM_RATE_REV[v.u8(2)];
+      s.lodMm      = codeToMm(v.u8(5) + 1);          // offsetCalibration → code → mm
+      s.motionSync = !!v.u8(6);
+      s.lineCorr   = !!v.u8(7);
+      s.ripple     = !!v.u8(8);
+      s.sleepSec   = v.u16(9);
+      s.debounceMs = v.u8(11);
+      add('Profile', v.u8(0));
+    } catch { s.stale = true; }
+
+    try { const v = await this.addr(75,1); s.farDist = !!v.u8(3); } catch{}
+    try { const v = await this.addr(74,1); add('Sensor mode', SENSORMODE[v.u8(3)] ?? 'unknown'); } catch{}
+
+    /* DPI table: 70 bytes of address space, 10 at a time */
+    try {
+      const bytes = [];
+      for (let n = 0; n < 7; n++){
+        const v = await this.addr(10*n + 1, 10);
+        for (let i = 0; i < 10; i++) bytes.push(v.u8(3+i));
+      }
+      const d = new DataView(Uint8Array.from(bytes).buffer);
+      const cur = d.getUint8(0), count = d.getUint8(1);
+      if (count > 0 && cur < count){
+        this.activeStage = cur;
+        s.stages = Array.from({length:count}, (_,i) => ({
+          x: d.getUint16(2 + 8*i, true), y: d.getUint16(2 + 8*i + 2, true) }));
+        s.activeStage = cur;
+        s.dpi = s.stages[cur];
+      }
+    } catch{}
+    return s;
+  }
+
+  setRate(hz){ return this.xfer(BM_CMD.SetReportRate,
+    {paramLen:3, cmdLen:1, payload:[BM_RATE[hz]]}); }
+  setLod(mm){ return this.xfer(BM_CMD.SetSilentHeight,
+    {paramLen:4, cmdLen:2, payload:[0, mmToCode(mm) - 1]}); }
+  setDebounce(ms){ return this.xfer(BM_CMD.SetStabilizationTime,
+    {paramLen:3, cmdLen:1, payload:[ms]}); }
+  setSleep(sec){ return this.xfer(BM_CMD.SetSensorSleepTime,
+    {paramLen:5, cmdLen:2, payload:[sec & 0xFF, (sec>>8) & 0xFF]}); }
+  setDpi(v){ return this.xfer(BM_CMD.SetDpi, {paramLen:12, cmdLen:10,
+    payload:[this.activeStage, v & 0xFF, (v>>8) & 0xFF, v & 0xFF, (v>>8) & 0xFF,
+             0,0,0,0, 1]}); }
+  setToggle(key, on){
+    const cmd = { motionSync: BM_CMD.SetMotionSync, lineCorr: BM_CMD.SetLinearCorrection,
+                  ripple: BM_CMD.SetRippleControl, farDist: BM_CMD.SetFarDistance }[key];
+    return this.xfer(cmd, {paramLen:3, cmdLen:1, payload:[on ? 1 : 0]});
+  }
+  reset(){ return this.xfer(BM_CMD.Reset, {paramLen:2, cmdLen:1}); }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   COMPX driver — 0xFF04
+   ══════════════════════════════════════════════════════════════════ */
+const CX_CMD = { GetBatteryLevel:4, SetEEPROM:7, GetEEPROM:8, RestoreFactory:9,
+  GetMouseCIDMID:16, GetMouseVersion:18, SetFarDistanceMode:22,
+  GetFarDistanceMode:23, GetDongleVersion:29 };
+
+const CX_ADDR = { reportRate:0x00, silentHeight:0x0A, dpi1:0x0C, dpi3:0x14,
+  dpi5:0x1C, dpi7:0x24, funcBlock:0xA9, sensorEnable:0xB5, angle:0xBD,
+  paw3955Dpi:0x1B00 };
+
+const CX_RATE = { 1000:0x01, 500:0x02, 250:0x04, 125:0x08,
+                  2000:0x10, 4000:0x20, 8000:0x40 };
+const CX_RATE_REV = Object.fromEntries(Object.entries(CX_RATE).map(([hz,v]) => [v, +hz]));
+
+/* PAW3950-Ultra axis packing: bit1 selects the 50-step range above 10k,
+   bit0 doubles above 30k, bits2-3 extend the value byte. */
+function cxEncodeAxis(dpi){
+  let v = dpi, doubled = 0;
+  if (v > 30000){ doubled = 1; v = Math.round(v/2); }
+  if (v <= 10000){ const c = Math.floor(v/10) - 1; return { byte:c & 0xFF, nib:((c>>8)<<2) | doubled }; }
+  const c = Math.floor((v - 10050)/50);
+  return { byte:c & 0xFF, nib:((c>>8)<<2) | 2 | doubled };
+}
+function cxDecodeAxis(byte, nib){
+  const c = (((nib>>2) & 3) << 8) | (byte & 0xFF);
+  const base = (nib & 2) ? 10050 + c*50 : (c + 1)*10;
+  return (nib & 1) ? base*2 : base;
+}
+
+class CompxDriver {
+  static family = 'cx';
+  constructor(device, ultimate){
+    this.device = device;
+    this.t = new Transport(device, 8, 0);
+    this.is3955 = !!ultimate;   // refined once the sensor is known
+    this.activeStage = 0;
+    this.rateBlock = null;      // cached 0x00 row, rewritten whole on change
+    this.funcBlock = null;      // cached 0xA9 row, likewise
+  }
+  pack(commandId, {addr=0, len=0, payload=[]} = {}){
+    const b = new Uint8Array(16);
+    b[0] = commandId; b[1] = 0;
+    b[2] = (addr>>8) & 0xFF; b[3] = addr & 0xFF;    // big endian
+    b[4] = len;
+    payload.forEach((v,i) => b[5+i] = v & 0xFF);
+    b[15] = (85 - ((8 + sum(b, 0, 15)) & 0xFF)) & 0xFF;
+    return b;
+  }
+  async xfer(commandId, opts){
+    const raw = await this.t.send(commandId, this.pack(commandId, opts));
+    return { raw, u8: o => raw[5+o], u16be: o => (raw[5+o]<<8) | raw[6+o] };
+  }
+  read(addr, len){ return this.xfer(CX_CMD.GetEEPROM, {addr, len}); }
+  write(addr, payload){ return this.xfer(CX_CMD.SetEEPROM,
+    {addr, len:payload.length, payload}); }
+  /** every stored byte is trailed by its 85−value inverse */
+  static pair(v){ return [v & 0xFF, (85 - v) & 0xFF]; }
+
+  async readState(){
+    const s = { info: [] };
+    const add = (k,v) => s.info.push([k,v]);
+
+    try { const v = await this.xfer(CX_CMD.GetMouseVersion);
+          add('Mouse firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
+    try { const v = await this.xfer(CX_CMD.GetDongleVersion);
+          add('Dongle firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
+    try { const v = await this.xfer(CX_CMD.GetBatteryLevel);
+          s.battery = v.u8(0); add('Charging', v.u8(1) ? 'yes' : 'no');
+          add('Voltage', ((v.raw[8]<<8 | v.raw[9])/1000).toFixed(2) + ' V'); } catch{}
+    try { const v = await this.xfer(CX_CMD.GetMouseCIDMID);
+          s.cidMid = `${v.u8(0)},${v.u8(1)}`; } catch{}
+
+    try {
+      const v = await this.read(CX_ADDR.reportRate, 10);
+      this.rateBlock = Array.from({length:10}, (_,i) => v.u8(i));
+      s.rateHz = CX_RATE_REV[v.u8(0)];
+      this.activeStage = v.u8(4);
+      s.activeStage = v.u8(4);
+      s.stageCount = v.u8(2);
+    } catch { s.stale = true; }
+
+    try { const v = await this.read(CX_ADDR.silentHeight, 2);
+          s.lodMm = codeToMm(v.u8(0)); } catch{}
+
+    try {
+      const v = await this.read(CX_ADDR.funcBlock, 10);
+      this.funcBlock = Array.from({length:10}, (_,i) => v.u8(i));
+      s.debounceMs = v.u8(0);
+      s.motionSync = !!v.u8(2);
+      s.sleepSec   = v.u8(4) * 10;        // stored in units of ten seconds
+      s.lineCorr   = !!v.u8(6);
+      s.ripple     = !!v.u8(8);
+    } catch{}
+
+    try { const v = await this.xfer(CX_CMD.GetFarDistanceMode);
+          s.farDist = !!v.u8(0); } catch{}
+
+    try { s.stages = await this.readStages(s.stageCount ?? 4);
+          if (s.stages?.length) s.dpi = s.stages[Math.min(this.activeStage, s.stages.length-1)];
+    } catch{}
+    return s;
+  }
+
+  async readStages(count){
+    const out = [];
+    if (this.is3955){
+      /* PAW3955 Master keeps stages in their own 6-byte rows */
+      for (let i = 0; i < count && i < 8; i++){
+        const v = await this.read(CX_ADDR.paw3955Dpi + 6*i, 6);
+        const x = ((v.u8(0) | (v.u8(1)<<8)) + 1) * ((v.u8(4) & 1) ? 2 : 1);
+        const y = ((v.u8(2) | (v.u8(3)<<8)) + 1) * ((v.u8(4) & 16) ? 2 : 1);
+        out.push({x, y});
+      }
+      return out;
+    }
+    /* classic: two 4-byte stages per row */
+    const rows = [CX_ADDR.dpi1, CX_ADDR.dpi3, CX_ADDR.dpi5, CX_ADDR.dpi7];
+    for (const row of rows){
+      const v = await this.read(row, 8);
+      for (let half = 0; half < 2; half++){
+        const o = 4*half;
+        out.push({ x: cxDecodeAxis(v.u8(o),   v.u8(o+2) & 0x0F),
+                   y: cxDecodeAxis(v.u8(o+1), (v.u8(o+2) >> 4) & 0x0F) });
+      }
+    }
+    return out.slice(0, count);
+  }
+
+  async setRate(hz){
+    const b = this.rateBlock ? [...this.rateBlock] : new Array(10).fill(0);
+    const [v, inv] = CompxDriver.pair(CX_RATE[hz]);
+    b[0] = v; b[1] = inv;
+    await this.write(CX_ADDR.reportRate, b);
+    this.rateBlock = b;
+  }
+  setLod(mm){ return this.write(CX_ADDR.silentHeight, CompxDriver.pair(mmToCode(mm))); }
+
+  async patchFunc(index, value){
+    const b = this.funcBlock ? [...this.funcBlock] : new Array(10).fill(0);
+    const [v, inv] = CompxDriver.pair(value);
+    b[index] = v; b[index+1] = inv;
+    await this.write(CX_ADDR.funcBlock, b);
+    this.funcBlock = b;
+  }
+  setDebounce(ms){ return this.patchFunc(0, ms); }
+  setSleep(sec){ return this.patchFunc(4, Math.round(sec/10)); }
+  async setToggle(key, on){
+    if (key === 'farDist')
+      return this.xfer(CX_CMD.SetFarDistanceMode, {len:10, payload:[on ? 1 : 0]});
+    const index = { motionSync:2, lineCorr:6, ripple:8 }[key];
+    return this.patchFunc(index, on ? 1 : 0);
+  }
+  async setDpi(v){
+    const i = this.activeStage;
+    if (this.is3955){
+      const base = Math.max(1, Math.floor(v)) - 1;   // <40000 stores value−1
+      const p = [base & 0xFF, (base>>8) & 0xFF, base & 0xFF, (base>>8) & 0xFF, 0];
+      p.push((85 - (sum(p,0,5) & 0xFF)) & 0xFF);
+      return this.write(CX_ADDR.paw3955Dpi + 6*i, p);
+    }
+    /* classic rows hold two stages — read, patch one half, write back */
+    const row = [CX_ADDR.dpi1, CX_ADDR.dpi3, CX_ADDR.dpi5, CX_ADDR.dpi7][i >> 1];
+    const cur = await this.read(row, 8);
+    const b = Array.from({length:8}, (_,k) => cur.u8(k));
+    const ex = cxEncodeAxis(v), ey = cxEncodeAxis(v);
+    const o = 4 * (i & 1);
+    const mode = ((ey.nib & 0x0F) << 4) | (ex.nib & 0x0F);
+    b[o] = ex.byte; b[o+1] = ey.byte; b[o+2] = mode;
+    b[o+3] = (85 - ((ex.byte + ey.byte + mode) & 0xFF)) & 0xFF;
+    return this.write(row, b);
+  }
+  reset(){ return this.xfer(CX_CMD.RestoreFactory); }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   UI
+   ══════════════════════════════════════════════════════════════════ */
+let drv = null;
+
+function buildSeg(host, opts, onPick){
+  const el = $(host); el.innerHTML = '';
+  for (const [value, label] of opts){
+    const b = document.createElement('button');
+    b.textContent = label; b.dataset.value = String(value);
+    b.setAttribute('aria-pressed','false');
+    b.onclick = async () => {
+      const prev = [...el.children].find(c => c.getAttribute('aria-pressed') === 'true');
+      mark(host, value); el.classList.add('busy');
+      try { await onPick(value, label); }
+      catch { if (prev) mark(host, prev.dataset.value); toast('Could not save — try again', 1); }
+      finally { el.classList.remove('busy'); }
+    };
+    el.appendChild(b);
+  }
+}
+function mark(host, value){
+  for (const b of $(host).children)
+    b.setAttribute('aria-pressed', String(+b.dataset.value === +value));
+}
+
+buildSeg('#segDpi',  DPIS.map(v => [v, String(v)]), async v => {
+  await drv.setDpi(v); $('#sDpi').textContent = v; toast(`Sensitivity set to ${v}`); });
+buildSeg('#segRate', RATE_HZ.map(v => [v, v >= 1000 ? `${v/1000}K` : `${v}`]), async v => {
+  await drv.setRate(v); toast(`Polling rate set to ${v} Hz`); });
+buildSeg('#segDebounce', DEBOUNCE, async (v,l) => {
+  await drv.setDebounce(v); toast(`Click debounce set to ${l}`); });
+buildSeg('#segSleep', SLEEP, async (v,l) => {
+  await drv.setSleep(v); toast(`Sleeps after ${l}`); });
+
+let lodTimer = null;
+$('#lod').oninput = e => {
+  const mm = parseFloat(e.target.value);
+  $('#lodOut').textContent = mm.toFixed(1) + ' mm';
+  clearTimeout(lodTimer);
+  lodTimer = setTimeout(async () => {
+    try { await drv.setLod(mm); toast(`Lift-off distance ${mm.toFixed(1)} mm`); }
+    catch { toast('Could not save — try again', 1); }
+  }, 160);
+};
+
+for (const key of ['movesync','linecorr','ripple','fardist']){
+  const map = { movesync:['motionSync','Movement smoothing'],
+                linecorr:['lineCorr','Straight line correction'],
+                ripple:['ripple','Ripple correction'],
+                fardist:['farDist','Long range mode'] };
+  const [field, name] = map[key];
+  $('#'+key).onchange = async e => {
+    const on = e.target.checked;
+    try { await drv.setToggle(field, on); toast(`${name} ${on ? 'on' : 'off'}`); }
+    catch { e.target.checked = !on; toast('Could not save — try again', 1); }
+  };
+}
+
+$('#factory').onclick = async () => {
+  if (!confirm('Reset the mouse to its factory settings?\n\nSensitivity, polling rate, '
+    + 'lift-off distance and button assignments all go back to default.')) return;
+  try { await drv.reset(); toast('Mouse reset to factory settings'); setTimeout(readAll, 900); }
+  catch { toast('Reset failed — try again', 1); }
+};
+
+/* ── connect ─────────────────────────────────────────────────────── */
+async function connect(){
+  if (!('hid' in navigator)){ toast('This browser can’t talk to USB devices — use Chrome', 1); return; }
+  let picked;
+  try {
+    [picked] = await navigator.hid.requestDevice({ filters: [
+      { vendorId: VID, usagePage: 0xFF05, usage: 0x01 },   // BITMOUSE
+      { vendorId: VID, usagePage: 0xFF04, usage: 0x02 },   // COMPX
+    ]});
+  } catch (e){ toast(e.message, 1); return; }
+  if (!picked) return;
+
+  if (!picked.opened) await picked.open();
+
+  /* which vendor interface did we actually get? */
+  let page = null;
+  for (const c of picked.collections)
+    if (c.usagePage === 0xFF05 || c.usagePage === 0xFF04) page = c.usagePage;
+
+  const pidKey = picked.productId.toString(16).padStart(4,'0');
+  const entry  = REGISTRY.pids[pidKey];
+  const flags  = entry?.[1] ?? '';
+  const family = page === 0xFF04 ? 'cx' : page === 0xFF05 ? 'bm'
+               : flags.startsWith('cx') ? 'cx' : 'bm';
+
+  drv = family === 'cx'
+    ? new CompxDriver(picked, flags.includes('u'))
+    : new BitmouseDriver(picked);
+
+  log('', 'DEV ', `${picked.productName} 0x${pidKey} page=0x${(page ?? 0).toString(16)} family=${family}`);
+
+  $('#hero').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  $('#status').className = 'status';
+  $('#status').innerHTML = '<b>Connected</b>';
+  $('#devName').textContent = entry?.[0] ?? `ATK device 0x${pidKey}`;
+  await readAll();
+}
+$('#connect').onclick = connect;
+$('#connect2').onclick = connect;
+$('#refresh').onclick = () => readAll();
+
+/* ── render ──────────────────────────────────────────────────────── */
+async function readAll(){
+  const s = await drv.readState();
+  const info = s.info;
+
+  /* a receiver reports a generic product name — the paired mouse is
+     identified by its CID/MID pair instead */
+  if (s.cidMid){
+    const named = REGISTRY.cid[`${drv.constructor.family}:${s.cidMid}`];
+    if (named){
+      $('#devName').textContent = named[0];
+      if (drv instanceof CompxDriver) drv.is3955 = named[1] === 'u';
+    }
+    info.push(['CID,MID', s.cidMid]);
+  }
+
+  if (s.battery == null){ $('#sBatt').textContent = 'Asleep'; $('#sBattBar').style.width = '0'; }
+  else {
+    $('#sBatt').textContent = s.battery + '%';
+    $('#sBattBar').style.width = Math.max(0, Math.min(100, s.battery)) + '%';
+    $('#sBattBar').style.background = s.battery < 20 ? '#f87171'
+                                    : s.battery < 40 ? '#f5c451' : '#3ddc84';
+  }
+  $('#sConn').textContent = s.conn ?? (drv instanceof CompxDriver ? 'Wireless' : '—');
+
+  if (s.rateHz){ mark('#segRate', s.rateHz); info.push(['Polling rate', s.rateHz + ' Hz']); }
+  if (s.lodMm != null && s.lodMm >= 0.7 && s.lodMm <= 1.7){
+    $('#lod').value = s.lodMm.toFixed(1);
+    $('#lodOut').textContent = s.lodMm.toFixed(1) + ' mm';
+    info.push(['Lift-off distance', s.lodMm.toFixed(1) + ' mm']);
+  }
+  if (s.debounceMs != null) mark('#segDebounce', s.debounceMs);
+  if (s.sleepSec) mark('#segSleep', s.sleepSec);
+  if (s.motionSync != null) $('#movesync').checked = s.motionSync;
+  if (s.lineCorr   != null) $('#linecorr').checked = s.lineCorr;
+  if (s.ripple     != null) $('#ripple').checked   = s.ripple;
+  if (s.farDist    != null) $('#fardist').checked  = s.farDist;
+
+  if (s.dpi && s.dpi.x > 0){
+    $('#sDpi').textContent = s.dpi.x === s.dpi.y ? s.dpi.x : `${s.dpi.x}×${s.dpi.y}`;
+    mark('#segDpi', s.dpi.x);
+  }
+  if (s.stages?.length){
+    info.push(['DPI stage', `${(s.activeStage ?? 0) + 1} of ${s.stages.length}`]);
+    info.push(['All stages', s.stages.map(v => v.x).join(' · ')]);
+  }
+  info.push(['Protocol', drv instanceof CompxDriver ? 'COMPX (0xFF04)' : 'BITMOUSE (0xFF05)']);
+
+  if (s.stale) toast('Mouse didn’t answer — move it to wake it', 1);
+
+  $('#kv').innerHTML = info.map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+}
+
+</script>
+</body>
+</html>
