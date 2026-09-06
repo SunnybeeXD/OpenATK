@@ -13,6 +13,8 @@ Set sensitivity, polling rate, lift-off distance, tracking corrections, click de
 
 Download [`index.html`](index.html) and open it. That's the whole app.
 
+or use https://sunnybee.lol/openatk
+
 If `file://` gives you trouble, serve it locally:
 
 ```bash
