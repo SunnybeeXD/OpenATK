@@ -650,31 +650,64 @@ class CompxDriver {
     return s;
   }
 
+  /* Read the stage table under every layout this family uses, then keep the
+     one that actually looks like DPI. Registry flags say which sensor a PID
+     has, but they've been wrong in the field, and a mis-picked codec returns
+     plausible-but-scaled numbers rather than failing — so decide on evidence
+     and log the raw bytes either way. */
   async readStages(count){
-    const out = [];
-    if (this.is3955){
-      /* PAW3955 Master keeps stages in their own 6-byte rows */
-      for (let i = 0; i < count && i < 8; i++){
+    const want = Math.min(Math.max(count || 4, 1), 8);
+    const cands = [];
+
+    try {
+      const rows = [];
+      for (let i = 0; i < want; i++){
         const v = await this.read(CX_ADDR.paw3955Dpi + 6*i, 6);
-        const x = ((v.u8(0) | (v.u8(1)<<8)) + 1) * ((v.u8(4) & 1) ? 2 : 1);
-        const y = ((v.u8(2) | (v.u8(3)<<8)) + 1) * ((v.u8(4) & 16) ? 2 : 1);
-        out.push({x, y});
+        rows.push(Array.from({length:6}, (_,k) => v.u8(k)));
       }
-      return out;
-    }
-    const codec = CX_CODEC[this.group];
-    if (!codec) return out;              // unmapped sensor — better blank than wrong
-    /* packed: two 4-byte stages per row */
-    const rows = [CX_ADDR.dpi1, CX_ADDR.dpi3, CX_ADDR.dpi5, CX_ADDR.dpi7];
-    for (const row of rows){
-      const v = await this.read(row, 8);
-      for (let half = 0; half < 2; half++){
-        const o = 4*half;
-        out.push({ x: codec.dec(v.u8(o),   v.u8(o+2) & 0x0F),
-                   y: codec.dec(v.u8(o+1), (v.u8(o+2) >> 4) & 0x0F) });
+      log('', 'DPI ', 'paw3955 rows ' + rows.map(r => hex(r)).join(' | '));
+      cands.push({ group:'M', stages: rows.map(r => ({
+        x: ((r[0] | (r[1]<<8)) + 1) * ((r[4] & 1)  ? 2 : 1),
+        y: ((r[2] | (r[3]<<8)) + 1) * ((r[4] & 16) ? 2 : 1) })) });
+    } catch {}
+
+    try {
+      const rows = [];
+      for (const a of [CX_ADDR.dpi1, CX_ADDR.dpi3, CX_ADDR.dpi5, CX_ADDR.dpi7]){
+        const v = await this.read(a, 8);
+        rows.push(Array.from({length:8}, (_,k) => v.u8(k)));
       }
+      log('', 'DPI ', 'packed rows  ' + rows.map(r => hex(r)).join(' | '));
+      const flat = rows.flat();
+      for (const g of ['A','B']){
+        const dec = CX_CODEC[g].dec;
+        const stages = [];
+        for (let i = 0; i < want; i++){
+          const o = 4*i;
+          stages.push({ x: dec(flat[o],   flat[o+2] & 0x0F),
+                        y: dec(flat[o+1], (flat[o+2] >> 4) & 0x0F) });
+        }
+        cands.push({ group:g, stages });
+      }
+    } catch {}
+
+    /* A real ATK stage is 50-42000 DPI and lands on a 10-DPI step. Score on
+       that, break ties toward the group the registry expected. */
+    const score = c => {
+      let n = 0;
+      for (const st of c.stages)
+        if (st.x >= 50 && st.x <= 42000 && st.x % 10 === 0 && st.x === st.y) n++;
+      return n * 10 + (c.group === this.group ? 1 : 0);
+    };
+    cands.sort((a,b) => score(b) - score(a));
+    const best = cands[0];
+    if (!best || score(best) < 10) return [];
+    if (best.group !== this.group){
+      log('', 'NOTE', `stage table decodes as group ${best.group}, not ${this.group} — switching`);
+      this.group = best.group;
+      this.is3955 = best.group === 'M';
     }
-    return out.slice(0, count);
+    return best.stages;
   }
 
   async setRate(hz){
