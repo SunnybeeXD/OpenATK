@@ -147,8 +147,28 @@ DPI is a plain little-endian uint16 — no packing, no multiplier nibble.
 | `75` | 1 | far-distance (long range) flag |
 | `2692` | 2 | sensor angle |
 
-Sensor performance mode: `0` Auth, `1` LowPerformance, `2` HighPerformance,
-`3` Office, `4` Game, `5` GameHighPerformance.
+### Sensor performance mode
+
+Read from address `74`, written with `SetSensorModel` (`0x1F`), payload `[mode]`:
+
+`0` Auth, `1` LowPerformance, `2` HighPerformance, `3` Office, `4` Game,
+`5` GameHighPerformance.
+
+The vendor UI presents three choices and only ever writes three of these six —
+Basic Mode → `0`, Competitive Firmware → `4`, Competitive Firmware MAX → `5`.
+Whether the competitive tiers appear at all is gated on firmware flags the
+device doesn't report over HID, so a device can answer the read with a mode it
+will refuse to be set to.
+
+### Sensor angle
+
+Read from address `2692`, two bytes, `[enable, degrees]`. Written with
+`SetSensorAngle` (`0x21`), payload `[enable, degrees]` — same order.
+
+`degrees` is a signed byte in two's complement, and the vendor UI clamps it to
+±30°: `display = raw > 30 ? raw − 256 : raw`, `raw = deg < 0 ? deg + 256 : deg`.
+
+Note that COMPX stores the same two fields in the opposite order.
 
 ### Lift-off distance
 
@@ -253,9 +273,9 @@ entries are those companion bytes.
 0xAF linearCorrection
 0xB1 rippleControl
 0xB3 moveCloseLights
-0xB5 sensorEnable   0xB7 sensorTime   0xB9 sensorMode
+0xB5 sensorEnable   0xB7 sensorTime   0xB9 sensorMode   ← one 6-byte row
 0xBB rfTxTime
-0xBD angle               ← sensor rotation
+0xBD angle               ← sensor rotation, 4-byte row
 0xE3 rollingDelay
 0x100-0x2E0  keyShortcuts0..15
 0x300+       macro0..15
@@ -264,12 +284,39 @@ entries are those companion bytes.
 0x1B48 sensorCenterPoint    0x1B4C fastTriggerDebounce
 ```
 
-Two rows are read-modify-write, because several settings share them:
+Three rows are read-modify-write, because several settings share them:
 
 - **`0x00`, 10 bytes** — `[rate, ~rate, maxDpi, ~maxDpi, currentDpi, ~currentDpi, bhop, ~bhop, buttonOpMode, ~buttonOpMode]`
-- **`0xA9`, 10 bytes** — `[debounce, ~, motionSync, ~, sleep/10, ~, linearCorrection, ~, rippleControl, ~]`
+- **`0xA9`, 10 bytes** — `[debounce, ~, motionSync, ~, closeLedTime/10, ~, linearCorrection, ~, rippleControl, ~]`
+- **`0xB5`, 6 bytes** — `[sensorSleepEnabled, ~, sensorSleepTime/10, ~, sensorModel, ~]`
 
 Writing a whole row with stale neighbours silently clobbers them.
+
+### Sleep — two clocks, not one
+
+COMPX keeps two independent idle timers and the vendor's single "sleep time"
+control writes **both**:
+
+- `closeLedTime` at `0xAD` (inside the `0xA9` row), the value read back as the
+  device's sleep setting;
+- `sensorSleepTime` at `0xB7` (inside the `0xB5` row), the sensor's own timer,
+  written together with `sensorSleepEnabled = 1` at `0xB5`.
+
+Both hold **units of ten seconds**. Writing only `closeLedTime` leaves the
+sensor scanning past the timeout, so the setting appears to take and the mouse
+doesn't actually sleep on it. BITMOUSE has no equivalent split — its
+`SetSensorSleepTime` (`0x15`) is a single uint16 of seconds.
+
+### Sensor performance mode
+
+`sensorModel` at `0xB9`, inside the `0xB5` row. Same enum and same three-value
+vendor UI as BITMOUSE — see above.
+
+### Sensor angle
+
+`0xBD`, four bytes, `[degrees, ~degrees, enabled, ~enabled]`. Same signed-byte
+±30° encoding as BITMOUSE, but note the fields are in the **opposite order**:
+COMPX puts the angle first, BITMOUSE puts the enable flag first.
 
 ### Polling rate
 

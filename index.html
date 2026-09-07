@@ -64,6 +64,8 @@
   .item .d{font-size:13px;color:var(--dim);margin-top:3px}
   .item.row{display:flex;align-items:center;gap:16px}
   .item.row>div{flex:1;min-width:0}
+  .item .head{display:flex;align-items:center;gap:16px}
+  .item .head>div{flex:1;min-width:0}
 
   .seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:13px;padding:4px;
     background:#0f1418;border:1px solid var(--line);border-radius:9px}
@@ -219,6 +221,29 @@
         </div>
         <input type="checkbox" class="sw" id="fardist">
       </div>
+
+      <div class="item">
+        <div class="t">Sensor performance</div>
+        <div class="d">How hard the sensor samples the surface. The competitive modes
+          scan far more often — lower latency and steadier tracking, shorter battery
+          life. Older firmware may only accept Basic.</div>
+        <div class="seg" id="segSensorMode"></div>
+      </div>
+
+      <div class="item">
+        <div class="head">
+          <div>
+            <div class="t">Sensor rotation</div>
+            <div class="d">Turns the sensor&rsquo;s idea of &ldquo;straight&rdquo; to match how
+              you hold the mouse, so a flick you meant to be horizontal lands horizontal.</div>
+          </div>
+          <input type="checkbox" class="sw" id="angleOn">
+        </div>
+        <div class="slider hidden" id="angleSlider">
+          <input type="range" id="angle" min="-30" max="30" step="1" value="0">
+          <output id="angleOut">0&deg;</output>
+        </div>
+      </div>
     </div>
 
     <div class="group">
@@ -305,6 +330,18 @@ const DEBOUNCE = [[0, 'Off'], [1, '1 ms'], [2, '2 ms'], [4, '4 ms'],
 const SLEEP = [[30, '30 sec'], [60, '1 min'], [120, '2 min'], [180, '3 min'],
                [300, '5 min'], [1200, '20 min'], [1500, '25 min'], [1800, '30 min']];
 
+/* Sensor performance ("how hard the sensor samples"). The stored byte carries
+   the firmware's full enum — see SENSORMODE — but the vendor UI only ever
+   writes three of its values: Auth as the low-power default, then Game and
+   GameHighPerformance as the two competitive tiers. Offer exactly those. */
+const SENSOR_MODES = [[0, 'Basic'], [4, 'Competitive'], [5, 'Competitive Max']];
+
+/* Sensor rotation is a signed degree count in a single byte, two's complement,
+   and the vendor UI clamps it to ±30°. */
+const ANGLE_LIMIT   = 30;
+const angleFromByte = b => b > ANGLE_LIMIT ? b - 256 : b;
+const angleToByte   = d => (d < 0 ? d + 256 : d) & 0xFF;
+
 /* ── logging + toast ─────────────────────────────────────────────── */
 function log(cls, label, detail){
   const el = document.createElement('div');
@@ -372,7 +409,11 @@ const BM_CMD = { SetReportRate:1, SetDpi:2, SetSilentHeight:3, GetBatteryLevel:7
   GetCurrentMouseConfig:9, SetLinearCorrection:11, SetRippleControl:12,
   SetMotionSync:13, GetBatteryChargingStatus:15, Reset:19, SetSensorSleepTime:21,
   SetStabilizationTime:22, GetAddressData:23, GetDeviceType:26, SetFarDistance:27,
-  GetDeviceVersion:28, GetChipId:71, MouseCidMid:74, GetDongleVersion:136 };
+  GetDeviceVersion:28, SetSensorModel:31, SetSensorAngle:33, GetChipId:71,
+  MouseCidMid:74, GetDongleVersion:136 };
+
+/* BITMOUSE keeps these outside the config packet, in address space */
+const BM_ADDR = { sensorMode:74, farDistance:75, sensorAngle:2692 };
 
 const BM_RATE = { 1000:0, 500:1, 250:2, 125:3, 8000:4, 4000:5, 2000:6 };
 const BM_RATE_REV = Object.fromEntries(Object.entries(BM_RATE).map(([hz,v]) => [v, +hz]));
@@ -380,8 +421,8 @@ const CONNTYPE = {0:'Wireless',1:'Wireless',2:'Wired',3:'Wired',
                   4:'Wireless',5:'Wireless',6:'Wired',7:'Wired'};
 const CONNDETAIL = {0:'dongle 1K',1:'dongle 4K',2:'wired 1K',3:'wired 8K',
                     4:'dongle 2K',5:'dongle 8K',6:'wired 2K',7:'wired 4K'};
-const SENSORMODE = {0:'Auto',1:'Power saving',2:'High performance',
-                    3:'Office',4:'Game',5:'Game (max)'};
+const SENSORMODE = {0:'Basic (Auth)',1:'Power saving',2:'High performance',
+                    3:'Office',4:'Competitive (Game)',5:'Competitive Max'};
 
 class BitmouseDriver {
   static family = 'bm';
@@ -459,8 +500,11 @@ class BitmouseDriver {
       add('Profile', v.u8(0));
     } catch { s.stale = true; }
 
-    try { const v = await this.addr(75,1); s.farDist = !!v.u8(3); } catch{}
-    try { const v = await this.addr(74,1); add('Sensor mode', SENSORMODE[v.u8(3)] ?? 'unknown'); } catch{}
+    try { const v = await this.addr(BM_ADDR.farDistance, 1); s.farDist = !!v.u8(3); } catch{}
+    try { const v = await this.addr(BM_ADDR.sensorMode, 1); s.sensorMode = v.u8(3); } catch{}
+    /* [enable, degrees], the degree byte signed */
+    try { const v = await this.addr(BM_ADDR.sensorAngle, 2);
+          s.angleOn = !!v.u8(3); s.angleDeg = angleFromByte(v.u8(4)); } catch{}
 
     /* DPI table: 70 bytes of address space, 10 at a time */
     try {
@@ -505,6 +549,10 @@ class BitmouseDriver {
     {paramLen:3, cmdLen:1, payload:[ms]}); }
   setSleep(sec){ return this.xfer(BM_CMD.SetSensorSleepTime,
     {paramLen:5, cmdLen:2, payload:[sec & 0xFF, (sec>>8) & 0xFF]}); }
+  setSensorMode(mode){ return this.xfer(BM_CMD.SetSensorModel,
+    {paramLen:3, cmdLen:1, payload:[mode]}); }
+  setAngle(on, deg){ return this.xfer(BM_CMD.SetSensorAngle,
+    {paramLen:4, cmdLen:2, payload:[on ? 1 : 0, angleToByte(deg)]}); }
   setDpi(v){ return this.xfer(BM_CMD.SetDpi, {paramLen:12, cmdLen:10,
     payload:[this.activeStage, v & 0xFF, (v>>8) & 0xFF, v & 0xFF, (v>>8) & 0xFF,
              0,0,0,0, 1]}); }
@@ -579,6 +627,7 @@ class CompxDriver {
     this.activeStage = 0;
     this.rateBlock = null;      // cached 0x00 row, rewritten whole on change
     this.funcBlock = null;      // cached 0xA9 row, likewise
+    this.sensorBlock = null;    // cached 0xB5 row, likewise
   }
   pack(commandId, {addr=0, len=0, payload=[]} = {}){
     const b = new Uint8Array(16);
@@ -633,6 +682,24 @@ class CompxDriver {
       s.sleepSec   = v.u8(4) * 10;        // stored in units of ten seconds
       s.lineCorr   = !!v.u8(6);
       s.ripple     = !!v.u8(8);
+    } catch{}
+
+    /* 0xB5 is a 6-byte row: [sleepEnabled, ~, sleepTime/10, ~, mode, ~].
+       Its sleep clock is the sensor's own, separate from the closeLedTime
+       clock in the 0xA9 row above — both have to be set for sleep to work. */
+    try {
+      const v = await this.read(CX_ADDR.sensorEnable, 6);
+      this.sensorBlock = Array.from({length:6}, (_,i) => v.u8(i));
+      s.sensorSleepOn  = !!v.u8(0);
+      s.sensorSleepSec = v.u8(2) * 10;
+      s.sensorMode     = v.u8(4);
+    } catch{}
+
+    /* 0xBD: [degrees, ~, enabled, ~] — note the opposite order to BITMOUSE */
+    try {
+      const v = await this.read(CX_ADDR.angle, 4);
+      s.angleDeg = angleFromByte(v.u8(0));
+      s.angleOn  = !!v.u8(2);
     } catch{}
 
     try { const v = await this.xfer(CX_CMD.GetFarDistanceMode);
@@ -727,8 +794,31 @@ class CompxDriver {
     await this.write(CX_ADDR.funcBlock, b);
     this.funcBlock = b;
   }
+  async patchSensor(index, value){
+    const b = this.sensorBlock ? [...this.sensorBlock] : new Array(6).fill(0);
+    const [v, inv] = CompxDriver.pair(value);
+    b[index] = v; b[index+1] = inv;
+    await this.write(CX_ADDR.sensorEnable, b);
+    this.sensorBlock = b;
+  }
   setDebounce(ms){ return this.patchFunc(0, ms); }
-  setSleep(sec){ return this.patchFunc(4, Math.round(sec/10)); }
+  /* Two clocks have to agree. closeLedTime in the 0xA9 row is the one read
+     back as "sleep after", but leaving the sensor's own timer alone keeps the
+     sensor scanning past it — so write both, and arm the sensor timer while
+     we're there. This is what the vendor's single sleep control does. */
+  async setSleep(sec){
+    const units = Math.round(sec / 10);
+    await this.patchFunc(4, units);
+    const b = this.sensorBlock ? [...this.sensorBlock] : new Array(6).fill(0);
+    const [on, onInv]     = CompxDriver.pair(1);
+    const [time, timeInv] = CompxDriver.pair(units);
+    b[0] = on; b[1] = onInv; b[2] = time; b[3] = timeInv;
+    await this.write(CX_ADDR.sensorEnable, b);
+    this.sensorBlock = b;
+  }
+  setSensorMode(mode){ return this.patchSensor(4, mode); }
+  setAngle(on, deg){ return this.write(CX_ADDR.angle,
+    [...CompxDriver.pair(angleToByte(deg)), ...CompxDriver.pair(on ? 1 : 0)]); }
   async setToggle(key, on){
     if (key === 'farDist')
       return this.xfer(CX_CMD.SetFarDistanceMode, {len:10, payload:[on ? 1 : 0]});
@@ -793,6 +883,36 @@ buildSeg('#segDebounce', DEBOUNCE, async (v,l) => {
   await drv.setDebounce(v); toast(`Click debounce set to ${l}`); });
 buildSeg('#segSleep', SLEEP, async (v,l) => {
   await drv.setSleep(v); toast(`Sleeps after ${l}`); });
+buildSeg('#segSensorMode', SENSOR_MODES, async (v,l) => {
+  await drv.setSensorMode(v); toast(`Sensor performance: ${l}`); });
+
+/* Rotation writes its flag and its angle together — they share one frame on
+   BITMOUSE and one EEPROM row on COMPX, so there is no setting one alone. */
+let angleDeg = 0, angleOn = false, angleTimer = null;
+const angleText = () => (angleDeg > 0 ? '+' : '') + angleDeg + '\u00B0';
+function showAngle(){
+  $('#angleOut').textContent = angleText();
+  $('#angleSlider').classList.toggle('hidden', !angleOn);
+}
+async function writeAngle(){
+  try { await drv.setAngle(angleOn, angleDeg); return true; }
+  catch { toast('Could not save — try again', 1); return false; }
+}
+$('#angleOn').onchange = async e => {
+  angleOn = e.target.checked;
+  showAngle();
+  if (await writeAngle())
+    toast(angleOn ? `Sensor rotation ${angleText()}` : 'Sensor rotation off');
+  else { angleOn = !angleOn; e.target.checked = angleOn; showAngle(); }
+};
+$('#angle').oninput = e => {
+  angleDeg = parseInt(e.target.value, 10);
+  showAngle();
+  clearTimeout(angleTimer);
+  angleTimer = setTimeout(async () => {
+    if (await writeAngle()) toast(`Sensor rotation ${angleText()}`);
+  }, 160);
+};
 
 const onLodLevel = async (code, label) => {
   await drv.setLodLevel(code);
@@ -920,6 +1040,20 @@ async function readAll(){
   }
   if (s.debounceMs != null) mark('#segDebounce', s.debounceMs);
   if (s.sleepSec) mark('#segSleep', s.sleepSec);
+  if (s.sensorMode != null){
+    mark('#segSensorMode', s.sensorMode);
+    info.push(['Sensor performance', SENSORMODE[s.sensorMode] ?? `unknown (${s.sensorMode})`]);
+  }
+  if (s.sensorSleepSec != null)
+    info.push(['Sensor sleep', s.sensorSleepOn ? s.sensorSleepSec + ' s' : 'off']);
+  if (s.angleDeg != null){
+    angleDeg = Math.max(-ANGLE_LIMIT, Math.min(ANGLE_LIMIT, s.angleDeg));
+    angleOn  = !!s.angleOn;
+    $('#angle').value = angleDeg;
+    $('#angleOn').checked = angleOn;
+    showAngle();
+    info.push(['Sensor rotation', angleOn ? angleText() : 'off']);
+  }
   if (s.motionSync != null) $('#movesync').checked = s.motionSync;
   if (s.lineCorr   != null) $('#linecorr').checked = s.lineCorr;
   if (s.ripple     != null) $('#ripple').checked   = s.ripple;
