@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tested hardware — OpenATK</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1013; --card:#161b21; --card2:#1c222a; --line:#262f39;
+    --ink:#eef3f8; --dim:#94a3b1; --dimmer:#64717e;
+    --acc:#3ddc84; --warn:#f5c451; --bad:#f87171;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:40px 22px 90px}
+
+  header{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+  .logo{width:42px;height:42px;border-radius:11px;flex:0 0 auto;
+    background:linear-gradient(145deg,#232c36,#151a20);border:1px solid var(--line);
+    display:grid;place-items:center;font-size:19px}
+  h1{margin:0;font-size:21px;font-weight:650;letter-spacing:-.02em}
+  .status{color:var(--dim);font-size:13.5px;margin-top:1px}
+
+  .btn{font:600 14px/1 Inter,sans-serif;padding:12px 20px;border-radius:9px;
+    border:1px solid transparent;background:#3ddc84;color:#06210f;cursor:pointer;
+    text-decoration:none;display:inline-block;transition:filter .12s}
+  .btn:hover{filter:brightness(1.08)}
+
+  .lede{margin-top:30px;color:var(--dim);font-size:14.5px}
+  .lede a{color:var(--acc)}
+
+  .group{margin-top:34px}
+  .group>h2{margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--dimmer)}
+  .group>p{margin:0 0 13px;color:var(--dim);font-size:13.5px}
+
+  .scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);
+    border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--dimmer);padding:13px 16px;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td.pid{font-family:var(--mono);font-size:12.5px;color:var(--dim);white-space:nowrap}
+  td.fam{font-family:var(--mono);font-size:12px;color:var(--dimmer);white-space:nowrap}
+  td .note{display:block;color:var(--dimmer);font-size:12.5px;margin-top:3px}
+
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    margin-right:8px;vertical-align:middle}
+  .dot.ok{background:var(--acc)}
+  .dot.maybe{background:var(--dimmer)}
+  .dot.ask{background:var(--warn)}
+
+  .callout{margin-top:14px;background:var(--card);border:1px solid var(--line);
+    border-left:2px solid var(--warn);border-radius:10px;padding:14px 17px;
+    color:var(--dim);font-size:13.5px}
+  .callout b{color:var(--ink);font-weight:600}
+  .callout code,.lede code,p code{font-family:var(--mono);font-size:12.5px;
+    background:#0f1418;border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+
+  .foot{margin-top:34px;color:var(--dimmer);font-size:12.5px;text-align:center}
+  .foot a{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">🖱</div>
+  <div style="flex:1;min-width:0">
+    <h1>Tested hardware</h1>
+    <div class="status">Which ATK mice OpenATK is known to work on</div>
+  </div>
+  <a class="btn" href="index.html">Open the app</a>
+</header>
+
+<p class="lede">
+  Two vendor protocols ship under the ATK name and the app speaks both, picking one
+  automatically from the interface the device exposes. Anything on a third interface
+  won't appear in the browser's device picker at all. The name registry covers 251
+  product IDs, so most ATK and VXE mice should at least connect and identify — the
+  tables below are about what someone has actually put hands on.
+</p>
+
+<div class="group">
+  <h2><span class="dot ok"></span>Confirmed on hardware</h2>
+  <p>Connected, read back correctly, and settings written and verified to stick.</p>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Device</th><th>PID</th><th>Family</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ATK Zero
+            <span class="note">Over the 8K dongle "dongle-L1" — the receiver enumerates
+              as <code>0x1155</code> and the paired mouse resolves from its CID/MID pair.</span></td>
+          <td class="pid">0x1155 → 0x1154</td>
+          <td class="fam">BITMOUSE</td>
+        </tr>
+        <tr>
+          <td>ATK A9 Mini +</td>
+          <td class="pid">0x1251</td>
+          <td class="fam">BITMOUSE</td>
+        </tr>
+        <tr>
+          <td>ATK A9 Mini +</td>
+          <td class="pid">0x1269, 0x128E</td>
+          <td class="fam">COMPX</td>
+        </tr>
+        <tr>
+          <td>ATK F1 Ultimate 2.0</td>
+          <td class="pid">0x11E4</td>
+          <td class="fam">COMPX</td>
+        </tr>
+        <tr>
+          <td>ATK F1 EXTREME 2.0</td>
+          <td class="pid">0x11E3</td>
+          <td class="fam">COMPX</td>
+        </tr>
+        <tr>
+          <td>ATK F1 Ultra Max 2.0
+            <span class="note">Ships under two PIDs with different sensors —
+              <code>0x126E</code> is a PAW3950 Ultra, <code>0x11ED</code> a PAW3395 Ultra.
+              They use different DPI encodings and different lift-off ranges, and the app
+              picks the right one per device.</span></td>
+          <td class="pid">0x126E, 0x11ED</td>
+          <td class="fam">COMPX</td>
+        </tr>
+        <tr>
+          <td><span class="dot ask"></span>ATK X1 Ultra Max 2.0
+            <span class="note">Tested, but the model ships under three PIDs across both
+              families and we haven't recorded which one was on the bench. Open the app,
+              expand <b>Device info and troubleshooting</b>, and the <code>DEV</code> line
+              in the activity log gives the PID and family.</span></td>
+          <td class="pid">0x1274<br>0x11EC<br>0x12FF</td>
+          <td class="fam">COMPX (uA)<br>COMPX (B)<br>COMPX (B7)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="group">
+  <h2><span class="dot maybe"></span>Should work, not yet confirmed</h2>
+  <p>Same protocol as something above, identified from the vendor registry, but nobody
+     has reported back on one yet.</p>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Device</th><th>PID</th><th>Family</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>ATK Zero</td><td class="pid">0x124E</td><td class="fam">COMPX</td></tr>
+        <tr><td>ATK Zero +</td><td class="pid">0x129E</td><td class="fam">BITMOUSE</td></tr>
+        <tr><td>ATK Zero EX</td><td class="pid">0x11CC</td><td class="fam">COMPX</td></tr>
+        <tr><td>ATK Zero EX +</td><td class="pid">0x1289</td><td class="fam">COMPX</td></tr>
+        <tr><td>ATK Zero Plus Gengar Edition</td><td class="pid">0x1331</td><td class="fam">BITMOUSE</td></tr>
+        <tr><td>ATK A9 Mini</td><td class="pid">0x1268</td><td class="fam">BITMOUSE</td></tr>
+        <tr><td>ATK A9 Mini</td><td class="pid">0x1256, 0x125A</td><td class="fam">COMPX</td></tr>
+        <tr><td>ATK F1 LEVIATAN 2.0</td><td class="pid">0x11F0</td><td class="fam">COMPX</td></tr>
+        <tr><td>ATK F1 Ultimate 2.0 +</td><td class="pid">0x129C</td><td class="fam">COMPX</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="group">
+  <h2>The two families</h2>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Family</th><th>Interface</th><th>Frames</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>BITMOUSE</td><td class="pid">0xFF05 / usage 1</td><td>63-byte output reports</td></tr>
+        <tr><td>COMPX</td><td class="pid">0xFF04 / usage 2</td><td>16-byte EEPROM frames</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    Wireless receivers report a generic product name — "Wireless mouse 8k dongle-L1" and
+    the like — so the app reads the CID/MID pair off the link and resolves the mouse that
+    is actually paired. That is why a dongle PID and a mouse PID both appear above.
+  </div>
+</div>
+
+<div class="group">
+  <h2>Reporting a device</h2>
+  <p>Both outcomes are useful, and the second one more so.</p>
+  <div class="callout">
+    <b>If it works</b> — open an issue with the model and PID and it moves into the
+    confirmed table.<br><br>
+    <b>If it doesn't</b> — open an issue with the activity log. It's under
+    <b>Device info and troubleshooting</b> in the app, behind <b>Show activity log</b>,
+    and it holds every frame sent and received. That log is the thing that makes a bug
+    report actionable.<br><br>
+    <b>If a setting reads back differently to ATK HUB</b> — the log plus a note of what
+    HUB shows is exactly what's needed.
+  </div>
+</div>
+
+<p class="foot">
+  <a href="index.html">OpenATK</a> · not affiliated with ATK ·
+  <a href="docs/PROTOCOL.md">protocol notes</a>
+</p>
+
+</div>
+</body>
+</html>

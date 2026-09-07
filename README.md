@@ -47,20 +47,11 @@ Confirmed on hardware:
 | ATK F1 Ultimate 2.0 | `0x11E4` | COMPX |
 | ATK F1 EXTREME 2.0 | `0x11E3` | COMPX |
 | ATK F1 Ultra Max 2.0 | `0x126E`, `0x11ED` | COMPX |
+| ATK X1 Ultra Max 2.0 | `0x1274` / `0x11EC` / `0x12FF` | COMPX |
 
-Should work, not yet confirmed on hardware — same protocol, identified from the vendor registry:
-
-| Device | PID | Family |
-|---|---|---|
-| ATK Zero | `0x124E` | COMPX |
-| ATK Zero + | `0x129E` | BITMOUSE |
-| ATK Zero EX | `0x11CC` | COMPX |
-| ATK Zero EX + | `0x1289` | COMPX |
-| ATK Zero Plus Gengar Edition | `0x1331` | BITMOUSE |
-| ATK A9 Mini | `0x1268` | BITMOUSE |
-| ATK A9 Mini | `0x1256`, `0x125A` | COMPX |
-| ATK F1 LEVIATAN 2.0 | `0x11F0` | COMPX |
-| ATK F1 Ultimate 2.0 + | `0x129C` | COMPX |
+There is a longer list of devices that should work but nobody has reported back on, plus
+the details behind each entry, on the **[tested hardware page](tested.html)** — live at
+[sunnybee.lol/openatk/tested.html](https://sunnybee.lol/openatk/tested.html).
 
 Note that F1 Ultra Max 2.0 ships under two PIDs with different sensors — `0x126E` is a PAW3950 Ultra, `0x11ED` a PAW3395 Ultra. They use different DPI encodings and different lift-off ranges, and the app picks the right one per device.
 
