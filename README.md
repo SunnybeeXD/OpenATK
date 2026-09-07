@@ -83,10 +83,17 @@ Wireless receivers report a generic product name — "Wireless mouse 8k dongle-L
 | Straight line correction | on / off |
 | Ripple correction | on / off |
 | Long range mode | on / off |
+| Sensor performance | Basic, Competitive, Competitive Max |
+| Sensor rotation | on / off, −30° to +30° in 1° steps |
 | Click debounce | off, 1, 2, 4, 8, 15, 20 ms |
 | Sleep after | 30 s – 30 min |
 
 Reads: battery and charging state, connection type, firmware versions, serial, sensor mode, and the full DPI stage table.
+
+On COMPX devices "Sleep after" now writes both of the two idle timers the firmware
+keeps — the LED/device clock and the sensor's own — because writing only the first,
+as the app previously did, leaves the sensor scanning past the timeout. That matches
+what ATK HUB does from its single sleep control.
 
 Every control writes immediately. If a write fails the control snaps back to its previous position, so what's on screen always reflects what's on the mouse.
 
@@ -146,7 +153,7 @@ Useful things:
 
 - **Confirm a device.** Open an issue with your model, PID and whether reads and writes behaved.
 - **Report a mismatch.** If a setting reads back differently to ATK HUB, the activity log plus what HUB shows is exactly what's needed.
-- **Extend the protocol doc.** Plenty of commands are mapped but unexposed — sensor angle, sensor performance mode, button remapping, macros, RGB, dynamic sensitivity curves.
+- **Extend the protocol doc.** Plenty of commands are mapped but unexposed — button remapping, macros, RGB, dynamic sensitivity curves, virtual centre, BHOP.
 
 ## License
 
