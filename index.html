@@ -147,6 +147,14 @@
      style="color:var(--dim);font-size:13px">Which mice have been tested?</a></p>
 </div>
 
+<div class="hero hidden" id="blocked">
+  <h2>This needs a desktop</h2>
+  <p>OpenATK talks to your mouse over WebHID, which phones and tablets don't
+     implement. Open this page on a computer, in Chrome, Edge or Opera.</p>
+  <p style="margin:0"><a href="tested.html"
+     style="color:var(--dim);font-size:13px">Which mice have been tested?</a></p>
+</div>
+
 <div id="app" class="hidden">
 
   <div class="strip">
@@ -961,7 +969,19 @@ $('#factory').onclick = async () => {
 };
 
 /* ── connect ─────────────────────────────────────────────────────── */
+const IS_MOBILE = navigator.userAgentData?.mobile === true
+  || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
+  || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+if (IS_MOBILE){
+  $('#hero').classList.add('hidden');
+  $('#blocked').classList.remove('hidden');
+  $('#connect').classList.add('hidden');
+  $('#status').textContent = 'Not available on mobile';
+}
+
 async function connect(){
+  if (IS_MOBILE){ toast('OpenATK needs a desktop browser', 1); return; }
   if (!('hid' in navigator)){ toast('This browser can’t talk to USB devices — use Chrome', 1); return; }
   let picked;
   try {
@@ -1003,6 +1023,34 @@ async function connect(){
 $('#connect').onclick = connect;
 $('#connect2').onclick = connect;
 $('#refresh').onclick = () => readAll();
+
+function disconnected(){
+  drv = null;
+  clearTimeout(lodTimer);
+  clearTimeout(angleTimer);
+  $('#app').classList.add('hidden');
+  if (!IS_MOBILE) $('#hero').classList.remove('hidden');
+  $('#status').className = 'status off';
+  $('#status').textContent = 'Not connected';
+  $('#devName').textContent = 'ATK Mouse';
+  $('#sBatt').textContent = '—';
+  $('#sBattBar').style.width = '0';
+  $('#sConn').textContent = '—';
+  $('#sDpi').textContent = '—';
+  $('#kv').innerHTML = '';
+  for (const b of document.querySelectorAll('.seg button'))
+    b.setAttribute('aria-pressed', 'false');
+  for (const id of ['movesync','linecorr','ripple','fardist']) $('#'+id).checked = false;
+  angleDeg = 0; angleOn = false;
+  $('#angle').value = 0;
+  $('#angleOn').checked = false;
+  showAngle();
+  toast('Mouse disconnected', 1);
+}
+
+navigator.hid?.addEventListener('disconnect', e => {
+  if (drv && e.device === drv.device) disconnected();
+});
 
 /* ── render ──────────────────────────────────────────────────────── */
 async function readAll(){
