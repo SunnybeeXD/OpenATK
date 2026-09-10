@@ -77,6 +77,7 @@
     box-shadow:0 0 0 1px var(--line);cursor:grab}
   .slider input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
     background:var(--ink);border:3px solid #0d1013;cursor:grab}
+  .slider .lbl{flex:0 0 auto;width:70px;font-size:12.5px;color:var(--dim)}
   .slider output{flex:0 0 auto;min-width:82px;text-align:center;
     font-family:var(--mono);font-size:13.5px;padding:8px 10px;
     background:#0f1418;border:1px solid var(--line);border-radius:8px}
@@ -132,6 +133,15 @@
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #toast.bad{background:#f87171;color:#2b0808}
 
+  .tabs{display:flex;gap:4px;margin-top:22px;padding:4px;background:#12171c;
+    border:1px solid var(--line);border-radius:10px}
+  .tabs button{flex:1;font:600 13.5px/1 Inter,sans-serif;padding:11px 10px;border:0;
+    border-radius:7px;background:transparent;color:var(--dim);cursor:pointer;
+    transition:background .12s,color .12s}
+  .tabs button:hover{background:#1a2128;color:var(--ink)}
+  .tabs button[aria-pressed=true]{background:var(--card2);color:var(--ink)}
+  .panel{margin-top:16px}
+
   .hidden{display:none !important}
   .foot{margin-top:26px;color:var(--dimmer);font-size:12.5px;text-align:center}
 </style>
@@ -157,28 +167,31 @@
 
 <div id="app" class="hidden">
 
-  <div class="group">
-    <h3>Keys</h3>
-    <div class="item">
-      <div class="t">Per-key actuation</div>
-      <div class="d">Pick keys, then apply a trigger travel or rapid trigger below.</div>
-      <div id="grid"></div>
-      <div class="gridbar">
-        <button class="btn ghost" id="selAll">Select all</button>
-        <button class="btn ghost" id="selInvert">Invert</button>
-        <button class="btn ghost" id="selWasd">WASD</button>
-        <button class="btn ghost" id="selClear">Clear</button>
-        <button class="btn ghost" id="rereadKeys">Re-read keys</button>
-        <span class="count" id="selCount">No keys selected</span>
-      </div>
-      <p class="note" id="gridNote"></p>
-    </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="keys" aria-pressed="true">Keys</button>
+    <button data-tab="board" aria-pressed="false">Keyboard</button>
+    <button data-tab="light" aria-pressed="false">Lighting</button>
+    <button data-tab="device" aria-pressed="false">Device</button>
+  </nav>
 
-    <div class="cols two">
+  <section class="panel" data-panel="keys">
+    <div id="grid"></div>
+    <div class="gridbar">
+      <button class="btn ghost" id="selAll">Select all</button>
+      <button class="btn ghost" id="selInvert">Invert</button>
+      <button class="btn ghost" id="selWasd">WASD</button>
+      <button class="btn ghost" id="selClear">Clear</button>
+      <button class="btn ghost" id="rereadKeys">Re-read</button>
+      <span class="count" id="selCount">No keys selected</span>
+    </div>
+    <p class="note" id="gridNote"></p>
+
+    <div class="cols two" style="margin-top:18px">
       <div class="item">
         <div class="t">Trigger travel</div>
         <div class="d">Shorter travel responds faster but triggers accidentally more easily.</div>
         <div class="slider">
+          <span class="lbl">Travel</span>
           <input type="range" id="travel" min="0.1" max="3.4" step="0.02" value="1.5">
           <output id="travelOut">1.500</output>
         </div>
@@ -194,10 +207,12 @@
           <input type="checkbox" class="sw" id="rtOn"> Enable on selected keys
         </label>
         <div class="slider">
+          <span class="lbl">Press</span>
           <input type="range" id="rtPress" min="0.001" max="3.4" step="0.001" value="0.5">
           <output id="rtPressOut">0.500</output>
         </div>
         <div class="slider">
+          <span class="lbl">Lift</span>
           <input type="range" id="rtRelease" min="0.001" max="3.4" step="0.001" value="0.5">
           <output id="rtReleaseOut">0.500</output>
         </div>
@@ -220,7 +235,6 @@
           <button class="btn ghost" id="applyDz">Save</button>
         </div>
       </div>
-
       <div class="item row">
         <div>
           <div class="t">Extreme mode</div>
@@ -229,10 +243,9 @@
         <input type="checkbox" class="sw" id="gameMode">
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="group">
-    <h3>Keyboard</h3>
+  <section class="panel hidden" data-panel="board">
     <div class="cols two">
       <div>
         <div class="item row">
@@ -261,7 +274,6 @@
           <input type="checkbox" class="sw" id="aiMatch">
         </div>
       </div>
-
       <div>
         <div class="item">
           <div class="t">Anti-ghosting</div>
@@ -281,26 +293,27 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="group">
-    <h3>Lighting</h3>
+  <section class="panel hidden" data-panel="light">
     <div class="cols two">
       <div class="item">
         <div class="t">Back lamp</div>
         <div class="d">Main per-key backlight.</div>
         <div style="margin-top:12px"><select id="effect"></select></div>
         <div class="slider">
+          <span class="lbl">Brightness</span>
           <input type="range" id="brightness" min="0" max="100" step="1" value="50">
           <output id="brightnessOut">50</output>
         </div>
         <div class="slider">
+          <span class="lbl">Speed</span>
           <input type="range" id="speed" min="0" max="100" step="1" value="50">
           <output id="speedOut">50</output>
         </div>
         <div class="gridbar">
           <label class="inline">Colour <input type="color" id="color" value="#ffffff"></label>
-          <label class="inline"><input type="checkbox" class="sw" id="colorful"> Full colour mode</label>
+          <label class="inline"><input type="checkbox" class="sw" id="colorful"> Full colour</label>
         </div>
       </div>
 
@@ -317,10 +330,12 @@
         </div>
         <div style="margin-top:10px"><select id="zoneEffect"></select></div>
         <div class="slider">
+          <span class="lbl">Brightness</span>
           <input type="range" id="zoneBrightness" min="0" max="100" step="1" value="50">
           <output id="zoneBrightnessOut">50</output>
         </div>
         <div class="slider">
+          <span class="lbl">Speed</span>
           <input type="range" id="zoneSpeed" min="0" max="100" step="1" value="50">
           <output id="zoneSpeedOut">50</output>
         </div>
@@ -338,22 +353,22 @@
         <label class="inline">Win Lock <input type="color" id="winColor" value="#ff0000"></label>
       </div>
     </div>
-  </div>
+  </section>
 
-  <details>
-    <summary>Device info and troubleshooting</summary>
-    <div class="adv">
-      <table class="kv" id="kv"></table>
-      <div class="gridbar" style="margin-top:16px">
+  <section class="panel hidden" data-panel="device">
+    <div class="item">
+      <div class="t">Device info</div>
+      <table class="kv" id="kv" style="margin-top:12px"></table>
+      <div class="gridbar">
         <button class="btn ghost" id="refresh">Refresh</button>
         <button class="btn ghost" id="togglelog">Show activity log</button>
       </div>
       <div id="log" class="hidden"></div>
     </div>
-  </details>
+    <p class="foot">Changes save to the keyboard immediately. Advanced keys —
+       RS, SOCD, OKS, DKS, MT, TGL — are not implemented yet.</p>
+  </section>
 
-  <p class="foot">Changes save to the keyboard immediately. Advanced keys —
-     RS, SOCD, OKS, DKS, MT, TGL — are not implemented yet.</p>
 </div>
 </div>
 
@@ -787,6 +802,8 @@ async function connect(){
   $('#app').classList.remove('hidden');
   $('#status').className = 'status';
   $('#status').innerHTML = '<b>Connected</b>';
+  $('#connect').textContent = 'Reconnect';
+  $('#connect').classList.add('ghost');
   $('#devName').textContent = info?.n ?? `ATK keyboard 0x${pidKey}`;
 
   fillSelect('#effect', EFFECTS);
@@ -907,7 +924,17 @@ async function applyToSelection(fn, label){
   toast(`${label} applied to ${ok} key${ok === 1 ? '' : 's'}`);
 }
 
+function showTab(name){
+  for (const b of document.querySelectorAll('#tabs button'))
+    b.setAttribute('aria-pressed', String(b.dataset.tab === name));
+  for (const p of document.querySelectorAll('.panel'))
+    p.classList.toggle('hidden', p.dataset.panel !== name);
+}
+
 function wire(){
+  for (const b of document.querySelectorAll('#tabs button'))
+    b.onclick = () => showTab(b.dataset.tab);
+
   $('#connect').onclick = connect;
   $('#connect2').onclick = connect;
   $('#refresh').onclick = () => readAll();
