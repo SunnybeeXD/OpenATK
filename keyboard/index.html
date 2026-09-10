@@ -89,20 +89,22 @@
     border:1px solid var(--line);background:#0f1418;cursor:pointer}
   label.inline{font-size:13px;color:var(--dim);display:flex;align-items:center;gap:9px}
 
-  #grid{margin-top:16px;padding:14px 12px;background:#0b0f12;
-    border:1px solid var(--line);border-radius:12px;
-    display:flex;flex-direction:column;gap:5px;overflow-x:auto}
-  .krow{display:flex;gap:5px;min-width:640px}
-  .key{flex:1 1 0;min-width:0;background:#161b21;border:1px solid #2b343e;
-    border-radius:6px;padding:6px 2px 5px;cursor:pointer;color:var(--ink);
+  #grid{margin-top:16px;padding:10px;background:#1b1b1d;
+    border:1px solid #2a2a2e;border-radius:10px;
+    display:flex;flex-direction:column;gap:6px;overflow-x:auto}
+  .krow{display:flex;gap:6px;min-width:680px}
+  .key{flex:1 1 0;min-width:0;background:#0e0e10;border:1px solid #2e2e33;
+    border-radius:6px;padding:5px 2px;cursor:pointer;color:#e8e8ea;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:1px;min-height:58px;transition:background .1s,border-color .1s}
-  .key:hover{background:#1f2731;border-color:#41505e}
-  .key em{font-style:normal;font-family:var(--mono);font-size:9.5px;color:var(--hot)}
-  .key span{font-size:11px;font-weight:600;line-height:1.15;text-align:center;
-    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%}
-  .key i{font-style:normal;font-family:var(--mono);font-size:8.5px;color:var(--dimmer)}
-  .key.sel{background:#20402b;border-color:#3ddc84;box-shadow:inset 0 0 0 1px #3ddc84}
+    gap:2px;min-height:56px;transition:background .1s,border-color .1s}
+  .key:hover{background:#18181b;border-color:#454550}
+  .key em{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--hot);
+    line-height:1}
+  .key span{font-size:11.5px;font-weight:500;line-height:1.2;text-align:center;
+    white-space:pre-line;overflow:hidden;max-width:100%}
+  .key i{font-style:normal;font-family:var(--mono);font-size:8.5px;color:#6b6b73;
+    line-height:1}
+  .key.sel{background:#1e3a27;border-color:#3ddc84;box-shadow:inset 0 0 0 1px #3ddc84}
   .gridbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
   .gridbar .count{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
   .note{color:var(--dim);font-size:12.5px;margin:10px 0 0}
@@ -422,25 +424,23 @@ const EFFECTS = [
 ];
 
 const KEYCODES = {
-  0x04:'A',0x05:'B',0x06:'C',0x07:'D',0x08:'E',0x09:'F',0x0A:'G',0x0B:'H',0x0C:'I',
-  0x0D:'J',0x0E:'K',0x0F:'L',0x10:'M',0x11:'N',0x12:'O',0x13:'P',0x14:'Q',0x15:'R',
-  0x16:'S',0x17:'T',0x18:'U',0x19:'V',0x1A:'W',0x1B:'X',0x1C:'Y',0x1D:'Z',
-  0x1E:'1',0x1F:'2',0x20:'3',0x21:'4',0x22:'5',0x23:'6',0x24:'7',0x25:'8',0x26:'9',
-  0x27:'0',0x28:'Enter',0x29:'Esc',0x2A:'Bksp',0x2B:'Tab',0x2C:'Space',0x2D:'-',
-  0x2E:'=',0x2F:'[',0x30:']',0x31:'\\',0x33:';',0x34:"'",0x35:'`',0x36:',',0x37:'.',
-  0x38:'/',0x39:'Caps',0x3A:'F1',0x3B:'F2',0x3C:'F3',0x3D:'F4',0x3E:'F5',0x3F:'F6',
-  0x40:'F7',0x41:'F8',0x42:'F9',0x43:'F10',0x44:'F11',0x45:'F12',0x46:'PrtSc',
-  0x47:'ScrLk',0x48:'Pause',0x49:'Ins',0x4A:'Home',0x4B:'PgUp',0x4C:'Del',
-  0x4D:'End',0x4E:'PgDn',0x4F:'→',0x50:'←',0x51:'↓',0x52:'↑',
-  0xE0:'LCtrl',0xE1:'LShift',0xE2:'LAlt',0xE3:'LWin',
-  0xE4:'RCtrl',0xE5:'RShift',0xE6:'RAlt',0xE7:'RWin',
+  0x04:"A",0x05:"B",0x06:"C",0x07:"D",0x08:"E",0x09:"F",0x0A:"G",0x0B:"H",0x0C:"I",0x0D:"J",
+  0x0E:"K",0x0F:"L",0x10:"M",0x11:"N",0x12:"O",0x13:"P",0x14:"Q",0x15:"R",0x16:"S",0x17:"T",
+  0x18:"U",0x19:"V",0x1A:"W",0x1B:"X",0x1C:"Y",0x1D:"Z",0x1E:"!1",0x1F:"@2",0x20:"#3",0x21:"$4",
+  0x22:"%5",0x23:"^6",0x24:"&7",0x25:"*8",0x26:"(9",0x27:")0",0x28:"Enter",0x29:"Esc",0x2A:"Back Space",
+  0x2B:"Tab",0x2C:"Space",0x2D:"-",0x2E:"+=",0x2F:"{[",0x30:"}]",0x31:"|\\",0x33:":;",
+  0x34:"\"'",0x35:"~`",0x36:"<,",0x37:">.",0x38:"?/",0x39:"Caps Lock",0x3A:"F1",0x3B:"F2",
+  0x3C:"F3",0x3D:"F4",0x3E:"F5",0x3F:"F6",0x40:"F7",0x41:"F8",0x42:"F9",0x43:"F10",0x44:"F11",
+  0x45:"F12",0x46:"Print\nScreen",0x47:"Scroll\nLock",0x48:"Pause",0x49:"Insert",0x4A:"Home",
+  0x4B:"Page\nUp",0x4C:"Delete",0x4D:"End",0x4E:"Page\nDown",0x4F:"\u2192",0x50:"\u2190",
+  0x51:"\u2193",0x52:"\u2191",0xE0:"Left\nCtrl",0xE1:"Left Shift",0xE2:"Left\nAlt",
+  0xE3:"Left\nWin",0xE4:"Right\nCtrl",0xE5:"Right Shift",0xE6:"Right\nAlt",0xE7:"Right\nWin",
 };
 const WASD = [0x1A, 0x04, 0x16, 0x07];
 
 const WIDTHS = {
-  0x2A: 2, 0x2B: 1.5, 0x39: 1.75, 0x28: 2.25, 0x2C: 6.25,
-  0xE1: 2.25, 0xE5: 1.75, 0x31: 1.5,
-  0xE0: 1.25, 0xE2: 1.25, 0xE3: 1.25, 0xE4: 1.25, 0xE6: 1.25, 0xE7: 1.25,
+  0x28:2.25,0x2A:2,0x2B:1.5,0x2C:6.25,0x31:1.5,0x39:1.75,0xE0:1.25,0xE1:2,0xE2:1.25,0xE3:1.25,
+  0xE4:1.25,0xE6:1.25,0xE7:1.25,
 };
 
 const $ = s => document.querySelector(s);
@@ -666,8 +666,16 @@ let rtValues = [];
 
 function cellIndex(r, c){ return r * kb.cols + c; }
 
-function keyWidth(code, row, col){
-  if (code === 0x2C) return 6.25;
+function keyLabel(code){
+  if (!code) return '';
+  if (code < 0x100) return KEYCODES[code] ?? `0x${code.toString(16)}`;
+  const hi = code >> 8;
+  if (hi >= 0x51 && hi <= 0x5F) return 'Win Fn';
+  return KEYCODES[code & 0xFF] ?? `0x${code.toString(16)}`;
+}
+
+function keyWidth(code, hasKeysAfter){
+  if (code === 0xE5) return hasKeysAfter ? 1.25 : 2.75;
   return WIDTHS[code] ?? 1;
 }
 
@@ -678,18 +686,19 @@ function renderGrid(){
     const live = [];
     for (let c = 0; c < kb.cols; c++){
       const i = cellIndex(r, c);
-      if (keymap[i]) live.push({ i, c, code: keymap[i] & 0xFF });
+      if (keymap[i]) live.push({ i, c, code: keymap[i] & 0xFF, raw: keymap[i] });
     }
     if (!live.length) continue;
     const rowEl = document.createElement('div');
     rowEl.className = 'krow';
-    for (const k of live){
-      const w = keyWidth(k.code, r, k.c);
+    for (let n = 0; n < live.length; n++){
+      const k = live[n];
+      const w = keyWidth(k.code, n < live.length - 1);
       const b = document.createElement('button');
       b.className = 'key';
       b.style.flexGrow = String(w);
       if (selected.has(k.i)) b.classList.add('sel');
-      const label = KEYCODES[k.code] ?? `0x${k.code.toString(16)}`;
+      const label = keyLabel(keymap[k.i]);
       const t = travelValues[k.i];
       const rt = rtValues[k.i];
       b.innerHTML =
