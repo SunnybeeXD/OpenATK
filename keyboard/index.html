@@ -137,6 +137,27 @@
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #toast.bad{background:#f87171;color:#2b0808}
 
+  .advh{margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--dimmer);display:flex;gap:10px;align-items:center}
+  .advh span{font-family:var(--mono);letter-spacing:0;text-transform:none;color:var(--dim)}
+  .advcard{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin-bottom:8px;cursor:pointer;color:var(--ink);
+    font-family:inherit;transition:background .1s,border-color .1s}
+  .advcard:hover{background:var(--card2);border-color:#3a4753}
+  .advcard[aria-pressed=true]{border-color:var(--acc)}
+  .advcard b{display:block;font-size:14px;font-weight:600}
+  .advcard em{font-style:normal;display:block;font-size:12.5px;color:var(--dim);margin-top:3px}
+  .advcard .tag{flex:0 0 auto;font-family:var(--mono);font-size:10px;color:var(--dim);
+    border:1px solid var(--line);border-radius:5px;padding:3px 6px;margin-top:2px}
+  .advrow{display:flex;gap:12px;align-items:center;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:8px}
+  .advrow .who{flex:1;min-width:0;font-size:13.5px}
+  .advrow .who small{display:block;color:var(--dim);font-family:var(--mono);font-size:11.5px}
+  .advempty{color:var(--dimmer);font-size:13px;padding:14px 2px}
+  .field{display:flex;gap:10px;align-items:center;margin-top:10px}
+  .field label{flex:0 0 auto;width:104px;font-size:12.5px;color:var(--dim)}
+
   .tabs{display:flex;gap:4px;margin-top:22px;padding:4px;background:#12171c;
     border:1px solid var(--line);border-radius:10px}
   .tabs button{flex:1;font:600 13.5px/1 Inter,sans-serif;padding:11px 10px;border:0;
@@ -174,6 +195,7 @@
   <nav class="tabs" id="tabs">
     <button data-tab="keys" aria-pressed="true">Keys</button>
     <button data-tab="board" aria-pressed="false">Keyboard</button>
+    <button data-tab="adv" aria-pressed="false">Advanced</button>
     <button data-tab="light" aria-pressed="false">Lighting</button>
     <button data-tab="device" aria-pressed="false">Device</button>
   </nav>
@@ -302,6 +324,33 @@
     </div>
   </section>
 
+  <section class="panel hidden" data-panel="adv">
+    <div class="cols two">
+      <div>
+        <h3 class="advh">Add advanced key</h3>
+        <div id="advTypes"></div>
+        <div class="item hidden" id="advForm">
+          <div class="t" id="advFormTitle"></div>
+          <div class="d" id="advFormNeed"></div>
+          <div id="advFields"></div>
+          <div class="gridbar">
+            <button class="btn ghost" id="advAdd">Add</button>
+            <button class="btn ghost" id="advCancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="advh">Configured <span id="advCount">0 / 20</span></h3>
+        <div id="advList"></div>
+        <div class="gridbar">
+          <button class="btn ghost" id="advRefresh">Re-read slots</button>
+        </div>
+        <p class="note">RS, SOCD and OKS share these 20 slots. MT, TGL and DKS are
+           written to their own tables and are not listed here.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="panel hidden" data-panel="light">
     <div class="cols two">
       <div class="item">
@@ -425,6 +474,42 @@ const CH = {
 };
 
 const ZONE = { logo: 240, side: 241, front: 242, button: 243 };
+
+const CH_RS = 0x20;
+const CH_DKS = 0x0F;
+const CH_ENTRY = 0x0D;
+const VIAL_PREFIX = 0xFE;
+const TAPDANCE_GET = 0x01;
+const TAPDANCE_SET = 0x02;
+const SUB_GET = 1;
+const SUB_SET = 3;
+const SLOTS = 20;
+
+const MODE = { none:0, rs:1, socd:2, socdKey1:3, socdKey2:4, socdNeutral:5,
+               oks:6, aksKey1:7, aksKey2:8, aksNeutral:9 };
+
+const MODE_NAME = {
+  1:'RS', 2:'SOCD (last)', 3:'SOCD (key 1)', 4:'SOCD (key 2)',
+  5:'SOCD (neutral)', 6:'OKS', 7:'AKS (key 1)', 8:'AKS (key 2)', 9:'AKS (neutral)',
+};
+
+const SOCD_MODES = [[MODE.socd,'Last pressed wins'],[MODE.socdKey1,'Key 1 wins'],
+                    [MODE.socdKey2,'Key 2 wins'],[MODE.socdNeutral,'Neutral']];
+
+const ADV_TYPES = [
+  ['rs','Rapid Switching (RS)',
+   'When pressing two keys at the same time, trigger the key with deeper press travel', 2],
+  ['socd','Instant Release (SOCD)',
+   'When pressing two buttons simultaneously, quickly triggers the preset specified button', 2],
+  ['oks','OKS',
+   'OKS monitors 2 selected keys and triggers the bound key when the key is released', 2],
+  ['dks','Dynamic Keystroke Length (DKS)',
+   'Bind 1 to 4 functions to a single key based on press and release intensity', 1],
+  ['mt','Hold/Click (MT)',
+   'A single key can distinguish between click and long press to trigger different functions', 1],
+  ['tgl','Toggle Switch (TGL)',
+   'Single click toggles continuous activation, long press triggers normally', 1],
+];
 
 const RATES = [[8000, '8K'], [4000, '4K'], [2000, '2K'], [1000, '1K']];
 const RATE_CODE = { 8000: 0, 4000: 1, 2000: 2, 1000: 3 };
@@ -663,6 +748,82 @@ class Keyboard {
       [row, col, on | 0, rel >> 8, rel & 0xFF, p >> 8, p & 0xFF]);
   }
 
+  advFrame(sub, index, extra = {}){
+    const b = new Array(23).fill(0);
+    b[0] = CUSTOM; b[1] = CH_RS;
+    b[4] = sub; b[5] = index; b[7] = index;
+    if ('mode' in extra) b[6] = extra.mode;
+    if ('point' in extra){
+      const p = Math.round(extra.point * 1000);
+      b[8] = p >> 8; b[9] = p & 0xFF;
+    }
+    if ('rt' in extra) b[11] = extra.rt | 0;
+    if ('key1' in extra){ b[12] = extra.key1[0]; b[13] = extra.key1[1]; }
+    if ('key2' in extra){ b[14] = extra.key2[0]; b[15] = extra.key2[1]; }
+    if ('layer' in extra) b[16] = extra.layer | 0;
+    if ('triggerDelay' in extra){
+      b[17] = (extra.triggerDelay >> 8) & 0xFF; b[18] = extra.triggerDelay & 0xFF;
+    }
+    if ('keyDelay' in extra){
+      b[19] = (extra.keyDelay >> 8) & 0xFF; b[20] = extra.keyDelay & 0xFF;
+    }
+    return b;
+  }
+
+  async getAdvancedKey(index){
+    const r = await this.send(CMD.getKeyboardValue, this.advFrame(SUB_GET, index));
+    const at = o => r[BASE + o];
+    return {
+      index, mode: at(6),
+      point: (((at(8) << 8) | at(9)) / 1000),
+      rt: at(11),
+      key1: [at(12), at(13)],
+      key2: [at(14), at(15)],
+      layer: at(16),
+    };
+  }
+
+  setAdvancedKey(index, cfg){
+    return this.send(CMD.setKeyboardValue, this.advFrame(SUB_SET, index, cfg));
+  }
+
+  clearAdvancedKey(index){
+    return this.setAdvancedKey(index, { mode: MODE.none });
+  }
+
+  tapDance(index, tap, hold, timer){
+    const b = new Array(9).fill(0);
+    b[0] = CH_ENTRY; b[1] = TAPDANCE_SET; b[2] = index;
+    b[3] = 0; b[4] = tap & 0xFF;
+    b[5] = 0; b[6] = hold & 0xFF;
+    b[7] = (timer >> 8) & 0xFF; b[8] = timer & 0xFF;
+    return this.send(VIAL_PREFIX, b);
+  }
+
+  setMt(index, tapCode, holdCode, delay){
+    return this.tapDance(index, tapCode, holdCode, delay);
+  }
+
+  setTgl(index, keyCode, delay){
+    return this.tapDance(index + SLOTS, keyCode, 0, delay);
+  }
+
+  setDks(index, codes, top, bottom){
+    const b = new Array(26).fill(0);
+    b[0] = CUSTOM; b[1] = CH_DKS;
+    b[4] = SUB_SET; b[5] = index;
+    codes.forEach((code, i) => {
+      const o = 6 + 4 * i;
+      const bits = code ? 0x0F : 0;
+      b[o] = bits & 0xFF; b[o+1] = (bits >> 8) & 0xFF;
+      b[o+2] = 0; b[o+3] = code & 0xFF;
+    });
+    const t = Math.round(top * 1000), bt = Math.round(bottom * 1000);
+    b[22] = t >> 8; b[23] = t & 0xFF;
+    b[24] = bt >> 8; b[25] = bt & 0xFF;
+    return this.send(CMD.setKeyboardValue, b);
+  }
+
   async getKeymap(){
     const total = this.rows * this.cols * 2;
     const out = [];
@@ -814,6 +975,8 @@ async function connect(){
   $('#connect').classList.add('ghost');
   $('#devName').textContent = info?.n ?? `ATK keyboard 0x${pidKey}`;
 
+  renderAdvTypes();
+  renderAdvForm();
   fillSelect('#effect', EFFECTS);
   fillSelect('#zoneEffect', EFFECTS);
   buildSeg('#segRate', RATES, async hz => {
@@ -896,6 +1059,7 @@ async function readAll(){
     keymap = new Array(kb.rows * kb.cols).fill(0x29);
 
   await readPerKey();
+  await readAdvanced();
   add('Matrix', `${kb.rows} × ${kb.cols}`);
   $('#kv').innerHTML = info.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
 }
@@ -938,6 +1102,147 @@ function showTab(name){
   for (const p of document.querySelectorAll('.panel'))
     p.classList.toggle('hidden', p.dataset.panel !== name);
   $('#grid').classList.toggle('plain', name !== 'keys');
+}
+
+let advSlots = [];
+let advPick = null;
+
+function keyOptions(){
+  return Object.keys(KEYCODES).map(Number).sort((a,b) => a-b)
+    .map(c => [c, KEYCODES[c].replace('\n', ' ')]);
+}
+
+function selectedPositions(){
+  return [...selected].map(i => [Math.floor(i / kb.cols), i % kb.cols]);
+}
+
+function renderAdvTypes(){
+  const host = $('#advTypes');
+  host.innerHTML = '';
+  for (const [id, title, desc, need] of ADV_TYPES){
+    const b = document.createElement('button');
+    b.className = 'advcard';
+    b.setAttribute('aria-pressed', String(advPick === id));
+    b.innerHTML = `<span class="tag">${id.toUpperCase()}</span>` +
+      `<span><b>${title}</b><em>${desc}</em></span>`;
+    b.onclick = () => { advPick = advPick === id ? null : id; renderAdvTypes(); renderAdvForm(); };
+    host.appendChild(b);
+  }
+}
+
+function field(label, html){
+  return `<div class="field"><label>${label}</label>${html}</div>`;
+}
+
+function renderAdvForm(){
+  const form = $('#advForm');
+  if (!advPick){ form.classList.add('hidden'); return; }
+  const [, title, , need] = ADV_TYPES.find(t => t[0] === advPick);
+  form.classList.remove('hidden');
+  $('#advFormTitle').textContent = title;
+  $('#advFormNeed').textContent = need === 2
+    ? 'Select exactly two keys on the board above.'
+    : 'Select exactly one key on the board above.';
+
+  const opts = keyOptions().map(([c,l]) => `<option value="${c}">${l}</option>`).join('');
+  let html = '';
+  if (advPick === 'rs')
+    html = field('Trigger point',
+      `<input type="number" id="advPoint" min="0.1" max="3.4" step="0.05" value="1.5">`);
+  if (advPick === 'socd')
+    html = field('Winner',
+      `<select id="advMode">${SOCD_MODES.map(([v,l]) =>
+        `<option value="${v}">${l}</option>`).join('')}</select>`);
+  if (advPick === 'mt')
+    html = field('Tap key', `<select id="advTap">${opts}</select>`)
+         + field('Hold key', `<select id="advHold">${opts}</select>`)
+         + field('Hold delay', `<input type="number" id="advDelay" min="50" max="1000" step="10" value="200">`);
+  if (advPick === 'tgl')
+    html = field('Key', `<select id="advTap">${opts}</select>`)
+         + field('Hold delay', `<input type="number" id="advDelay" min="50" max="1000" step="10" value="200">`);
+  if (advPick === 'dks')
+    html = [0,1,2,3].map(i =>
+        field(`Action ${i+1}`, `<select id="advDks${i}"><option value="0">None</option>${opts}</select>`)).join('')
+         + field('Top point', `<input type="number" id="advTop" min="0.1" max="3.4" step="0.05" value="0.8">`)
+         + field('Bottom point', `<input type="number" id="advBottom" min="0.1" max="3.4" step="0.05" value="2.4">`);
+  $('#advFields').innerHTML = html;
+}
+
+function renderAdvList(){
+  const host = $('#advList');
+  host.innerHTML = '';
+  const used = advSlots.filter(s => s && s.mode);
+  $('#advCount').textContent = `${used.length} / ${SLOTS}`;
+  if (!used.length){
+    host.innerHTML = '<div class="advempty">Nothing configured yet.</div>';
+    return;
+  }
+  for (const slot of used){
+    const row = document.createElement('div');
+    row.className = 'advrow';
+    const k1 = keyLabel(keymap[slot.key1[0] * kb.cols + slot.key1[1]] ?? 0) || '?';
+    const k2 = keyLabel(keymap[slot.key2[0] * kb.cols + slot.key2[1]] ?? 0) || '?';
+    row.innerHTML = `<div class="who"><b>${MODE_NAME[slot.mode] ?? slot.mode}</b>` +
+      `<small>${k1.replace('\n',' ')} + ${k2.replace('\n',' ')}` +
+      `${slot.point ? ` · ${slot.point.toFixed(3)} mm` : ''}</small></div>`;
+    const rm = document.createElement('button');
+    rm.className = 'btn ghost';
+    rm.textContent = 'Remove';
+    rm.onclick = async () => {
+      try {
+        await kb.clearAdvancedKey(slot.index);
+        toast('Advanced key removed');
+        await readAdvanced();
+      } catch { toast('Could not remove', 1); }
+    };
+    row.appendChild(rm);
+    host.appendChild(row);
+  }
+}
+
+async function readAdvanced(){
+  advSlots = [];
+  for (let i = 0; i < SLOTS; i++){
+    try { advSlots.push(await kb.getAdvancedKey(i)); }
+    catch { advSlots.push(null); }
+  }
+  renderAdvList();
+}
+
+async function addAdvanced(){
+  const [, , , need] = ADV_TYPES.find(t => t[0] === advPick);
+  const pos = selectedPositions();
+  if (pos.length !== need){
+    toast(`Select exactly ${need === 2 ? 'two keys' : 'one key'}`, 1);
+    return;
+  }
+  try {
+    if (advPick === 'rs' || advPick === 'socd' || advPick === 'oks'){
+      const free = advSlots.findIndex(s => !s || !s.mode);
+      if (free === -1){ toast('All 20 slots are in use', 1); return; }
+      const mode = advPick === 'rs' ? MODE.rs
+                 : advPick === 'oks' ? MODE.oks
+                 : +$('#advMode').value;
+      const cfg = { mode, key1: pos[0], key2: pos[1] ?? pos[0], layer: 0 };
+      if (advPick === 'rs') cfg.point = +$('#advPoint').value;
+      await kb.setAdvancedKey(free, cfg);
+      await readAdvanced();
+    }
+    if (advPick === 'mt')
+      await kb.setMt(pos[0][0] * kb.cols + pos[0][1],
+        +$('#advTap').value, +$('#advHold').value, +$('#advDelay').value);
+    if (advPick === 'tgl')
+      await kb.setTgl(pos[0][0] * kb.cols + pos[0][1],
+        +$('#advTap').value, +$('#advDelay').value);
+    if (advPick === 'dks')
+      await kb.setDks(pos[0][0] * kb.cols + pos[0][1],
+        [0,1,2,3].map(i => +$(`#advDks${i}`).value),
+        +$('#advTop').value, +$('#advBottom').value);
+    toast(`${advPick.toUpperCase()} added`);
+    advPick = null;
+    renderAdvTypes();
+    renderAdvForm();
+  } catch { toast('Could not write — see activity log', 1); }
 }
 
 function wire(){
@@ -1074,6 +1379,10 @@ function wire(){
       zoneTimer = setTimeout(pushZone, 200);
     };
   }
+
+  $('#advAdd').onclick = () => addAdvanced();
+  $('#advCancel').onclick = () => { advPick = null; renderAdvTypes(); renderAdvForm(); };
+  $('#advRefresh').onclick = () => readAdvanced().catch(() => toast('Read failed', 1));
 
   $('#capsColor').onchange = async e => {
     try { await kb.setKeyLight(0, hexToRgb(e.target.value)); toast('Caps Lock colour saved'); }
