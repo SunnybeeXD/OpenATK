@@ -16,7 +16,8 @@
   html,body{margin:0;background:var(--bg);color:var(--ink);
     font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
     -webkit-font-smoothing:antialiased}
-  .wrap{max-width:1180px;margin:0 auto;padding:36px 22px 90px}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 22px 90px}
+  .wrap.slim{max-width:760px}
 
   header{display:flex;align-items:center;gap:16px;margin-bottom:8px}
   .logo{width:42px;height:42px;border-radius:11px;flex:0 0 auto;
@@ -29,16 +30,17 @@
 
   .btn{font:600 14px/1 Inter,sans-serif;padding:12px 20px;border-radius:9px;
     border:1px solid transparent;background:#3ddc84;color:#06210f;cursor:pointer;
-    transition:filter .12s}
+    text-decoration:none;transition:filter .12s}
   .btn:hover{filter:brightness(1.08)}
   .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink);
     font-weight:500;padding:9px 15px;font-size:13px}
   .btn.ghost:hover{background:var(--card2);filter:none}
+  .btn.icon{padding:9px 11px;display:inline-grid;place-items:center}
 
   .hero{margin-top:34px;padding:44px 30px;text-align:center;
     background:var(--card);border:1px solid var(--line);border-radius:14px}
   .hero h2{margin:0 0 8px;font-size:18px;font-weight:600}
-  .hero p{margin:0 auto 22px;max-width:440px;color:var(--dim);font-size:14px}
+  .hero p{margin:0 auto 22px;max-width:400px;color:var(--dim);font-size:14px}
 
   .group{margin-top:26px}
   .group>h3{margin:0 0 11px;font-size:12px;font-weight:600;letter-spacing:.09em;
@@ -199,14 +201,19 @@
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap slim">
 
 <header>
   <div class="logo">⌨</div>
   <div style="flex:1;min-width:0">
-    <h1 id="devName">OpenATK Keyboard</h1>
+    <h1 id="devName">ATK Keyboard</h1>
     <div class="status off" id="status">Not connected</div>
   </div>
+  <a class="btn ghost" href="../" title="ATK mouse configurator"
+     style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 14 18" width="13" height="17" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x=".65" y=".65" width="12.7" height="16.7" rx="6.35"/><path d="M7 1.6v5" stroke-linecap="round"/></svg>Mouse</a>
+  <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
+     target="_blank" rel="noopener noreferrer"
+     aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
   <button class="btn" id="connect">Connect</button>
 </header>
 
@@ -215,6 +222,15 @@
   <p>Close the ATK HUB first if it's running — only one program can talk to the
      keyboard at a time. Works in Chrome, Edge and Opera.</p>
   <button class="btn" id="connect2">Connect keyboard</button>
+  <p style="margin:18px auto 0"><span
+     style="color:var(--dimmer);font-size:13px">113 ATK keyboard IDs recognised &middot;
+     untested on hardware</span></p>
+</div>
+
+<div class="hero hidden" id="blocked">
+  <h2>This needs a desktop</h2>
+  <p>OpenATK talks to your keyboard over WebHID, which phones and tablets don't
+     implement. Open this page on a computer, in Chrome, Edge or Opera.</p>
 </div>
 
 <div id="app" class="hidden">
@@ -991,8 +1007,20 @@ const hexToRgb = h => {
 const rgbToHex = c =>
   '#' + c.map(v => (v & 255).toString(16).padStart(2, '0')).join('');
 
+const IS_MOBILE = navigator.userAgentData?.mobile === true
+  || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
+  || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+if (IS_MOBILE){
+  $('#hero').classList.add('hidden');
+  $('#blocked').classList.remove('hidden');
+  $('#connect').classList.add('hidden');
+  $('#status').textContent = 'Not available on mobile';
+}
+
 async function connect(){
-  if (!('hid' in navigator)){ toast('Use Chrome, Edge or Opera', 1); return; }
+  if (IS_MOBILE){ toast('OpenATK needs a desktop browser', 1); return; }
+  if (!('hid' in navigator)){ toast('This browser can\u2019t talk to USB devices \u2014 use Chrome', 1); return; }
   let picked;
   try {
     [picked] = await navigator.hid.requestDevice({
@@ -1008,6 +1036,7 @@ async function connect(){
 
   log('', 'DEV ', `${picked.productName} 0x${pidKey} matrix ${kb.rows}x${kb.cols}`);
 
+  document.querySelector('.wrap').classList.remove('slim');
   $('#hero').classList.add('hidden');
   $('#app').classList.remove('hidden');
   $('#board').classList.remove('hidden');
