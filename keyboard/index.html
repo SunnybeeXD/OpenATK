@@ -218,19 +218,20 @@
     <div class="cols two" style="margin-top:18px">
       <div class="item">
         <div class="t">Trigger travel</div>
-        <div class="d">Shorter travel responds faster but triggers accidentally more easily.
-          Applies to the selected keys as you drag.</div>
+        <div class="d">Shorter travel responds faster but triggers accidentally more easily.</div>
         <div class="slider">
           <span class="lbl">Travel</span>
           <input type="range" id="travel" min="0.1" max="3.4" step="0.02" value="1.5">
           <output id="travelOut">1.500</output>
         </div>
+        <div class="gridbar">
+          <button class="btn ghost" id="applyTravel">Apply to selection</button>
+        </div>
       </div>
 
       <div class="item">
         <div class="t">Rapid trigger</div>
-        <div class="d">Re-triggers from the current position instead of the full reset point.
-          Applies to the selected keys as you drag.</div>
+        <div class="d">Re-triggers from the current position instead of the full reset point.</div>
         <label class="inline" style="margin-top:12px">
           <input type="checkbox" class="sw" id="rtOn"> Enable on selected keys
         </label>
@@ -245,6 +246,9 @@
           <output id="rtReleaseOut">0.500</output>
         </div>
         <p class="note">Top slider is press (trigger), bottom is lift (reset).</p>
+        <div class="gridbar">
+          <button class="btn ghost" id="applyRt">Apply to selection</button>
+        </div>
       </div>
     </div>
 
@@ -257,6 +261,7 @@
             <input type="number" id="dzTop" min="0" max="1" step="0.01" value="0.3"></label>
           <label class="inline">Lift up
             <input type="number" id="dzBottom" min="0" max="1" step="0.01" value="0.3"></label>
+          <button class="btn ghost" id="applyDz">Save</button>
         </div>
       </div>
       <div class="item row">
@@ -1079,27 +1084,9 @@ function targets(){
   return selected.size ? [...selected] : [];
 }
 
-function debounce(fn, ms = 260){
-  let timer = null;
-  let running = false;
-  let again = false;
-  const run = async () => {
-    if (running){ again = true; return; }
-    running = true;
-    try { await fn(); } finally {
-      running = false;
-      if (again){ again = false; run(); }
-    }
-  };
-  return () => {
-    clearTimeout(timer);
-    timer = setTimeout(run, ms);
-  };
-}
-
 async function applyToSelection(fn, label){
   const list = targets();
-  if (!list.length) return;
+  if (!list.length){ toast('Select at least one key', 1); return; }
   let ok = 0;
   for (const i of list){
     const r = Math.floor(i / kb.cols), c = i % kb.cols;
@@ -1285,41 +1272,29 @@ function wire(){
   $('#selClear').onclick = () => {
     selected = new Set(); renderGrid(); updateSelectionCount(); };
 
-  const pushTravel = debounce(() => {
+  $('#travel').oninput = e => $('#travelOut').textContent = (+e.target.value).toFixed(3);
+  $('#applyTravel').onclick = () => {
     const mm = +$('#travel').value;
     return applyToSelection((r, c, i) =>
       kb.setKeyTravel(r, c, mm).then(() => travelValues[i] = mm), 'Trigger travel');
-  });
-  $('#travel').oninput = e => {
-    $('#travelOut').textContent = (+e.target.value).toFixed(3);
-    pushTravel();
   };
 
-  const pushRt = debounce(() => {
+  $('#rtPress').oninput = e => $('#rtPressOut').textContent = (+e.target.value).toFixed(3);
+  $('#rtRelease').oninput = e => $('#rtReleaseOut').textContent = (+e.target.value).toFixed(3);
+  $('#applyRt').onclick = () => {
     const on = $('#rtOn').checked ? 1 : 0;
     const press = +$('#rtPress').value, release = +$('#rtRelease').value;
     return applyToSelection((r, c, i) =>
       kb.setKeyRt(r, c, on, press, release)
         .then(() => rtValues[i] = { on, press, release }), 'Rapid trigger');
-  });
-  $('#rtPress').oninput = e => {
-    $('#rtPressOut').textContent = (+e.target.value).toFixed(3);
-    pushRt();
   };
-  $('#rtRelease').oninput = e => {
-    $('#rtReleaseOut').textContent = (+e.target.value).toFixed(3);
-    pushRt();
-  };
-  $('#rtOn').onchange = () => pushRt();
 
-  const pushDz = debounce(async () => {
+  $('#applyDz').onclick = async () => {
     try {
       await kb.setDeadZone(+$('#dzTop').value, +$('#dzBottom').value);
       toast('Dead zone saved');
     } catch { toast('Could not save', 1); }
-  });
-  $('#dzTop').oninput = () => pushDz();
-  $('#dzBottom').oninput = () => pushDz();
+  };
 
   for (const [id, ch, name] of [
     ['#gameMode', CH.gameMode, 'Extreme mode'],
