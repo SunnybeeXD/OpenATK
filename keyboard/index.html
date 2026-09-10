@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenATK Keyboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1013; --card:#161b21; --card2:#1c222a; --line:#262f39;
+    --ink:#eef3f8; --dim:#94a3b1; --dimmer:#64717e;
+    --acc:#3ddc84; --warn:#f5c451; --bad:#f87171; --hot:#f0873c;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:36px 22px 90px}
+
+  header{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+  .logo{width:42px;height:42px;border-radius:11px;flex:0 0 auto;
+    background:linear-gradient(145deg,#232c36,#151a20);border:1px solid var(--line);
+    display:grid;place-items:center;font-size:19px}
+  h1{margin:0;font-size:21px;font-weight:650;letter-spacing:-.02em}
+  .status{color:var(--dim);font-size:13.5px;margin-top:1px}
+  .status b{color:var(--acc);font-weight:500}
+  .status.off b{color:var(--dimmer)}
+
+  .btn{font:600 14px/1 Inter,sans-serif;padding:12px 20px;border-radius:9px;
+    border:1px solid transparent;background:#3ddc84;color:#06210f;cursor:pointer;
+    transition:filter .12s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink);
+    font-weight:500;padding:9px 15px;font-size:13px}
+  .btn.ghost:hover{background:var(--card2);filter:none}
+
+  .hero{margin-top:34px;padding:44px 30px;text-align:center;
+    background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .hero h2{margin:0 0 8px;font-size:18px;font-weight:600}
+  .hero p{margin:0 auto 22px;max-width:440px;color:var(--dim);font-size:14px}
+
+  .group{margin-top:26px}
+  .group>h3{margin:0 0 11px;font-size:12px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--dimmer)}
+  .item{background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:17px 19px;margin-bottom:10px}
+  .item .t{font-size:15px;font-weight:600}
+  .item .d{font-size:13px;color:var(--dim);margin-top:3px}
+  .item.row{display:flex;align-items:center;gap:16px}
+  .item.row>div{flex:1;min-width:0}
+  .cols{display:grid;gap:10px}
+  @media(min-width:900px){.cols.two{grid-template-columns:1fr 1fr}}
+
+  .seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:13px;padding:4px;
+    background:#0f1418;border:1px solid var(--line);border-radius:9px}
+  .seg button{flex:1 1 auto;min-width:60px;font:500 13.5px/1 Inter,sans-serif;
+    padding:10px 8px;border:0;border-radius:6px;background:transparent;
+    color:var(--dim);cursor:pointer;transition:background .12s,color .12s}
+  .seg button:hover{background:#1a2128;color:var(--ink)}
+  .seg button[aria-pressed=true]{background:var(--ink);color:#0d1013;font-weight:600}
+  .seg.busy{opacity:.5;pointer-events:none}
+
+  .sw{appearance:none;flex:0 0 auto;width:48px;height:27px;border-radius:20px;
+    background:#2c353f;border:1px solid var(--line);position:relative;cursor:pointer;
+    transition:background .15s,border-color .15s}
+  .sw::after{content:'';position:absolute;top:2px;left:2px;width:21px;height:21px;
+    border-radius:50%;background:#93a1ae;transition:transform .17s,background .17s}
+  .sw:checked{background:#1d7a48;border-color:#2fa563}
+  .sw:checked::after{transform:translateX(21px);background:#f0fff7}
+
+  .slider{display:flex;align-items:center;gap:14px;margin-top:12px}
+  .slider input[type=range]{appearance:none;flex:1;height:6px;border-radius:4px;
+    background:#2c353f;outline:none;cursor:pointer}
+  .slider input[type=range]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;
+    border-radius:50%;background:var(--ink);border:3px solid #0d1013;
+    box-shadow:0 0 0 1px var(--line);cursor:grab}
+  .slider input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+    background:var(--ink);border:3px solid #0d1013;cursor:grab}
+  .slider output{flex:0 0 auto;min-width:82px;text-align:center;
+    font-family:var(--mono);font-size:13.5px;padding:8px 10px;
+    background:#0f1418;border:1px solid var(--line);border-radius:8px}
+
+  select,input[type=number]{font-family:var(--mono);font-size:13px;padding:9px 10px;
+    border-radius:8px;border:1px solid var(--line);background:#0f1418;color:var(--ink)}
+  select{width:100%}
+  input[type=number]{width:104px}
+  input[type=color]{width:56px;height:34px;padding:2px;border-radius:8px;
+    border:1px solid var(--line);background:#0f1418;cursor:pointer}
+  label.inline{font-size:13px;color:var(--dim);display:flex;align-items:center;gap:9px}
+
+  #grid{display:grid;gap:4px;margin-top:14px}
+  .key{background:#0f1418;border:1px solid var(--line);border-radius:7px;
+    padding:7px 3px 6px;cursor:pointer;color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;gap:1px;min-height:56px;
+    transition:background .1s,border-color .1s}
+  .key:hover{background:#1a2128;border-color:#3a4753}
+  .key em{font-style:normal;font-family:var(--mono);font-size:9.5px;color:var(--hot)}
+  .key span{font-size:11px;font-weight:600;line-height:1.15;text-align:center;
+    overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .key i{font-style:normal;font-family:var(--mono);font-size:8.5px;color:var(--dimmer)}
+  .key.sel{background:#1d3324;border-color:#2fa563}
+  .key.dead{opacity:.22;cursor:default}
+  .gridbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+  .gridbar .count{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+  .note{color:var(--dim);font-size:12.5px;margin:10px 0 0}
+
+  details{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+  summary{padding:15px 19px;cursor:pointer;font-size:13.5px;color:var(--dim);
+    list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'▾';color:var(--dimmer);transition:transform .15s}
+  details[open] summary::after{transform:rotate(180deg)}
+  .adv{padding:0 19px 19px;border-top:1px solid var(--line);padding-top:16px}
+  .kv{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+  .kv td{padding:5px 0}
+  .kv td:first-child{color:var(--dim)}
+  .kv td:last-child{text-align:right}
+  #log{font-family:var(--mono);font-size:11px;line-height:1.6;background:#080b0e;
+    border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin-top:14px;
+    height:190px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--dimmer)}
+  #log .tx{color:#7dabdd} #log .rx{color:#5fbe88} #log .er{color:var(--bad)}
+
+  #toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);
+    background:#eef3f8;color:#0d1013;font-size:13.5px;font-weight:600;
+    padding:11px 20px;border-radius:24px;opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:9}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #toast.bad{background:#f87171;color:#2b0808}
+
+  .hidden{display:none !important}
+  .foot{margin-top:26px;color:var(--dimmer);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">⌨</div>
+  <div style="flex:1;min-width:0">
+    <h1 id="devName">OpenATK Keyboard</h1>
+    <div class="status off" id="status">Not connected</div>
+  </div>
+  <button class="btn" id="connect">Connect</button>
+</header>
+
+<div class="hero" id="hero">
+  <h2>Plug in your keyboard, then connect</h2>
+  <p>Close the ATK HUB first if it's running — only one program can talk to the
+     keyboard at a time. Works in Chrome, Edge and Opera.</p>
+  <button class="btn" id="connect2">Connect keyboard</button>
+</div>
+
+<div id="app" class="hidden">
+
+  <div class="group">
+    <h3>Keys</h3>
+    <div class="item">
+      <div class="t">Per-key actuation</div>
+      <div class="d">Pick keys, then apply a trigger travel or rapid trigger below.</div>
+      <div id="grid"></div>
+      <div class="gridbar">
+        <button class="btn ghost" id="selAll">Select all</button>
+        <button class="btn ghost" id="selInvert">Invert</button>
+        <button class="btn ghost" id="selWasd">WASD</button>
+        <button class="btn ghost" id="selClear">Clear</button>
+        <button class="btn ghost" id="rereadKeys">Re-read keys</button>
+        <span class="count" id="selCount">No keys selected</span>
+      </div>
+      <p class="note" id="gridNote"></p>
+    </div>
+
+    <div class="cols two">
+      <div class="item">
+        <div class="t">Trigger travel</div>
+        <div class="d">Shorter travel responds faster but triggers accidentally more easily.</div>
+        <div class="slider">
+          <input type="range" id="travel" min="0.1" max="3.4" step="0.02" value="1.5">
+          <output id="travelOut">1.500</output>
+        </div>
+        <div class="gridbar">
+          <button class="btn ghost" id="applyTravel">Apply to selection</button>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="t">Rapid trigger</div>
+        <div class="d">Re-triggers from the current position instead of the full reset point.</div>
+        <label class="inline" style="margin-top:12px">
+          <input type="checkbox" class="sw" id="rtOn"> Enable on selected keys
+        </label>
+        <div class="slider">
+          <input type="range" id="rtPress" min="0.001" max="3.4" step="0.001" value="0.5">
+          <output id="rtPressOut">0.500</output>
+        </div>
+        <div class="slider">
+          <input type="range" id="rtRelease" min="0.001" max="3.4" step="0.001" value="0.5">
+          <output id="rtReleaseOut">0.500</output>
+        </div>
+        <p class="note">Top slider is press (trigger), bottom is lift (reset).</p>
+        <div class="gridbar">
+          <button class="btn ghost" id="applyRt">Apply to selection</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols two">
+      <div class="item">
+        <div class="t">Dead zone</div>
+        <div class="d">Top reduces false triggers, bottom reduces trigger breakage.</div>
+        <div class="gridbar" style="margin-top:12px">
+          <label class="inline">Press down
+            <input type="number" id="dzTop" min="0" max="1" step="0.01" value="0.3"></label>
+          <label class="inline">Lift up
+            <input type="number" id="dzBottom" min="0" max="1" step="0.01" value="0.3"></label>
+          <button class="btn ghost" id="applyDz">Save</button>
+        </div>
+      </div>
+
+      <div class="item row">
+        <div>
+          <div class="t">Extreme mode</div>
+          <div class="d">Raises rapid trigger and step accuracy to 0.001 mm.</div>
+        </div>
+        <input type="checkbox" class="sw" id="gameMode">
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>Keyboard</h3>
+    <div class="cols two">
+      <div>
+        <div class="item row">
+          <div><div class="t">MAC mode</div>
+            <div class="d">Switch to the macOS key layout.</div></div>
+          <input type="checkbox" class="sw" id="macMode">
+        </div>
+        <div class="item row">
+          <div><div class="t">Exchange WASD</div>
+            <div class="d">Swap WASD with the arrow keys.</div></div>
+          <input type="checkbox" class="sw" id="exchangeWasd">
+        </div>
+        <div class="item row">
+          <div><div class="t">Win key lock</div>
+            <div class="d">Blocks the Win key so it can't interrupt a game.</div></div>
+          <input type="checkbox" class="sw" id="winLock">
+        </div>
+        <div class="item row">
+          <div><div class="t">Anti-accidental touch</div>
+            <div class="d">Suppresses triggers from desk knocks and switch tolerance.</div></div>
+          <input type="checkbox" class="sw" id="bottomOpt">
+        </div>
+        <div class="item row">
+          <div><div class="t">AI match</div>
+            <div class="d">Compensates for contact failure caused by switch tolerance.</div></div>
+          <input type="checkbox" class="sw" id="aiMatch">
+        </div>
+      </div>
+
+      <div>
+        <div class="item">
+          <div class="t">Anti-ghosting</div>
+          <div class="d">Smart Detect suits daily use. Force 6-Key helps with BIOS,
+            consoles and legacy systems.</div>
+          <div class="seg" id="segNkro"></div>
+        </div>
+        <div class="item">
+          <div class="t">Polling rate</div>
+          <div class="d">Higher means lower latency and more power draw.</div>
+          <div class="seg" id="segRate"></div>
+        </div>
+        <div class="item">
+          <div class="t">Sleep after</div>
+          <div class="d">Idle time before the keyboard sleeps to save power.</div>
+          <div class="seg" id="segSleep"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>Lighting</h3>
+    <div class="cols two">
+      <div class="item">
+        <div class="t">Back lamp</div>
+        <div class="d">Main per-key backlight.</div>
+        <div style="margin-top:12px"><select id="effect"></select></div>
+        <div class="slider">
+          <input type="range" id="brightness" min="0" max="100" step="1" value="50">
+          <output id="brightnessOut">50</output>
+        </div>
+        <div class="slider">
+          <input type="range" id="speed" min="0" max="100" step="1" value="50">
+          <output id="speedOut">50</output>
+        </div>
+        <div class="gridbar">
+          <label class="inline">Colour <input type="color" id="color" value="#ffffff"></label>
+          <label class="inline"><input type="checkbox" class="sw" id="colorful"> Full colour mode</label>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="t">Zone lighting</div>
+        <div class="d">Logo, side, front and button zones, where the model has them.</div>
+        <div style="margin-top:12px">
+          <select id="zone">
+            <option value="logo">Logo light</option>
+            <option value="side">Side light</option>
+            <option value="front">Front light</option>
+            <option value="button">Button light</option>
+          </select>
+        </div>
+        <div style="margin-top:10px"><select id="zoneEffect"></select></div>
+        <div class="slider">
+          <input type="range" id="zoneBrightness" min="0" max="100" step="1" value="50">
+          <output id="zoneBrightnessOut">50</output>
+        </div>
+        <div class="slider">
+          <input type="range" id="zoneSpeed" min="0" max="100" step="1" value="50">
+          <output id="zoneSpeedOut">50</output>
+        </div>
+        <div class="gridbar">
+          <label class="inline">Colour <input type="color" id="zoneColor" value="#ffffff"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="t">Indicator colours</div>
+      <div class="d">Caps Lock and Win Lock key indicators.</div>
+      <div class="gridbar" style="margin-top:12px">
+        <label class="inline">Caps Lock <input type="color" id="capsColor" value="#ffffff"></label>
+        <label class="inline">Win Lock <input type="color" id="winColor" value="#ff0000"></label>
+      </div>
+    </div>
+  </div>
+
+  <details>
+    <summary>Device info and troubleshooting</summary>
+    <div class="adv">
+      <table class="kv" id="kv"></table>
+      <div class="gridbar" style="margin-top:16px">
+        <button class="btn ghost" id="refresh">Refresh</button>
+        <button class="btn ghost" id="togglelog">Show activity log</button>
+      </div>
+      <div id="log" class="hidden"></div>
+    </div>
+  </details>
+
+  <p class="foot">Changes save to the keyboard immediately. Advanced keys —
+     RS, SOCD, OKS, DKS, MT, TGL — are not implemented yet.</p>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const REGISTRY = {"10b0":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"1082":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"1114":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"12eb":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"10af":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"115f":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-4015"},"1160":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-4015"},"1161":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-4015"},"11c5":{"n":"ATK60 RX","m":[5,14],"l":4},"11c6":{"n":"ATK60 RX","m":[5,14],"l":4,"g":"ATK60RX-Ultra"},"11c7":{"n":"ATK60 RX","m":[5,14],"l":4,"g":"ATK60RX-Limited"},"11fc":{"n":"ATK60 RX","m":[5,14],"l":4},"125d":{"n":"VELOTA FUZZY 60 V2","m":[5,14],"l":4},"1267":{"n":"VELOTA FUZZY 60 V2","m":[5,14],"l":4},"113b":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-48E"},"113c":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-48E"},"113d":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-48E"},"1168":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-4015"},"1169":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-4015"},"116a":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-4015"},"126a":{"n":"RS 63 Air","m":[5,14],"l":4},"126b":{"n":"RS 63 Air","m":[5,14],"l":4},"12a6":{"n":"VELOTA FUZZY 63","m":[5,15],"l":4},"11e8":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"109c":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"109d":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"109e":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"11e9":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-48E"},"1162":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-4015"},"11ea":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-4015"},"1163":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"1164":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11b8":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11d6":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11eb":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11b9":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-FLEET18-4015"},"1112":{"n":"ATK68 V3","m":[5,15],"l":4,"g":"ATK68V3-48E"},"116b":{"n":"ATK68 V3","m":[5,15],"l":4,"g":"ATK68V3-4015"},"11e6":{"n":"ATK68 V3","m":[5,15],"l":4,"g":"ATK68V3-4015"},"11d0":{"n":"ATK RS6 Air","m":[5,15],"l":4},"125b":{"n":"ATK RS6 Air","m":[5,15],"l":4,"g":"RS6-Air-2"},"1209":{"n":"ATK RS6 Air","m":[5,15],"l":4},"125c":{"n":"ATK RS6 Air","m":[5,15],"l":4,"g":"RS6-Air-2"},"1294":{"n":"ATK RS6 Air","m":[5,15],"l":4,"g":"RS6-Air-Cyber"},"119a":{"n":"ATK68 RX","m":[5,15],"l":4,"g":"ATK68RX-4015"},"11c0":{"n":"ATK68 RX","m":[5,15],"l":4,"g":"ATK68RX-4015"},"11c1":{"n":"ATK68 RX","m":[5,15],"l":4,"g":"ATK68RX-4015"},"120f":{"n":"ATK RS6 +","m":[5,15],"l":4},"1210":{"n":"ATK RS6 +","m":[5,15],"l":4,"g":"RS6-Ultra-Plus-4015"},"12fe":{"n":"ATK RS6 +","m":[5,15],"l":4},"12c0":{"n":"ATK Keyboard"},"1259":{"n":"ATK RS6 Cube","m":[5,15],"l":4,"g":"RS6-Cube"},"12f0":{"n":"ATK RS6 Cube","m":[5,15],"l":4,"g":"RS6-Cube"},"12ad":{"n":"ATK Keyboard"},"12ae":{"n":"ATK Keyboard"},"12fc":{"n":"ATK Keyboard"},"12fd":{"n":"ATK Keyboard"},"1174":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"1197":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"1198":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11ae":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11b0":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11ad":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-4015"},"11df":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-4015"},"11af":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11ba":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11da":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"1336":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11a8":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Extreme-4015"},"108e":{"n":"ATK EDGE75","m":[6,15],"l":4},"1090":{"n":"ATK EDGE75","m":[6,15],"l":4},"1206":{"n":"ATK EDGE75","m":[6,15],"l":4,"g":"EDGE75-2"},"11e0":{"n":"ATK RS7 Turbo","m":[6,15],"l":4,"g":"RS7-Turbo-4015"},"11e1":{"n":"ATK RS7 Turbo","m":[6,15],"l":4,"g":"RS7-Turbo-4015"},"1220":{"n":"ATK RS7 Air","m":[6,15],"l":4},"1339":{"n":"ATK RS7 Air","m":[6,15],"l":4},"1257":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-2"},"1335":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-4"},"1221":{"n":"ATK RS7 Air","m":[6,15],"l":4},"122b":{"n":"ATK RS7 Air","m":[6,15],"l":4},"1258":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-2"},"1295":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-Cyber"},"12c1":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-ISO"},"1176":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-48E"},"1177":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-4015"},"1250":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-Babysbreath"},"12ac":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-v2"},"12be":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-v2"},"1334":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-v2"},"12a0":{"n":"ATK RS8 Air","m":[6,17],"l":4},"12a1":{"n":"ATK RS8 Air","m":[6,17],"l":4},"122c":{"n":"ATK RS8 Air","m":[6,17],"l":4},"12ca":{"n":"ATK RS8 Air","m":[6,17],"l":4},"12cb":{"n":"ATK RS8 Air","m":[6,17],"l":4},"122e":{"n":"ATK RS8 TURBO","m":[6,17],"l":4},"122f":{"n":"ATK RS8 TURBO","m":[6,17],"l":4},"1044":{"n":"ATK RS7","m":[6,16],"l":4},"1048":{"n":"ATK68 V2 Pro","m":[5,15],"l":4},"111e":{"n":"ATK A87 PRO","m":[8,16],"l":4},"111f":{"n":"ATK A87 PRO","m":[8,16],"l":4},"1231":{"n":"ATK A87 PRO","m":[8,16],"l":4},"114d":{"n":"ATK A98","m":[8,16],"l":4},"114e":{"n":"ATK A98","m":[8,16],"l":4},"1151":{"n":"ATK A98","m":[8,16],"l":4},"1152":{"n":"ATK A98","m":[8,16],"l":4},"1241":{"n":"ATK A87 Ultra","m":[6,16],"l":4},"1243":{"n":"ATK A98 Ultra","m":[6,18],"l":4},"1242":{"n":"ATK A87 Ultra 2.4G","m":[6,16],"l":4},"1244":{"n":"ATK A98 Ultra 2.4G","m":[6,18],"l":4},"1247":{"n":"ATK V75X Ultra","m":[6,15],"l":4},"124b":{"n":"ATK V75X Ultra 2.4G","m":[6,15],"l":4},"1254":{"n":"ATK RS8 Neo"},"1255":{"n":"ATK RS8 Neo 2.4G"}};
+
+const VID = 0x373B;
+const USAGE_PAGE = 0xFF60;
+const USAGE = 0x61;
+const REPORT_ID = 0;
+const SIZE = 32;
+const BASE = 1;
+
+const CMD = {
+  getProtocolVersion: 0x01,
+  getKeyboardValue: 0x02,
+  setKeyboardValue: 0x03,
+  lightingGetValue: 0x08,
+  lightingSetValue: 0x07,
+  lightingSave: 0x09,
+  keymapGetBuffer: 0x12,
+};
+
+const CUSTOM = 0x96;
+
+const CH = {
+  oneTogTh: 0x03,
+  oneRt: 0x07,
+  deadBand: 0x0B,
+  feature: 0x11,
+  saveLamplight: 0x12,
+  bottomOptimize: 0x1D,
+  gameMode: 0x1E,
+  logoLight: 0x21,
+  travel: 0x24,
+  aiMatch: 0x25,
+  lightOff: 0x26,
+  sideLight: 0x27,
+  lightInfo: 0x41,
+  reportRate: 0x46,
+  keyLight: 0x4B,
+  restart: 0x4E,
+  lightPositionMode: 0x51,
+  decorationLight: 0x53,
+};
+
+const ZONE = { logo: 240, side: 241, front: 242, button: 243 };
+
+const RATES = [[8000, '8K'], [4000, '4K'], [2000, '2K'], [1000, '1K']];
+const RATE_CODE = { 8000: 0, 4000: 1, 2000: 2, 1000: 3 };
+const RATE_FROM = { 0: 8000, 1: 4000, 2: 2000, 3: 1000 };
+
+const SLEEP = [[60, '1min'], [180, '3min'], [300, '5min'],
+               [600, '10min'], [1800, '30min'], [65535, 'Never']];
+
+const NKRO = [[0, 'Force 6-Key'], [1, 'Smart Detect'], [2, 'Force Full-Key']];
+
+const EFFECTS = [
+  [0, 'Close'], [1, 'Customization'], [2, 'Single Color Constant'], [3, 'Focus'],
+  [4, 'Up-Down Rainbow'], [5, 'Left-Right Rainbow'], [6, 'Monochrome Breath'],
+  [7, 'Fluttering Ribbons'], [8, 'Laser'], [9, 'Pinwheel'], [10, 'Vortex'],
+  [11, 'Spectral Cycle'], [12, 'Streamer'], [13, 'Colorful Swirls'],
+  [14, 'Double Vortex'], [15, 'Christmas'], [16, 'Spectrum Breathing'],
+  [17, 'Spectrum Float'], [18, 'Digital Rain'], [19, 'Single Light Up'],
+  [20, 'Crucifix'], [21, 'Fingertip Rainbow'],
+];
+
+const KEYCODES = {
+  0x04:'A',0x05:'B',0x06:'C',0x07:'D',0x08:'E',0x09:'F',0x0A:'G',0x0B:'H',0x0C:'I',
+  0x0D:'J',0x0E:'K',0x0F:'L',0x10:'M',0x11:'N',0x12:'O',0x13:'P',0x14:'Q',0x15:'R',
+  0x16:'S',0x17:'T',0x18:'U',0x19:'V',0x1A:'W',0x1B:'X',0x1C:'Y',0x1D:'Z',
+  0x1E:'1',0x1F:'2',0x20:'3',0x21:'4',0x22:'5',0x23:'6',0x24:'7',0x25:'8',0x26:'9',
+  0x27:'0',0x28:'Enter',0x29:'Esc',0x2A:'Bksp',0x2B:'Tab',0x2C:'Space',0x2D:'-',
+  0x2E:'=',0x2F:'[',0x30:']',0x31:'\\',0x33:';',0x34:"'",0x35:'`',0x36:',',0x37:'.',
+  0x38:'/',0x39:'Caps',0x3A:'F1',0x3B:'F2',0x3C:'F3',0x3D:'F4',0x3E:'F5',0x3F:'F6',
+  0x40:'F7',0x41:'F8',0x42:'F9',0x43:'F10',0x44:'F11',0x45:'F12',0x46:'PrtSc',
+  0x47:'ScrLk',0x48:'Pause',0x49:'Ins',0x4A:'Home',0x4B:'PgUp',0x4C:'Del',
+  0x4D:'End',0x4E:'PgDn',0x4F:'→',0x50:'←',0x51:'↓',0x52:'↑',
+  0xE0:'LCtrl',0xE1:'LShift',0xE2:'LAlt',0xE3:'LWin',
+  0xE4:'RCtrl',0xE5:'RShift',0xE6:'RAlt',0xE7:'RWin',
+};
+const WASD = [0x1A, 0x04, 0x16, 0x07];
+
+const $ = s => document.querySelector(s);
+const hex = b => [...b].map(v => v.toString(16).padStart(2, '0')).join(' ');
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+function log(cls, label, detail){
+  const el = document.createElement('div');
+  el.className = cls;
+  el.textContent = `${new Date().toISOString().slice(11,23)}  ${label}  ${detail ?? ''}`;
+  $('#log').appendChild(el);
+  $('#log').scrollTop = $('#log').scrollHeight;
+}
+
+let toastTimer;
+function toast(msg, bad){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 1900);
+}
+
+class Keyboard {
+  constructor(device, info){
+    this.device = device;
+    this.info = info;
+    this.rows = info?.m?.[0] ?? 6;
+    this.cols = info?.m?.[1] ?? 16;
+    this.pending = [];
+    this.queue = Promise.resolve();
+    device.oninputreport = e => this.onInput(new Uint8Array(e.data.buffer));
+  }
+
+  frame(commandId, bytes = []){
+    const b = new Uint8Array(SIZE);
+    b[0] = commandId;
+    bytes.forEach((v, i) => b[BASE + i] = v & 0xFF);
+    return b;
+  }
+
+  matches(sent, got){
+    if (sent[0] !== got[0]) return false;
+    if (sent[0] !== CMD.getKeyboardValue && sent[0] !== CMD.setKeyboardValue) return true;
+    if (sent[1] !== got[1]) return false;
+    if (sent[1] !== CUSTOM) return true;
+    return sent[2] === got[2];
+  }
+
+  onInput(raw){
+    log('rx', 'RX  ', hex(raw.slice(0, 14)) + ' …');
+    const i = this.pending.findIndex(p => this.matches(p.sent, raw));
+    if (i === -1) return;
+    const p = this.pending.splice(i, 1)[0];
+    clearTimeout(p.timer);
+    p.resolve(raw);
+  }
+
+  send(commandId, bytes){
+    const run = async () => {
+      const buf = this.frame(commandId, bytes);
+      log('tx', 'TX  ', hex(buf.slice(0, 14)) + ' …');
+      for (let attempt = 0; attempt < 3; attempt++){
+        const p = new Promise((resolve, reject) => {
+          const rec = { sent: buf, resolve, timer: setTimeout(() => {
+            const k = this.pending.indexOf(rec);
+            if (k !== -1) this.pending.splice(k, 1);
+            reject(new Error('timeout'));
+          }, 1200) };
+          this.pending.push(rec);
+        });
+        try { await this.device.sendReport(REPORT_ID, buf); return await p; }
+        catch (err){ if (attempt === 2){ log('er', 'ERR ', err.message); throw err; } }
+      }
+    };
+    this.queue = this.queue.then(run, run);
+    return this.queue;
+  }
+
+  getCustom(channel, extra = []){
+    return this.send(CMD.getKeyboardValue, [CUSTOM, channel, ...extra]);
+  }
+  setCustom(channel, data){
+    return this.send(CMD.setKeyboardValue, [CUSTOM, channel, ...data]);
+  }
+
+  async getProtocolVersion(){
+    const r = await this.send(CMD.getProtocolVersion, []);
+    return (r[1] << 8) | r[2];
+  }
+
+  async getTravelInfo(){
+    const r = await this.getCustom(CH.travel);
+    const u16 = o => (r[BASE + o] << 8) | r[BASE + o + 1];
+    return { travelMax: u16(2)/1000, travelMin: u16(4)/1000, travelStep: u16(6)/1000,
+             rtMax: u16(8)/1000, rtMin: u16(10)/1000, rtStep: u16(12)/1000 };
+  }
+
+  async getDeadZone(){
+    const r = await this.getCustom(CH.deadBand);
+    return { top: ((r[BASE+2] << 8) | r[BASE+3]) / 1000,
+             bottom: ((r[BASE+4] << 8) | r[BASE+5]) / 1000 };
+  }
+  setDeadZone(top, bottom){
+    const t = Math.round(top * 1000), b = Math.round(bottom * 1000);
+    return this.setCustom(CH.deadBand, [t >> 8, t & 0xFF, b >> 8, b & 0xFF]);
+  }
+
+  async getFeature(){
+    const r = await this.getCustom(CH.feature);
+    return { rgbArea: r[BASE+2], exchangeWasd: r[BASE+3], macMode: r[BASE+4],
+             winLock: r[BASE+5], nkro: r[BASE+6], keyMode: r[BASE+7] };
+  }
+  setFeature(f){
+    return this.setCustom(CH.feature,
+      [f.rgbArea | 0, f.exchangeWasd | 0, f.macMode | 0, f.winLock | 0, f.nkro | 0]);
+  }
+
+  async getFlag(channel){
+    const r = await this.getCustom(channel);
+    return r[BASE + 2];
+  }
+  setFlag(channel, value){ return this.setCustom(channel, [value | 0]); }
+
+  async getSleep(){
+    const r = await this.getCustom(CH.lightOff);
+    const m = r[BASE + 2];
+    return m === 0 ? 65535 : m * 60;
+  }
+  setSleep(seconds){
+    return this.setCustom(CH.lightOff, [seconds === 65535 ? 0 : Math.round(seconds / 60)]);
+  }
+
+  async getReportRate(){
+    const r = await this.getCustom(CH.reportRate);
+    return RATE_FROM[r[BASE + 2]] ?? null;
+  }
+  async setReportRate(hz){
+    await this.setCustom(CH.restart, [1]);
+    return this.setCustom(CH.reportRate, [RATE_CODE[hz]]);
+  }
+
+  async getLightConfig(){
+    const r = await this.send(CMD.lightingGetValue, [CH.lightInfo]);
+    return { effect: r[BASE+1], speed: r[BASE+3],
+             color: [r[BASE+4], r[BASE+5], r[BASE+6]],
+             brightness: r[BASE+7], colorful: r[BASE+8] };
+  }
+  async setLightConfig(c){
+    const b = new Array(9).fill(0);
+    b[0] = CH.lightInfo;
+    b[1] = c.effect;
+    b[3] = c.speed;
+    b[4] = c.color[0]; b[5] = c.color[1]; b[6] = c.color[2];
+    b[7] = c.brightness;
+    b[8] = c.colorful | 0;
+    await this.send(CMD.lightingSetValue, b);
+    return this.send(CMD.lightingSave, [CH.lightInfo]);
+  }
+
+  async getZoneLight(zone){
+    const r = await this.getCustom(CH.decorationLight, [zone]);
+    return { effect: r[BASE+2], colorful: r[BASE+3], brightness: r[BASE+4],
+             speed: r[BASE+5], color: [r[BASE+6], r[BASE+7], r[BASE+8]] };
+  }
+  setZoneLight(zone, c){
+    return this.setCustom(CH.decorationLight,
+      [c.effect, c.colorful | 0, c.brightness, c.speed,
+       c.color[0], c.color[1], c.color[2], zone]);
+  }
+
+  async getKeyLight(key){
+    const r = await this.getCustom(CH.keyLight, [key]);
+    return { key: r[BASE+2], color: [r[BASE+3], r[BASE+4], r[BASE+5]] };
+  }
+  setKeyLight(key, color){
+    return this.setCustom(CH.keyLight, [key, color[0], color[1], color[2]]);
+  }
+
+  async getKeyTravel(row, col){
+    const r = await this.getCustom(CH.oneTogTh, [row, col]);
+    return ((r[BASE+4] << 8) | r[BASE+5]) / 1000;
+  }
+  setKeyTravel(row, col, mm){
+    const v = Math.round(mm * 1000);
+    return this.setCustom(CH.oneTogTh, [row, col, v >> 8, v & 0xFF]);
+  }
+
+  async getKeyRt(row, col){
+    const r = await this.getCustom(CH.oneRt, [row, col]);
+    return { on: r[BASE+4],
+             release: ((r[BASE+5] << 8) | r[BASE+6]) / 1000,
+             press: ((r[BASE+7] << 8) | r[BASE+8]) / 1000 };
+  }
+  setKeyRt(row, col, on, press, release){
+    const p = Math.round(press * 1000), rel = Math.round(release * 1000);
+    return this.setCustom(CH.oneRt,
+      [row, col, on | 0, rel >> 8, rel & 0xFF, p >> 8, p & 0xFF]);
+  }
+
+  async getKeymap(){
+    const total = this.rows * this.cols * 2;
+    const out = [];
+    for (let off = 0; off < total; off += 28){
+      const len = Math.min(28, total - off);
+      const r = await this.send(CMD.keymapGetBuffer, [off >> 8, off & 0xFF, len]);
+      for (let i = 0; i < len; i++) out.push(r[4 + i]);
+    }
+    const map = [];
+    for (let i = 0; i < this.rows * this.cols; i++)
+      map.push((out[i*2] << 8) | out[i*2 + 1]);
+    return map;
+  }
+}
+
+let kb = null;
+let selected = new Set();
+let keymap = [];
+let limits = { travelMin: 0.1, travelMax: 3.4, travelStep: 0.02,
+               rtMin: 0.001, rtMax: 3.4, rtStep: 0.001 };
+let travelValues = [];
+let rtValues = [];
+
+function cellIndex(r, c){ return r * kb.cols + c; }
+
+function renderGrid(){
+  const host = $('#grid');
+  host.innerHTML = '';
+  host.style.gridTemplateColumns = `repeat(${kb.cols}, minmax(0, 1fr))`;
+  for (let r = 0; r < kb.rows; r++){
+    for (let c = 0; c < kb.cols; c++){
+      const i = cellIndex(r, c);
+      const code = keymap[i] ?? 0;
+      const b = document.createElement('button');
+      b.className = 'key';
+      if (!code) b.classList.add('dead');
+      if (selected.has(i)) b.classList.add('sel');
+      const label = KEYCODES[code & 0xFF] ?? (code ? `0x${code.toString(16)}` : '');
+      const t = travelValues[i];
+      const rt = rtValues[i];
+      b.innerHTML =
+        `<em>${t != null ? t.toFixed(3) : ''}</em>` +
+        `<span>${label || `${r},${c}`}</span>` +
+        `<i>${rt && rt.on ? `${rt.press.toFixed(3)} / ${rt.release.toFixed(3)}` : ''}</i>`;
+      b.onclick = () => {
+        if (!code) return;
+        if (selected.has(i)) selected.delete(i); else selected.add(i);
+        renderGrid();
+        updateSelectionCount();
+      };
+      host.appendChild(b);
+    }
+  }
+}
+
+function updateSelectionCount(){
+  $('#selCount').textContent = selected.size
+    ? `${selected.size} key${selected.size > 1 ? 's' : ''} selected`
+    : 'No keys selected';
+}
+
+function allLiveKeys(){
+  const out = [];
+  for (let i = 0; i < kb.rows * kb.cols; i++) if (keymap[i]) out.push(i);
+  return out;
+}
+
+function buildSeg(host, opts, onPick){
+  const el = $(host);
+  el.innerHTML = '';
+  for (const [value, label] of opts){
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.dataset.value = String(value);
+    b.setAttribute('aria-pressed', 'false');
+    b.onclick = async () => {
+      const prev = [...el.children].find(x => x.getAttribute('aria-pressed') === 'true');
+      mark(host, value);
+      el.classList.add('busy');
+      try { await onPick(value, label); }
+      catch { if (prev) mark(host, prev.dataset.value); toast('Could not save', 1); }
+      finally { el.classList.remove('busy'); }
+    };
+    el.appendChild(b);
+  }
+}
+function mark(host, value){
+  for (const b of $(host).children)
+    b.setAttribute('aria-pressed', String(String(b.dataset.value) === String(value)));
+}
+
+function fillSelect(host, opts){
+  const el = $(host);
+  el.innerHTML = '';
+  for (const [v, l] of opts) el.add(new Option(l, String(v)));
+}
+
+const hexToRgb = h => {
+  const n = parseInt(h.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+const rgbToHex = c =>
+  '#' + c.map(v => (v & 255).toString(16).padStart(2, '0')).join('');
+
+async function connect(){
+  if (!('hid' in navigator)){ toast('Use Chrome, Edge or Opera', 1); return; }
+  let picked;
+  try {
+    [picked] = await navigator.hid.requestDevice({
+      filters: [{ vendorId: VID, usagePage: USAGE_PAGE, usage: USAGE }]
+    });
+  } catch (e){ toast(e.message, 1); return; }
+  if (!picked) return;
+  if (!picked.opened) await picked.open();
+
+  const pidKey = picked.productId.toString(16).padStart(4, '0');
+  const info = REGISTRY[pidKey];
+  kb = new Keyboard(picked, info);
+
+  log('', 'DEV ', `${picked.productName} 0x${pidKey} matrix ${kb.rows}x${kb.cols}`);
+
+  $('#hero').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  $('#status').className = 'status';
+  $('#status').innerHTML = '<b>Connected</b>';
+  $('#devName').textContent = info?.n ?? `ATK keyboard 0x${pidKey}`;
+
+  fillSelect('#effect', EFFECTS);
+  fillSelect('#zoneEffect', EFFECTS);
+  buildSeg('#segRate', RATES, async hz => {
+    await kb.setReportRate(hz); toast(`Polling rate ${hz} Hz`); });
+  buildSeg('#segSleep', SLEEP, async (s, l) => {
+    await kb.setSleep(s); toast(`Sleep after ${l}`); });
+  buildSeg('#segNkro', NKRO, async (v, l) => {
+    const f = await kb.getFeature(); f.nkro = v;
+    await kb.setFeature(f); toast(l); });
+
+  await readAll();
+}
+
+async function readAll(){
+  const info = [];
+  const add = (k, v) => info.push([k, v]);
+
+  try { add('Protocol', await kb.getProtocolVersion()); } catch {}
+  try { limits = await kb.getTravelInfo();
+        add('Travel range', `${limits.travelMin}–${limits.travelMax} mm`);
+        add('RT range', `${limits.rtMin}–${limits.rtMax} mm`);
+        const t = $('#travel');
+        t.min = limits.travelMin; t.max = limits.travelMax; t.step = limits.travelStep;
+        for (const id of ['#rtPress', '#rtRelease']){
+          const el = $(id);
+          el.min = limits.rtMin; el.max = limits.rtMax; el.step = limits.rtStep;
+        }
+  } catch {}
+
+  try {
+    const d = await kb.getDeadZone();
+    $('#dzTop').value = d.top.toFixed(3);
+    $('#dzBottom').value = d.bottom.toFixed(3);
+    add('Dead zone', `${d.top} / ${d.bottom} mm`);
+  } catch {}
+
+  try {
+    const f = await kb.getFeature();
+    $('#macMode').checked = !!f.macMode;
+    $('#exchangeWasd').checked = !!f.exchangeWasd;
+    $('#winLock').checked = !!f.winLock;
+    mark('#segNkro', f.nkro);
+  } catch {}
+
+  try { $('#gameMode').checked = !!(await kb.getFlag(CH.gameMode)); } catch {}
+  try { $('#aiMatch').checked = !!(await kb.getFlag(CH.aiMatch)); } catch {}
+  try { $('#bottomOpt').checked = !!(await kb.getFlag(CH.bottomOptimize)); } catch {}
+  try { mark('#segRate', await kb.getReportRate()); } catch {}
+  try { mark('#segSleep', await kb.getSleep()); } catch {}
+
+  try {
+    const c = await kb.getLightConfig();
+    $('#effect').value = String(c.effect);
+    $('#brightness').value = c.brightness;
+    $('#speed').value = c.speed;
+    $('#color').value = rgbToHex(c.color);
+    $('#colorful').checked = !!c.colorful;
+    add('Back lamp', EFFECTS.find(e => e[0] === c.effect)?.[1] ?? c.effect);
+  } catch {}
+
+  try {
+    const z = await kb.getZoneLight(ZONE[$('#zone').value]);
+    $('#zoneEffect').value = String(z.effect);
+    $('#zoneBrightness').value = z.brightness;
+    $('#zoneSpeed').value = z.speed;
+    $('#zoneColor').value = rgbToHex(z.color);
+  } catch {}
+
+  try {
+    const caps = await kb.getKeyLight(0);
+    $('#capsColor').value = rgbToHex(caps.color);
+  } catch {}
+  try {
+    const win = await kb.getKeyLight(1);
+    $('#winColor').value = rgbToHex(win.color);
+  } catch {}
+
+  try { keymap = await kb.getKeymap(); } catch { keymap = []; }
+  if (!keymap.length)
+    keymap = new Array(kb.rows * kb.cols).fill(1);
+
+  await readPerKey();
+  add('Matrix', `${kb.rows} × ${kb.cols}`);
+  $('#kv').innerHTML = info.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+}
+
+async function readPerKey(){
+  travelValues = new Array(kb.rows * kb.cols).fill(null);
+  rtValues = new Array(kb.rows * kb.cols).fill(null);
+  $('#gridNote').textContent = 'Reading per-key values…';
+  const live = allLiveKeys();
+  for (const i of live){
+    const r = Math.floor(i / kb.cols), c = i % kb.cols;
+    try { travelValues[i] = await kb.getKeyTravel(r, c); } catch {}
+    try { rtValues[i] = await kb.getKeyRt(r, c); } catch {}
+  }
+  $('#gridNote').textContent =
+    `${live.length} keys. Top number is trigger travel, bottom is rapid trigger press / lift.`;
+  renderGrid();
+  updateSelectionCount();
+}
+
+function targets(){
+  return selected.size ? [...selected] : [];
+}
+
+async function applyToSelection(fn, label){
+  const list = targets();
+  if (!list.length){ toast('Select at least one key', 1); return; }
+  let ok = 0;
+  for (const i of list){
+    const r = Math.floor(i / kb.cols), c = i % kb.cols;
+    try { await fn(r, c, i); ok++; } catch {}
+  }
+  renderGrid();
+  toast(`${label} applied to ${ok} key${ok === 1 ? '' : 's'}`);
+}
+
+function wire(){
+  $('#connect').onclick = connect;
+  $('#connect2').onclick = connect;
+  $('#refresh').onclick = () => readAll();
+  $('#rereadKeys').onclick = () => readPerKey();
+
+  $('#togglelog').onclick = e => {
+    const hid = $('#log').classList.toggle('hidden');
+    e.target.textContent = hid ? 'Show activity log' : 'Hide activity log';
+  };
+
+  $('#selAll').onclick = () => {
+    selected = new Set(allLiveKeys()); renderGrid(); updateSelectionCount(); };
+  $('#selInvert').onclick = () => {
+    const next = new Set();
+    for (const i of allLiveKeys()) if (!selected.has(i)) next.add(i);
+    selected = next; renderGrid(); updateSelectionCount(); };
+  $('#selWasd').onclick = () => {
+    selected = new Set(allLiveKeys().filter(i => WASD.includes(keymap[i] & 0xFF)));
+    renderGrid(); updateSelectionCount();
+    if (!selected.size) toast('Could not find W A S D in the keymap', 1); };
+  $('#selClear').onclick = () => {
+    selected = new Set(); renderGrid(); updateSelectionCount(); };
+
+  $('#travel').oninput = e => $('#travelOut').textContent = (+e.target.value).toFixed(3);
+  $('#applyTravel').onclick = () => {
+    const mm = +$('#travel').value;
+    return applyToSelection((r, c, i) =>
+      kb.setKeyTravel(r, c, mm).then(() => travelValues[i] = mm), 'Trigger travel');
+  };
+
+  $('#rtPress').oninput = e => $('#rtPressOut').textContent = (+e.target.value).toFixed(3);
+  $('#rtRelease').oninput = e => $('#rtReleaseOut').textContent = (+e.target.value).toFixed(3);
+  $('#applyRt').onclick = () => {
+    const on = $('#rtOn').checked ? 1 : 0;
+    const press = +$('#rtPress').value, release = +$('#rtRelease').value;
+    return applyToSelection((r, c, i) =>
+      kb.setKeyRt(r, c, on, press, release)
+        .then(() => rtValues[i] = { on, press, release }), 'Rapid trigger');
+  };
+
+  $('#applyDz').onclick = async () => {
+    try {
+      await kb.setDeadZone(+$('#dzTop').value, +$('#dzBottom').value);
+      toast('Dead zone saved');
+    } catch { toast('Could not save', 1); }
+  };
+
+  for (const [id, ch, name] of [
+    ['#gameMode', CH.gameMode, 'Extreme mode'],
+    ['#aiMatch', CH.aiMatch, 'AI match'],
+    ['#bottomOpt', CH.bottomOptimize, 'Anti-accidental touch'],
+  ]){
+    $(id).onchange = async e => {
+      const on = e.target.checked;
+      try { await kb.setFlag(ch, on ? 1 : 0); toast(`${name} ${on ? 'on' : 'off'}`); }
+      catch { e.target.checked = !on; toast('Could not save', 1); }
+    };
+  }
+
+  for (const [id, field, name] of [
+    ['#macMode', 'macMode', 'MAC mode'],
+    ['#exchangeWasd', 'exchangeWasd', 'Exchange WASD'],
+    ['#winLock', 'winLock', 'Win key lock'],
+  ]){
+    $(id).onchange = async e => {
+      const on = e.target.checked;
+      try {
+        const f = await kb.getFeature();
+        f[field] = on ? 1 : 0;
+        await kb.setFeature(f);
+        toast(`${name} ${on ? 'on' : 'off'}`);
+      } catch { e.target.checked = !on; toast('Could not save', 1); }
+    };
+  }
+
+  const pushLight = async () => {
+    try {
+      await kb.setLightConfig({
+        effect: +$('#effect').value,
+        brightness: +$('#brightness').value,
+        speed: +$('#speed').value,
+        color: hexToRgb($('#color').value),
+        colorful: $('#colorful').checked ? 1 : 0,
+      });
+      toast('Lighting saved');
+    } catch { toast('Could not save', 1); }
+  };
+  $('#effect').onchange = pushLight;
+  $('#colorful').onchange = pushLight;
+  $('#color').onchange = pushLight;
+  let lightTimer;
+  for (const id of ['#brightness', '#speed']){
+    $(id).oninput = () => {
+      $(id + 'Out').textContent = $(id).value;
+      clearTimeout(lightTimer);
+      lightTimer = setTimeout(pushLight, 200);
+    };
+  }
+
+  $('#zone').onchange = async () => {
+    try {
+      const z = await kb.getZoneLight(ZONE[$('#zone').value]);
+      $('#zoneEffect').value = String(z.effect);
+      $('#zoneBrightness').value = z.brightness;
+      $('#zoneSpeed').value = z.speed;
+      $('#zoneColor').value = rgbToHex(z.color);
+    } catch { toast('This zone did not answer', 1); }
+  };
+  const pushZone = async () => {
+    try {
+      await kb.setZoneLight(ZONE[$('#zone').value], {
+        effect: +$('#zoneEffect').value,
+        brightness: +$('#zoneBrightness').value,
+        speed: +$('#zoneSpeed').value,
+        color: hexToRgb($('#zoneColor').value),
+        colorful: 0,
+      });
+      toast('Zone lighting saved');
+    } catch { toast('Could not save', 1); }
+  };
+  $('#zoneEffect').onchange = pushZone;
+  $('#zoneColor').onchange = pushZone;
+  let zoneTimer;
+  for (const id of ['#zoneBrightness', '#zoneSpeed']){
+    $(id).oninput = () => {
+      $(id + 'Out').textContent = $(id).value;
+      clearTimeout(zoneTimer);
+      zoneTimer = setTimeout(pushZone, 200);
+    };
+  }
+
+  $('#capsColor').onchange = async e => {
+    try { await kb.setKeyLight(0, hexToRgb(e.target.value)); toast('Caps Lock colour saved'); }
+    catch { toast('Could not save', 1); }
+  };
+  $('#winColor').onchange = async e => {
+    try { await kb.setKeyLight(1, hexToRgb(e.target.value)); toast('Win Lock colour saved'); }
+    catch { toast('Could not save', 1); }
+  };
+}
+
+wire();
+
+</script>
+</body>
+</html>
