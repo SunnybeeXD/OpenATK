@@ -155,6 +155,28 @@
   .advrow .who{flex:1;min-width:0;font-size:13.5px}
   .advrow .who small{display:block;color:var(--dim);font-family:var(--mono);font-size:11.5px}
   .advempty{color:var(--dimmer);font-size:13px;padding:14px 2px}
+  .modal{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:22px}
+  .modal.hidden{display:none}
+  .modal .veil{position:absolute;inset:0;background:rgba(6,9,12,.72);
+    backdrop-filter:blur(2px)}
+  .sheet{position:relative;width:100%;max-width:440px;max-height:calc(100vh - 44px);
+    overflow-y:auto;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:20px 22px 18px;box-shadow:0 24px 60px rgba(0,0,0,.55)}
+  .sheet .shead{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+  .sheet .shead div{flex:1;min-width:0}
+  .sheet .shead b{display:block;font-size:16px;font-weight:600}
+  .sheet .shead em{font-style:normal;display:block;font-size:12.5px;
+    color:var(--dim);margin-top:3px}
+  .xbtn{flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);
+    background:transparent;color:var(--dim);font-size:16px;line-height:1;cursor:pointer}
+  .xbtn:hover{background:var(--card2);color:var(--ink)}
+  .pick{margin:14px 0 4px;padding:10px 12px;border-radius:9px;font-size:13px;
+    background:#0f1418;border:1px solid var(--line);color:var(--dim)}
+  .pick b{color:var(--ink);font-weight:500}
+  .pick.bad{border-color:#4a3033;color:var(--warn)}
+  .sheet .gridbar{margin-top:16px}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .btn[disabled]:hover{filter:none;background:transparent}
   .field{display:flex;gap:10px;align-items:center;margin-top:10px}
   .field label{flex:0 0 auto;width:104px;font-size:12.5px;color:var(--dim)}
 
@@ -329,15 +351,7 @@
       <div>
         <h3 class="advh">Add advanced key</h3>
         <div id="advTypes"></div>
-        <div class="item hidden" id="advForm">
-          <div class="t" id="advFormTitle"></div>
-          <div class="d" id="advFormNeed"></div>
-          <div id="advFields"></div>
-          <div class="gridbar">
-            <button class="btn ghost" id="advAdd">Add</button>
-            <button class="btn ghost" id="advCancel">Cancel</button>
-          </div>
-        </div>
+        <p class="note">Select the keys on the board, then pick a type.</p>
       </div>
       <div>
         <h3 class="advh">Configured <span id="advCount">0 / 20</span></h3>
@@ -421,8 +435,7 @@
       </div>
       <div id="log" class="hidden"></div>
     </div>
-    <p class="foot">Changes save to the keyboard immediately. Advanced keys —
-       RS, SOCD, OKS, DKS, MT, TGL — are not implemented yet.</p>
+    <p class="foot">Changes save to the keyboard immediately.</p>
   </section>
 
 </div>
@@ -430,6 +443,23 @@
 
 <div id="toast"></div>
 
+
+<div class="modal hidden" id="advModal" role="dialog" aria-modal="true"
+     aria-labelledby="advFormTitle">
+  <div class="veil" id="advVeil"></div>
+  <div class="sheet">
+    <div class="shead">
+      <div><b id="advFormTitle"></b><em id="advFormDesc"></em></div>
+      <button class="xbtn" id="advClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="pick" id="advSel"></div>
+    <div id="advFields"></div>
+    <div class="gridbar">
+      <button class="btn" id="advAdd">Add</button>
+      <button class="btn ghost" id="advCancel">Cancel</button>
+    </div>
+  </div>
+</div>
 <script>
 const REGISTRY = {"10b0":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"1082":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"1114":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"12eb":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"10af":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-48E"},"115f":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-4015"},"1160":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-4015"},"1161":{"n":"EDGE 60HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE60-4015"},"11c5":{"n":"ATK60 RX","m":[5,14],"l":4},"11c6":{"n":"ATK60 RX","m":[5,14],"l":4,"g":"ATK60RX-Ultra"},"11c7":{"n":"ATK60 RX","m":[5,14],"l":4,"g":"ATK60RX-Limited"},"11fc":{"n":"ATK60 RX","m":[5,14],"l":4},"125d":{"n":"VELOTA FUZZY 60 V2","m":[5,14],"l":4},"1267":{"n":"VELOTA FUZZY 60 V2","m":[5,14],"l":4},"113b":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-48E"},"113c":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-48E"},"113d":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-48E"},"1168":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-4015"},"1169":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-4015"},"116a":{"n":"EDGE 63HE ULTIMATE","m":[5,14],"l":4,"g":"EDGE63-4015"},"126a":{"n":"RS 63 Air","m":[5,14],"l":4},"126b":{"n":"RS 63 Air","m":[5,14],"l":4},"12a6":{"n":"VELOTA FUZZY 63","m":[5,15],"l":4},"11e8":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"109c":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"109d":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"109e":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-48E"},"11e9":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-48E"},"1162":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-4015"},"11ea":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-4015"},"1163":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"1164":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11b8":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11d6":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11eb":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-Ultra-4015"},"11b9":{"n":"ATK RS6 Ultra","m":[5,15],"l":4,"g":"RS6-FLEET18-4015"},"1112":{"n":"ATK68 V3","m":[5,15],"l":4,"g":"ATK68V3-48E"},"116b":{"n":"ATK68 V3","m":[5,15],"l":4,"g":"ATK68V3-4015"},"11e6":{"n":"ATK68 V3","m":[5,15],"l":4,"g":"ATK68V3-4015"},"11d0":{"n":"ATK RS6 Air","m":[5,15],"l":4},"125b":{"n":"ATK RS6 Air","m":[5,15],"l":4,"g":"RS6-Air-2"},"1209":{"n":"ATK RS6 Air","m":[5,15],"l":4},"125c":{"n":"ATK RS6 Air","m":[5,15],"l":4,"g":"RS6-Air-2"},"1294":{"n":"ATK RS6 Air","m":[5,15],"l":4,"g":"RS6-Air-Cyber"},"119a":{"n":"ATK68 RX","m":[5,15],"l":4,"g":"ATK68RX-4015"},"11c0":{"n":"ATK68 RX","m":[5,15],"l":4,"g":"ATK68RX-4015"},"11c1":{"n":"ATK68 RX","m":[5,15],"l":4,"g":"ATK68RX-4015"},"120f":{"n":"ATK RS6 +","m":[5,15],"l":4},"1210":{"n":"ATK RS6 +","m":[5,15],"l":4,"g":"RS6-Ultra-Plus-4015"},"12fe":{"n":"ATK RS6 +","m":[5,15],"l":4},"12c0":{"n":"ATK Keyboard"},"1259":{"n":"ATK RS6 Cube","m":[5,15],"l":4,"g":"RS6-Cube"},"12f0":{"n":"ATK RS6 Cube","m":[5,15],"l":4,"g":"RS6-Cube"},"12ad":{"n":"ATK Keyboard"},"12ae":{"n":"ATK Keyboard"},"12fc":{"n":"ATK Keyboard"},"12fd":{"n":"ATK Keyboard"},"1174":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"1197":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"1198":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11ae":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11b0":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11ad":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-4015"},"11df":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-4015"},"11af":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11ba":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11da":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"1336":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Ultra-4015"},"11a8":{"n":"ATK RS7 V2 Ultra","m":[6,15],"l":4,"g":"RS7V2-Extreme-4015"},"108e":{"n":"ATK EDGE75","m":[6,15],"l":4},"1090":{"n":"ATK EDGE75","m":[6,15],"l":4},"1206":{"n":"ATK EDGE75","m":[6,15],"l":4,"g":"EDGE75-2"},"11e0":{"n":"ATK RS7 Turbo","m":[6,15],"l":4,"g":"RS7-Turbo-4015"},"11e1":{"n":"ATK RS7 Turbo","m":[6,15],"l":4,"g":"RS7-Turbo-4015"},"1220":{"n":"ATK RS7 Air","m":[6,15],"l":4},"1339":{"n":"ATK RS7 Air","m":[6,15],"l":4},"1257":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-2"},"1335":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-4"},"1221":{"n":"ATK RS7 Air","m":[6,15],"l":4},"122b":{"n":"ATK RS7 Air","m":[6,15],"l":4},"1258":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-2"},"1295":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-Cyber"},"12c1":{"n":"ATK RS7 Air","m":[6,15],"l":4,"g":"RS7-Air-ISO"},"1176":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-48E"},"1177":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-4015"},"1250":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-Babysbreath"},"12ac":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-v2"},"12be":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-v2"},"1334":{"n":"ATK x QK Hex80","m":[6,17],"l":4,"g":"Hex80-v2"},"12a0":{"n":"ATK RS8 Air","m":[6,17],"l":4},"12a1":{"n":"ATK RS8 Air","m":[6,17],"l":4},"122c":{"n":"ATK RS8 Air","m":[6,17],"l":4},"12ca":{"n":"ATK RS8 Air","m":[6,17],"l":4},"12cb":{"n":"ATK RS8 Air","m":[6,17],"l":4},"122e":{"n":"ATK RS8 TURBO","m":[6,17],"l":4},"122f":{"n":"ATK RS8 TURBO","m":[6,17],"l":4},"1044":{"n":"ATK RS7","m":[6,16],"l":4},"1048":{"n":"ATK68 V2 Pro","m":[5,15],"l":4},"111e":{"n":"ATK A87 PRO","m":[8,16],"l":4},"111f":{"n":"ATK A87 PRO","m":[8,16],"l":4},"1231":{"n":"ATK A87 PRO","m":[8,16],"l":4},"114d":{"n":"ATK A98","m":[8,16],"l":4},"114e":{"n":"ATK A98","m":[8,16],"l":4},"1151":{"n":"ATK A98","m":[8,16],"l":4},"1152":{"n":"ATK A98","m":[8,16],"l":4},"1241":{"n":"ATK A87 Ultra","m":[6,16],"l":4},"1243":{"n":"ATK A98 Ultra","m":[6,18],"l":4},"1242":{"n":"ATK A87 Ultra 2.4G","m":[6,16],"l":4},"1244":{"n":"ATK A98 Ultra 2.4G","m":[6,18],"l":4},"1247":{"n":"ATK V75X Ultra","m":[6,15],"l":4},"124b":{"n":"ATK V75X Ultra 2.4G","m":[6,15],"l":4},"1254":{"n":"ATK RS8 Neo"},"1255":{"n":"ATK RS8 Neo 2.4G"}};
 
@@ -976,7 +1006,6 @@ async function connect(){
   $('#devName').textContent = info?.n ?? `ATK keyboard 0x${pidKey}`;
 
   renderAdvTypes();
-  renderAdvForm();
   fillSelect('#effect', EFFECTS);
   fillSelect('#zoneEffect', EFFECTS);
   buildSeg('#segRate', RATES, async hz => {
@@ -1133,7 +1162,7 @@ function renderAdvTypes(){
     b.setAttribute('aria-pressed', String(advPick === id));
     b.innerHTML = `<span class="tag">${id.toUpperCase()}</span>` +
       `<span><b>${title}</b><em>${desc}</em></span>`;
-    b.onclick = () => { advPick = advPick === id ? null : id; renderAdvTypes(); renderAdvForm(); };
+    b.onclick = () => openAdv(id);
     host.appendChild(b);
   }
 }
@@ -1142,16 +1171,7 @@ function field(label, html){
   return `<div class="field"><label>${label}</label>${html}</div>`;
 }
 
-function renderAdvForm(){
-  const form = $('#advForm');
-  if (!advPick){ form.classList.add('hidden'); return; }
-  const [, title, , need] = ADV_TYPES.find(t => t[0] === advPick);
-  form.classList.remove('hidden');
-  $('#advFormTitle').textContent = title;
-  $('#advFormNeed').textContent = need === 2
-    ? 'Select exactly two keys on the board above.'
-    : 'Select exactly one key on the board above.';
-
+function advFieldsHtml(advPick){
   const opts = keyOptions().map(([c,l]) => `<option value="${c}">${l}</option>`).join('');
   let html = '';
   if (advPick === 'rs')
@@ -1173,7 +1193,37 @@ function renderAdvForm(){
         field(`Action ${i+1}`, `<select id="advDks${i}"><option value="0">None</option>${opts}</select>`)).join('')
          + field('Top point', `<input type="number" id="advTop" min="0.1" max="3.4" step="0.01" value="0.8">`)
          + field('Bottom point', `<input type="number" id="advBottom" min="0.1" max="3.4" step="0.01" value="2.4">`);
-  $('#advFields').innerHTML = html;
+  return html;
+}
+
+function openAdv(id){
+  advPick = id;
+  renderAdvTypes();
+  const [, title, desc, need] = ADV_TYPES.find(t => t[0] === id);
+  $('#advFormTitle').textContent = title;
+  $('#advFormDesc').textContent = desc;
+  $('#advFields').innerHTML = advFieldsHtml(id);
+
+  const pos = selectedPositions();
+  const names = pos.map(([r, c]) =>
+    (keyLabel(keymap[r * kb.cols + c] ?? 0) || '?').replace('\n', ' '));
+  const ok = pos.length === need;
+  const sel = $('#advSel');
+  sel.classList.toggle('bad', !ok);
+  sel.innerHTML = ok
+    ? `Bound to <b>${names.join(' + ')}</b>`
+    : `Select exactly ${need === 2 ? 'two keys' : 'one key'} on the Keys tab, ` +
+      `then pick this type again. ${pos.length} selected right now.`;
+  $('#advAdd').disabled = !ok;
+
+  $('#advModal').classList.remove('hidden');
+  $('#advAdd').focus();
+}
+
+function closeAdv(){
+  $('#advModal').classList.add('hidden');
+  advPick = null;
+  renderAdvTypes();
 }
 
 function renderAdvList(){
@@ -1247,9 +1297,7 @@ async function addAdvanced(){
         [0,1,2,3].map(i => +$(`#advDks${i}`).value),
         +$('#advTop').value, +$('#advBottom').value);
     toast(`${advPick.toUpperCase()} added`);
-    advPick = null;
-    renderAdvTypes();
-    renderAdvForm();
+    closeAdv();
   } catch { toast('Could not write — see activity log', 1); }
 }
 
@@ -1389,7 +1437,12 @@ function wire(){
   }
 
   $('#advAdd').onclick = () => addAdvanced();
-  $('#advCancel').onclick = () => { advPick = null; renderAdvTypes(); renderAdvForm(); };
+  $('#advCancel').onclick = closeAdv;
+  $('#advClose').onclick = closeAdv;
+  $('#advVeil').onclick = closeAdv;
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('#advModal').classList.contains('hidden')) closeAdv();
+  });
   $('#advRefresh').onclick = () => readAdvanced().catch(() => toast('Read failed', 1));
 
   $('#capsColor').onchange = async e => {
