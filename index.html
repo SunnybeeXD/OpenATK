@@ -1214,13 +1214,30 @@ async function connect(){
   if (!('hid' in navigator)){ toast('This browser can’t talk to USB devices — use Chrome', 1); return; }
   let picked;
   try {
-    [picked] = await navigator.hid.requestDevice({ filters: [
-      { vendorId: VID, usagePage: 0xFF05, usage: 0x01 },   // BITMOUSE
-      { vendorId: VID, usagePage: 0xFF04, usage: 0x02 },   // COMPX
-    ]});
+    [picked] = await navigator.hid.requestDevice({ filters: MOUSE_FILTERS });
   } catch (e){ toast(e.message, 1); return; }
   if (!picked) return;
+  await attach(picked);
+}
 
+/* The browser remembers a granted device per origin, so a reload can pick it
+   back up on its own: requestDevice needs a click, getDevices does not. */
+const MOUSE_FILTERS = [
+  { vendorId: VID, usagePage: 0xFF05, usage: 0x01 },   // BITMOUSE
+  { vendorId: VID, usagePage: 0xFF04, usage: 0x02 },   // COMPX
+];
+const isOurMouse = d => d.vendorId === VID && d.collections.some(c =>
+  MOUSE_FILTERS.some(f => c.usagePage === f.usagePage && c.usage === f.usage));
+
+async function autoConnect(){
+  if (IS_MOBILE || !('hid' in navigator)) return;
+  try {
+    const known = (await navigator.hid.getDevices()).find(isOurMouse);
+    if (known) await attach(known);
+  } catch {}
+}
+
+async function attach(picked){
   if (!picked.opened) await picked.open();
 
   /* which vendor interface did we actually get? */
@@ -1281,6 +1298,8 @@ function disconnected(){
 navigator.hid?.addEventListener('disconnect', e => {
   if (drv && e.device === drv.device) disconnected();
 });
+
+autoConnect();
 
 /* ── render ──────────────────────────────────────────────────────── */
 async function readAll(){
