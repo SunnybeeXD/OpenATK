@@ -675,7 +675,7 @@ class CompxDriver {
           add('Dongle firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
     try { const v = await this.xfer(CX_CMD.GetBatteryLevel);
           s.battery = v.u8(0); add('Charging', v.u8(1) ? 'yes' : 'no');
-          add('Voltage', ((v.raw[8]<<8 | v.raw[9])/1000).toFixed(2) + ' V'); } catch{}
+          add('Voltage', ((v.u8(2)<<8 | v.u8(3))/1000).toFixed(2) + ' V'); } catch{}
     try { const v = await this.xfer(CX_CMD.GetMouseCIDMID);
           s.cidMid = `${v.u8(0)},${v.u8(1)}`; } catch{}
 

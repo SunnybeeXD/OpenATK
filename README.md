@@ -48,6 +48,7 @@ Confirmed on hardware:
 | ATK F1 EXTREME 2.0 | `0x11E3` | COMPX |
 | ATK F1 Ultra Max 2.0 | `0x126E`, `0x11ED` | COMPX |
 | ATK X1 Ultra Max 2.0 | `0x1274` / `0x11EC` / `0x12FF` | COMPX |
+| ATK F1 V3 LEVIATAN + | `0x129D` | COMPX |
 
 There is a longer list of devices that should work but nobody has reported back on, plus
 the details behind each entry, on the **[tested hardware page](tested.html)** — live at
