@@ -53,6 +53,10 @@
   .stat .v{font-size:17px;font-weight:600;margin-top:3px}
   .bar{height:5px;border-radius:3px;background:#242c35;margin-top:9px;overflow:hidden}
   .bar i{display:block;height:100%;background:var(--acc);border-radius:3px;transition:width .3s}
+  .batt-row{display:flex;align-items:center;gap:6px}
+  .chg-bolt{color:var(--acc);flex:0 0 auto;animation:chgPulse 1.6s ease-in-out infinite}
+  @media (prefers-reduced-motion: reduce){.chg-bolt{animation:none}}
+  @keyframes chgPulse{0%,100%{opacity:1}50%{opacity:.45}}
 
   /* ── settings ─────────────────────────────────────── */
   main{margin-top:12px}
@@ -164,7 +168,11 @@
 <div id="app" class="hidden">
 
   <div class="strip">
-    <div class="stat"><div class="k">Battery</div><div class="v" id="sBatt">—</div>
+    <div class="stat"><div class="k">Battery</div>
+      <div class="v batt-row"><span id="sBatt">—</span>
+        <svg id="sCharge" class="chg-bolt hidden" viewBox="0 0 24 24" width="13" height="13"
+          fill="currentColor" role="img" aria-label="Charging"><title>Charging</title>
+          <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
       <div class="bar"><i id="sBattBar" style="width:0"></i></div></div>
     <div class="stat"><div class="k">Connection</div><div class="v" id="sConn">—</div></div>
     <div class="stat"><div class="k">Sensitivity</div><div class="v" id="sDpi">—</div></div>
@@ -495,7 +503,7 @@ class BitmouseDriver {
     try { const v = await this.xfer(BM_CMD.GetBatteryLevel,{paramLen:2,cmdLen:1});
           s.battery = v.u8(0); } catch{}
     try { const v = await this.xfer(BM_CMD.GetBatteryChargingStatus,{paramLen:2,cmdLen:1});
-          add('Charging', v.u8(0) === 1 ? 'yes' : 'no'); } catch{}
+          s.charging = v.u8(0) === 1; add('Charging', s.charging ? 'yes' : 'no'); } catch{}
     try { const v = await this.xfer(BM_CMD.GetDeviceVersion,{paramLen:5,cmdLen:3});
           add('Mouse firmware', [v.u8(0),v.u8(1),v.u8(2)].join('.')); } catch{}
     try { const v = await this.xfer(BM_CMD.GetDongleVersion,{paramLen:5,cmdLen:3,target:0});
@@ -674,7 +682,7 @@ class CompxDriver {
     try { const v = await this.xfer(CX_CMD.GetDongleVersion);
           add('Dongle firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
     try { const v = await this.xfer(CX_CMD.GetBatteryLevel);
-          s.battery = v.u8(0); add('Charging', v.u8(1) ? 'yes' : 'no');
+          s.battery = v.u8(0); s.charging = !!v.u8(1); add('Charging', s.charging ? 'yes' : 'no');
           add('Voltage', ((v.u8(2)<<8 | v.u8(3))/1000).toFixed(2) + ' V'); } catch{}
     try { const v = await this.xfer(CX_CMD.GetMouseCIDMID);
           s.cidMid = `${v.u8(0)},${v.u8(1)}`; } catch{}
@@ -1047,6 +1055,7 @@ function disconnected(){
   $('#devName').textContent = 'ATK Mouse';
   $('#sBatt').textContent = '—';
   $('#sBattBar').style.width = '0';
+  $('#sCharge').classList.add('hidden');
   $('#sConn').textContent = '—';
   $('#sDpi').textContent = '—';
   $('#kv').innerHTML = '';
@@ -1092,6 +1101,7 @@ async function readAll(){
     $('#sBattBar').style.background = s.battery < 20 ? '#f87171'
                                     : s.battery < 40 ? '#f5c451' : '#3ddc84';
   }
+  $('#sCharge').classList.toggle('hidden', !(s.battery != null && s.charging));
   $('#sConn').textContent = s.conn ?? (drv instanceof CompxDriver ? 'Wireless' : '—');
 
   if (s.rateHz){ mark('#segRate', s.rateHz); info.push(['Polling rate', s.rateHz + ' Hz']); }
