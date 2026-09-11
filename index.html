@@ -533,15 +533,15 @@ class BitmouseDriver {
       log('', 'DPI ', hex(bytes.slice(0, 26)) + ' …');
       const d = new DataView(Uint8Array.from(bytes).buffer);
       const cur = d.getUint8(0);
-      /* Trust the reported count only if it's sane; otherwise take every
-         stage that carries a non-zero DPI. Stage counts vary by model and a
-         cold-booted mouse can report 0 here. */
-      let count = d.getUint8(1);
-      if (!(count >= 1 && count <= 8)){
-        count = 0;
-        for (let i = 0; i < 8; i++) if (d.getUint16(2 + 8*i, true) > 0) count = i + 1;
-        if (count) log('', 'NOTE', `stage count read as ${d.getUint8(1)}, using ${count} non-empty stages`);
-      }
+      /* Stage counts vary by model, a cold-booted mouse can report 0, and an
+         ATK Zero reports 8 while filling four — so take the reported count as
+         an upper bound only and stop at the last stage carrying a DPI. */
+      const reported = d.getUint8(1);
+      let filled = 0;
+      for (let i = 0; i < 8; i++) if (d.getUint16(2 + 8*i, true) > 0) filled = i + 1;
+      const count = (reported >= 1 && reported <= 8) ? Math.min(reported, filled) : filled;
+      if (count && count !== reported)
+        log('', 'NOTE', `stage count read as ${reported}, using ${count} non-empty stages`);
       if (count > 0){
         const stages = Array.from({length:count}, (_,i) => ({
           x: d.getUint16(2 + 8*i, true), y: d.getUint16(2 + 8*i + 2, true) }));
@@ -786,12 +786,18 @@ class CompxDriver {
     cands.sort((a,b) => score(b) - score(a));
     const best = cands[0];
     if (!best || score(best) < 10) return [];
+    /* same trailing-empty trim as BITMOUSE — a reported count can overshoot
+       the stages the mouse has actually filled in */
+    let filled = best.stages.length;
+    while (filled > 0 && !(best.stages[filled-1].x > 0)) filled--;
+    if (filled !== best.stages.length)
+      log('', 'NOTE', `stage count read as ${best.stages.length}, using ${filled} non-empty stages`);
     if (best.group !== this.group){
       log('', 'NOTE', `stage table decodes as group ${best.group}, not ${this.group} — switching`);
       this.group = best.group;
       this.is3955 = best.group === 'M';
     }
-    return best.stages;
+    return best.stages.slice(0, filled);
   }
 
   async setRate(hz){
