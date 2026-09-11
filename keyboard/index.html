@@ -406,8 +406,8 @@
         </div>
         <div class="slider">
           <span class="lbl">Speed</span>
-          <input type="range" id="speed" min="0" max="100" step="1" value="50">
-          <output id="speedOut">50</output>
+          <input type="range" id="speed" min="0" max="255" step="1" value="128">
+          <output id="speedOut">128</output>
         </div>
         <div class="gridbar">
           <label class="inline">Colour <input type="color" id="color" value="#ffffff"></label>
@@ -504,7 +504,6 @@ const CMD = {
   setKeyboardValue: 0x03,
   lightingGetValue: 0x08,
   lightingSetValue: 0x07,
-  lightingSave: 0x09,
   keymapGetBuffer: 0x12,
 };
 
@@ -515,7 +514,6 @@ const CH = {
   oneRt: 0x07,
   deadBand: 0x0B,
   feature: 0x11,
-  saveLamplight: 0x12,
   bottomOptimize: 0x1D,
   gameMode: 0x1E,
   logoLight: 0x21,
@@ -579,13 +577,18 @@ const SLEEP = [[60, '1min'], [180, '3min'], [300, '5min'],
 const NKRO = [[0, 'Force 6-Key'], [1, 'Smart Detect'], [2, 'Force Full-Key']];
 
 const EFFECTS = [
-  [0, 'Close'], [1, 'Customization'], [2, 'Single Color Constant'], [3, 'Focus'],
-  [4, 'Up-Down Rainbow'], [5, 'Left-Right Rainbow'], [6, 'Monochrome Breath'],
-  [7, 'Fluttering Ribbons'], [8, 'Laser'], [9, 'Pinwheel'], [10, 'Vortex'],
-  [11, 'Spectral Cycle'], [12, 'Streamer'], [13, 'Colorful Swirls'],
-  [14, 'Double Vortex'], [15, 'Christmas'], [16, 'Spectrum Breathing'],
-  [17, 'Spectrum Float'], [18, 'Digital Rain'], [19, 'Single Light Up'],
-  [20, 'Crucifix'], [21, 'Fingertip Rainbow'],
+  [0, 'Close', ''], [1, 'Customization', 'b'], [2, 'Single Color Constant', 'bc'],
+  [3, 'Focus', 'bc'], [4, 'Up-Down Rainbow', 'bc'], [5, 'Left-Right Rainbow', 'bc'],
+  [6, 'Monochrome Breath', 'bcs'], [7, 'Fluttering Ribbons', 'bcs'], [8, 'Laser', 'bcs'],
+  [9, 'Pinwheel', 'bcs'], [11, 'Vortex', 'bcs'], [13, 'Spectral Cycle', 'bs'],
+  [14, 'Streamer', 'bs'], [19, 'Colorful Swirls', 'bs'], [23, 'Double Vortex', 'bs'],
+  [25, 'Christmas', 'bs'], [26, 'Spectrum Breathing', 'bcs'], [28, 'Spectrum Float', 'bcs'],
+  [30, 'Digital Rain', 'b'], [31, 'Single Light Up', 'bcsf'], [36, 'Crucifix', 'bcsf'],
+  [39, 'Fingertip Ripple', 'bcsf'], [41, 'Fingertip Rainbow', 'bcsf'],
+];
+const ZONE_EFFECTS = [
+  [4, 'Close', ''], [0, 'Streamer', 'bs'], [1, 'Spectral Cycle', 'bs'],
+  [2, 'Breath', 'bcs'], [3, 'Single Colour', 'bc'], [5, 'Follow backlight', ''],
 ];
 
 const KEYCODES = {
@@ -762,19 +765,28 @@ class Keyboard {
     b[4] = c.color[0]; b[5] = c.color[1]; b[6] = c.color[2];
     b[7] = c.brightness;
     b[8] = c.colorful | 0;
-    await this.send(CMD.lightingSetValue, b);
-    return this.send(CMD.lightingSave, [CH.lightInfo]);
+    return this.send(CMD.lightingSetValue, b);
   }
 
+  async getVersion(){
+    const r = await this.send(CMD.getKeyboardValue, [CUSTOM]);
+    return Number(r[BASE+4].toString(16) + '.' + r[BASE+5].toString(16).padStart(2, '0'));
+  }
+
+  zoneChannel(zone){
+    if (this.v2 === false && zone <= 241) return zone === 240 ? CH.logoLight : CH.sideLight;
+    return CH.decorationLight;
+  }
   async getZoneLight(zone){
-    const r = await this.getCustom(CH.decorationLight, [zone]);
+    const ch = this.zoneChannel(zone);
+    const r = await this.getCustom(ch, ch === CH.decorationLight ? [zone] : []);
     return { effect: r[BASE+2], colorful: r[BASE+3], brightness: r[BASE+4],
              speed: r[BASE+5], color: [r[BASE+6], r[BASE+7], r[BASE+8]] };
   }
   setZoneLight(zone, c){
-    return this.setCustom(CH.decorationLight,
-      [c.effect, c.colorful | 0, c.brightness, c.speed,
-       c.color[0], c.color[1], c.color[2], zone]);
+    const ch = this.zoneChannel(zone);
+    const b = [c.effect, c.colorful | 0, c.brightness, c.speed, c.color[0], c.color[1], c.color[2]];
+    return this.setCustom(ch, ch === CH.decorationLight ? [...b, zone] : b);
   }
 
   async getKeyLight(key){
@@ -1000,6 +1012,14 @@ function fillSelect(host, opts){
   for (const [v, l] of opts) el.add(new Option(l, String(v)));
 }
 
+const LIGHT_CTL = { b: '#brightness', s: '#speed', c: '#color', f: '#colorful' };
+const ZONE_CTL = { b: '#zoneBrightness', s: '#zoneSpeed', c: '#zoneColor' };
+function showFor(table, sel, ctl){
+  const flags = table.find(e => String(e[0]) === $(sel).value)?.[2] ?? '';
+  for (const [k, id] of Object.entries(ctl))
+    $(id).closest('.slider, label').classList.toggle('hidden', !flags.includes(k));
+}
+
 const hexToRgb = h => {
   const n = parseInt(h.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -1048,7 +1068,7 @@ async function connect(){
 
   renderAdvTypes();
   fillSelect('#effect', EFFECTS);
-  fillSelect('#zoneEffect', EFFECTS);
+  fillSelect('#zoneEffect', ZONE_EFFECTS);
   buildSeg('#segRate', RATES, async hz => {
     await kb.setReportRate(hz); toast(`Polling rate ${hz} Hz`); });
   buildSeg('#segSleep', SLEEP, async (s, l) => {
@@ -1071,6 +1091,7 @@ async function readAll(){
   const add = (k, v) => info.push([k, v]);
 
   try { add('Protocol', await kb.getProtocolVersion()); } catch {}
+  try { const v = await kb.getVersion(); kb.v2 = v >= 2.1; add('Firmware', v.toFixed(2)); } catch {}
   try { limits = await kb.getTravelInfo();
         add('Travel range', `${limits.travelMin}–${limits.travelMax} mm`);
         add('RT range', `${limits.rtMin}–${limits.rtMax} mm`);
@@ -1114,6 +1135,7 @@ async function readAll(){
     $('#colorful').checked = !!c.colorful;
     add('Back lamp', EFFECTS.find(e => e[0] === c.effect)?.[1] ?? c.effect);
   } catch {}
+  showFor(EFFECTS, '#effect', LIGHT_CTL);
 
   try {
     const z = await kb.getZoneLight(ZONE[$('#zone').value]);
@@ -1122,6 +1144,7 @@ async function readAll(){
     $('#zoneSpeed').value = z.speed;
     $('#zoneColor').value = rgbToHex(z.color);
   } catch {}
+  showFor(ZONE_EFFECTS, '#zoneEffect', ZONE_CTL);
 
   try {
     const caps = await kb.getKeyLight(0);
@@ -1433,7 +1456,7 @@ function wire(){
       toast('Lighting saved');
     } catch { toast('Could not save', 1); }
   };
-  $('#effect').onchange = pushLight;
+  $('#effect').onchange = () => { showFor(EFFECTS, '#effect', LIGHT_CTL); pushLight(); };
   $('#colorful').onchange = pushLight;
   $('#color').onchange = pushLight;
   let lightTimer;
@@ -1453,6 +1476,7 @@ function wire(){
       $('#zoneSpeed').value = z.speed;
       $('#zoneColor').value = rgbToHex(z.color);
     } catch { toast('This zone did not answer', 1); }
+    showFor(ZONE_EFFECTS, '#zoneEffect', ZONE_CTL);
   };
   const pushZone = async () => {
     try {
@@ -1466,7 +1490,7 @@ function wire(){
       toast('Zone lighting saved');
     } catch { toast('Could not save', 1); }
   };
-  $('#zoneEffect').onchange = pushZone;
+  $('#zoneEffect').onchange = () => { showFor(ZONE_EFFECTS, '#zoneEffect', ZONE_CTL); pushZone(); };
   $('#zoneColor').onchange = pushZone;
   let zoneTimer;
   for (const id of ['#zoneBrightness', '#zoneSpeed']){
