@@ -60,9 +60,6 @@
 
   /* ── settings ─────────────────────────────────────── */
   main{margin-top:12px}
-  .group{margin-top:26px}
-  .group>h3{margin:0 0 11px;font-size:12px;font-weight:600;letter-spacing:.09em;
-    text-transform:uppercase;color:var(--dimmer)}
   .item{background:var(--card);border:1px solid var(--line);
     border-radius:12px;padding:17px 19px;margin-bottom:10px}
   .item .t{font-size:15px;font-weight:600}
@@ -102,14 +99,7 @@
   .sw:checked{background:#1d7a48;border-color:#2fa563}
   .sw:checked::after{transform:translateX(21px);background:#f0fff7}
 
-  /* ── advanced ─────────────────────────────────────── */
-  details{margin-top:30px;background:var(--card);border:1px solid var(--line);border-radius:12px}
-  summary{padding:15px 19px;cursor:pointer;font-size:13.5px;color:var(--dim);
-    list-style:none;display:flex;justify-content:space-between;align-items:center}
-  summary::-webkit-details-marker{display:none}
-  summary::after{content:'▾';color:var(--dimmer);transition:transform .15s}
-  details[open] summary::after{transform:rotate(180deg)}
-  .adv{padding:0 19px 19px;border-top:1px solid var(--line);margin-top:-1px;padding-top:16px}
+  /* ── device tab ───────────────────────────────────── */
   .kv{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
   .kv td{padding:5px 0}
   .kv td:first-child{color:var(--dim)}
@@ -126,6 +116,15 @@
     transition:opacity .2s,transform .2s;box-shadow:0 8px 28px rgba(0,0,0,.45);z-index:9}
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #toast.bad{background:#f87171;color:#2b0808}
+
+  .tabs{display:flex;gap:4px;margin-top:22px;padding:4px;background:#12171c;
+    border:1px solid var(--line);border-radius:10px}
+  .tabs button{flex:1;font:600 13.5px/1 Inter,sans-serif;padding:11px 10px;border:0;
+    border-radius:7px;background:transparent;color:var(--dim);cursor:pointer;
+    transition:background .12s,color .12s}
+  .tabs button:hover{background:#1a2128;color:var(--ink)}
+  .tabs button[aria-pressed=true]{background:var(--card2);color:var(--ink)}
+  .panel{margin-top:14px}
 
   .swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
   .swatch{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim);
@@ -182,10 +181,17 @@
     <div class="stat"><div class="k">Sensitivity</div><div class="v" id="sDpi">—</div></div>
   </div>
 
+  <nav class="tabs" id="tabs">
+    <button data-tab="basics" aria-pressed="true">Basics</button>
+    <button data-tab="tracking" aria-pressed="false">Tracking</button>
+    <button data-tab="light" aria-pressed="false">Lighting</button>
+    <button data-tab="buttons" aria-pressed="false">Buttons &amp; power</button>
+    <button data-tab="device" aria-pressed="false">Device</button>
+  </nav>
+
   <main>
 
-    <div class="group">
-      <h3>Basics</h3>
+    <section class="panel" data-panel="basics">
 
       <div class="item">
         <div class="t">Sensitivity</div>
@@ -211,10 +217,9 @@
         </div>
         <div class="seg hidden" id="segLod"></div>
       </div>
-    </div>
+    </section>
 
-    <div class="group">
-      <h3>Tracking</h3>
+    <section class="panel hidden" data-panel="tracking">
 
       <div class="item row">
         <div>
@@ -273,23 +278,21 @@
           <output id="angleOut">0&deg;</output>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="group">
-      <h3>Lighting</h3>
+    <section class="panel hidden" data-panel="light">
 
       <div class="item">
         <div class="t">DPI light</div>
         <div class="d">The LED that shows which sensitivity stage you are on.
-          Each stage&rsquo;s colour is set on the Sensitivity card above.</div>
+          Each stage&rsquo;s colour is set on the Sensitivity card, under Basics.</div>
         <div class="seg" id="segLight"></div>
         <div class="seg" id="segLightBright"></div>
         <div class="seg hidden" id="segLightSpeed"></div>
       </div>
-    </div>
+    </section>
 
-    <div class="group">
-      <h3>Buttons &amp; power</h3>
+    <section class="panel hidden" data-panel="buttons">
 
       <div class="item hidden" id="bhopItem">
         <div class="head">
@@ -319,9 +322,8 @@
       </div>
     </div>
 
-    <details>
-      <summary>Device info and troubleshooting</summary>
-      <div class="adv">
+    <section class="panel hidden" data-panel="device">
+      <div class="item">
         <table class="kv" id="kv"></table>
         <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
           <button class="btn ghost" id="refresh">Refresh</button>
@@ -330,7 +332,7 @@
         </div>
         <div id="log" class="hidden"></div>
       </div>
-    </details>
+    </section>
 
     <p class="foot">Changes save to the mouse immediately and survive unplugging.
       &middot; <a href="tested.html" style="color:var(--dim)">Tested hardware</a></p>
@@ -997,6 +999,15 @@ class CompxDriver {
    UI
    ══════════════════════════════════════════════════════════════════ */
 let drv = null;
+
+function showTab(name){
+  for (const b of document.querySelectorAll('#tabs button'))
+    b.setAttribute('aria-pressed', String(b.dataset.tab === name));
+  for (const p of document.querySelectorAll('.panel'))
+    p.classList.toggle('hidden', p.dataset.panel !== name);
+}
+for (const b of document.querySelectorAll('#tabs button'))
+  b.onclick = () => showTab(b.dataset.tab);
 
 function buildSeg(host, opts, onPick){
   const el = $(host); el.innerHTML = '';
