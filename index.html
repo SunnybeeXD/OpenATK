@@ -136,6 +136,9 @@
   .swatch{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim);
     background:#0f1418;border:1px solid var(--line);border-radius:8px;padding:6px 9px}
   .swatch input{width:26px;height:20px;padding:0;border:0;background:none;cursor:pointer}
+  .swatch.on{border-color:var(--acc);color:var(--ink)}
+  .swatchlbl{margin-top:14px;font-size:12px;font-weight:600;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--dimmer)}
   .hidden{display:none !important}
   .foot{margin-top:26px;color:var(--dimmer);font-size:12.5px;text-align:center}
 </style>
@@ -201,8 +204,11 @@
 
       <div class="item">
         <div class="t">Sensitivity</div>
-        <div class="d">How far the pointer travels when you move the mouse.</div>
+        <div class="d">How far the pointer travels when you move the mouse. These
+          buttons set the DPI of the stage your mouse is on right now &mdash; the
+          mouse&rsquo;s own button cycles between the stages listed below.</div>
         <div class="seg" id="segDpi"></div>
+        <div class="swatchlbl hidden" id="dpiColorsLbl">Stages stored on the mouse</div>
         <div class="swatches hidden" id="dpiColors"></div>
       </div>
 
@@ -1096,15 +1102,18 @@ buildSeg('#segBhop', BHOP_MS, async (v,l) => {
   await pushBhop({ ms: v }); toast(`Anti-mistouch window ${l}`); });
 $('#bhopOn').onchange = e => pushBhop({ on: e.target.checked });
 
-function renderStageColors(stages, colors){
+function renderStageColors(stages, colors, active){
   const host = $('#dpiColors');
   host.innerHTML = '';
-  host.classList.toggle('hidden', !stages?.length || !drv.setStageColor);
-  if (!stages?.length || !drv.setStageColor) return;
+  const off = !stages?.length || !drv.setStageColor;
+  host.classList.toggle('hidden', off);
+  $('#dpiColorsLbl').classList.toggle('hidden', off);
+  if (off) return;
   stages.forEach((st, i) => {
     const wrap = document.createElement('label');
-    wrap.className = 'swatch';
-    wrap.textContent = st.x;
+    wrap.className = i === active ? 'swatch on' : 'swatch';
+    wrap.title = i === active ? 'Active stage' : `Stage ${i+1}`;
+    wrap.textContent = `${i+1} \u00B7 ${st.x}`;
     const inp = document.createElement('input');
     inp.type = 'color';
     inp.value = rgbToHex(colors?.[i] ?? [255,255,255]);
@@ -1345,7 +1354,7 @@ async function readAll(){
     info.push(['DPI stage', `${(s.activeStage ?? 0) + 1} of ${s.stages.length}`]);
     info.push(['All stages', s.stages.map(v => v.x).join(' · ')]);
   }
-  renderStageColors(s.stages, s.stageColors);
+  renderStageColors(s.stages, s.stageColors, s.activeStage ?? 0);
 
   /* BITMOUSE cannot read its light back, so the controls start on their
      defaults there and only COMPX shows the mouse's real state. */
