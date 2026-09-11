@@ -127,6 +127,10 @@
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #toast.bad{background:#f87171;color:#2b0808}
 
+  .swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+  .swatch{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--dim);
+    background:#0f1418;border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+  .swatch input{width:26px;height:20px;padding:0;border:0;background:none;cursor:pointer}
   .hidden{display:none !important}
   .foot{margin-top:26px;color:var(--dimmer);font-size:12.5px;text-align:center}
 </style>
@@ -187,6 +191,7 @@
         <div class="t">Sensitivity</div>
         <div class="d">How far the pointer travels when you move the mouse.</div>
         <div class="seg" id="segDpi"></div>
+        <div class="swatches hidden" id="dpiColors"></div>
       </div>
 
       <div class="item">
@@ -271,7 +276,33 @@
     </div>
 
     <div class="group">
+      <h3>Lighting</h3>
+
+      <div class="item">
+        <div class="t">DPI light</div>
+        <div class="d">The LED that shows which sensitivity stage you are on.
+          Each stage&rsquo;s colour is set on the Sensitivity card above.</div>
+        <div class="seg" id="segLight"></div>
+        <div class="seg" id="segLightBright"></div>
+        <div class="seg hidden" id="segLightSpeed"></div>
+      </div>
+    </div>
+
+    <div class="group">
       <h3>Buttons &amp; power</h3>
+
+      <div class="item hidden" id="bhopItem">
+        <div class="head">
+          <div>
+            <div class="t">Scroll wheel anti-mistouch</div>
+            <div class="d">Ignores the first scroll tick. The wheel only acts if you
+              scroll again within the set time, so a knocked wheel does nothing
+              mid-game.</div>
+          </div>
+          <input type="checkbox" class="sw" id="bhopOn">
+        </div>
+        <div class="seg hidden" id="segBhop"></div>
+      </div>
 
       <div class="item">
         <div class="t">Click debounce</div>
@@ -435,10 +466,22 @@ const BM_CMD = { SetReportRate:1, SetDpi:2, SetSilentHeight:3, GetBatteryLevel:7
   SetMotionSync:13, GetBatteryChargingStatus:15, Reset:19, SetSensorSleepTime:21,
   SetStabilizationTime:22, GetAddressData:23, GetDeviceType:26, SetFarDistance:27,
   GetDeviceVersion:28, SetSensorModel:31, SetSensorAngle:33, GetChipId:71,
-  MouseCidMid:74, GetDongleVersion:136 };
+  MouseCidMid:74, GetDongleVersion:136, SetLEDLightEffect:20, MouseBHOP:34,
+  GetChargeRemainingTime:174 };
 
 /* BITMOUSE keeps these outside the config packet, in address space */
 const BM_ADDR = { sensorMode:74, farDistance:75, sensorAngle:2692 };
+
+/* Light UI ids, mapped to each family's own codes inside its driver.
+   BITMOUSE has no Get for the light, so only COMPX reads its state back. */
+const LIGHT_MODES  = [[0,'Off'], [1,'Steady'], [2,'Breathing']];
+const LIGHT_LEVELS = [[0,'Low'], [1,'Medium'], [2,'High']];
+const LIGHT_SPEEDS = [[0,'Slow'], [1,'Medium'], [2,'Fast']];
+const BHOP_MS = [[100,'0.1 s'], [200,'0.2 s'], [300,'0.3 s'], [500,'0.5 s']];
+
+const rgbToHex = c => '#' + c.map(v => (v & 255).toString(16).padStart(2,'0')).join('');
+const hexToRgb = h => { const n = parseInt(h.slice(1), 16);
+  return [(n>>16) & 255, (n>>8) & 255, n & 255]; };
 
 const BM_RATE = { 1000:0, 500:1, 250:2, 125:3, 8000:4, 4000:5, 2000:6 };
 const BM_RATE_REV = Object.fromEntries(Object.entries(BM_RATE).map(([hz,v]) => [v, +hz]));
@@ -551,17 +594,31 @@ class BitmouseDriver {
       if (count && count !== reported)
         log('', 'NOTE', `stage count read as ${reported}, using ${count} non-empty stages`);
       if (count > 0){
+        /* each stage row is 8 bytes: x u16, y u16, then B G R and a pad */
         const stages = Array.from({length:count}, (_,i) => ({
           x: d.getUint16(2 + 8*i, true), y: d.getUint16(2 + 8*i + 2, true) }));
         if (stages.some(v => v.x > 0)){
           this.activeStage = cur < count ? cur : 0;
+          this.stages = stages;
+          this.stageColors = Array.from({length:count}, (_,i) =>
+            [d.getUint8(2 + 8*i + 6), d.getUint8(2 + 8*i + 5), d.getUint8(2 + 8*i + 4)]);
           s.stages = stages;
+          s.stageColors = this.stageColors;
           s.activeStage = this.activeStage;
           s.dpi = stages[this.activeStage];
         }
       }
       if (!s.dpi) s.dpiNote = 'stage table empty';
     } catch { s.dpiNote = 'stage table unreadable'; }
+
+    try { const v = await this.xfer(BM_CMD.MouseBHOP, {paramLen:6, cmdLen:4, payload:[0]});
+          s.bhop = { on: !!v.u8(1), ms: v.u16(2) || 200 }; } catch{}
+    /* int32, assumed seconds — only shown while actually charging */
+    try { if (s.charging){
+            const v = await this.xfer(BM_CMD.GetChargeRemainingTime,{paramLen:6,cmdLen:4});
+            const t = v.u32(0);
+            if (t > 0 && t < 86400) add('Charge time left', Math.round(t/60) + ' min');
+          } } catch{}
     return s;
   }
 
@@ -578,9 +635,28 @@ class BitmouseDriver {
     {paramLen:3, cmdLen:1, payload:[mode]}); }
   setAngle(on, deg){ return this.xfer(BM_CMD.SetSensorAngle,
     {paramLen:4, cmdLen:2, payload:[on ? 1 : 0, angleToByte(deg)]}); }
-  setDpi(v){ return this.xfer(BM_CMD.SetDpi, {paramLen:12, cmdLen:10,
-    payload:[this.activeStage, v & 0xFF, (v>>8) & 0xFF, v & 0xFF, (v>>8) & 0xFF,
-             0,0,0,0, 1]}); }
+  /* one frame carries the stage's DPI and its LED colour, so both are always
+     sent together — writing DPI alone would blank the colour */
+  dpiFrame(i, x, y, [r,g,b]){
+    return this.xfer(BM_CMD.SetDpi, {paramLen:12, cmdLen:10,
+      payload:[i, x & 0xFF, (x>>8) & 0xFF, y & 0xFF, (y>>8) & 0xFF, b, g, r, 0, 1]});
+  }
+  setDpi(v){
+    const i = this.activeStage;
+    const out = this.dpiFrame(i, v, v, this.stageColors?.[i] ?? [255,255,255]);
+    if (this.stages?.[i]){ this.stages[i].x = v; this.stages[i].y = v; }
+    return out;
+  }
+  setStageColor(i, rgb){
+    const st = this.stages?.[i];
+    if (!st) throw new Error('stage table not read');
+    if (this.stageColors) this.stageColors[i] = rgb;
+    return this.dpiFrame(i, st.x, st.y, rgb);
+  }
+  setLight(l){ return this.xfer(BM_CMD.SetLEDLightEffect, {paramLen:6, cmdLen:3,
+    payload:[[0,2,1][l.mode], [85,170,255][l.brightness], [10,15,20][l.speed]]}); }
+  setBhop(on, ms){ return this.xfer(BM_CMD.MouseBHOP, {paramLen:6, cmdLen:4,
+    payload:[1, on ? 1 : 0, ms & 0xFF, (ms>>8) & 0xFF]}); }
   setToggle(key, on){
     const cmd = { motionSync: BM_CMD.SetMotionSync, lineCorr: BM_CMD.SetLinearCorrection,
                   ripple: BM_CMD.SetRippleControl, farDist: BM_CMD.SetFarDistance }[key];
@@ -598,7 +674,7 @@ const CX_CMD = { GetBatteryLevel:4, SetEEPROM:7, GetEEPROM:8, RestoreFactory:9,
 
 const CX_ADDR = { reportRate:0x00, silentHeight:0x0A, dpi1:0x0C, dpi3:0x14,
   dpi5:0x1C, dpi7:0x24, funcBlock:0xA9, sensorEnable:0xB5, angle:0xBD,
-  paw3955Dpi:0x1B00 };
+  paw3955Dpi:0x1B00, dpiColor:[0x2C, 0x34, 0x3C, 0x44], dpiRGB:0x4C };
 
 const CX_RATE = { 1000:0x01, 500:0x02, 250:0x04, 125:0x08,
                   2000:0x10, 4000:0x20, 8000:0x40 };
@@ -734,11 +810,31 @@ class CompxDriver {
       const stages = await this.readStages(s.stageCount >= 1 && s.stageCount <= 8 ? s.stageCount : 4);
       if (stages.some(v => v.x > 0)){
         s.stages = stages;
+        this.stages = stages;
         s.dpi = stages[Math.min(this.activeStage, stages.length - 1)];
+        /* colours live in their own rows, two stages per 8-byte block */
+        try {
+          const cols = [];
+          for (let blk = 0; blk < Math.ceil(stages.length / 2); blk++){
+            const v = await this.read(CX_ADDR.dpiColor[blk], 8);
+            for (const half of [0, 4])
+              cols.push([v.u8(half), v.u8(half+1), v.u8(half+2)]);
+          }
+          this.stageColors = cols.slice(0, stages.length);
+          s.stageColors = this.stageColors;
+        } catch{}
       } else s.dpiNote = CX_CODEC[this.group]
         ? 'stage table empty'
         : 'DPI format not mapped for this sensor';
     } catch { s.dpiNote = 'stage table unreadable'; }
+
+    try {
+      const v = await this.read(CX_ADDR.dpiRGB, 8);
+      const at = (arr, val) => Math.max(0, arr.indexOf(val));
+      s.light = { mode: v.u8(6) ? (v.u8(0) === 2 ? 2 : 1) : 0,
+                  brightness: at([16,128,255], v.u8(2)),
+                  speed: at([1,3,5], v.u8(4)) };
+    } catch{}
     return s;
   }
 
@@ -877,6 +973,23 @@ class CompxDriver {
     b[o+3] = (85 - ((ex.byte + ey.byte + mode) & 0xFF)) & 0xFF;
     return this.write(row, b);
   }
+  /* 8-byte block holds two stages: R G B then a checksum over their sum */
+  async setStageColor(i, rgb){
+    const addr = CX_ADDR.dpiColor[i >> 1];
+    const v = await this.read(addr, 8);
+    const b = Array.from({length:8}, (_,k) => v.u8(k));
+    const o = (i & 1) * 4;
+    b[o] = rgb[0]; b[o+1] = rgb[1]; b[o+2] = rgb[2];
+    b[o+3] = (85 - ((rgb[0] + rgb[1] + rgb[2]) & 0xFF)) & 0xFF;
+    if (this.stageColors) this.stageColors[i] = rgb;
+    return this.write(addr, b);
+  }
+  setLight(l){
+    const P = CompxDriver.pair;
+    return this.write(CX_ADDR.dpiRGB, [
+      ...P(l.mode === 2 ? 2 : 1), ...P([16,128,255][l.brightness]),
+      ...P([1,3,5][l.speed]), ...P(l.mode ? 1 : 0)]);
+  }
   reset(){ return this.xfer(CX_CMD.RestoreFactory); }
 }
 
@@ -916,6 +1029,69 @@ buildSeg('#segSleep', SLEEP, async (v,l) => {
   await drv.setSleep(v); toast(`Sleeps after ${l}`); });
 buildSeg('#segSensorMode', SENSOR_MODES, async (v,l) => {
   await drv.setSensorMode(v); toast(`Sensor performance: ${l}`); });
+
+/* The light is one frame carrying mode, brightness and speed, so every
+   control resends all three. */
+let light = { mode: 1, brightness: 2, speed: 1 };
+function showLight(){
+  $('#segLightSpeed').classList.toggle('hidden', light.mode !== 2);
+  $('#segLightBright').classList.toggle('hidden', light.mode === 0);
+  mark('#segLight', light.mode);
+  mark('#segLightBright', light.brightness);
+  mark('#segLightSpeed', light.speed);
+}
+const pushLight = async patch => {
+  const prev = light;
+  light = { ...light, ...patch };
+  showLight();
+  try { await drv.setLight(light); }
+  catch { light = prev; showLight(); throw new Error('write failed'); }
+};
+buildSeg('#segLight', LIGHT_MODES, async (v,l) => {
+  await pushLight({ mode: v }); toast(`DPI light: ${l}`); });
+buildSeg('#segLightBright', LIGHT_LEVELS, async (v,l) => {
+  await pushLight({ brightness: v }); toast(`Light brightness: ${l}`); });
+buildSeg('#segLightSpeed', LIGHT_SPEEDS, async (v,l) => {
+  await pushLight({ speed: v }); toast(`Light speed: ${l}`); });
+
+let bhop = { on: false, ms: 200 };
+function showBhop(){
+  $('#bhopOn').checked = bhop.on;
+  $('#segBhop').classList.toggle('hidden', !bhop.on);
+  mark('#segBhop', bhop.ms);
+}
+const pushBhop = async patch => {
+  const prev = bhop;
+  bhop = { ...bhop, ...patch };
+  showBhop();
+  try { await drv.setBhop(bhop.on, bhop.ms); }
+  catch { bhop = prev; showBhop(); toast('Could not save — try again', 1); }
+};
+buildSeg('#segBhop', BHOP_MS, async (v,l) => {
+  await pushBhop({ ms: v }); toast(`Anti-mistouch window ${l}`); });
+$('#bhopOn').onchange = e => pushBhop({ on: e.target.checked });
+
+function renderStageColors(stages, colors){
+  const host = $('#dpiColors');
+  host.innerHTML = '';
+  host.classList.toggle('hidden', !stages?.length || !drv.setStageColor);
+  if (!stages?.length || !drv.setStageColor) return;
+  stages.forEach((st, i) => {
+    const wrap = document.createElement('label');
+    wrap.className = 'swatch';
+    wrap.textContent = st.x;
+    const inp = document.createElement('input');
+    inp.type = 'color';
+    inp.value = rgbToHex(colors?.[i] ?? [255,255,255]);
+    inp.onchange = async () => {
+      try { await drv.setStageColor(i, hexToRgb(inp.value));
+            toast(`Stage ${i+1} colour saved`); }
+      catch { toast('Could not save — try again', 1); }
+    };
+    wrap.appendChild(inp);
+    host.appendChild(wrap);
+  });
+}
 
 /* Rotation writes its flag and its angle together — they share one frame on
    BITMOUSE and one EEPROM row on COMPX, so there is no setting one alone. */
@@ -1144,6 +1320,22 @@ async function readAll(){
     info.push(['DPI stage', `${(s.activeStage ?? 0) + 1} of ${s.stages.length}`]);
     info.push(['All stages', s.stages.map(v => v.x).join(' · ')]);
   }
+  renderStageColors(s.stages, s.stageColors);
+
+  /* BITMOUSE cannot read its light back, so the controls start on their
+     defaults there and only COMPX shows the mouse's real state. */
+  if (s.light){
+    light = s.light;
+    info.push(['DPI light', LIGHT_MODES.find(m => m[0] === s.light.mode)?.[1] ?? '—']);
+  }
+  showLight();
+
+  $('#bhopItem').classList.toggle('hidden', !drv.setBhop);
+  if (s.bhop){
+    bhop = s.bhop;
+    info.push(['Scroll anti-mistouch', s.bhop.on ? `${s.bhop.ms} ms` : 'off']);
+  }
+  showBhop();
   info.push(['Protocol', drv instanceof CompxDriver
     ? `COMPX (0xFF04), DPI group ${drv.group}`
     : `BITMOUSE (0xFF05), target ${drv.mouseTarget}`]);
