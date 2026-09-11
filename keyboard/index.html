@@ -1048,6 +1048,21 @@ async function connect(){
     });
   } catch (e){ toast(e.message, 1); return; }
   if (!picked) return;
+  await attach(picked);
+}
+
+const isOurKeyboard = d => d.vendorId === VID && d.collections.some(c =>
+  c.usagePage === USAGE_PAGE && c.usage === USAGE);
+
+async function autoConnect(){
+  if (IS_MOBILE || !('hid' in navigator)) return;
+  try {
+    const known = (await navigator.hid.getDevices()).find(isOurKeyboard);
+    if (known) await attach(known);
+  } catch {}
+}
+
+async function attach(picked){
   if (!picked.opened) await picked.open();
 
   const pidKey = picked.productId.toString(16).padStart(4, '0');
@@ -1521,6 +1536,7 @@ function wire(){
 }
 
 wire();
+autoConnect();
 
 </script>
 </body>
