@@ -236,10 +236,9 @@
   .btnrow .nm small{flex-basis:100%;padding-left:32px;color:var(--dim);font-weight:400;font-size:12.5px;
     overflow-wrap:anywhere;margin-top:-4px}
   .btnrow .sel{flex:0 1 250px}
-  .mp{fill:rgba(255,255,255,.035);stroke:#3a4654;stroke-width:1.2;cursor:pointer;
-    transition:fill .15s,stroke .15s,filter .2s}
-  .mp:hover{fill:rgba(61,220,132,.12)}
-  .mp.hl{fill:rgba(61,220,132,.28);stroke:var(--acc);filter:drop-shadow(0 0 6px var(--acc))}
+  .mp{stroke:rgba(0,0,0,.55);stroke-width:1;cursor:pointer;transition:fill .15s,stroke .15s,filter .2s}
+  .mp:hover{fill:rgba(61,220,132,.2);stroke:rgba(61,220,132,.6)}
+  .mp.hl{fill:rgba(61,220,132,.38);stroke:var(--acc);stroke-width:1.2;filter:drop-shadow(0 0 6px var(--acc))}
   .editor{margin-top:14px;padding:18px;border-radius:14px;border:1px solid rgba(61,220,132,.35);
     background:linear-gradient(180deg,rgba(61,220,132,.06),rgba(61,220,132,0)),#0c1116;
     box-shadow:0 0 40px -18px var(--glow);animation:rise .25s ease-out}
@@ -290,7 +289,7 @@
 
 <header>
   <a class="brand" href="./" aria-label="OpenATK">
-    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="6"/><path d="M12 2.5v6.5M12 6v2" stroke-linecap="round"/></svg></span>
+    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
     <b>Open<span>ATK</span></b>
   </a>
   <div style="flex:1;min-width:0">
@@ -351,7 +350,7 @@
       <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
       <button data-tab="tracking" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Tracking</button>
       <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Lighting</button>
-      <button data-tab="buttons" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="6"/><path d="M12 2.5V9M6 9h12"/></svg>Buttons &amp; power</button>
+      <button data-tab="buttons" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg>Buttons &amp; power</button>
       <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
     </nav>
     <p class="foot">Changes save to the mouse immediately and survive unplugging.
@@ -1880,27 +1879,57 @@ function hlButton(i){
     : `${BUTTON_NAMES[i]}: ${describe(buttons[i])}`;
 }
 
+let mouseSvgId = 0;
 function mouseSvg(interactive){
-  const id = interactive ? 'mgI' : 'mgA';
-  const part = (n, shape) => interactive
-    ? shape.replace('/>', ` class="mp" data-part="${n}"><title>${BUTTON_NAMES[n]}</title></${shape.match(/^<(\w+)/)[1]}>`)
-    : shape.replace('/>', ' fill="rgba(255,255,255,.04)" stroke="#3a4654" stroke-width="1.2"/>');
+  const u = 'ms' + (++mouseSvgId);
+  const g = n => `url(#${u}${n})`;
+  const part = (n, shape, fill) => interactive
+    ? shape.replace('/>', ` fill="${fill}" class="mp" data-part="${n}"><title>${BUTTON_NAMES[n]}</title></${shape.match(/^<(\w+)/)[1]}>`)
+    : shape.replace('/>', ` fill="${fill}" stroke="rgba(0,0,0,.55)" stroke-width="1"/>`);
   const label = (x, y, t) => interactive
-    ? `<text x="${x}" y="${y}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" font-weight="700" fill="#8fa0b0" pointer-events="none">${t}</text>` : '';
-  return `<svg viewBox="-16 0 136 200" role="img" aria-label="Mouse">
-    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#26303b"/><stop offset="1" stop-color="#0d1217"/></linearGradient></defs>
-    <path d="M60 6C95 6 110 36 110 80L110 134C110 176 90 194 60 194C30 194 10 176 10 134L10 80C10 36 25 6 60 6Z"
-      fill="url(#${id})" stroke="#3a4654" stroke-width="1.4"/>
-    ${part(0, '<path d="M58 9C29 11 13 37 13 80L13 84C28 90 44 92 58 92Z"/>')}
-    ${part(1, '<path d="M62 9C91 11 107 37 107 80L107 84C92 90 76 92 62 92Z"/>')}
-    ${part(2, '<rect x="53" y="24" width="14" height="30" rx="7"/>')}
-    ${part(4, '<rect x="2" y="98" width="9" height="22" rx="4"/>')}
-    ${part(3, '<rect x="2" y="124" width="9" height="22" rx="4"/>')}
-    ${interactive ? part(5, '<rect x="54" y="62" width="12" height="14" rx="4"/>')
-      : '<rect x="54" y="62" width="12" height="14" rx="4" style="fill:var(--stage);filter:drop-shadow(0 0 6px var(--stage))"/>'}
-    ${interactive ? '' : '<path d="M44 178H76" stroke-linecap="round" stroke-width="3" style="stroke:var(--stage);filter:drop-shadow(0 0 5px var(--stage))" opacity=".85"/>'}
-    ${label(34, 55, 1)}${label(86, 55, 2)}${label(60, 42, 3)}${label(-9, 138, 4)}${label(-9, 112, 5)}${label(60, 72, 6)}
+    ? `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="6.5" fill="rgba(6,10,13,.82)" stroke="rgba(61,220,132,.55)" stroke-width=".8"/>
+       <text x="${x}" y="${y + 2.6}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="7.5" font-weight="700" fill="#9ff0c4">${t}</text></g>` : '';
+  const body = 'M70 10C99 10 112 28 113 60C114 88 111 104 113 124C115 146 119 160 118 180C117 206 97 222 70 222C43 222 23 206 22 180C21 160 25 146 27 124C29 104 26 88 27 60C28 28 41 10 70 10Z';
+  return `<svg viewBox="0 0 140 236" role="img" aria-label="Mouse">
+    <defs>
+      <linearGradient id="${u}b" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2c3641"/><stop offset=".55" stop-color="#1a2129"/><stop offset="1" stop-color="#0c1015"/></linearGradient>
+      <radialGradient id="${u}h" cx=".38" cy=".58" r=".55">
+        <stop offset="0" stop-color="#fff" stop-opacity=".13"/><stop offset=".6" stop-color="#fff" stop-opacity=".03"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <linearGradient id="${u}r" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#6b7a8a"/><stop offset=".45" stop-color="#2f3944"/><stop offset="1" stop-color="#1a2028"/></linearGradient>
+      <linearGradient id="${u}k" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#36414d"/><stop offset="1" stop-color="#1c232b"/></linearGradient>
+      <linearGradient id="${u}w" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#0f1419"/><stop offset=".5" stop-color="#4a5664"/><stop offset="1" stop-color="#0f1419"/></linearGradient>
+      <pattern id="${u}p" width="11" height="3" patternUnits="userSpaceOnUse">
+        <rect width="11" height="1.3" fill="rgba(0,0,0,.55)"/></pattern>
+      <linearGradient id="${u}s" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#1c232b"/><stop offset=".6" stop-color="#3a4552"/><stop offset="1" stop-color="#27303a"/></linearGradient>
+      <clipPath id="${u}c"><path d="${body}"/></clipPath>
+      <filter id="${u}f" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+    </defs>
+    ${interactive ? '' : `<ellipse cx="72" cy="226" rx="40" ry="6" fill="#000" opacity=".6" filter="url(#${u}f)"/>`}
+    <path d="${body}" fill="${g('b')}"/>
+    <path d="${body}" fill="${g('h')}"/>
+    ${part(0, '<path d="M68.6 13C44.5 13.6 30.6 30 29.7 60C29.1 80 30.7 92 30.2 101.5C43 105.8 56 107 68.6 107Z"/>', g('k'))}
+    ${part(1, '<path d="M71.4 13C95.5 13.6 109.4 30 110.3 60C110.9 80 109.3 92 109.8 101.5C97 105.8 84 107 71.4 107Z"/>', g('k'))}
+    <g clip-path="url(#${u}c)" pointer-events="none">
+      <path d="M40 24C47 17.5 56 15.4 66 15.2" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M100 24C93 17.5 84 15.4 74 15.2" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1.4" stroke-linecap="round"/></g>
+    <rect x="61.5" y="27" width="17" height="41" rx="8.5" fill="#05080b" stroke="rgba(0,0,0,.7)"/>
+    ${part(2, '<rect x="64.5" y="30.5" width="11" height="34" rx="5.5"/>', g('w'))}
+    <rect x="64.5" y="30.5" width="11" height="34" rx="5.5" fill="${g('p')}" pointer-events="none"/>
+    ${part(4, '<path d="M27.9 113L22.6 113C19.8 113 18 115 17.8 118L17.2 133C17.1 136 18.8 138 21.6 138L27 138C27.6 130 27.8 121 27.9 113Z"/>', g('s'))}
+    ${part(3, '<path d="M28 142L23.4 142C20.6 142 18.6 144 18.3 147L17.6 163C17.5 166 19.2 168 22 168L28.4 168C28.2 159 27.9 150 28 142Z"/>', g('s'))}
+    ${interactive ? part(5, '<rect x="64.5" y="75" width="11" height="16" rx="5"/>', g('k'))
+      : `<rect x="64.5" y="75" width="11" height="16" rx="5" fill="#0a0e12" stroke="rgba(0,0,0,.7)"/>
+         <rect x="66.5" y="77" width="7" height="12" rx="3.5" style="fill:var(--stage);filter:drop-shadow(0 0 5px var(--stage))"/>`}
+    <path d="${body}" fill="none" stroke="${g('r')}" stroke-width="1.3"/>
+    ${interactive ? '' : `<path d="M60 196L70 190L80 196" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+      style="stroke:var(--stage);filter:drop-shadow(0 0 5px var(--stage))" opacity=".9"/>`}
+    ${label(47, 66, 1)}${label(93, 66, 2)}${label(70, 19, 3)}${label(8, 157, 4)}${label(8, 126, 5)}${label(70, 99, 6)}
   </svg>`;
 }
 for (const el of document.querySelectorAll('.mouse-art')) el.innerHTML = mouseSvg(false);
