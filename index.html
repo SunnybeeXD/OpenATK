@@ -139,6 +139,38 @@
   .swatch.on{border-color:var(--acc);color:var(--ink)}
   .swatchlbl{margin-top:14px;font-size:12px;font-weight:600;letter-spacing:.07em;
     text-transform:uppercase;color:var(--dimmer)}
+  .sel{font:500 13.5px/1.2 Inter,sans-serif;color:var(--ink);background:#0f1418;
+    border:1px solid var(--line);border-radius:8px;padding:9px 10px;max-width:100%;min-width:0}
+  .btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:11px 0;
+    border-top:1px solid var(--line)}
+  .btnrow:first-child{border-top:0}
+  .btnrow .nm{flex:1 1 150px;min-width:0;font-size:14px;font-weight:500}
+  .btnrow .nm small{display:block;color:var(--dim);font-weight:400;font-size:12.5px;
+    overflow-wrap:anywhere}
+  .btnrow .sel{flex:1 1 200px}
+  .editor{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:10px;
+    background:#12171c}
+  .editor .et{font-size:14px;font-weight:600}
+  .erow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+  .erow label{font-size:13px;color:var(--dim);display:inline-flex;align-items:center;gap:6px}
+  .num{width:88px;font:500 13.5px var(--mono);color:var(--ink);background:#0f1418;
+    border:1px solid var(--line);border-radius:8px;padding:8px}
+  .capture{min-width:170px;padding:10px 12px;border:1px dashed var(--line);border-radius:8px;
+    font:500 13px var(--mono);color:var(--ink);background:#0f1418;cursor:pointer;text-align:left}
+  .capture:focus{outline:none;border-color:var(--acc)}
+  .steps{margin-top:12px;max-height:260px;overflow:auto;border:1px solid var(--line);
+    border-radius:8px;background:#0f1418}
+  .steps:empty{display:none}
+  .step{display:flex;align-items:center;gap:10px;padding:6px 10px;font:12.5px var(--mono);
+    border-top:1px solid var(--line)}
+  .step:first-child{border-top:0}
+  .step span{flex:1;min-width:0}
+  .step .num{width:76px;padding:5px 6px}
+  .pad{margin-top:12px;padding:18px;text-align:center;border:1px dashed var(--line);
+    border-radius:8px;color:var(--dim);font-size:13px;user-select:none}
+  .pad.rec{border-color:var(--bad);color:var(--ink)}
+  .xbtn{background:none;border:0;color:var(--dim);cursor:pointer;font-size:16px;padding:0 4px}
+  .xbtn:hover{color:var(--bad)}
   .hidden{display:none !important}
   .foot{margin-top:26px;color:var(--dimmer);font-size:12.5px;text-align:center}
 </style>
@@ -227,6 +259,13 @@
         </div>
         <div class="seg hidden" id="segLod"></div>
       </div>
+
+      <div class="item hidden" id="profileItem">
+        <div class="t">Onboard profile</div>
+        <div class="d">The mouse stores a separate set of settings in each profile.
+          Switching loads that profile's settings.</div>
+        <div class="seg" id="segProfile"></div>
+      </div>
     </section>
 
     <section class="panel hidden" data-panel="tracking">
@@ -309,9 +348,30 @@
         <div class="swatchlbl hidden" id="dpiColorsLbl">Colour per stage</div>
         <div class="swatches hidden" id="dpiColors"></div>
       </div>
+
+      <div class="item hidden" id="rlItem">
+        <div class="t">Receiver light</div>
+        <div class="d">The LED on the USB receiver.</div>
+        <div class="seg" id="segRlMode"></div>
+        <div id="rlColorWrap">
+          <div class="swatchlbl">Colour</div>
+          <div class="swatches"><label class="swatch">Pick<input type="color" id="rlColor"></label></div>
+        </div>
+        <div id="rlBrightWrap"><div class="swatchlbl">Brightness</div><div class="seg" id="segRlBright"></div></div>
+        <div id="rlSpeedWrap"><div class="swatchlbl">Speed</div><div class="seg" id="segRlSpeed"></div></div>
+        <div id="rlSleepWrap"><div class="swatchlbl">Turns off after</div><div class="seg" id="segRlSleep"></div></div>
+      </div>
     </section>
 
     <section class="panel hidden" data-panel="buttons">
+
+      <div class="item hidden" id="btnItem">
+        <div class="t">Button assignments</div>
+        <div class="d">What each button does. Changes save to the mouse straight away.
+          Not every mouse has a DPI button.</div>
+        <div id="btnList" style="margin-top:6px"></div>
+        <div class="editor hidden" id="btnEditor"></div>
+      </div>
 
       <div class="item hidden" id="bhopItem">
         <div class="head">
@@ -339,9 +399,21 @@
           It wakes the moment you move it.</div>
         <div class="seg" id="segSleep"></div>
       </div>
-    </div>
+    </section>
 
     <section class="panel hidden" data-panel="device">
+      <div class="item hidden" id="pairItem">
+        <div class="t">Pair a mouse</div>
+        <div class="d">Links a mouse to this receiver. Press Start, then put the mouse
+          into pairing mode within 30 seconds. The button combination for that is in the
+          mouse's manual.</div>
+        <div class="erow">
+          <select class="sel hidden" id="pairModel" aria-label="Mouse model"></select>
+          <button class="btn ghost" id="pairStart">Start pairing</button>
+          <span id="pairStatus" style="font-size:13px;color:var(--dim)"></span>
+        </div>
+      </div>
+
       <div class="item">
         <table class="kv" id="kv"></table>
         <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
@@ -447,17 +519,29 @@ class Transport {
     this.reportId = reportId;
     this.matchIndex = matchIndex;      // byte of the input report holding commandId
     this.pending = [];
+    this.onPush = null;
     device.oninputreport = e => this.onInput(new Uint8Array(e.data.buffer));
   }
+  push(kind){ if (this.onPush) this.onPush(kind); }
   onInput(raw){
-    if (raw[1] === 0x73 && this.matchIndex === 4){    // BITMOUSE async status report
+    if (raw[1] === 0x73 && this.matchIndex === 4){
       log('', 'RPT ', hex(raw.slice(0, 12)) + ' …');
+      if (raw[2] === 1) this.push('dpi');
+      else if (raw[2] === 2) this.push('profile');
       return;
     }
     const id = raw[this.matchIndex];
     log('rx', 'RX  ', `id=0x${id.toString(16).padStart(2,'0')} :: ${hex(raw.slice(0,18))} …`);
     const i = this.pending.findIndex(p => p.commandId === id);
-    if (i === -1) return;
+    if (i === -1){
+      if (this.matchIndex === 4 && id === 2) this.push('dpi');
+      if (this.matchIndex === 0 && id === 10){
+        const f = raw[5];
+        if (f & 7) this.push(f & 4 ? 'profile' : 'dpi');
+        if (f & 64) this.push('battery');
+      }
+      return;
+    }
     const p = this.pending.splice(i, 1)[0];
     clearTimeout(p.timer);
     p.resolve(raw);
@@ -488,7 +572,9 @@ const BM_CMD = { SetReportRate:1, SetDpi:2, SetSilentHeight:3, GetBatteryLevel:7
   SetStabilizationTime:22, GetAddressData:23, GetDeviceType:26, SetFarDistance:27,
   GetDeviceVersion:28, SetSensorModel:31, SetSensorAngle:33, GetChipId:71,
   MouseCidMid:74, GetDongleVersion:136, SetLEDLightEffect:20, MouseBHOP:34,
-  GetChargeRemainingTime:174 };
+  GetChargeRemainingTime:174, SetButtonKey:5, SetMacroKey:6, SetCurrentMouseConfig:10,
+  SetDonglePairMode:130, ClearDonglePairInfo:131, GetDonglePairStatus:132,
+  SetDongleLightEffect:133, GetDongleLightEffect:134 };
 
 /* BITMOUSE keeps these outside the config packet, in address space */
 const BM_ADDR = { sensorMode:74, farDistance:75, sensorAngle:2692 };
@@ -503,6 +589,73 @@ const BHOP_MS = [[100,'0.1 s'], [200,'0.2 s'], [300,'0.3 s'], [500,'0.5 s']];
 const rgbToHex = c => '#' + c.map(v => (v & 255).toString(16).padStart(2,'0')).join('');
 const hexToRgb = h => { const n = parseInt(h.slice(1), 16);
   return [(n>>16) & 255, (n>>8) & 255, n & 255]; };
+const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+const pad10 = a => [...a, ...new Array(10).fill(0)].slice(0, 10);
+
+const BUTTON_NAMES = ['Left button', 'Right button', 'Middle button',
+                      'Back button', 'Forward button', 'DPI button'];
+const DEFAULT_ACTIONS = [{kind:'mouse', btn:0}, {kind:'mouse', btn:1}, {kind:'mouse', btn:2},
+                         {kind:'mouse', btn:3}, {kind:'mouse', btn:4}, {kind:'dpi', op:'cycle'}];
+const MOUSE_NAMES = ['Left click', 'Right click', 'Middle click', 'Back', 'Forward'];
+const MEDIA = [[[205,0],'Play / pause'], [[183,0],'Stop'], [[182,0],'Previous track'],
+  [[181,0],'Next track'], [[226,0],'Mute'], [[233,0],'Volume up'], [[234,0],'Volume down'],
+  [[111,0],'Screen brightness up'], [[112,0],'Screen brightness down'],
+  [[131,1],'Media player'], [[138,1],'Mail'], [[146,1],'Calculator'], [[148,1],'My computer'],
+  [[35,2],'Browser home'], [[33,2],'Browser search'], [[39,2],'Browser refresh'],
+  [[42,2],'Browser favourites'], [[38,2],'Browser stop'], [[37,2],'Browser forward'],
+  [[36,2],'Browser back']];
+const MOD_BITS = [[1,'Ctrl'], [2,'Shift'], [4,'Alt'], [8,'Win']];
+const MAX_MACRO_STEPS = 70;
+const MACRO_MODES = [['hold','Repeat while held'], ['thiskey','Loop until this button is pressed again'],
+                     ['anykey','Loop until any key is pressed'], ['loop','Play a set number of times']];
+
+const HID_KEYS = [];
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((c,i) => HID_KEYS.push(['Key'+c, 4+i, c]));
+'1234567890'.split('').forEach((c,i) => HID_KEYS.push(['Digit'+c, 30+i, c]));
+for (let i = 1; i <= 12; i++) HID_KEYS.push(['F'+i, 57+i, 'F'+i]);
+for (let i = 13; i <= 24; i++) HID_KEYS.push(['F'+i, 91+i, 'F'+i]);
+for (let i = 1; i <= 9; i++) HID_KEYS.push(['Numpad'+i, 88+i, 'Num '+i]);
+HID_KEYS.push(['Enter',40,'Enter'], ['Escape',41,'Esc'], ['Backspace',42,'Backspace'],
+  ['Tab',43,'Tab'], ['Space',44,'Space'], ['Minus',45,'-'], ['Equal',46,'='],
+  ['BracketLeft',47,'['], ['BracketRight',48,']'], ['Backslash',49,'\\'],
+  ['Semicolon',51,';'], ['Quote',52,"'"], ['Backquote',53,'`'], ['Comma',54,','],
+  ['Period',55,'.'], ['Slash',56,'/'], ['CapsLock',57,'Caps Lock'],
+  ['PrintScreen',70,'Print Screen'], ['ScrollLock',71,'Scroll Lock'], ['Pause',72,'Pause'],
+  ['Insert',73,'Insert'], ['Home',74,'Home'], ['PageUp',75,'Page Up'], ['Delete',76,'Delete'],
+  ['End',77,'End'], ['PageDown',78,'Page Down'], ['ArrowRight',79,'Right'],
+  ['ArrowLeft',80,'Left'], ['ArrowDown',81,'Down'], ['ArrowUp',82,'Up'],
+  ['NumLock',83,'Num Lock'], ['NumpadDivide',84,'Num /'], ['NumpadMultiply',85,'Num *'],
+  ['NumpadSubtract',86,'Num -'], ['NumpadAdd',87,'Num +'], ['NumpadEnter',88,'Num Enter'],
+  ['Numpad0',98,'Num 0'], ['NumpadDecimal',99,'Num .'], ['IntlBackslash',100,'\\'],
+  ['ContextMenu',101,'Menu'], ['ControlLeft',224,'Ctrl'], ['ShiftLeft',225,'Shift'],
+  ['AltLeft',226,'Alt'], ['MetaLeft',227,'Win'], ['ControlRight',228,'Right Ctrl'],
+  ['ShiftRight',229,'Right Shift'], ['AltRight',230,'Right Alt'], ['MetaRight',231,'Right Win']);
+const HID_BY_CODE = Object.fromEntries(HID_KEYS.map(([code, hid]) => [code, hid]));
+const HID_NAME = Object.fromEntries(HID_KEYS.map(([, hid, name]) => [hid, name]));
+const keyName = hid => HID_NAME[hid] ?? `Key 0x${hid.toString(16)}`;
+
+const RL_TYPE = {"1040":"none","111a":"none","111b":"none","1155":"single","11a9":"none",
+  "11cd":"single","11d8":"single","11d9":"single","11dc":"none","11fd":"single",
+  "11fe":"none","1216":"none","124f":"single","1278":"single","1279":"single",
+  "127a":"none","12cc":"single","12cd":"single","12e9":"single","12ea":"gather",
+  "12f5":"single","1303":"single","1315":"none","1332":"gather","133e":"single",
+  "133f":"none","1346":"single","1347":"single"};
+const RL_MODES = {
+  full:   [[0,'Off'], [1,'Colour flow'], [2,'Breathing'], [3,'Steady'], [4,'Neon'],
+           [5,'Colour breathing'], [6,'Colourful steady']],
+  single: [[0,'Off'], [1,'Polling rate'], [2,'Battery level'], [3,'Low battery warning']],
+  gather: [[0,'Off'], [1,'Polling rate'], [2,'Battery level'], [3,'Low battery warning'],
+           [4,'DPI'], [5,'Colour flow'], [6,'Breathing'], [7,'Steady'], [8,'Colour breathing']],
+};
+const RL_RULES = {
+  full:   { color: m => m === 2 || m === 3, bright: m => m !== 0, speed: m => ![0,3,6].includes(m) },
+  gather: { color: m => m === 6 || m === 7, bright: m => m > 4, speed: m => ![0,1,2,3,4,7].includes(m) },
+  single: { color: () => false, bright: () => false, speed: () => false },
+};
+const RL_LEVELS = [[0,'Low'], [1,'Medium'], [2,'High']];
+const RL_SPEEDS = [[0,'Slow'], [1,'Medium'], [2,'Fast']];
+const RL_SLEEP  = [[0,'1 min'], [1,'5 min'], [2,'10 min']];
+const PROFILES  = [[0,'1'], [1,'2'], [2,'3'], [3,'4']];
 
 const BM_RATE = { 1000:0, 500:1, 250:2, 125:3, 8000:4, 4000:5, 2000:6 };
 const BM_RATE_REV = Object.fromEntries(Object.entries(BM_RATE).map(([hz,v]) => [v, +hz]));
@@ -550,7 +703,7 @@ class BitmouseDriver {
   /* replies drop the checksum byte, so payload sits 1 earlier than on TX */
   async xfer(commandId, opts){
     const raw = await this.t.send(commandId, this.pack(commandId, opts));
-    return { u8:  o => raw[6 + o],
+    return { raw, u8:  o => raw[6 + o],
              u16: o => raw[6+o] | (raw[7+o] << 8),
              u32: o => (raw[6+o] | (raw[7+o]<<8) | (raw[8+o]<<16) | (raw[9+o]<<24)) >>> 0 };
   }
@@ -593,7 +746,7 @@ class BitmouseDriver {
       s.ripple     = !!v.u8(8);
       s.sleepSec   = v.u16(9);
       s.debounceMs = v.u8(11);
-      add('Profile', v.u8(0));
+      s.profile    = v.u8(0);
     } catch { s.stale = true; }
 
     try { const v = await this.addr(BM_ADDR.farDistance, 1); s.farDist = !!v.u8(3); } catch{}
@@ -647,8 +800,84 @@ class BitmouseDriver {
             const t = v.u32(0);
             if (t > 0 && t < 86400) add('Charge time left', Math.round(t/60) + ' min');
           } } catch{}
+    try { s.buttons = await this.readButtons(); } catch{}
+    if (this.rlType && this.rlType !== 'none')
+      try { s.rlight = await this.readReceiverLight(); } catch{}
     return s;
   }
+
+  async readButtons(){
+    const b = [];
+    for (let r = 0; r < 3; r++){
+      const v = await this.addr(82 + 10*r, 10);
+      for (let i = 0; i < 10; i++) b.push(v.u8(3+i));
+    }
+    return Array.from({length:6}, (_,i) => BitmouseDriver.decodeKey(b.slice(5*i, 5*i+5), i));
+  }
+  static decodeKey([c, mod, mb, k0, k1], i){
+    const simple = { 10:{kind:'dpi',op:'cycle'}, 11:{kind:'dpi',op:'up'}, 12:{kind:'dpi',op:'down'},
+      13:{kind:'scroll',dir:'up'}, 14:{kind:'scroll',dir:'down'}, 15:{kind:'scroll',dir:'left'},
+      16:{kind:'scroll',dir:'right'}, 17:{kind:'profile',n:0}, 18:{kind:'profile',n:1},
+      19:{kind:'profile',n:2}, 20:{kind:'profile',n:3}, 21:{kind:'profile',n:'cycle'},
+      255:{kind:'disable'}, 4:{kind:'macro'} };
+    if (c === 0) return DEFAULT_ACTIONS[i];
+    if (c === 1) return mb <= 4 ? {kind:'mouse', btn:mb} : {kind:'unknown', raw:[c,mod,mb,k0,k1]};
+    if (c === 2) return {kind:'media', code:[k0, k1]};
+    if (c === 3) return {kind:'key', mods:mod, key:k0};
+    if (c === 5) return {kind:'fire', count:mb, interval:k0 | (k1 << 8)};
+    return simple[c] ?? {kind:'unknown', raw:[c,mod,mb,k0,k1]};
+  }
+  static encodeKey(a){
+    switch (a.kind){
+      case 'mouse':   return [1, 0, a.btn, 0];
+      case 'disable': return [255, 0, 0, 0];
+      case 'dpi':     return [{cycle:10, up:11, down:12}[a.op], 0, 0, 0];
+      case 'scroll':  return [{up:13, down:14, left:15, right:16}[a.dir], 0, 0, 0];
+      case 'profile': return [a.n === 'cycle' ? 21 : 17 + a.n, 0, 0, 0];
+      case 'media':   return [2, 0, a.code[0], a.code[1]];
+      case 'key':     return [3, a.mods, a.key, 0];
+      case 'fire':    return [5, a.count, a.interval & 0xFF, (a.interval >> 8) & 0xFF];
+    }
+    throw new Error('unsupported action');
+  }
+  setButton(i, a){ return this.xfer(BM_CMD.SetButtonKey,
+    {paramLen:8, cmdLen:5, payload:[i, ...BitmouseDriver.encodeKey(a)]}); }
+  async setMacro(i, m){
+    const start = {hold:1, anykey:2, thiskey:3, loop:4}[m.mode];
+    const runs = m.mode === 'loop' ? m.count : 1;
+    const last = m.steps.length - 1;
+    for (let n = 0; n <= last; n++){
+      const st = m.steps[n];
+      const type = st.t === 'key' ? 0 : st.t === 'mouse' ? 1 : 2;
+      const status = st.t === 'scroll' ? 0 : st.up ? 1 : 0;
+      const code = st.t === 'scroll' ? (st.down ? 255 : 1) : st.code;
+      const d = st.delay;
+      await this.xfer(BM_CMD.SetMacroKey, {paramLen:14, cmdLen:11,
+        payload:[i, n, type, status, code, 0, d & 0xFF, (d >> 8) & 0xFF,
+                 n === last ? i + 1 : 0, start, runs]});
+      await sleepMs(20);
+    }
+  }
+  setProfile(n){ return this.xfer(BM_CMD.SetCurrentMouseConfig,
+    {paramLen:3, cmdLen:1, payload:[n]}); }
+
+  async startPairing(){
+    await this.xfer(BM_CMD.ClearDonglePairInfo, {paramLen:3, cmdLen:0, target:0});
+    await this.xfer(BM_CMD.SetDonglePairMode, {paramLen:3, cmdLen:0, target:0});
+  }
+  async pairStatus(){
+    const v = await this.xfer(BM_CMD.GetDonglePairStatus, {paramLen:3, cmdLen:1, target:0});
+    return v.raw[1] !== 255 && v.u8(0) !== 0;
+  }
+
+  async readReceiverLight(){
+    const v = await this.xfer(BM_CMD.GetDongleLightEffect, {paramLen:11, cmdLen:9, target:0});
+    return { mode: v.u8(1), brightness: Math.max(0, [10,50,100].indexOf(v.u8(2))),
+             speed: v.u8(3) <= 2 ? v.u8(3) : 1, color: [v.u8(5), v.u8(6), v.u8(7)],
+             sleep: v.u8(8) <= 2 ? v.u8(8) : 0 };
+  }
+  setReceiverLight(l){ return this.xfer(BM_CMD.SetDongleLightEffect, {paramLen:11, cmdLen:9,
+    target:0, payload:[1, l.mode, [10,50,100][l.brightness], l.speed, 0, ...l.color, l.sleep]}); }
 
   setRate(hz){ return this.xfer(BM_CMD.SetReportRate,
     {paramLen:3, cmdLen:1, payload:[BM_RATE[hz]]}); }
@@ -698,11 +927,15 @@ class BitmouseDriver {
    ══════════════════════════════════════════════════════════════════ */
 const CX_CMD = { GetBatteryLevel:4, SetEEPROM:7, GetEEPROM:8, RestoreFactory:9,
   GetMouseCIDMID:16, GetMouseVersion:18, SetFarDistanceMode:22,
-  GetFarDistanceMode:23, GetDongleVersion:29 };
+  GetFarDistanceMode:23, GetDongleVersion:29, SetWirelessDonglePair:5,
+  GetWirelessDonglePairResult:6, GetCurrentConfig:14, SetCurrentConfig:15,
+  Set4KRGBMode:20, Get4KRGBMode:21, SetDongleLightMode:24, GetDongleLightMode:25 };
 
 const CX_ADDR = { reportRate:0x00, silentHeight:0x0A, dpi1:0x0C, dpi3:0x14,
   dpi5:0x1C, dpi7:0x24, funcBlock:0xA9, sensorEnable:0xB5, angle:0xBD,
-  paw3955Dpi:0x1B00, dpiColor:[0x2C, 0x34, 0x3C, 0x44], dpiRGB:0x4C };
+  paw3955Dpi:0x1B00, dpiColor:[0x2C, 0x34, 0x3C, 0x44], dpiRGB:0x4C,
+  key0:0x60, shortcut0:0x100, macro0:0x300 };
+const CX_MACRO_MODE = { hold:254, thiskey:253, anykey:255 };
 
 const CX_RATE = { 1000:0x01, 500:0x02, 250:0x04, 125:0x08,
                   2000:0x10, 4000:0x20, 8000:0x40 };
@@ -872,7 +1105,142 @@ class CompxDriver {
                   brightness: at([16,128,255], v.u8(2)),
                   speed: at([1,3,5], v.u8(4)) };
     } catch{}
+    try { const v = await this.xfer(CX_CMD.GetCurrentConfig); s.profile = v.u8(0); } catch{}
+    try { s.buttons = await this.readButtons(); } catch{}
+    if (this.rlType && this.rlType !== 'none')
+      try { s.rlight = await this.readReceiverLight(); } catch{}
     return s;
+  }
+
+  async readButtons(){
+    const keys = [];
+    for (let r = 0; r < 3; r++){
+      const v = await this.read(CX_ADDR.key0 + 8*r, 8);
+      for (const o of [0, 4]) keys.push([v.u8(o), v.u8(o+1), v.u8(o+2)]);
+    }
+    const out = [];
+    for (let i = 0; i < 6; i++){
+      const [c, v1, v2] = keys[i];
+      out.push(c === 5 ? CompxDriver.decodeShortcut(await this.readShortcut(i))
+                       : CompxDriver.decodeKey(c, v1, v2));
+    }
+    return out;
+  }
+  static decodeKey(c, v1, v2){
+    const masks = {1:0, 2:1, 4:2, 8:3, 16:4};
+    if (c === 0 || (c === 1 && v1 === 0)) return {kind:'disable'};
+    if (c === 1 && v1 in masks) return {kind:'mouse', btn:masks[v1]};
+    if (c === 2 && v1 >= 1 && v1 <= 3) return {kind:'dpi', op:['cycle','up','down'][v1-1]};
+    if (c === 3 && (v1 === 1 || v1 === 2)) return {kind:'scroll', dir: v1 === 1 ? 'left' : 'right'};
+    if (c === 11 && (v1 === 1 || v1 === 2)) return {kind:'scroll', dir: v1 === 1 ? 'up' : 'down'};
+    if (c === 4) return {kind:'fire', interval:v1, count:v2};
+    if (c === 6) return {kind:'macro'};
+    if (c === 9 && v1 === 255) return {kind:'profile', n:'cycle'};
+    if (c === 9 && v1 >= 161 && v1 <= 164) return {kind:'profile', n:v1 - 161};
+    return {kind:'unknown', raw:[c, v1, v2]};
+  }
+  static encodeKey(a){
+    switch (a.kind){
+      case 'mouse':   return [1, 1 << a.btn, 0];
+      case 'disable': return [1, 0, 0];
+      case 'dpi':     return [2, {cycle:1, up:2, down:3}[a.op], 0];
+      case 'scroll':  return a.dir === 'left' || a.dir === 'right'
+                        ? [3, a.dir === 'left' ? 1 : 2, 0] : [11, a.dir === 'up' ? 1 : 2, 0];
+      case 'profile': return [9, a.n === 'cycle' ? 255 : 161 + a.n, 0];
+      case 'fire':    return [4, a.interval, a.count];
+    }
+    throw new Error('unsupported action');
+  }
+  async readShortcut(i){
+    const base = CX_ADDR.shortcut0 + 32*i;
+    const a = await this.read(base, 10), b = await this.read(base + 10, 10);
+    const n = a.u8(0);
+    if (n === 0 || n > 6) return [];
+    const bytes = [...Array.from({length:9}, (_,k) => a.u8(1+k)),
+                   ...Array.from({length:10}, (_,k) => b.u8(k))];
+    return Array.from({length:n}, (_,k) => bytes.slice(3*k, 3*k+3));
+  }
+  static decodeShortcut(entries){
+    if (!entries.length) return {kind:'unknown', raw:[5]};
+    const media = entries.find(e => (e[0] & 7) === 2);
+    if (media) return {kind:'media', code:[media[1], media[2]]};
+    let mods = 0, key = 0;
+    for (const [b0, v1] of entries){
+      if (!(b0 & 0x80)) continue;
+      if ((b0 & 7) === 0) mods |= v1;
+      if ((b0 & 7) === 1) key = v1;
+    }
+    return {kind:'key', mods, key};
+  }
+  static shortcutEntries(a){
+    if (a.kind === 'media') return [[0x82, a.code[0], a.code[1]], [0x42, a.code[0], a.code[1]]];
+    const bits = MOD_BITS.map(([b]) => b).filter(b => a.mods & b);
+    const downs = bits.map(b => [0x80, b, 0]), ups = bits.map(b => [0x40, b, 0]);
+    if (a.key){ downs.push([0x81, a.key, 0]); ups.push([0x41, a.key, 0]); }
+    return [...downs, ...ups];
+  }
+  async writeKeyEntry(i, [c, v1, v2]){
+    await this.write(CX_ADDR.key0 + 4*i, [c, v1, v2, (85 - ((c + v1 + v2) & 0xFF)) & 0xFF]);
+  }
+  async setButton(i, a){
+    if (a.kind === 'key' || a.kind === 'media'){
+      const entries = CompxDriver.shortcutEntries(a);
+      const bytes = entries.flat();
+      const body = [...bytes, (85 - ((entries.length + sum(bytes, 0, bytes.length)) & 0xFF)) & 0xFF];
+      const base = CX_ADDR.shortcut0 + 32*i;
+      await this.write(base, pad10([entries.length, ...body.slice(0, 9)]));
+      if (body.length > 9) await this.write(base + 10, pad10(body.slice(9, 19)));
+      return this.writeKeyEntry(i, [5, 0, 0]);
+    }
+    return this.writeKeyEntry(i, CompxDriver.encodeKey(a));
+  }
+  static macroEntries(steps){
+    const out = [];
+    for (const st of steps){
+      const d = st.delay || 1;
+      if (st.t === 'scroll'){
+        out.push([6, st.down ? 255 : 1, 0, (d >> 8) & 0xFF, d & 0xFF]);
+        out.push([6, 0, 0, (d >> 8) & 0xFF, d & 0xFF]);
+        continue;
+      }
+      const isMod = st.t === 'key' && st.code >= 224 && st.code <= 231;
+      const type = st.t === 'mouse' ? 4 : isMod ? 0 : 1;
+      const v1 = isMod ? 1 << (st.code - 224) : st.code;
+      out.push([(st.up ? 0x40 : 0x80) | type, v1, 0, (d >> 8) & 0xFF, d & 0xFF]);
+    }
+    return out;
+  }
+  async setMacro(i, m){
+    const entries = CompxDriver.macroEntries(m.steps);
+    if (entries.length > MAX_MACRO_STEPS) throw new Error('macro too long');
+    const d = [entries.length, ...entries.flat()];
+    d.push((85 - (sum(d, 0, d.length) & 0xFF)) & 0xFF);
+    const all = [8, ...new Array(8).fill(2), ...new Array(22).fill(255), ...d];
+    const base = CX_ADDR.macro0 + 384*i;
+    for (let o = 0; o < all.length; o += 10) await this.write(base + o, pad10(all.slice(o, o + 10)));
+    const mode = CX_MACRO_MODE[m.mode] ?? m.count;
+    return this.writeKeyEntry(i, [6, i, mode]);
+  }
+  setProfile(n){ return this.xfer(CX_CMD.SetCurrentConfig, {len:1, payload:[n]}); }
+
+  startPairing(cid, mid){ return this.xfer(CX_CMD.SetWirelessDonglePair,
+    {len:2, payload:[cid, mid]}); }
+  async pairStatus(){ return (await this.xfer(CX_CMD.GetWirelessDonglePairResult)).u8(0) === 3; }
+
+  async readReceiverLight(){
+    if (this.rlType === 'single')
+      return { mode: (await this.xfer(CX_CMD.Get4KRGBMode)).u8(0) };
+    const v = await this.xfer(CX_CMD.GetDongleLightMode);
+    const at = (arr, val, dflt) => arr.includes(val) ? arr.indexOf(val) : dflt;
+    return { mode: v.u8(0), color: [v.u8(1), v.u8(2), v.u8(3)],
+             speed: at([0,5,9], v.u8(4), 1), brightness: at([0,5,9], v.u8(5), 2),
+             sleep: at([1,5,10], v.u8(6), 0) };
+  }
+  setReceiverLight(l){
+    if (this.rlType === 'single')
+      return this.xfer(CX_CMD.Set4KRGBMode, {len:10, payload:[l.mode]});
+    return this.xfer(CX_CMD.SetDongleLightMode, {len:10, payload:[l.mode, ...l.color,
+      [0,5,9][l.speed], [0,5,9][l.brightness], [1,5,10][l.sleep]]});
   }
 
   /* Read the stage table under every layout this family uses, then keep the
@@ -1209,8 +1577,450 @@ for (const key of ['movesync','linecorr','ripple','fardist']){
 $('#factory').onclick = async () => {
   if (!confirm('Reset the mouse to its factory settings?\n\nSensitivity, polling rate, '
     + 'lift-off distance and button assignments all go back to default.')) return;
-  try { await drv.reset(); toast('Mouse reset to factory settings'); setTimeout(readAll, 900); }
+  try { await drv.reset(); toast('Mouse reset to factory settings'); setTimeout(refresh, 900); }
   catch { toast('Reset failed — try again', 1); }
+};
+
+buildSeg('#segProfile', PROFILES, async (v,l) => {
+  await drv.setProfile(v);
+  toast(`Switched to profile ${l}`);
+  await sleepMs(1000);
+  await refresh();
+});
+
+let rlight = null;
+function showRlight(){
+  const type = drv?.rlType, rules = RL_RULES[type];
+  if (!rlight || !rules) return;
+  mark('#segRlMode', rlight.mode);
+  $('#rlColor').value = rgbToHex(rlight.color ?? [255,255,255]);
+  $('#rlColorWrap').classList.toggle('hidden', !rules.color(rlight.mode));
+  $('#rlBrightWrap').classList.toggle('hidden', !rules.bright(rlight.mode));
+  $('#rlSpeedWrap').classList.toggle('hidden', !rules.speed(rlight.mode));
+  $('#rlSleepWrap').classList.toggle('hidden', type === 'single');
+  mark('#segRlBright', rlight.brightness);
+  mark('#segRlSpeed', rlight.speed);
+  mark('#segRlSleep', rlight.sleep);
+}
+const pushRlight = async patch => {
+  const prev = rlight;
+  rlight = { ...rlight, ...patch };
+  showRlight();
+  try { await drv.setReceiverLight(rlight); }
+  catch (e) { rlight = prev; showRlight(); throw e; }
+};
+buildSeg('#segRlBright', RL_LEVELS, async (v,l) => {
+  await pushRlight({ brightness: v }); toast(`Receiver light brightness: ${l}`); });
+buildSeg('#segRlSpeed', RL_SPEEDS, async (v,l) => {
+  await pushRlight({ speed: v }); toast(`Receiver light speed: ${l}`); });
+buildSeg('#segRlSleep', RL_SLEEP, async (v,l) => {
+  await pushRlight({ sleep: v }); toast(`Receiver light turns off after ${l}`); });
+$('#rlColor').onchange = async e => {
+  try { await pushRlight({ color: hexToRgb(e.target.value) }); toast('Receiver light colour saved'); }
+  catch { toast('Could not save, try again', 1); }
+};
+
+let buttons = null, rec = null;
+const MOD_NAMES = [...MOD_BITS, [16,'Right Ctrl'], [32,'Right Shift'], [64,'Right Alt'], [128,'Right Win']];
+const MASK_BTN = {1:0, 2:1, 4:2, 8:3, 16:4};
+const BROWSER_BTN_MASK = {0:1, 1:4, 2:2, 3:8, 4:16};
+const bitCount = n => n.toString(2).replace(/0/g, '').length;
+const clampInt = (v, lo, hi, dflt) => { const n = Math.round(Number(v));
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt; };
+
+function actionValue(a){
+  switch (a.kind){
+    case 'mouse':   return 'mouse:' + a.btn;
+    case 'dpi':     return 'dpi:' + a.op;
+    case 'scroll':  return 'scroll:' + a.dir;
+    case 'profile': return 'profile:' + a.n;
+    case 'media':   return 'media:' + a.code.join(',');
+    default:        return a.kind;
+  }
+}
+function valueAction(v){
+  const [k, arg] = v.split(':');
+  if (k === 'mouse')   return { kind:'mouse', btn:+arg };
+  if (k === 'dpi')     return { kind:'dpi', op:arg };
+  if (k === 'scroll')  return { kind:'scroll', dir:arg };
+  if (k === 'profile') return { kind:'profile', n: arg === 'cycle' ? 'cycle' : +arg };
+  if (k === 'media')   return { kind:'media', code: arg.split(',').map(Number) };
+  return { kind:k };
+}
+function describe(a){
+  switch (a.kind){
+    case 'mouse':   return MOUSE_NAMES[a.btn];
+    case 'disable': return 'Disabled';
+    case 'dpi':     return { cycle:'DPI cycle', up:'DPI up', down:'DPI down' }[a.op];
+    case 'scroll':  return 'Scroll ' + a.dir;
+    case 'profile': return a.n === 'cycle' ? 'Cycle profiles' : `Profile ${a.n + 1}`;
+    case 'media':   return MEDIA.find(m => m[0].join() === a.code.join())?.[1]
+                      ?? `Media key 0x${(a.code[0] | (a.code[1] << 8)).toString(16)}`;
+    case 'key':     return [...MOD_NAMES.filter(([b]) => a.mods & b).map(([,n]) => n),
+                            ...(a.key ? [keyName(a.key)] : [])].join(' + ') || 'Keyboard key';
+    case 'fire':    return `Rapid fire, ${a.count ? `${a.count} × ` : 'continuous, '}every ${a.interval} ms`;
+    case 'macro':   return 'Macro';
+    default:        return 'Unrecognised setting';
+  }
+}
+
+function buildButtonSelect(i, a){
+  const sel = document.createElement('select');
+  sel.className = 'sel';
+  sel.setAttribute('aria-label', BUTTON_NAMES[i]);
+  const group = (label, opts) => {
+    const g = document.createElement('optgroup');
+    g.label = label;
+    for (const [v, t] of opts){
+      const o = document.createElement('option');
+      o.value = v; o.textContent = t;
+      g.appendChild(o);
+    }
+    sel.appendChild(g);
+  };
+  group('Mouse', [...MOUSE_NAMES.map((n,b) => ['mouse:' + b, n]), ['disable', 'Disabled']]);
+  group('Sensitivity', [['dpi:cycle','DPI cycle'], ['dpi:up','DPI up'], ['dpi:down','DPI down']]);
+  group('Scroll', [['scroll:up','Scroll up'], ['scroll:down','Scroll down'],
+                   ['scroll:left','Scroll left'], ['scroll:right','Scroll right']]);
+  group('Profile', [...PROFILES.map(([n,l]) => ['profile:' + n, 'Profile ' + l]),
+                    ['profile:cycle', 'Cycle profiles']]);
+  group('Media', MEDIA.map(([c,l]) => ['media:' + c.join(','), l]));
+  group('Custom', [['key','Keyboard key or shortcut…'], ['fire','Rapid fire…'], ['macro','Macro…']]);
+  const val = actionValue(a);
+  if (![...sel.options].some(o => o.value === val)){
+    const o = document.createElement('option');
+    o.value = val; o.textContent = describe(a); o.disabled = true;
+    sel.insertBefore(o, sel.firstChild);
+  }
+  sel.value = val;
+  sel.onchange = () => {
+    const pick = valueAction(sel.value);
+    if (['key','fire','macro'].includes(pick.kind)) openEditor(i, pick.kind);
+    else applyButton(i, pick);
+  };
+  return sel;
+}
+
+function renderButtons(){
+  const host = $('#btnList');
+  host.innerHTML = '';
+  $('#btnItem').classList.toggle('hidden', !buttons);
+  if (!buttons) return;
+  buttons.forEach((a, i) => {
+    const row = document.createElement('div');
+    row.className = 'btnrow';
+    const nm = document.createElement('div');
+    nm.className = 'nm';
+    nm.textContent = BUTTON_NAMES[i];
+    if (['key','fire','macro','unknown'].includes(a.kind)){
+      const sm = document.createElement('small');
+      sm.textContent = describe(a);
+      nm.appendChild(sm);
+    }
+    row.appendChild(nm);
+    row.appendChild(buildButtonSelect(i, a));
+    if (['key','fire','macro'].includes(a.kind)){
+      const ed = document.createElement('button');
+      ed.className = 'btn ghost';
+      ed.textContent = 'Edit';
+      ed.onclick = () => openEditor(i, a.kind);
+      row.appendChild(ed);
+    }
+    host.appendChild(row);
+  });
+}
+
+function keepsLeftClick(i, a){
+  return (a.kind === 'mouse' && a.btn === 0)
+    || buttons.some((b, k) => k !== i && b.kind === 'mouse' && b.btn === 0);
+}
+function confirmLeftClick(i, a){
+  return keepsLeftClick(i, a) || confirm('No button would be left doing a left click, so you '
+    + 'could lose the ability to click. Continue anyway?');
+}
+async function applyButton(i, a){
+  if (!confirmLeftClick(i, a)){ renderButtons(); return false; }
+  try {
+    await drv.setButton(i, a);
+    buttons[i] = a;
+    toast(`${BUTTON_NAMES[i]}: ${describe(a)}`);
+    return true;
+  } catch { toast('Could not save, try again', 1); return false; }
+  finally { renderButtons(); }
+}
+
+const macroKey = i => `openatk.macro.${drv.constructor.family}.${drv.pidKey}.${i}`;
+function loadMacro(i){
+  try { const m = JSON.parse(localStorage.getItem(macroKey(i)));
+        if (m && Array.isArray(m.steps)) return m; } catch {}
+  return { steps: [], mode: 'hold', count: 1 };
+}
+function saveMacro(i, m){ try { localStorage.setItem(macroKey(i), JSON.stringify(m)); } catch {} }
+const macroSize = steps => drv instanceof CompxDriver
+  ? steps.reduce((n, s) => n + (s.t === 'scroll' ? 2 : 1), 0) : steps.length;
+async function applyMacro(i, m){
+  if (!confirmLeftClick(i, { kind:'macro' })) return false;
+  try {
+    await drv.setMacro(i, m);
+    buttons[i] = { kind:'macro' };
+    saveMacro(i, m);
+    toast(`${BUTTON_NAMES[i]}: macro saved`);
+    return true;
+  } catch { toast('Could not save the macro, try again', 1); return false; }
+  finally { renderButtons(); }
+}
+
+function stopRecording(){
+  if (!rec) return;
+  document.removeEventListener('keydown', rec.kd, true);
+  document.removeEventListener('keyup', rec.ku, true);
+  rec.pad.removeEventListener('wheel', rec.wh);
+  rec.pad.onmousedown = rec.pad.onmouseup = rec.pad.oncontextmenu = null;
+  rec.pad.classList.remove('rec');
+  rec.pad.textContent = 'Mouse clicks and scrolls inside this box are recorded';
+  rec.btn.textContent = 'Record';
+  rec = null;
+}
+function closeEditor(){
+  stopRecording();
+  const host = $('#btnEditor');
+  host.classList.add('hidden');
+  host.innerHTML = '';
+  renderButtons();
+}
+function editorShell(title, hint, body){
+  const host = $('#btnEditor');
+  host.innerHTML = `<div class="et"></div><div class="d"></div>${body}
+    <div class="erow"><button class="btn" data-ed="save">Save</button>
+      <button class="btn ghost" data-ed="cancel">Cancel</button></div>`;
+  host.querySelector('.et').textContent = title;
+  host.querySelector('.d').textContent = hint;
+  host.querySelector('[data-ed="cancel"]').onclick = closeEditor;
+  host.classList.remove('hidden');
+  return host;
+}
+function openEditor(i, kind){
+  stopRecording();
+  renderButtons();
+  const name = i === 5 ? BUTTON_NAMES[i] : BUTTON_NAMES[i].toLowerCase();
+  if (kind === 'key') keyEditor(i, name);
+  else if (kind === 'fire') fireEditor(i, name);
+  else macroEditor(i, name);
+  $('#btnEditor').scrollIntoView({ block:'nearest', behavior:'smooth' });
+}
+
+function keyEditor(i, name){
+  const cur = buttons[i].kind === 'key' ? buttons[i] : { mods:0, key:0 };
+  let mods = cur.mods & 15, key = cur.key;
+  const host = editorShell(`Keyboard key for the ${name}`,
+    'Click the box and press a key. Tick up to two modifiers for a shortcut such as Ctrl + C.',
+    `<div class="erow"><button class="capture" data-ed="cap"></button>
+      ${MOD_BITS.map(([b,n]) => `<label><input type="checkbox" data-mod="${b}"> ${n}</label>`).join('')}</div>`);
+  const cap = host.querySelector('[data-ed="cap"]');
+  const boxes = [...host.querySelectorAll('[data-mod]')];
+  const show = () => {
+    cap.textContent = key ? keyName(key) : 'Click, then press a key';
+    boxes.forEach(b => b.checked = !!(mods & +b.dataset.mod));
+  };
+  cap.onkeydown = e => {
+    e.preventDefault(); e.stopPropagation();
+    const hid = HID_BY_CODE[e.code];
+    if (!hid){ toast('That key is not supported', 1); return; }
+    if (hid >= 224){
+      const bit = 1 << ((hid - 224) % 4);
+      if (!(mods & bit) && bitCount(mods) >= 2){ toast('Two modifiers at most', 1); return; }
+      mods |= bit;
+    } else key = hid;
+    show();
+  };
+  boxes.forEach(b => b.onchange = () => {
+    const bit = +b.dataset.mod;
+    if (b.checked && bitCount(mods) >= 2){ b.checked = false; toast('Two modifiers at most', 1); return; }
+    mods = b.checked ? mods | bit : mods & ~bit;
+  });
+  show();
+  host.querySelector('[data-ed="save"]').onclick = async () => {
+    if (!key && !mods){ toast('Press a key first', 1); return; }
+    if (await applyButton(i, { kind:'key', mods, key })) closeEditor();
+  };
+}
+
+function fireEditor(i, name){
+  const cur = buttons[i].kind === 'fire' ? buttons[i] : { interval:50, count:0 };
+  const host = editorShell(`Rapid fire for the ${name}`,
+    'Holding the button repeats its click. Pick how often, and how many clicks per press.',
+    `<div class="erow"><label>Every <input type="number" class="num" data-ed="iv" min="3" max="255"> ms</label>
+      <label>Clicks <select class="sel" data-ed="ct"><option value="1">1</option><option value="2">2</option>
+        <option value="3">3</option><option value="0">Continuous</option></select></label></div>`);
+  host.querySelector('[data-ed="iv"]').value = clampInt(cur.interval, 3, 255, 50);
+  host.querySelector('[data-ed="ct"]').value = String([0,1,2,3].includes(cur.count) ? cur.count : 0);
+  host.querySelector('[data-ed="save"]').onclick = async () => {
+    const interval = clampInt(host.querySelector('[data-ed="iv"]').value, 3, 255, 50);
+    const count = +host.querySelector('[data-ed="ct"]').value;
+    if (await applyButton(i, { kind:'fire', interval, count })) closeEditor();
+  };
+}
+
+function stepText(s){
+  if (s.t === 'scroll') return `Scroll ${s.down ? 'down' : 'up'}`;
+  const what = s.t === 'mouse' ? MOUSE_NAMES[MASK_BTN[s.code]] : keyName(s.code);
+  return `${s.up ? 'Release' : 'Press'} ${what}`;
+}
+function macroEditor(i, name){
+  const m = loadMacro(i);
+  const steps = m.steps.map(s => ({ ...s }));
+  const host = editorShell(`Macro for the ${name}`,
+    `Press Record, then type, or click and scroll inside the box. Press Stop when done. `
+    + `Up to ${MAX_MACRO_STEPS} steps. The number next to each step is the wait after it, in ms.`,
+    `<div class="erow"><button class="btn ghost" data-ed="rec">Record</button>
+      <button class="btn ghost" data-ed="clear">Clear</button>
+      <span data-ed="size" style="font-size:13px;color:var(--dim)"></span></div>
+    <div class="pad" data-ed="pad">Mouse clicks and scrolls inside this box are recorded</div>
+    <div class="steps" data-ed="steps"></div>
+    <div class="erow"><select class="sel" data-ed="mode">${MACRO_MODES.map(([v,l]) =>
+      `<option value="${v}">${l}</option>`).join('')}</select>
+      <label data-ed="timesWrap">Times <input type="number" class="num" data-ed="times" min="1" max="250"></label></div>`);
+  const q = k => host.querySelector(`[data-ed="${k}"]`);
+  const mode = q('mode'), times = q('times'), list = q('steps');
+  mode.value = MACRO_MODES.some(([v]) => v === m.mode) ? m.mode : 'hold';
+  times.value = clampInt(m.count, 1, 250, 1);
+  const syncMode = () => q('timesWrap').classList.toggle('hidden', mode.value !== 'loop');
+  mode.onchange = syncMode;
+  syncMode();
+
+  const render = () => {
+    list.innerHTML = '';
+    steps.forEach((s, k) => {
+      const row = document.createElement('div');
+      row.className = 'step';
+      const txt = document.createElement('span');
+      txt.textContent = stepText(s);
+      const d = document.createElement('input');
+      d.type = 'number'; d.className = 'num'; d.min = 1; d.max = 65535; d.value = s.delay;
+      d.setAttribute('aria-label', 'Wait after this step in milliseconds');
+      d.onchange = () => { s.delay = clampInt(d.value, 1, 65535, 50); d.value = s.delay; };
+      const x = document.createElement('button');
+      x.className = 'xbtn'; x.textContent = '×'; x.setAttribute('aria-label', 'Remove step');
+      x.onclick = () => { steps.splice(k, 1); render(); };
+      row.append(txt, d, x);
+      list.appendChild(row);
+    });
+    q('size').textContent = `${macroSize(steps)} / ${MAX_MACRO_STEPS}`;
+    list.scrollTop = list.scrollHeight;
+  };
+  render();
+
+  q('clear').onclick = () => { steps.length = 0; render(); };
+  q('rec').onclick = () => {
+    if (rec){ stopRecording(); return; }
+    const pad = q('pad');
+    const r = { btn: q('rec'), pad, last: null, lastWheel: 0 };
+    const add = st => {
+      if (macroSize([...steps, st]) > MAX_MACRO_STEPS){
+        toast('The macro is full', 1); stopRecording(); return;
+      }
+      const now = performance.now();
+      if (steps.length && r.last !== null) steps[steps.length - 1].delay = clampInt(now - r.last, 1, 65535, 50);
+      r.last = now;
+      steps.push({ ...st, delay: 50 });
+      render();
+    };
+    r.kd = e => {
+      const hid = HID_BY_CODE[e.code];
+      if (!hid) return;
+      e.preventDefault(); e.stopPropagation();
+      if (!e.repeat) add({ t:'key', code:hid, up:false });
+    };
+    r.ku = e => {
+      const hid = HID_BY_CODE[e.code];
+      if (!hid) return;
+      e.preventDefault(); e.stopPropagation();
+      add({ t:'key', code:hid, up:true });
+    };
+    r.wh = e => {
+      e.preventDefault();
+      const now = performance.now();
+      if (now - r.lastWheel < 50) return;
+      r.lastWheel = now;
+      add({ t:'scroll', down: e.deltaY > 0 });
+    };
+    pad.onmousedown = e => { e.preventDefault();
+      if (e.button in BROWSER_BTN_MASK) add({ t:'mouse', code:BROWSER_BTN_MASK[e.button], up:false }); };
+    pad.onmouseup = e => { e.preventDefault();
+      if (e.button in BROWSER_BTN_MASK) add({ t:'mouse', code:BROWSER_BTN_MASK[e.button], up:true }); };
+    pad.oncontextmenu = e => e.preventDefault();
+    document.addEventListener('keydown', r.kd, true);
+    document.addEventListener('keyup', r.ku, true);
+    pad.addEventListener('wheel', r.wh, { passive:false });
+    pad.classList.add('rec');
+    pad.textContent = 'Recording. Type, click or scroll here.';
+    r.btn.textContent = 'Stop';
+    rec = r;
+  };
+
+  q('save').onclick = async () => {
+    stopRecording();
+    if (!steps.length){ toast('Record at least one step', 1); return; }
+    const held = new Map();
+    for (const s of steps) if (s.t !== 'scroll'){
+      const k = s.t + s.code;
+      held.set(k, (held.get(k) ?? 0) + (s.up ? -1 : 1));
+    }
+    if ([...held.values()].some(n => n > 0)
+        && !confirm('Some keys or buttons are pressed but never released, so they would stay '
+          + 'held down after the macro runs. Save anyway?')) return;
+    const out = { steps, mode: mode.value, count: clampInt(times.value, 1, 250, 1) };
+    if (await applyMacro(i, out)) closeEditor();
+  };
+}
+
+let pairing = false;
+function fillPairModels(cidMid){
+  const sel = $('#pairModel');
+  const seen = new Set();
+  const opts = [];
+  for (const [k, v] of Object.entries(REGISTRY.cid)){
+    if (!k.startsWith('cx:')) continue;
+    const cm = k.slice(3);
+    if (seen.has(cm)) continue;
+    seen.add(cm);
+    opts.push([cm, v[0]]);
+  }
+  opts.sort((a, b) => a[1].localeCompare(b[1]));
+  sel.innerHTML = '';
+  for (const [v, l] of [['0,0', 'Other / not listed'], ...opts]){
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v === '0,0' ? l : `${l} (${v})`;
+    sel.appendChild(o);
+  }
+  sel.value = cidMid && seen.has(cidMid) ? cidMid : '0,0';
+}
+$('#pairStart').onclick = async () => {
+  if (pairing || !drv) return;
+  const d = drv;
+  const status = t => $('#pairStatus').textContent = t;
+  pairing = true;
+  $('#pairStart').disabled = true;
+  let ok = false, started = false;
+  try {
+    if (d instanceof CompxDriver){
+      const [cid, mid] = $('#pairModel').value.split(',').map(Number);
+      await d.startPairing(cid, mid);
+    } else await d.startPairing();
+    started = true;
+    for (let left = 30; left > 0 && drv === d; left--){
+      status(`Waiting for the mouse, ${left} s left`);
+      await sleepMs(1000);
+      if (await d.pairStatus()){ ok = true; break; }
+    }
+  } catch {}
+  pairing = false;
+  $('#pairStart').disabled = false;
+  if (drv !== d) return;
+  status(ok ? 'Paired.' : started ? 'No mouse paired. Check it was in pairing mode and try again.'
+                                  : 'The receiver did not accept the pairing command.');
+  toast(ok ? 'Mouse paired' : 'Pairing failed', !ok);
+  if (ok){ await sleepMs(1500); refresh(); }
 };
 
 /* ── connect ─────────────────────────────────────────────────────── */
@@ -1271,6 +2081,10 @@ async function attach(picked){
   drv = family === 'cx'
     ? new CompxDriver(picked, group)
     : new BitmouseDriver(picked, flags.includes('r'));
+  drv.pidKey = pidKey;
+  drv.isReceiver = flags.includes('r');
+  drv.rlType = drv.isReceiver ? (RL_TYPE[pidKey] ?? 'full') : null;
+  drv.t.onPush = onPush;
   setLodMode(flags.includes('u') || flags.includes('r'), flags.includes('7'));
 
   log('', 'DEV ', `${picked.productName} 0x${pidKey} page=0x${(page ?? 0).toString(16)} family=${family}`);
@@ -1280,17 +2094,34 @@ async function attach(picked){
   $('#status').className = 'status';
   $('#status').innerHTML = '<b>Connected</b>';
   $('#devName').textContent = entry?.[0] ?? `ATK device 0x${pidKey}`;
-  await readAll();
+  await refresh();
   clearInterval(battTimer);
   battTimer = setInterval(pollBattery, 30000);
 }
 $('#connect').onclick = connect;
 $('#connect2').onclick = connect;
-$('#refresh').onclick = () => readAll();
+$('#refresh').onclick = () => refresh();
+
+let reading = null, rereadWanted = false, pushTimer = null;
+function refresh(){
+  if (reading){ rereadWanted = true; return reading; }
+  reading = (async () => {
+    try { do { rereadWanted = false; if (drv) await readAll(); } while (rereadWanted && drv); }
+    catch (e) { log('er', 'ERR ', 'read failed: ' + e.message); }
+    finally { reading = null; }
+  })();
+  return reading;
+}
+function onPush(kind){
+  if (pairing) return;
+  if (kind === 'battery'){ pollBattery(true); return; }
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(refresh, 300);
+}
 
 let battTimer = null, battBusy = false;
-async function pollBattery(){
-  if (!drv || battBusy || document.hidden) return;
+async function pollBattery(force){
+  if (!drv || battBusy || pairing || (document.hidden && force !== true)) return;
   battBusy = true;
   const d = drv;
   try { const s = await d.readBattery(); if (d === drv) showBattery(s); }
@@ -1301,8 +2132,18 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) poll
 function disconnected(){
   drv = null;
   clearInterval(battTimer);
+  clearTimeout(pushTimer);
   clearTimeout(lodTimer);
   clearTimeout(angleTimer);
+  stopRecording();
+  $('#btnEditor').classList.add('hidden');
+  $('#btnEditor').innerHTML = '';
+  buttons = null;
+  renderButtons();
+  rlight = null;
+  for (const id of ['profileItem', 'rlItem', 'pairItem']) $('#'+id).classList.add('hidden');
+  $('#pairStatus').textContent = '';
+  $('#pairModel').innerHTML = '';
   $('#app').classList.add('hidden');
   if (!IS_MOBILE) $('#hero').classList.remove('hidden');
   $('#status').className = 'status off';
@@ -1421,6 +2262,28 @@ async function readAll(){
     info.push(['Scroll anti-mistouch', s.bhop.on ? `${s.bhop.ms} ms` : 'off']);
   }
   showBhop();
+
+  const hasProfile = Number.isInteger(s.profile) && s.profile >= 0 && s.profile <= 3;
+  $('#profileItem').classList.toggle('hidden', !hasProfile);
+  if (hasProfile){ mark('#segProfile', s.profile); info.push(['Profile', s.profile + 1]); }
+
+  buttons = s.buttons ?? null;
+  renderButtons();
+
+  const rlOn = !!s.rlight && !!RL_RULES[drv.rlType];
+  $('#rlItem').classList.toggle('hidden', !rlOn);
+  if (rlOn){
+    rlight = { color:[255,255,255], brightness:2, speed:1, sleep:0, ...s.rlight };
+    buildSeg('#segRlMode', RL_MODES[drv.rlType], async (v,l) => {
+      await pushRlight({ mode: v }); toast(`Receiver light: ${l}`); });
+    showRlight();
+  }
+
+  $('#pairItem').classList.toggle('hidden', !drv.isReceiver);
+  $('#pairModel').classList.toggle('hidden', !(drv.isReceiver && drv instanceof CompxDriver));
+  if (drv.isReceiver && drv instanceof CompxDriver && !$('#pairModel').options.length)
+    fillPairModels(s.cidMid);
+
   info.push(['Protocol', drv instanceof CompxDriver
     ? `COMPX (0xFF04), DPI group ${drv.group}`
     : `BITMOUSE (0xFF05), target ${drv.mouseTarget}`]);

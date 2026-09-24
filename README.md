@@ -79,6 +79,12 @@ Wireless receivers report a generic product name — "Wireless mouse 8k dongle-L
 | Sensor rotation | on / off, −30° to +30° in 1° steps |
 | Click debounce | off, 1, 2, 4, 8, 15, 20 ms |
 | Sleep after | 30 s – 30 min |
+| Button assignments | mouse buttons, disable, DPI, scroll, profile switch, media keys, keyboard keys and shortcuts, rapid fire, recorded macros (up to 70 steps) |
+| Onboard profile | 1 – 4 |
+| Receiver light | mode, colour, brightness, speed and sleep, per receiver type (receivers only) |
+| Pair a mouse | 30 second pairing window (receivers only) |
+
+The page follows changes made on the mouse itself: pressing its DPI button or switching profile updates the page, and battery refreshes every 30 seconds.
 
 Reads: battery and charging state, connection type, firmware versions, serial, sensor mode, and the full DPI stage table.
 
@@ -145,7 +151,7 @@ Useful things:
 
 - **Confirm a device.** Open an issue with your model, PID and whether reads and writes behaved.
 - **Report a mismatch.** If a setting reads back differently to ATK HUB, the activity log plus what HUB shows is exactly what's needed.
-- **Extend the protocol doc.** Plenty of commands are mapped but unexposed — button remapping, macros, RGB, dynamic sensitivity curves, virtual centre, BHOP.
+- **Extend the protocol doc.** Plenty of commands are mapped but unexposed — dynamic sensitivity curves and virtual centre.
 
 ## License
 
