@@ -1907,7 +1907,24 @@ function mouseDiagram(){
   const label = (x, y, t) => `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="30" fill="rgba(6,10,13,.82)" stroke="rgba(61,220,132,.7)" stroke-width="4"/>
     <text x="${x}" y="${y + 12}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="34" font-weight="700" fill="#9ff0c4">${t}</text></g>`;
   return `<svg viewBox="-80 0 708 1102" role="img" aria-label="Mouse buttons">
-    <image href="${MOUSE_IMG}" x="0" y="0" width="628" height="1102"/>
+    <defs>
+      <linearGradient id="dgBody" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1a222b"/><stop offset="1" stop-color="#0c1116"/></linearGradient>
+      <pattern id="dgRib" width="80" height="11" patternUnits="userSpaceOnUse">
+        <rect width="80" height="4" fill="#26303a"/></pattern>
+    </defs>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M317 24C400 24 500 34 540 60C566 78 573 118 575 200C577 300 575 420 580 520C586 620 598 700 598 790C598 960 490 1086 317 1086C144 1086 36 960 36 790C36 700 48 620 54 520C59 420 57 300 59 200C61 118 68 78 94 60C134 34 234 24 317 24Z"
+        fill="url(#dgBody)" stroke="#5b6977" stroke-width="4"/>
+      <path d="M60 442C150 470 240 498 317 502C400 498 490 480 576 458" stroke="#3d4955" stroke-width="3"/>
+      <path d="M317 302V502M282 28V138M352 28V138" stroke="#3d4955" stroke-width="3"/>
+      <path d="M72 110C66 220 64 340 66 442M562 110C568 220 570 340 568 452" stroke="#3d4955" stroke-width="3"/>
+      <rect x="36" y="352" width="28" height="136" rx="12" fill="#141a20" stroke="#5b6977" stroke-width="3"/>
+      <rect x="36" y="512" width="28" height="134" rx="12" fill="#141a20" stroke="#5b6977" stroke-width="3"/>
+      <rect x="277" y="142" width="80" height="160" rx="34" fill="#07090c" stroke="#5b6977" stroke-width="3"/>
+      <rect x="288" y="154" width="58" height="136" rx="26" fill="url(#dgRib)"/>
+      <rect x="305" y="100" width="24" height="9" rx="4" fill="#3d4955"/>
+    </g>
     ${part(0, '<path d="M285 32C190 40 105 70 78 118C62 200 60 360 68 445C150 468 235 488 316 502L316 310L276 300L274 140Z"/>')}
     ${part(1, '<path d="M349 32C444 40 529 70 556 118C572 200 574 360 566 445C484 468 399 488 318 502L318 310L358 300L360 140Z"/>')}
     ${part(2, '<rect x="276" y="140" width="82" height="165" rx="38"/>')}
