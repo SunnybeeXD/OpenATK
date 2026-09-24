@@ -1906,7 +1906,7 @@ function mouseDiagram(){
     ` fill="rgba(255,255,255,0)" class="mp" data-part="${n}"><title>${BUTTON_NAMES[n]}</title></${shape.match(/^<(\w+)/)[1]}>`);
   const label = (x, y, t) => `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="22" fill="rgba(6,10,13,.82)" stroke="rgba(61,220,132,.7)" stroke-width="3"/>
     <text x="${x}" y="${y + 9}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="25" font-weight="700" fill="#9ff0c4">${t}</text></g>`;
-  const body = 'M500 100C585 100 640 106 664 128C688 150 698 180 700 225C702 300 700 400 702 480C704 560 708 620 708 680C708 800 640 891 500 891C360 891 292 800 292 680C292 620 296 560 298 480C300 400 298 300 300 225C302 180 312 150 336 128C360 106 415 100 500 100Z';
+  const body = 'M500 101C578 101 638 118 670 156C692 184 699 222 700 262C701 330 700 410 702 480C704 560 708 620 708 680C708 800 640 891 500 891C360 891 292 800 292 680C292 620 296 560 298 480C300 410 299 330 300 262C301 222 308 184 330 156C362 118 422 101 500 101Z';
   return `<svg viewBox="228 84 500 820" role="img" aria-label="Mouse buttons">
     <defs>
       <linearGradient id="dgBody" x1=".15" y1="0" x2=".85" y2="1">
@@ -1931,15 +1931,15 @@ function mouseDiagram(){
     <ellipse cx="503" cy="886" rx="190" ry="22" fill="#000" opacity=".7" filter="url(#dgBlur)"/>
     <path d="${body}" fill="url(#dgBody)"/>
     <g clip-path="url(#dgClip)">
-      <path d="M467 104C420 104 360 106 336 128C322 141 316 158 316 180C318 300 322 400 327 466L496 466L496 330L466 322L466 197Z" fill="url(#dgKey)"/>
-      <path d="M532 104C579 104 639 106 663 128C677 141 684 158 684 180C682 300 676 400 668 466L503 466L503 330L533 322L533 197Z" fill="url(#dgKey)"/>
+      <path d="M467 106C428 108 372 122 338 152C322 168 314 188 316 214C318 300 322 400 327 466L496 466L496 330L466 322L466 197Z" fill="url(#dgKey)"/>
+      <path d="M532 106C571 108 627 122 661 152C677 168 685 188 683 214C681 300 677 400 668 466L503 466L503 330L533 322L533 197Z" fill="url(#dgKey)"/>
       <path d="M467 96H532V197H467Z" fill="#161c22"/>
       <path d="M327 469C420 467 580 467 668 469" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="2.5"/>
       <path d="M327 466C420 464 580 464 668 466" fill="none" stroke="#05070a" stroke-width="4"/>
       <path d="M499.5 328V466M467 96V197M532 96V197" fill="none" stroke="#05070a" stroke-width="3.5"/>
-      <path d="M316 180C318 300 322 400 327 466M684 180C682 300 676 400 668 466" fill="none" stroke="#05070a" stroke-width="3"/>
-      <path d="M350 125C390 110 430 106 462 106" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round"/>
-      <path d="M650 125C610 110 570 106 537 106" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M316 214C318 300 322 400 327 466M683 214C681 300 677 400 668 466" fill="none" stroke="#05070a" stroke-width="3"/>
+      <path d="M348 142C385 118 425 108 462 106" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M651 142C614 118 574 108 537 106" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3" stroke-linecap="round"/>
       <rect x="228" y="84" width="500" height="820" fill="url(#dgShine)"/>
     </g>
     <path d="${body}" fill="none" stroke="url(#dgRim)" stroke-width="3.5"/>
@@ -1954,8 +1954,8 @@ function mouseDiagram(){
     <rect x="487" y="148" width="25" height="8" rx="4" fill="#8dffc0"/>
     <path d="M458 780L500 752L542 780" fill="none" stroke="#3ddc84" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#dgGlow)" opacity=".8"/>
     <path d="M458 780L500 752L542 780" fill="none" stroke="#b6ffd6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    ${part(0, '<path d="M467 104C420 104 360 106 336 128C322 141 316 158 316 180C318 300 322 400 327 466L496 466L496 330L466 322L466 197Z"/>')}
-    ${part(1, '<path d="M532 104C579 104 639 106 663 128C677 141 684 158 684 180C682 300 676 400 668 466L503 466L503 330L533 322L533 197Z"/>')}
+    ${part(0, '<path d="M467 106C428 108 372 122 338 152C322 168 314 188 316 214C318 300 322 400 327 466L496 466L496 330L466 322L466 197Z"/>')}
+    ${part(1, '<path d="M532 106C571 108 627 122 661 152C677 168 685 188 683 214C681 300 677 400 668 466L503 466L503 330L533 322L533 197Z"/>')}
     ${part(2, '<rect x="466" y="198" width="67" height="130" rx="26"/>')}
     ${part(4, '<rect x="282" y="342" width="28" height="120" rx="11"/>')}
     ${part(3, '<rect x="283" y="465" width="28" height="122" rx="11"/>')}
