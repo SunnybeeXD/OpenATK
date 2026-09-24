@@ -557,6 +557,15 @@ class BitmouseDriver {
   addr(a, len){ return this.xfer(BM_CMD.GetAddressData,
     {paramLen:10, cmdLen:13, payload:[a & 0xFF, (a>>8) & 0xFF, len]}); }
 
+  async readBattery(){
+    const s = {};
+    try { const v = await this.xfer(BM_CMD.GetBatteryLevel,{paramLen:2,cmdLen:1});
+          s.battery = v.u8(0); } catch{}
+    try { const v = await this.xfer(BM_CMD.GetBatteryChargingStatus,{paramLen:2,cmdLen:1});
+          s.charging = v.u8(0) === 1; } catch{}
+    return s;
+  }
+
   async readState(){
     const s = { info: [] };
     const add = (k,v) => s.info.push([k,v]);
@@ -564,10 +573,8 @@ class BitmouseDriver {
 
     try { const v = await this.xfer(BM_CMD.GetDeviceType,{paramLen:2,cmdLen:1,target:0});
           s.conn = CONNTYPE[v.u8(0)]; add('Link', CONNDETAIL[v.u8(0)] ?? 'unknown'); } catch{}
-    try { const v = await this.xfer(BM_CMD.GetBatteryLevel,{paramLen:2,cmdLen:1});
-          s.battery = v.u8(0); } catch{}
-    try { const v = await this.xfer(BM_CMD.GetBatteryChargingStatus,{paramLen:2,cmdLen:1});
-          s.charging = v.u8(0) === 1; add('Charging', s.charging ? 'yes' : 'no'); } catch{}
+    Object.assign(s, await this.readBattery());
+    if (s.charging != null) add('Charging', s.charging ? 'yes' : 'no');
     try { const v = await this.xfer(BM_CMD.GetDeviceVersion,{paramLen:5,cmdLen:3});
           add('Mouse firmware', [v.u8(0),v.u8(1),v.u8(2)].join('.')); } catch{}
     try { const v = await this.xfer(BM_CMD.GetDongleVersion,{paramLen:5,cmdLen:3,target:0});
@@ -770,6 +777,13 @@ class CompxDriver {
   /** every stored byte is trailed by its 85−value inverse */
   static pair(v){ return [v & 0xFF, (85 - v) & 0xFF]; }
 
+  async readBattery(){
+    try { const v = await this.xfer(CX_CMD.GetBatteryLevel);
+          return { battery: v.u8(0), charging: !!v.u8(1),
+                   voltage: (v.u8(2)<<8 | v.u8(3))/1000 }; }
+    catch { return {}; }
+  }
+
   async readState(){
     const s = { info: [] };
     const add = (k,v) => s.info.push([k,v]);
@@ -778,9 +792,11 @@ class CompxDriver {
           add('Mouse firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
     try { const v = await this.xfer(CX_CMD.GetDongleVersion);
           add('Dongle firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
-    try { const v = await this.xfer(CX_CMD.GetBatteryLevel);
-          s.battery = v.u8(0); s.charging = !!v.u8(1); add('Charging', s.charging ? 'yes' : 'no');
-          add('Voltage', ((v.u8(2)<<8 | v.u8(3))/1000).toFixed(2) + ' V'); } catch{}
+    Object.assign(s, await this.readBattery());
+    if (s.battery != null){
+      add('Charging', s.charging ? 'yes' : 'no');
+      add('Voltage', s.voltage.toFixed(2) + ' V');
+    }
     try { const v = await this.xfer(CX_CMD.GetMouseCIDMID);
           s.cidMid = `${v.u8(0)},${v.u8(1)}`; } catch{}
 
@@ -1265,13 +1281,26 @@ async function attach(picked){
   $('#status').innerHTML = '<b>Connected</b>';
   $('#devName').textContent = entry?.[0] ?? `ATK device 0x${pidKey}`;
   await readAll();
+  clearInterval(battTimer);
+  battTimer = setInterval(pollBattery, 30000);
 }
 $('#connect').onclick = connect;
 $('#connect2').onclick = connect;
 $('#refresh').onclick = () => readAll();
 
+let battTimer = null, battBusy = false;
+async function pollBattery(){
+  if (!drv || battBusy || document.hidden) return;
+  battBusy = true;
+  const d = drv;
+  try { const s = await d.readBattery(); if (d === drv) showBattery(s); }
+  finally { battBusy = false; }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pollBattery(); });
+
 function disconnected(){
   drv = null;
+  clearInterval(battTimer);
   clearTimeout(lodTimer);
   clearTimeout(angleTimer);
   $('#app').classList.add('hidden');
@@ -1302,6 +1331,17 @@ navigator.hid?.addEventListener('disconnect', e => {
 autoConnect();
 
 /* ── render ──────────────────────────────────────────────────────── */
+function showBattery(s){
+  if (s.battery == null){ $('#sBatt').textContent = 'Asleep'; $('#sBattBar').style.width = '0'; }
+  else {
+    $('#sBatt').textContent = s.battery + '%';
+    $('#sBattBar').style.width = Math.max(0, Math.min(100, s.battery)) + '%';
+    $('#sBattBar').style.background = s.battery < 20 ? '#f87171'
+                                    : s.battery < 40 ? '#f5c451' : '#3ddc84';
+  }
+  $('#sCharge').classList.toggle('hidden', !(s.battery != null && s.charging));
+}
+
 async function readAll(){
   const s = await drv.readState();
   const info = s.info;
@@ -1322,14 +1362,7 @@ async function readAll(){
     info.push(['CID,MID', s.cidMid]);
   }
 
-  if (s.battery == null){ $('#sBatt').textContent = 'Asleep'; $('#sBattBar').style.width = '0'; }
-  else {
-    $('#sBatt').textContent = s.battery + '%';
-    $('#sBattBar').style.width = Math.max(0, Math.min(100, s.battery)) + '%';
-    $('#sBattBar').style.background = s.battery < 20 ? '#f87171'
-                                    : s.battery < 40 ? '#f5c451' : '#3ddc84';
-  }
-  $('#sCharge').classList.toggle('hidden', !(s.battery != null && s.charging));
+  showBattery(s);
   $('#sConn').textContent = s.conn ?? (drv instanceof CompxDriver ? 'Wireless' : '—');
 
   if (s.rateHz){ mark('#segRate', s.rateHz); info.push(['Polling rate', s.rateHz + ' Hz']); }
