@@ -74,6 +74,7 @@
     background:linear-gradient(var(--card),var(--card)) padding-box,
       linear-gradient(150deg,rgba(61,220,132,.5),rgba(255,255,255,.05) 40%,rgba(34,211,238,.35)) border-box;
     box-shadow:0 40px 120px -40px rgba(61,220,132,.35)}
+  .hero .art img{display:block;width:100%}
   .hero .art{width:150px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(61,220,132,.28));
     animation:float 5s ease-in-out infinite}
   @keyframes float{50%{transform:translateY(-8px)}}
@@ -312,7 +313,7 @@
 </header>
 
 <div class="hero" id="hero">
-  <div class="art mouse-art"></div>
+  <div class="art" id="heroArt"></div>
   <div class="kicker">WebHID configurator</div>
   <h2>Tune your ATK mouse, right in the browser</h2>
   <p>Plug in the dongle or cable, then connect. Close ATK HUB first if it's running,
@@ -1979,6 +1980,15 @@ function setDeviceArt(key, set){
   show(pick);
 }
 setDeviceArt(null, null);
+
+{
+  const hero = $('#heroArt');
+  hero.innerHTML = mouseSvg(false);
+  const img = new Image();
+  img.alt = 'ATK ZERO PLUS Gengar Edition';
+  img.onload = () => { hero.style.width = '132px'; hero.replaceChildren(img); };
+  img.src = 'https://bpcdn.atkgear.com/device/ossAssets/zero/gengar.webp';
+}
 $('#btnArt').innerHTML = mouseSvg(true);
 for (const p of document.querySelectorAll('#btnArt .mp')){
   const i = +p.dataset.part;
