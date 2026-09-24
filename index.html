@@ -1907,7 +1907,7 @@ function mouseDiagram(){
   const label = (x, y, t) => `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="30" fill="rgba(6,10,13,.82)" stroke="rgba(61,220,132,.7)" stroke-width="4"/>
     <text x="${x}" y="${y + 12}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="34" font-weight="700" fill="#9ff0c4">${t}</text></g>`;
   return `<svg viewBox="-80 0 708 1102" role="img" aria-label="Mouse buttons">
-    <image id="btnArtImg" href="${MOUSE_IMG}" x="0" y="0" width="628" height="1102" preserveAspectRatio="xMidYMid meet"/>
+    <image href="${MOUSE_IMG}" x="0" y="0" width="628" height="1102"/>
     ${part(0, '<path d="M285 32C190 40 105 70 78 118C62 200 60 360 68 445C150 468 235 488 316 502L316 310L276 300L274 140Z"/>')}
     ${part(1, '<path d="M349 32C444 40 529 70 556 118C572 200 574 360 566 445C484 468 399 488 318 502L318 310L358 300L360 140Z"/>')}
     ${part(2, '<rect x="276" y="140" width="82" height="165" rx="38"/>')}
@@ -1929,8 +1929,7 @@ function setDeviceArt(key, set){
   if (key === artKey) return;
   artKey = key;
   const art = $('#devArt'), sw = $('#devSkins');
-  const diagram = url => $('#btnArtImg')?.setAttribute('href', url);
-  const fallback = () => { art.classList.add('photo'); art.innerHTML = mouseImg(); diagram(MOUSE_IMG); };
+  const fallback = () => { art.classList.add('photo'); art.innerHTML = mouseImg(); };
   sw.innerHTML = '';
   sw.classList.toggle('hidden', !set || set.length < 2);
   if (!set){ fallback(); return; }
@@ -1938,7 +1937,7 @@ function setDeviceArt(key, set){
     [...sw.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
     const img = new Image();
     img.alt = `${skinName(set[i][0])} mouse`;
-    img.onload = () => { if (artKey !== key) return; art.classList.add('photo'); art.replaceChildren(img); diagram(img.src); };
+    img.onload = () => { if (artKey !== key) return; art.classList.add('photo'); art.replaceChildren(img); };
     img.onerror = () => { if (artKey === key) fallback(); };
     img.src = skinUrl(set[i][2]);
   };
