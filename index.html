@@ -11,6 +11,8 @@
     --ink:#f1f6fb; --dim:#98a6b4; --dimmer:#5f6c79;
     --acc:#3ddc84; --acc2:#22d3ee; --warn:#f5c451; --bad:#f87171;
     --glow:rgba(61,220,132,.38); --stage:#3ddc84;
+    --ring:0 0 0 1px oklch(1 0 0 / .08); --ring-hover:0 0 0 1px oklch(1 0 0 / .13);
+    --ease:cubic-bezier(.2,0,0,1);
     --mono:'IBM Plex Mono',ui-monospace,monospace;
     --disp:'Space Grotesk',Inter,system-ui,sans-serif;
   }
@@ -31,8 +33,8 @@
   .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:26px 32px 80px}
   a{color:inherit}
 
-  header{display:flex;align-items:center;gap:16px;padding:10px 14px 10px 12px;
-    border:1px solid var(--line);border-radius:16px;background:rgba(14,19,25,.72);
+  header{display:flex;align-items:center;gap:16px;padding:10px;
+    box-shadow:var(--ring);border-radius:20px;background:rgba(14,19,25,.72);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
   .brand{display:flex;align-items:center;gap:11px;padding-right:18px;margin-right:4px;
     border-right:1px solid var(--line);text-decoration:none}
@@ -51,24 +53,25 @@
   .status.off::before{background:var(--dimmer);box-shadow:none;animation:none}
   @keyframes live{50%{box-shadow:0 0 0 6px rgba(61,220,132,0),0 0 16px var(--acc)}}
 
-  .btn{font:600 14px/1 Inter,sans-serif;padding:12px 20px;border-radius:10px;
-    border:1px solid rgba(255,255,255,.08);color:#03170b;cursor:pointer;text-decoration:none;
+  .btn{font:600 14px/1 Inter,sans-serif;padding:13px 21px;border-radius:10px;
+    border:0;color:#03170b;cursor:pointer;text-decoration:none;
     background:linear-gradient(180deg,#5cf0a2,#2fc774);
     box-shadow:0 0 0 1px rgba(61,220,132,.25),0 8px 26px -8px rgba(61,220,132,.65),
       inset 0 1px 0 rgba(255,255,255,.45);
-    transition:transform .12s,box-shadow .2s,filter .12s}
+    transition-property:scale,box-shadow,filter,background-color;transition-duration:.15s;transition-timing-function:ease-out}
   .btn:hover{filter:brightness(1.06);box-shadow:0 0 0 1px rgba(61,220,132,.4),
     0 10px 32px -8px rgba(61,220,132,.85),inset 0 1px 0 rgba(255,255,255,.45)}
-  .btn:active{transform:translateY(1px)}
+  .btn:active:not(:disabled){scale:.96}
   .btn:disabled{opacity:.5;cursor:default}
-  .btn.icon{padding:9px 11px;display:inline-grid;place-items:center}
-  .btn.ghost{background:rgba(255,255,255,.03);border-color:var(--line2);color:var(--ink);
-    font-weight:500;padding:9px 15px;font-size:13px;box-shadow:none}
-  .btn.ghost:hover{background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.45);
-    box-shadow:0 0 18px -6px var(--glow);filter:none}
-  .btn.quiet{background:rgba(248,113,113,.04);border-color:#4f2a2a;color:#ffbdbd;
-    font-weight:500;padding:9px 15px;font-size:13px;box-shadow:none}
-  .btn.quiet:hover{background:#2a1717;box-shadow:0 0 18px -6px rgba(248,113,113,.6);filter:none}
+  .btn.icon{padding:10px 12px;display:inline-grid;place-items:center}
+  .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);
+    font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
+  .btn.ghost:hover{background:rgba(61,220,132,.08);
+    box-shadow:0 0 0 1px rgba(61,220,132,.45),0 0 18px -6px var(--glow);filter:none}
+  .btn.ghost.lead{padding-left:14px}
+  .btn.quiet{background:rgba(248,113,113,.04);color:#ffbdbd;
+    font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px #4f2a2a}
+  .btn.quiet:hover{background:#2a1717;box-shadow:0 0 0 1px #6a3434,0 0 18px -6px rgba(248,113,113,.6);filter:none}
 
   .hero{margin:56px auto 0;max-width:760px;padding:52px 48px 46px;text-align:center;
     position:relative;overflow:hidden;border-radius:24px;border:1px solid transparent;
@@ -86,7 +89,7 @@
   .hero .kicker{font:600 11.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--acc)}
   .hero h2{margin:12px 0 10px;font:700 34px/1.1 var(--disp);letter-spacing:-.02em}
   .hero p{margin:0 auto 26px;max-width:470px;color:var(--dim);font-size:15px}
-  .hero .btn{padding:15px 28px;font-size:15px}
+  .hero .btn{padding:16px 29px;font-size:15px}
 
   #app{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;margin-top:22px;align-items:start}
   aside{position:sticky;top:20px;display:flex;flex-direction:column;gap:14px}
@@ -102,8 +105,9 @@
   .devcard .art.photo img{display:block;max-width:100%;max-height:200px;margin:0 auto;object-fit:contain}
   .skins{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:0 0 12px}
   .skin{width:16px;height:16px;padding:0;border-radius:50%;border:2px solid #0b1015;cursor:pointer;
-    box-shadow:0 0 0 1px var(--line2);transition:box-shadow .15s,transform .15s}
-  .skin:hover{transform:scale(1.15)}
+    box-shadow:0 0 0 1px var(--line2);transition:box-shadow .15s ease-out,scale .15s ease-out}
+  .skin:hover{scale:1.15}
+  .skin:active{scale:.96}
   .skin[aria-pressed=true]{box-shadow:0 0 0 2px var(--acc),0 0 10px var(--glow)}
   .gauges{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;margin-top:6px}
   .ring{position:relative;width:96px;height:96px}
@@ -120,17 +124,18 @@
   .chg-bolt{color:var(--acc);animation:chgPulse 1.6s ease-in-out infinite}
   @keyframes chgPulse{0%,100%{opacity:1}50%{opacity:.45}}
   .minis{display:flex;flex-direction:column;gap:8px}
-  .mini{padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid var(--line)}
+  .mini{padding:10px 13px;border-radius:12px;background:rgba(255,255,255,.025);box-shadow:var(--ring)}
   .mini .k{font:500 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
   .mini .v{font:700 17px/1.25 var(--disp);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #sDpi{color:color-mix(in srgb,var(--stage) 70%,#fff);text-shadow:0 0 18px color-mix(in srgb,var(--stage) 55%,transparent)}
 
   .tabs{display:flex;flex-direction:column;gap:3px;padding:7px;border-radius:18px;
-    background:rgba(14,19,25,.7);border:1px solid var(--line)}
+    background:rgba(14,19,25,.7);box-shadow:var(--ring)}
   .tabs button{display:flex;align-items:center;gap:12px;text-align:left;
     font:600 14px/1 Inter,sans-serif;padding:12px 14px;border:0;border-radius:11px;
     background:transparent;color:var(--dim);cursor:pointer;position:relative;
-    transition:background .15s,color .15s}
+    transition-property:background-color,color,scale;transition-duration:.15s;transition-timing-function:ease-out}
+  .tabs button:active{scale:.96}
   .tabs button svg{flex:0 0 auto;opacity:.75}
   .tabs button:hover{background:rgba(255,255,255,.035);color:var(--ink)}
   .tabs button[aria-pressed=true]{color:var(--ink);
@@ -140,7 +145,8 @@
     width:3px;border-radius:3px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
 
   main{min-width:0}
-  .panel{animation:rise .35s cubic-bezier(.2,.8,.2,1)}
+  .panel{animation:fade .12s ease-out}
+  @keyframes fade{from{opacity:0}}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}}
   .phead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:4px 2px 14px}
   .phead h2{margin:0;font:700 28px/1.1 var(--disp);letter-spacing:-.02em}
@@ -150,10 +156,10 @@
   .grid2 + .item, .grid2 + .grid2{margin-top:12px}
 
   .item{position:relative;border-radius:16px;padding:19px 21px;margin-bottom:12px;
-    border:1px solid var(--line);
+    box-shadow:var(--ring);
     background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0)) ,var(--card);
-    transition:border-color .2s,box-shadow .2s}
-  .item:hover{border-color:var(--line2);box-shadow:0 18px 40px -26px rgba(0,0,0,.9)}
+    transition:box-shadow .15s ease-out}
+  .item:hover{box-shadow:var(--ring-hover),0 18px 40px -26px rgba(0,0,0,.9)}
   .item .t{font:600 16px/1.3 var(--disp);letter-spacing:-.005em}
   .item .d{font-size:13px;color:var(--dim);margin-top:4px}
   .item.row{display:flex;align-items:center;gap:18px}
@@ -162,10 +168,12 @@
   .item .head>div{flex:1;min-width:0}
 
   .seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:14px;padding:4px;
-    background:#0a0e12;border:1px solid var(--line);border-radius:12px}
+    background:#0a0e12;box-shadow:inset var(--ring);border-radius:12px}
   .seg button{flex:1 1 auto;min-width:62px;font:600 13.5px/1 Inter,sans-serif;
-    padding:11px 8px;border:0;border-radius:9px;background:transparent;
-    color:var(--dim);cursor:pointer;transition:background .15s,color .15s,box-shadow .2s}
+    padding:11px 8px;border:0;border-radius:8px;background:transparent;
+    color:var(--dim);cursor:pointer;transition-property:background-color,color,box-shadow,scale;
+    transition-duration:.15s;transition-timing-function:ease-out}
+  .seg button:active{scale:.96}
   .seg button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
   .seg button[aria-pressed=true]{color:#03170b;background:linear-gradient(180deg,#5cf0a2,#2fc774);
     box-shadow:0 0 0 1px rgba(61,220,132,.35),0 4px 18px -4px rgba(61,220,132,.7),
@@ -186,9 +194,9 @@
 
   .sw{appearance:none;flex:0 0 auto;width:52px;height:29px;border-radius:20px;
     background:#1c242d;border:1px solid var(--line2);position:relative;cursor:pointer;
-    transition:background .2s,border-color .2s,box-shadow .2s}
+    transition:background-color .15s ease-out,border-color .15s ease-out,box-shadow .15s ease-out}
   .sw::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;
-    border-radius:50%;background:#8795a3;transition:transform .2s cubic-bezier(.3,1.4,.5,1),background .2s}
+    border-radius:50%;background:#8795a3;transition:transform .2s var(--ease),background-color .15s ease-out}
   .sw:checked{background:linear-gradient(180deg,#2fc774,#1f9e59);border-color:#4fe496;
     box-shadow:0 0 18px -2px var(--glow)}
   .sw:checked::after{transform:translateX(23px);background:#f3fff8}
@@ -208,7 +216,7 @@
     padding:12px 20px 12px 18px;border-radius:14px;opacity:0;pointer-events:none;
     border:1px solid rgba(61,220,132,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     box-shadow:0 0 30px -6px rgba(61,220,132,.5),0 14px 40px rgba(0,0,0,.55);
-    transition:opacity .2s,transform .25s cubic-bezier(.2,.8,.2,1);z-index:9}
+    transition:opacity .2s ease-out,transform .2s ease-out;z-index:9}
   #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
   #toast.bad{background:rgba(40,14,14,.92);color:#ffe1e1;border-color:rgba(248,113,113,.6);
     box-shadow:0 0 30px -6px rgba(248,113,113,.55),0 14px 40px rgba(0,0,0,.55)}
@@ -222,7 +230,7 @@
   .swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
   .swatch{display:flex;align-items:center;gap:8px;font:500 12.5px var(--mono);color:var(--dim);
     background:#0a0e12;border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;
-    transition:border-color .15s,box-shadow .2s}
+    transition:border-color .15s ease-out,box-shadow .15s ease-out}
   .swatch:hover{border-color:var(--line2)}
   .swatch input{width:28px;height:22px;padding:0;border:0;background:none;cursor:pointer}
   .swatch.on{border-color:var(--acc);color:var(--ink);box-shadow:0 0 16px -4px var(--glow)}
@@ -231,12 +239,12 @@
 
   .sel{font:500 13.5px/1.2 Inter,sans-serif;color:var(--ink);background:#0a0e12;
     border:1px solid var(--line2);border-radius:10px;padding:10px 12px;max-width:100%;min-width:0;
-    transition:border-color .15s,box-shadow .2s}
+    transition:border-color .15s ease-out,box-shadow .15s ease-out}
   .sel:hover,.sel:focus{outline:none;border-color:rgba(61,220,132,.55);box-shadow:0 0 16px -6px var(--glow)}
   .btnwrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;margin-top:10px;align-items:start}
   .btnart{position:sticky;top:20px;padding:16px 10px;border-radius:14px;background:
     radial-gradient(180px 160px at 50% 45%,rgba(61,220,132,.10),transparent 70%),#0a0e12;
-    border:1px solid var(--line)}
+    box-shadow:var(--ring)}
   .btnart svg{display:block;width:170px;margin:0 auto}
   .btnart .cap{margin-top:10px;text-align:center;font:500 12px var(--mono);color:var(--dimmer);min-height:18px}
   .btnrow{display:flex;align-items:center;gap:10px 14px;padding:10px 12px;margin:0 -12px;
@@ -249,7 +257,7 @@
   .btnrow .nm small{flex-basis:100%;padding-left:32px;color:var(--dim);font-weight:400;font-size:12.5px;
     overflow-wrap:anywhere;margin-top:-4px}
   .btnrow .sel{flex:0 1 250px}
-  .mp{stroke:transparent;stroke-width:4;cursor:pointer;transition:fill .15s,stroke .15s,filter .2s}
+  .mp{stroke:transparent;stroke-width:4;cursor:pointer;transition:fill .15s ease-out,stroke .15s ease-out,filter .15s ease-out}
   .mp:hover{fill:rgba(61,220,132,.2);stroke:rgba(61,220,132,.6)}
   .mp.hl{fill:rgba(61,220,132,.38);stroke:var(--acc);stroke-width:5;filter:drop-shadow(0 0 6px var(--acc))}
   .editor{margin-top:14px;padding:18px;border-radius:14px;border:1px solid rgba(61,220,132,.35);
@@ -275,7 +283,8 @@
   .step span{flex:1;min-width:0}
   .step .num{width:80px;padding:5px 6px}
   .pad{margin-top:12px;padding:26px;text-align:center;border:1px dashed var(--line2);
-    border-radius:12px;color:var(--dim);font-size:13px;user-select:none;transition:all .2s}
+    border-radius:12px;color:var(--dim);font-size:13px;user-select:none;
+    transition:border-color .15s ease-out,color .15s ease-out,background-color .15s ease-out}
   .pad.rec{border-color:var(--bad);border-style:solid;color:#ffdada;
     background:rgba(248,113,113,.06);box-shadow:0 0 30px -10px rgba(248,113,113,.6);
     animation:recp 1.4s ease-in-out infinite}
@@ -295,6 +304,7 @@
     header .lbl{display:none}
     header .btn.ghost{padding:9px 11px}
     .brand{border-right:0;padding-right:0;margin-right:auto}
+    header{border-radius:18px;padding:8px}
     .hero{margin-top:18px;padding:30px 20px 28px;border-radius:20px}
     .hero h2{font-size:25px}
     .hero p{font-size:14px;margin-bottom:18px}
@@ -314,8 +324,8 @@
     <h1 id="devName">ATK Mouse</h1>
     <div class="status off" id="status">Not connected</div>
   </div>
-  <a class="btn ghost" href="keyboard/" title="ATK keyboard configurator"
-     style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 20 14" width="19" height="14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M15.8 4.5h.4M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M15.8 7.5h.4M6.5 10.5h7" stroke-linecap="round"/></svg><span class="lbl">Keyboard</span></a>
+  <a class="btn ghost lead" href="keyboard/" title="ATK keyboard configurator"
+     style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 20 14" width="19" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M15.8 4.5h.4M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M15.8 7.5h.4M6.5 10.5h7" stroke-linecap="round"/></svg><span class="lbl">Keyboard</span></a>
   <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
      target="_blank" rel="noopener noreferrer"
      aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
@@ -368,11 +378,11 @@
     </div>
 
     <nav class="tabs" id="tabs">
-      <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
-      <button data-tab="tracking" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Tracking</button>
-      <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Lighting</button>
-      <button data-tab="buttons" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg>Buttons &amp; power</button>
-      <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
+      <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
+      <button data-tab="tracking" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Tracking</button>
+      <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Lighting</button>
+      <button data-tab="buttons" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg>Buttons &amp; power</button>
+      <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
     </nav>
     <p class="foot">Changes save to the mouse immediately and survive unplugging.
       &middot; <a href="tested.html">Tested hardware</a></p>
