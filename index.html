@@ -1908,23 +1908,50 @@ function mouseDiagram(){
     <text x="${x}" y="${y + 12}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="34" font-weight="700" fill="#9ff0c4">${t}</text></g>`;
   return `<svg viewBox="-80 0 708 1102" role="img" aria-label="Mouse buttons">
     <defs>
-      <linearGradient id="dgBody" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#1a222b"/><stop offset="1" stop-color="#0c1116"/></linearGradient>
-      <pattern id="dgRib" width="80" height="11" patternUnits="userSpaceOnUse">
-        <rect width="80" height="4" fill="#26303a"/></pattern>
+      <linearGradient id="dgBody" x1=".15" y1="0" x2=".85" y2="1">
+        <stop offset="0" stop-color="#303a45"/><stop offset=".5" stop-color="#1b2129"/><stop offset="1" stop-color="#0d1115"/></linearGradient>
+      <radialGradient id="dgShine" cx=".36" cy=".42" r=".6">
+        <stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".55" stop-color="#fff" stop-opacity=".03"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <linearGradient id="dgRim" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#9aa8b6"/><stop offset=".35" stop-color="#4a5663"/><stop offset="1" stop-color="#1c232b"/></linearGradient>
+      <linearGradient id="dgKey" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3a4550"/><stop offset="1" stop-color="#20272f"/></linearGradient>
+      <linearGradient id="dgWheel" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#0b0e11"/><stop offset=".5" stop-color="#5a6673"/><stop offset="1" stop-color="#0b0e11"/></linearGradient>
+      <pattern id="dgRib" width="80" height="9" patternUnits="userSpaceOnUse">
+        <rect width="80" height="3.5" fill="rgba(0,0,0,.6)"/></pattern>
+      <linearGradient id="dgSide" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#2a333d"/><stop offset=".7" stop-color="#4a5664"/><stop offset="1" stop-color="#2f3843"/></linearGradient>
+      <filter id="dgBlur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="16"/></filter>
+      <filter id="dgGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5"/></filter>
+      <clipPath id="dgClip"><path d="M317 24C400 24 500 34 540 60C566 78 573 118 575 200C577 300 575 420 580 520C586 620 598 700 598 790C598 960 490 1086 317 1086C144 1086 36 960 36 790C36 700 48 620 54 520C59 420 57 300 59 200C61 118 68 78 94 60C134 34 234 24 317 24Z"/></clipPath>
     </defs>
-    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M317 24C400 24 500 34 540 60C566 78 573 118 575 200C577 300 575 420 580 520C586 620 598 700 598 790C598 960 490 1086 317 1086C144 1086 36 960 36 790C36 700 48 620 54 520C59 420 57 300 59 200C61 118 68 78 94 60C134 34 234 24 317 24Z"
-        fill="url(#dgBody)" stroke="#5b6977" stroke-width="4"/>
-      <path d="M60 442C150 470 240 498 317 502C400 498 490 480 576 458" stroke="#3d4955" stroke-width="3"/>
-      <path d="M317 302V502M282 28V138M352 28V138" stroke="#3d4955" stroke-width="3"/>
-      <path d="M72 110C66 220 64 340 66 442M562 110C568 220 570 340 568 452" stroke="#3d4955" stroke-width="3"/>
-      <rect x="36" y="352" width="28" height="136" rx="12" fill="#141a20" stroke="#5b6977" stroke-width="3"/>
-      <rect x="36" y="512" width="28" height="134" rx="12" fill="#141a20" stroke="#5b6977" stroke-width="3"/>
-      <rect x="277" y="142" width="80" height="160" rx="34" fill="#07090c" stroke="#5b6977" stroke-width="3"/>
-      <rect x="288" y="154" width="58" height="136" rx="26" fill="url(#dgRib)"/>
-      <rect x="305" y="100" width="24" height="9" rx="4" fill="#3d4955"/>
+    <ellipse cx="322" cy="1080" rx="250" ry="30" fill="#000" opacity=".7" filter="url(#dgBlur)"/>
+    <path d="M317 24C400 24 500 34 540 60C566 78 573 118 575 200C577 300 575 420 580 520C586 620 598 700 598 790C598 960 490 1086 317 1086C144 1086 36 960 36 790C36 700 48 620 54 520C59 420 57 300 59 200C61 118 68 78 94 60C134 34 234 24 317 24Z" fill="url(#dgBody)"/>
+    <g clip-path="url(#dgClip)">
+      <path d="M280 28C200 30 120 40 94 60C68 78 61 118 59 200C57 300 59 380 60 442C150 470 240 498 314 502L314 304L280 296L277 150Z" fill="url(#dgKey)"/>
+      <path d="M354 28C434 30 514 40 540 60C566 78 573 118 575 200C577 300 575 380 576 458C490 480 400 498 320 502L320 304L354 296L357 150Z" fill="url(#dgKey)"/>
+      <path d="M282 26H352V142H282Z" fill="#161c22"/>
+      <path d="M60 446C150 474 240 502 317 506C400 502 490 484 576 462" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="3"/>
+      <path d="M60 442C150 470 240 498 317 502C400 498 490 480 576 458" fill="none" stroke="#05070a" stroke-width="5"/>
+      <path d="M317 300V502M282 26V142M352 26V142" fill="none" stroke="#05070a" stroke-width="4"/>
+      <path d="M110 70C170 44 230 36 276 34" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M524 70C464 44 404 36 358 34" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="4" stroke-linecap="round"/>
+      <rect x="0" y="0" width="628" height="1102" fill="url(#dgShine)"/>
     </g>
+    <path d="M317 24C400 24 500 34 540 60C566 78 573 118 575 200C577 300 575 420 580 520C586 620 598 700 598 790C598 960 490 1086 317 1086C144 1086 36 960 36 790C36 700 48 620 54 520C59 420 57 300 59 200C61 118 68 78 94 60C134 34 234 24 317 24Z" fill="none" stroke="url(#dgRim)" stroke-width="4"/>
+    <rect x="277" y="142" width="80" height="160" rx="36" fill="#050709" stroke="rgba(0,0,0,.8)" stroke-width="3"/>
+    <rect x="286" y="152" width="62" height="140" rx="28" fill="url(#dgWheel)"/>
+    <rect x="286" y="152" width="62" height="140" rx="28" fill="url(#dgRib)"/>
+    <rect x="300" y="160" width="14" height="124" rx="7" fill="rgba(255,255,255,.12)"/>
+    <rect x="30" y="352" width="34" height="136" rx="14" fill="url(#dgSide)" stroke="#0a0d10" stroke-width="3"/>
+    <rect x="30" y="512" width="34" height="134" rx="14" fill="url(#dgSide)" stroke="#0a0d10" stroke-width="3"/>
+    <path d="M38 364V476M38 524V634" stroke="rgba(255,255,255,.18)" stroke-width="3" stroke-linecap="round"/>
+    <rect x="298" y="96" width="38" height="16" rx="8" fill="#3ddc84" filter="url(#dgGlow)" opacity=".9"/>
+    <rect x="302" y="99" width="30" height="10" rx="5" fill="#8dffc0"/>
+    <path d="M262 960L317 925L372 960" fill="none" stroke="#3ddc84" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#dgGlow)" opacity=".8"/>
+    <path d="M262 960L317 925L372 960" fill="none" stroke="#b6ffd6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     ${part(0, '<path d="M285 32C190 40 105 70 78 118C62 200 60 360 68 445C150 468 235 488 316 502L316 310L276 300L274 140Z"/>')}
     ${part(1, '<path d="M349 32C444 40 529 70 556 118C572 200 574 360 566 445C484 468 399 488 318 502L318 310L358 300L360 140Z"/>')}
     ${part(2, '<rect x="276" y="140" width="82" height="165" rx="38"/>')}
