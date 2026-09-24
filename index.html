@@ -75,8 +75,10 @@
       linear-gradient(150deg,rgba(61,220,132,.5),rgba(255,255,255,.05) 40%,rgba(34,211,238,.35)) border-box;
     box-shadow:0 40px 120px -40px rgba(61,220,132,.35)}
   .hero .art img{display:block;width:100%}
-  #blockedArt{height:240px}
-  #blockedArt img{width:100%;height:100%;object-fit:contain}
+  .reel{height:240px}
+  .reel img{width:100%;height:100%;object-fit:contain;animation:reelIn .45s ease-out}
+  @keyframes reelIn{from{opacity:0;transform:scale(.96)}}
+  .reelcap{font:500 11.5px var(--mono);color:var(--dim);margin:-4px 0 18px;min-height:17px;overflow-wrap:anywhere}
   .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(61,220,132,.28));
     animation:float 5s ease-in-out infinite}
   @keyframes float{50%{transform:translateY(-8px)}}
@@ -295,7 +297,7 @@
     .hero{margin-top:18px;padding:30px 20px 28px;border-radius:20px}
     .hero h2{font-size:25px}
     .hero p{font-size:14px;margin-bottom:18px}
-    #blockedArt{height:210px}
+    .reel{height:210px}
   }
 </style>
 </head>
@@ -320,7 +322,8 @@
 </header>
 
 <div class="hero" id="hero">
-  <div class="art" id="heroArt"></div>
+  <div class="art reel" id="heroArt"></div>
+  <div class="reelcap" id="heroCap"></div>
   <div class="kicker">WebHID configurator</div>
   <h2>Tune your ATK mouse, right in the browser</h2>
   <p>Plug in the dongle or cable, then connect. Close ATK HUB first if it's running,
@@ -331,9 +334,8 @@
 </div>
 
 <div class="hero hidden" id="blocked">
-  <div class="art mouse-art" id="blockedArt"></div>
-  <div id="cdnReel" style="font:500 11.5px var(--mono);color:var(--dim);margin:-6px 0 18px;overflow-wrap:anywhere"></div>
-  <div id="cdnFails" style="font:500 11px var(--mono);color:var(--bad);margin:-10px 0 18px;overflow-wrap:anywhere"></div>
+  <div class="art reel mouse-art" id="blockedArt"></div>
+  <div class="reelcap" id="blockedCap"></div>
   <h2>This needs a desktop</h2>
   <p>OpenATK talks to your mouse over WebHID, which phones and tablets don't
      implement. Open this page on a computer, in Chrome, Edge or Opera.</p>
@@ -1955,14 +1957,7 @@ function setDeviceArt(key, set){
 }
 setDeviceArt(null, null);
 
-{
-  const hero = $('#heroArt');
-  hero.innerHTML = mouseImg();
-  const img = new Image();
-  img.alt = 'ATK ZERO PLUS Gengar Edition';
-  img.onload = () => hero.replaceChildren(img);
-  img.src = 'https://bpcdn.atkgear.com/device/ossAssets/zero/gengar.webp';
-}
+$('#heroArt').innerHTML = mouseImg();
 $('#btnArt').innerHTML = mouseDiagram();
 for (const p of document.querySelectorAll('#btnArt .mp')){
   const i = +p.dataset.part;
@@ -2274,32 +2269,38 @@ if (IS_MOBILE){
   $('#blocked').classList.remove('hidden');
   $('#connect').classList.add('hidden');
   $('#status').textContent = 'Not available on mobile';
-  cdnReel();
 }
 
-function cdnReel(){
+function cdnReel(host, cap){
+  const names = {};
+  for (const [pid, n] of Object.entries(SKINS.pid)){
+    const model = REGISTRY.pids[pid]?.[0];
+    if (model) for (const [c, , u] of SKINS.sets[n]) names[skinUrl(u)] ??= `${model.trim()} · ${skinName(c)}`;
+  }
   const urls = [...new Set(SKINS.sets.flat().map(x => skinUrl(x[2])))];
-  const host = $('#blockedArt'), cap = $('#cdnReel'), fails = [];
-  let i = 0, ok = 0;
+  for (let k = urls.length - 1; k > 0; k--){
+    const j = Math.floor(Math.random() * (k + 1));
+    [urls[k], urls[j]] = [urls[j], urls[k]];
+  }
+  let i = 0, misses = 0;
   const next = () => {
-    const url = urls[i % urls.length], first = i < urls.length;
+    if (!host.offsetParent){ setTimeout(next, 2000); return; }
+    const url = urls[i++ % urls.length];
     const img = new Image();
-    const done = good => {
-      if (first){ if (good) ok++; else fails.push(url.replace(/^https:\/\/bpcdn\.atkgear\.com\//, '')); }
-      if (good) host.replaceChildren(img);
-      cap.textContent = `CDN test ${Math.min(i + 1, urls.length)}/${urls.length} · ${ok} ok · `
-        + `${fails.length} failed · ${url.split('/').slice(-2).join('/')}`;
-      $('#cdnFails').textContent = fails.length ? 'Failed: ' + fails.join(', ') : '';
-      i++;
-      setTimeout(next, 1200);
+    img.onload = () => {
+      misses = 0;
+      host.replaceChildren(img);
+      cap.textContent = names[url] ?? '';
+      setTimeout(next, 2000);
     };
-    img.onload = () => done(true);
-    img.onerror = () => done(false);
-    img.alt = url.split('/').pop();
+    img.onerror = () => { if (++misses < urls.length) next(); };
+    img.alt = names[url] ?? 'Mouse';
     img.src = url;
   };
   next();
 }
+cdnReel($('#heroArt'), $('#heroCap'));
+cdnReel($('#blockedArt'), $('#blockedCap'));
 
 async function connect(){
   if (IS_MOBILE){ toast('OpenATK needs a desktop browser', 1); return; }
