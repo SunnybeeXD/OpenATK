@@ -75,6 +75,8 @@
       linear-gradient(150deg,rgba(61,220,132,.5),rgba(255,255,255,.05) 40%,rgba(34,211,238,.35)) border-box;
     box-shadow:0 40px 120px -40px rgba(61,220,132,.35)}
   .hero .art img{display:block;width:100%}
+  #blockedArt{height:240px}
+  #blockedArt img{width:100%;height:100%;object-fit:contain}
   .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(61,220,132,.28));
     animation:float 5s ease-in-out infinite}
   @keyframes float{50%{transform:translateY(-8px)}}
@@ -324,7 +326,9 @@
 </div>
 
 <div class="hero hidden" id="blocked">
-  <div class="art mouse-art"></div>
+  <div class="art mouse-art" id="blockedArt"></div>
+  <div id="cdnReel" style="font:500 11.5px var(--mono);color:var(--dim);margin:-6px 0 18px;overflow-wrap:anywhere"></div>
+  <div id="cdnFails" style="font:500 11px var(--mono);color:var(--bad);margin:-10px 0 18px;overflow-wrap:anywhere"></div>
   <h2>This needs a desktop</h2>
   <p>OpenATK talks to your mouse over WebHID, which phones and tablets don't
      implement. Open this page on a computer, in Chrome, Edge or Opera.</p>
@@ -2265,6 +2269,31 @@ if (IS_MOBILE){
   $('#blocked').classList.remove('hidden');
   $('#connect').classList.add('hidden');
   $('#status').textContent = 'Not available on mobile';
+  cdnReel();
+}
+
+function cdnReel(){
+  const urls = [...new Set(SKINS.sets.flat().map(x => skinUrl(x[2])))];
+  const host = $('#blockedArt'), cap = $('#cdnReel'), fails = [];
+  let i = 0, ok = 0;
+  const next = () => {
+    const url = urls[i % urls.length], first = i < urls.length;
+    const img = new Image();
+    const done = good => {
+      if (first){ if (good) ok++; else fails.push(url.replace(/^https:\/\/bpcdn\.atkgear\.com\//, '')); }
+      if (good) host.replaceChildren(img);
+      cap.textContent = `CDN test ${Math.min(i + 1, urls.length)}/${urls.length} · ${ok} ok · `
+        + `${fails.length} failed · ${url.split('/').slice(-2).join('/')}`;
+      $('#cdnFails').textContent = fails.length ? 'Failed: ' + fails.join(', ') : '';
+      i++;
+      setTimeout(next, 1200);
+    };
+    img.onload = () => done(true);
+    img.onerror = () => done(false);
+    img.alt = url.split('/').pop();
+    img.src = url;
+  };
+  next();
 }
 
 async function connect(){
