@@ -70,6 +70,12 @@
     border-radius:50%;background:#93a1ae;transition:transform .17s,background .17s}
   .sw:checked{background:#1d7a48;border-color:#2fa563}
   .sw:checked::after{transform:translateX(21px);background:#f0fff7}
+  .sw:disabled{cursor:not-allowed;opacity:.45}
+  .tachyon{background:linear-gradient(120deg,rgba(168,85,247,.08),rgba(34,211,238,.05)),var(--card);
+    border-color:rgba(168,85,247,.35)}
+  .tachyon .price{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;
+    font:700 11.5px/1.4 Inter,sans-serif;color:#1a0b2e;background:linear-gradient(90deg,#f5c451,#f0873c);
+    vertical-align:1px}
 
   .slider{display:flex;align-items:center;gap:14px;margin-top:12px}
   .slider input[type=range]{appearance:none;flex:1;height:6px;border-radius:4px;
@@ -307,12 +313,21 @@
           <button class="btn ghost" id="applyDz">Save</button>
         </div>
       </div>
-      <div class="item row">
-        <div>
-          <div class="t">Extreme mode</div>
-          <div class="d">Raises rapid trigger and step accuracy to 0.001 mm.</div>
+      <div>
+        <div class="item row">
+          <div>
+            <div class="t">Extreme mode</div>
+            <div class="d">Raises rapid trigger and step accuracy to 0.001 mm.</div>
+          </div>
+          <input type="checkbox" class="sw" id="gameMode">
         </div>
-        <input type="checkbox" class="sw" id="gameMode">
+        <div class="item row tachyon" title="Unlock Tachyon mode for just $5">
+          <div>
+            <div class="t">Tachyon mode <span class="price">$5</span></div>
+            <div class="d">Registers your keypress before you press it. Rapid trigger at 0.000 mm, faster than light.</div>
+          </div>
+          <input type="checkbox" class="sw" id="tachyonMode" disabled aria-label="Tachyon mode (locked)">
+        </div>
       </div>
     </div>
   </section>
