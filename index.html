@@ -286,11 +286,16 @@
     *,*::before,*::after{animation:none !important;transition:none !important}
   }
   @media (max-width: 760px){
-    .wrap{padding:16px}
-    header{flex-wrap:wrap}
-    .brand{border-right:0}
-    .hero{padding:36px 22px}
-    .hero h2{font-size:26px}
+    .wrap{padding:14px 14px 40px}
+    header{gap:10px;padding:10px 12px}
+    header .devhead{display:none}
+    header .lbl{display:none}
+    header .btn.ghost{padding:9px 11px}
+    .brand{border-right:0;padding-right:0;margin-right:auto}
+    .hero{margin-top:18px;padding:30px 20px 28px;border-radius:20px}
+    .hero h2{font-size:25px}
+    .hero p{font-size:14px;margin-bottom:18px}
+    #blockedArt{height:210px}
   }
 </style>
 </head>
@@ -302,12 +307,12 @@
     <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
     <b>Open<span>ATK</span></b>
   </a>
-  <div style="flex:1;min-width:0">
+  <div class="devhead" style="flex:1;min-width:0">
     <h1 id="devName">ATK Mouse</h1>
     <div class="status off" id="status">Not connected</div>
   </div>
   <a class="btn ghost" href="keyboard/" title="ATK keyboard configurator"
-     style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 20 14" width="19" height="14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M15.8 4.5h.4M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M15.8 7.5h.4M6.5 10.5h7" stroke-linecap="round"/></svg>Keyboard</a>
+     style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 20 14" width="19" height="14" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M15.8 4.5h.4M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M15.8 7.5h.4M6.5 10.5h7" stroke-linecap="round"/></svg><span class="lbl">Keyboard</span></a>
   <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
      target="_blank" rel="noopener noreferrer"
      aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
