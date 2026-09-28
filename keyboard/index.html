@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data:">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OpenATK Keyboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -934,6 +935,14 @@ let rtValues = [];
 
 function cellIndex(r, c){ return r * kb.cols + c; }
 
+function numIn(sel){
+  const el = $(sel), v = parseFloat(el.value);
+  if (!Number.isFinite(v)){ toast('Enter a number', 1); throw new Error(`${sel} is not a number`); }
+  const c = Math.min(+el.max, Math.max(+el.min, v));
+  el.value = String(c);
+  return c;
+}
+
 function keyLabel(code){
   if (!code) return '';
   if (code < 0x100) return KEYCODES[code] ?? `0x${code.toString(16)}`;
@@ -1192,7 +1201,11 @@ async function readAll(){
   await readPerKey();
   await readAdvanced();
   add('Matrix', `${kb.rows} × ${kb.cols}`);
-  $('#kv').innerHTML = info.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  $('#kv').replaceChildren(...info.map(([k, v]) => {
+    const tr = document.createElement('tr');
+    for (const x of [k, v]){ const td = document.createElement('td'); td.textContent = String(x); tr.append(td); }
+    return tr;
+  }));
 }
 
 async function readPerKey(){
@@ -1376,20 +1389,20 @@ async function addAdvanced(){
                  : advPick === 'oks' ? MODE.oks
                  : +$('#advMode').value;
       const cfg = { mode, key1: pos[0], key2: pos[1] ?? pos[0], layer: 0 };
-      if (advPick === 'rs') cfg.point = +$('#advPoint').value;
+      if (advPick === 'rs') cfg.point = numIn('#advPoint');
       await kb.setAdvancedKey(free, cfg);
       await readAdvanced();
     }
     if (advPick === 'mt')
       await kb.setMt(pos[0][0] * kb.cols + pos[0][1],
-        +$('#advTap').value, +$('#advHold').value, +$('#advDelay').value);
+        +$('#advTap').value, +$('#advHold').value, numIn('#advDelay'));
     if (advPick === 'tgl')
       await kb.setTgl(pos[0][0] * kb.cols + pos[0][1],
-        +$('#advTap').value, +$('#advDelay').value);
+        +$('#advTap').value, numIn('#advDelay'));
     if (advPick === 'dks')
       await kb.setDks(pos[0][0] * kb.cols + pos[0][1],
         [0,1,2,3].map(i => +$(`#advDks${i}`).value),
-        +$('#advTop').value, +$('#advBottom').value);
+        numIn('#advTop'), numIn('#advBottom'));
     toast(`${advPick.toUpperCase()} added`);
     closeAdv();
   } catch { toast('Could not write — see activity log', 1); }
@@ -1441,7 +1454,7 @@ function wire(){
 
   $('#applyDz').onclick = async () => {
     try {
-      await kb.setDeadZone(+$('#dzTop').value, +$('#dzBottom').value);
+      await kb.setDeadZone(numIn('#dzTop'), numIn('#dzBottom'));
       toast('Dead zone saved');
     } catch { toast('Could not save', 1); }
   };

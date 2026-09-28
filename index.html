@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ATK Mouse Control</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -661,6 +662,13 @@ const angleFromByte = b => b > ANGLE_LIMIT ? b - 256 : b;
 const angleToByte   = d => (d < 0 ? d + 256 : d) & 0xFF;
 
 /* ── logging + toast ─────────────────────────────────────────────── */
+function fillKv(rows){
+  $('#kv').replaceChildren(...rows.map(([k, v]) => {
+    const tr = document.createElement('tr');
+    for (const x of [k, v]){ const td = document.createElement('td'); td.textContent = String(x); tr.append(td); }
+    return tr;
+  }));
+}
 function log(cls, label, detail){
   const el = document.createElement('div');
   el.className = cls;
@@ -1012,6 +1020,7 @@ class BitmouseDriver {
   setButton(i, a){ return this.xfer(BM_CMD.SetButtonKey,
     {paramLen:8, cmdLen:5, payload:[i, ...BitmouseDriver.encodeKey(a)]}); }
   async setMacro(i, m){
+    if (m.steps.length > MAX_MACRO_STEPS) throw new Error('macro too long');
     const start = {hold:1, anykey:2, thiskey:3, loop:4}[m.mode];
     const runs = m.mode === 'loop' ? m.count : 1;
     const last = m.steps.length - 1;
@@ -2107,9 +2116,27 @@ async function applyButton(i, a){
 }
 
 const macroKey = i => `openatk.macro.${drv.constructor.family}.${drv.pidKey}.${i}`;
+function cleanStep(s){
+  if (!s || typeof s !== 'object') return null;
+  const delay = clampInt(s.delay, 1, 65535, 50);
+  if (s.t === 'scroll') return { t: 'scroll', down: !!s.down, delay };
+  if (s.t !== 'key' && s.t !== 'mouse') return null;
+  return { t: s.t, code: clampInt(s.code, 0, 255, 0), up: !!s.up, delay };
+}
 function loadMacro(i){
-  try { const m = JSON.parse(localStorage.getItem(macroKey(i)));
-        if (m && Array.isArray(m.steps)) return m; } catch {}
+  try {
+    const m = JSON.parse(localStorage.getItem(macroKey(i)));
+    if (m && Array.isArray(m.steps)){
+      const steps = [];
+      for (const s of m.steps.map(cleanStep)){
+        if (!s) continue;
+        if (macroSize([...steps, s]) > MAX_MACRO_STEPS) break;
+        steps.push(s);
+      }
+      return { steps, mode: MACRO_MODES.some(([v]) => v === m.mode) ? m.mode : 'hold',
+               count: clampInt(m.count, 1, 250, 1) };
+    }
+  } catch {}
   return { steps: [], mode: 'hold', count: 1 };
 }
 function saveMacro(i, m){ try { localStorage.setItem(macroKey(i), JSON.stringify(m)); } catch {} }
@@ -2700,7 +2727,7 @@ async function readAll(){
 
   if (s.stale) toast('Mouse didn’t answer — move it to wake it', 1);
 
-  $('#kv').innerHTML = info.map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  fillKv(info);
 }
 
 </script>
