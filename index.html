@@ -318,7 +318,7 @@
 <div class="wrap">
 
 <header>
-  <a class="brand" href="./" aria-label="OpenATK">
+  <a class="brand" href="index.html" aria-label="OpenATK">
     <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
     <b>Open<span>ATK</span></b>
   </a>
@@ -326,7 +326,7 @@
     <h1 id="devName">ATK Mouse</h1>
     <div class="status off" id="status">Not connected</div>
   </div>
-  <a class="btn ghost lead" href="keyboard/" title="ATK keyboard configurator"
+  <a class="btn ghost lead" href="keyboard/index.html" title="ATK keyboard configurator"
      style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 20 14" width="19" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M15.8 4.5h.4M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M15.8 7.5h.4M6.5 10.5h7" stroke-linecap="round"/></svg><span class="lbl">Keyboard</span></a>
   <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
      target="_blank" rel="noopener noreferrer"
@@ -2247,7 +2247,7 @@ function fireEditor(i, name){
 
 function stepText(s){
   if (s.t === 'scroll') return `Scroll ${s.down ? 'down' : 'up'}`;
-  const what = s.t === 'mouse' ? MOUSE_NAMES[MASK_BTN[s.code]] : keyName(s.code);
+  const what = s.t === 'mouse' ? MOUSE_NAMES[MASK_BTN[s.code]] ?? `mouse button ${s.code}` : keyName(s.code);
   return `${s.up ? 'Release' : 'Press'} ${what}`;
 }
 function macroEditor(i, name){

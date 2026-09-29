@@ -327,7 +327,7 @@
 <div class="wrap">
 
 <header>
-  <a class="brand" href="../" aria-label="OpenATK">
+  <a class="brand" href="../index.html" aria-label="OpenATK">
     <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
     <b>Open<span>ATK</span></b>
   </a>
@@ -335,7 +335,7 @@
     <h1 id="devName">ATK Keyboard</h1>
     <div class="status off" id="status">Not connected</div>
   </div>
-  <a class="btn ghost lead" href="../" title="ATK mouse configurator"
+  <a class="btn ghost lead" href="../index.html" title="ATK mouse configurator"
      style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 14 18" width="13" height="17" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x=".65" y=".65" width="12.7" height="16.7" rx="6.35"/><path d="M7 1.6v5" stroke-linecap="round"/></svg><span class="lbl">Mouse</span></a>
   <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
      target="_blank" rel="noopener noreferrer"
@@ -384,7 +384,7 @@
       <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
     </nav>
     <p class="foot">Changes save to the keyboard immediately.
-      &middot; <a href="../">Mouse configurator</a></p>
+      &middot; <a href="../index.html">Mouse configurator</a></p>
   </aside>
 
   <main>
@@ -1079,7 +1079,10 @@ function cellIndex(r, c){ return r * kb.cols + c; }
 
 function numIn(sel){
   const el = $(sel), v = parseFloat(el.value);
-  if (!Number.isFinite(v)){ toast('Enter a number', 1); throw new Error(`${sel} is not a number`); }
+  if (!Number.isFinite(v)){
+    toast('Enter a number', 1); el.focus();
+    throw Object.assign(new Error(`${sel} is not a number`), { shown: true });
+  }
   const c = Math.min(+el.max, Math.max(+el.min, v));
   el.value = String(c);
   return c;
@@ -1173,6 +1176,12 @@ function mark(host, value){
     b.setAttribute('aria-pressed', String(String(b.dataset.value) === String(value)));
 }
 
+function setSelect(sel, value){
+  const el = $(sel), v = String(value);
+  if (![...el.options].some(o => o.value === v)) el.add(new Option(`Effect ${v}`, v));
+  el.value = v;
+}
+
 function fillSelect(host, opts){
   const el = $(host);
   el.innerHTML = '';
@@ -1182,7 +1191,8 @@ function fillSelect(host, opts){
 const LIGHT_CTL = { b: '#brightness', s: '#speed', c: '#color', f: '#colorful' };
 const ZONE_CTL = { b: '#zoneBrightness', s: '#zoneSpeed', c: '#zoneColor' };
 function showFor(table, sel, ctl){
-  const flags = table.find(e => String(e[0]) === $(sel).value)?.[2] ?? '';
+  const hit = table.find(e => String(e[0]) === $(sel).value);
+  const flags = hit ? hit[2] : 'bcsf';
   for (const [k, id] of Object.entries(ctl))
     $(id).closest('.slider, label').classList.toggle('hidden', !flags.includes(k));
 }
@@ -1415,7 +1425,7 @@ async function readAll(){
 
   try {
     const c = await kb.getLightConfig();
-    $('#effect').value = String(c.effect);
+    setSelect('#effect', c.effect);
     $('#brightness').value = c.brightness;
     $('#speed').value = c.speed;
     $('#color').value = rgbToHex(c.color);
@@ -1426,7 +1436,7 @@ async function readAll(){
 
   try {
     const z = await kb.getZoneLight(ZONE[$('#zone').value]);
-    $('#zoneEffect').value = String(z.effect);
+    setSelect('#zoneEffect', z.effect);
     $('#zoneBrightness').value = z.brightness;
     $('#zoneSpeed').value = z.speed;
     $('#zoneColor').value = rgbToHex(z.color);
@@ -1657,7 +1667,7 @@ async function addAdvanced(){
         numIn('#advTop'), numIn('#advBottom'));
     toast(`${advPick.toUpperCase()} added`);
     closeAdv();
-  } catch { toast('Could not write — see activity log', 1); }
+  } catch (e) { if (!e?.shown) toast('Could not write — see activity log', 1); }
 }
 
 function wire(){
@@ -1708,7 +1718,7 @@ function wire(){
     try {
       await kb.setDeadZone(numIn('#dzTop'), numIn('#dzBottom'));
       toast('Dead zone saved');
-    } catch { toast('Could not save', 1); }
+    } catch (e) { if (!e?.shown) toast('Could not save', 1); }
   };
 
   for (const [id, ch, name] of [
@@ -1766,7 +1776,7 @@ function wire(){
   $('#zone').onchange = async () => {
     try {
       const z = await kb.getZoneLight(ZONE[$('#zone').value]);
-      $('#zoneEffect').value = String(z.effect);
+      setSelect('#zoneEffect', z.effect);
       $('#zoneBrightness').value = z.brightness;
       $('#zoneSpeed').value = z.speed;
       $('#zoneColor').value = rgbToHex(z.color);
