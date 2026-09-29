@@ -357,9 +357,10 @@
 <div class="hero hidden" id="blocked">
   <div class="art reel" id="blockedArt"></div>
   <div class="reelcap" id="blockedCap"></div>
-  <h2>This needs a desktop</h2>
-  <p>OpenATK talks to your keyboard over WebHID, which phones and tablets don't
+  <h2 id="blockedTitle">This needs a desktop</h2>
+  <p id="blockedText">OpenATK talks to your keyboard over WebHID, which phones and tablets don't
      implement. Open this page on a computer, in Chrome, Edge or Opera.</p>
+  <p class="hidden" id="blockedHint" style="margin:-8px auto 22px;color:var(--dimmer);font-size:13px"></p>
 </div>
 
 <div id="app" class="hidden">
@@ -1313,6 +1314,23 @@ if (IS_MOBILE){
   $('#blocked').classList.remove('hidden');
   $('#connect').classList.add('hidden');
   $('#status').textContent = 'Not available on mobile';
+} else if (!('hid' in navigator)){
+  const brave = !!navigator.brave;
+  $('#hero').classList.add('hidden');
+  $('#blocked').classList.remove('hidden');
+  $('#connect').classList.add('hidden');
+  $('#status').textContent = 'Browser not supported';
+  $('#blockedTitle').textContent = brave ? 'Brave has WebHID switched off'
+                                         : 'This browser can\u2019t reach your keyboard';
+  $('#blockedText').textContent = brave
+    ? 'OpenATK talks to your keyboard over WebHID, which Brave disables by default. '
+      + 'Turn it on, or open this page in Chrome, Edge or Opera.'
+    : 'OpenATK talks to your keyboard over WebHID, which only Chromium browsers have. '
+      + 'Firefox and Safari don\u2019t support it. Open this page in Chrome, Edge or Opera.';
+  if (brave){
+    $('#blockedHint').textContent = 'In Brave, open brave://flags, search for \u201cHID\u201d, enable it and restart.';
+    $('#blockedHint').classList.remove('hidden');
+  }
 }
 
 async function connect(){
