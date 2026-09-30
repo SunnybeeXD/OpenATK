@@ -1,6 +1,6 @@
 # OpenATK
 
-A browser-based control panel for ATK gaming mice. One HTML file, no install, no driver, no background service.
+A browser-based control panel for ATK gaming mice and keyboards. Plain HTML, no install, no driver, no background service.
 
 Set sensitivity, polling rate, lift-off distance, tracking corrections, click debounce and sleep timeout — from a tab.
 
@@ -11,9 +11,15 @@ Set sensitivity, polling rate, lift-off distance, tracking corrections, click de
 
 ## Try it
 
-Download [`index.html`](index.html) and open it. That's the whole app.
+Use https://sunnybee.lol/openatk, or download the repository and open [`index.html`](index.html).
 
-or use https://sunnybee.lol/openatk
+The start page lets you pick **Mouse** or **Keyboard**, or press **Connect any ATK device** to choose from every ATK mouse and keyboard in one list and jump straight to the right configurator.
+
+| Page | What it is |
+|---|---|
+| [`index.html`](index.html) | Start page: choose mouse or keyboard |
+| [`mouse/index.html`](mouse/index.html) | Mouse configurator (self-contained apart from its fallback image in `assets/`) |
+| [`keyboard/index.html`](keyboard/index.html) | Keyboard configurator (untested on hardware) |
 
 If `file://` gives you trouble, serve it locally:
 
