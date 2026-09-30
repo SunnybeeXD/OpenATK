@@ -1254,7 +1254,7 @@ function setDeviceArt(key, set){
     [...sw.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
     const img = new Image();
     img.alt = `${skinName(set[i][0])} keyboard`;
-    img.onload = () => { if (artKey !== key) return; clearTimeout(artWait); art.classList.remove('wait'); art.replaceChildren(img); };
+    img.onload = () => { if (artKey !== key) return; clearTimeout(artWait); art.classList.remove('wait'); art.replaceChildren(img); remember({ img: img.src }); };
     img.onerror = () => { if (artKey !== key) return; clearTimeout(artWait); fallback(); };
     img.src = skinUrl(set[i][2]);
   };
@@ -1349,10 +1349,23 @@ async function connect(){
 const isOurKeyboard = d => d.vendorId === VID && d.collections.some(c =>
   c.usagePage === USAGE_PAGE && c.usage === USAGE);
 
+const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
+function remember(patch){
+  const d = kb?.device;
+  if (!d) return;
+  try {
+    const k = 'openatk.dev.' + devId(d);
+    const old = JSON.parse(localStorage.getItem(k) || '{}');
+    localStorage.setItem(k, JSON.stringify({ ...old, ...patch, kind: 'keyboard', at: Date.now() }));
+  } catch {}
+}
+
 async function autoConnect(){
   if (IS_MOBILE || !('hid' in navigator)) return;
   try {
-    const known = (await navigator.hid.getDevices()).find(isOurKeyboard);
+    const want = new URLSearchParams(location.search).get('d');
+    const all = (await navigator.hid.getDevices()).filter(isOurKeyboard);
+    const known = all.find(d => devId(d) === want) ?? all[0];
     if (known) await attach(known);
   } catch {}
 }
@@ -1373,6 +1386,7 @@ async function attach(picked){
   $('#connect').textContent = 'Reconnect';
   $('#connect').classList.add('ghost');
   if (info) setDevName(info.n); else $('#devName').textContent = `ATK keyboard 0x${pidKey}`;
+  remember({ name: $('#devName').textContent });
   setDeviceArt(pidKey, SKINS.pid[pidKey] != null ? SKINS.sets[SKINS.pid[pidKey]] : null);
   selected = new Set();
   updateSelectionCount();

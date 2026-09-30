@@ -2070,7 +2070,7 @@ function setDeviceArt(key, set){
     [...sw.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
     const img = new Image();
     img.alt = `${skinName(set[i][0])} mouse`;
-    img.onload = () => { if (artKey !== key) return; clearTimeout(artWait); art.classList.remove('wait'); art.classList.add('photo'); art.replaceChildren(img); };
+    img.onload = () => { if (artKey !== key) return; clearTimeout(artWait); art.classList.remove('wait'); art.classList.add('photo'); art.replaceChildren(img); remember({ img: img.src }); };
     img.onerror = () => { if (artKey !== key) return; clearTimeout(artWait); fallback(); };
     img.src = skinUrl(set[i][2]);
   };
@@ -2494,10 +2494,23 @@ const MOUSE_FILTERS = [
 const isOurMouse = d => d.collections.some(c =>
   MOUSE_FILTERS.some(f => d.vendorId === f.vendorId && c.usagePage === f.usagePage && c.usage === f.usage));
 
+const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
+function remember(patch){
+  const d = drv?.device;
+  if (!d) return;
+  try {
+    const k = 'openatk.dev.' + devId(d);
+    const old = JSON.parse(localStorage.getItem(k) || '{}');
+    localStorage.setItem(k, JSON.stringify({ ...old, ...patch, kind: 'mouse', at: Date.now() }));
+  } catch {}
+}
+
 async function autoConnect(){
   if (IS_MOBILE || !('hid' in navigator)) return;
   try {
-    const known = (await navigator.hid.getDevices()).find(isOurMouse);
+    const want = new URLSearchParams(location.search).get('d');
+    const all = (await navigator.hid.getDevices()).filter(isOurMouse);
+    const known = all.find(d => devId(d) === want) ?? all[0];
     if (known) await attach(known);
   } catch {}
 }
@@ -2533,6 +2546,7 @@ async function attach(picked){
   $('#status').className = 'status';
   $('#status').innerHTML = '<b>Connected</b>';
   if (entry) setDevName(entry[0]); else $('#devName').textContent = `ATK device 0x${pidKey}`;
+  if (!flags.includes('r')) remember({ name: $('#devName').textContent });
   await refresh();
   clearInterval(battTimer);
   battTimer = setInterval(pollBattery, 30000);
@@ -2621,6 +2635,7 @@ function showBattery(s){
     const pct = Math.max(0, Math.min(100, s.battery));
     const col = s.battery < 20 ? '#f87171' : s.battery < 40 ? '#f5c451' : '#3ddc84';
     $('#sBatt').textContent = s.battery + '%';
+    remember({ battery: pct, charging: !!s.charging });
     bar.style.strokeDashoffset = RING * (1 - pct / 100);
     bar.style.stroke = col;
     bar.style.color = col;
@@ -2638,6 +2653,7 @@ async function readAll(){
     const named = REGISTRY.cid[`${drv.constructor.family}:${s.cidMid}`];
     if (named){
       setDevName(named[0]);
+      remember({ name: $('#devName').textContent });
       const g = (named[1].match(/[ABMX]/) || [])[0];
       if (g && drv instanceof CompxDriver && g !== drv.group){
         drv.group = g; drv.is3955 = g === 'M';
