@@ -21,6 +21,8 @@ The start page lets you pick **Mouse** or **Keyboard**, or press **Connect any A
 | [`mouse/index.html`](mouse/index.html) | Mouse configurator (self-contained apart from its fallback image in `assets/`) |
 | [`keyboard/index.html`](keyboard/index.html) | Keyboard configurator (untested on hardware) |
 
+No device handy? Add `?demo=1` to the mouse or keyboard page (or use the *Demo* links on the start page) to try it against a simulated device. A banner says it's a demo, nothing is sent to hardware, nothing is saved, and actions that only make sense on a real device (like factory reset) say so instead of pretending to work. It works in any desktop browser, including ones without WebHID.
+
 If `file://` gives you trouble, serve it locally:
 
 ```bash

@@ -293,6 +293,13 @@
   @keyframes recp{50%{box-shadow:0 0 40px -6px rgba(248,113,113,.55)}}
   .xbtn{background:none;border:0;color:var(--dim);cursor:pointer;font-size:16px;padding:0 4px}
   .xbtn:hover{color:var(--bad)}
+  .demobar{display:flex;align-items:center;gap:14px;margin:14px 0 0;padding:12px 16px;border-radius:14px;
+    font-size:13.5px;color:#ffe9b3;background:linear-gradient(90deg,rgba(245,196,81,.16),rgba(245,196,81,.05));
+    box-shadow:0 0 0 1px rgba(245,196,81,.45)}
+  .demobar b{color:#ffd66b;font-weight:700}
+  .demobar span{flex:1;min-width:0}
+  .demobar a{flex:0 0 auto;color:#1a1200;background:#f5c451;font:600 12.5px/1 Inter,sans-serif;padding:9px 13px;border-radius:9px;text-decoration:none}
+  .demobar a:hover{filter:brightness(1.08)}
   .hidden{display:none !important}
   .foot{margin-top:22px;color:var(--dimmer);font-size:12.5px}
   .foot a{color:var(--dim)}
@@ -333,6 +340,11 @@
      aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
   <button class="btn" id="connect">Connect</button>
 </header>
+
+<div class="demobar hidden" id="demoBar" role="status">
+  <span><b>Demo mode.</b> This is a simulated ATK Zero Plus, not a real device. Nothing here is sent to any hardware, and nothing is saved.</span>
+  <a href="../index.html">Exit demo</a>
+</div>
 
 <div class="hero" id="hero">
   <div class="art reel" id="heroArt"></div>
@@ -627,6 +639,13 @@ const REGISTRY = {"pids":{"1084":["VXE R1S+","cxX"],"10e7":["VXE V3 NK","cxX"],"
 const VID = 0x373B;
 const VID_OLD = 0x3554;
 const $ = s => document.querySelector(s);
+const DEMO = new URLSearchParams(location.search).has('demo');
+const store = (() => {
+  if (!DEMO){ try { return localStorage; } catch {} }
+  const mem = new Map();
+  return { getItem: k => mem.get(k) ?? null, setItem: (k, v) => { mem.set(k, String(v)); } };
+})();
+const demoNo = what => toast(`Demo mode: there is no real mouse, so nothing was ${what}`, 1);
 const hex = b => [...b].map(v => v.toString(16).padStart(2, '0')).join(' ');
 const sum = (a, from, to) => { let s = 0; for (let i = from; i < to; i++) s += a[i]; return s; };
 
@@ -1754,6 +1773,7 @@ for (const key of ['movesync','linecorr','ripple','fardist']){
 }
 
 $('#factory').onclick = async () => {
+  if (DEMO){ demoNo('reset'); return; }
   if (!confirm('Reset the mouse to its factory settings?\n\nSensitivity, polling rate, '
     + 'lift-off distance and button assignments all go back to default.')) return;
   try { await drv.reset(); toast('Mouse reset to factory settings'); setTimeout(refresh, 900); }
@@ -2080,11 +2100,11 @@ function setDeviceArt(key, set){
     b.title = skinName(name);
     b.setAttribute('aria-label', `${skinName(name)} colour`);
     b.style.background = color;
-    b.onclick = () => { try { localStorage.setItem('openatk.skin.' + key, i); } catch {} show(i); };
+    b.onclick = () => { try { store.setItem('openatk.skin.' + key, i); } catch {} show(i); };
     sw.appendChild(b);
   });
   let pick = 0;
-  try { pick = clampInt(localStorage.getItem('openatk.skin.' + key), 0, set.length - 1, 0); } catch {}
+  try { pick = clampInt(store.getItem('openatk.skin.' + key), 0, set.length - 1, 0); } catch {}
   show(pick);
 }
 resetDeviceArt();
@@ -2126,7 +2146,7 @@ function cleanStep(s){
 }
 function loadMacro(i){
   try {
-    const m = JSON.parse(localStorage.getItem(macroKey(i)));
+    const m = JSON.parse(store.getItem(macroKey(i)));
     if (m && Array.isArray(m.steps)){
       const steps = [];
       for (const s of m.steps.map(cleanStep)){
@@ -2140,7 +2160,7 @@ function loadMacro(i){
   } catch {}
   return { steps: [], mode: 'hold', count: 1 };
 }
-function saveMacro(i, m){ try { localStorage.setItem(macroKey(i), JSON.stringify(m)); } catch {} }
+function saveMacro(i, m){ try { store.setItem(macroKey(i), JSON.stringify(m)); } catch {} }
 const macroSize = steps => drv instanceof CompxDriver
   ? steps.reduce((n, s) => n + (s.t === 'scroll' ? 2 : 1), 0) : steps.length;
 async function applyMacro(i, m){
@@ -2381,6 +2401,7 @@ function fillPairModels(cidMid){
   sel.value = cidMid && seen.has(cidMid) ? cidMid : '0,0';
 }
 $('#pairStart').onclick = async () => {
+  if (DEMO){ demoNo('paired'); return; }
   if (pairing || !drv) return;
   const d = drv;
   const status = t => $('#pairStatus').textContent = t;
@@ -2418,7 +2439,7 @@ if (IS_MOBILE){
   $('#blocked').classList.remove('hidden');
   $('#connect').classList.add('hidden');
   $('#status').textContent = 'Not available on mobile';
-} else if (!('hid' in navigator)){
+} else if (!('hid' in navigator) && !DEMO){
   const brave = !!navigator.brave;
   $('#hero').classList.add('hidden');
   $('#blocked').classList.remove('hidden');
@@ -2497,7 +2518,7 @@ const isOurMouse = d => d.collections.some(c =>
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
 function remember(patch){
   const d = drv?.device;
-  if (!d) return;
+  if (!d || DEMO) return;
   try {
     const k = 'openatk.dev.' + devId(d);
     const old = JSON.parse(localStorage.getItem(k) || '{}');
@@ -2506,7 +2527,7 @@ function remember(patch){
 }
 
 async function autoConnect(){
-  if (IS_MOBILE || !('hid' in navigator)) return;
+  if (DEMO || IS_MOBILE || !('hid' in navigator)) return;
   try {
     const want = new URLSearchParams(location.search).get('d');
     const all = (await navigator.hid.getDevices()).filter(isOurMouse);
@@ -2624,7 +2645,63 @@ navigator.hid?.addEventListener('disconnect', e => {
   if (drv && e.device === drv.device) disconnected();
 });
 
-autoConnect();
+function makeDemoMouse(){
+  const mem = new Uint8Array(4096);
+  const st = { profile: 1 };
+  mem[1] = 0; mem[2] = 3;
+  const stage = (i, dpi, rgb) => { const o = 3 + 8*i; mem[o] = dpi & 255; mem[o+1] = dpi >> 8; mem[o+2] = dpi & 255; mem[o+3] = dpi >> 8; mem[o+4] = rgb[2]; mem[o+5] = rgb[1]; mem[o+6] = rgb[0]; };
+  stage(0, 800, [255,0,0]); stage(1, 1600, [0,255,0]); stage(2, 3200, [0,0,255]);
+  [[1,0,0,0,0],[1,0,1,0,0],[1,0,2,0,0],[1,0,3,0,0],[1,0,4,0,0],[10,0,0,0,0]]
+    .forEach((k, i) => k.forEach((v, j) => mem[82 + 5*i + j] = v));
+  const dev = {
+    vendorId: VID, productId: 0x1331, productName: 'ATK ZERO PLUS GENGAR EDITION', opened: false,
+    collections: [{ usagePage: 0xFF05, usage: 1 }], oninputreport: null,
+    async open(){ this.opened = true; },
+    async sendReport(id, buf){ const b = Array.from(buf); setTimeout(() => reply(b), 2); },
+  };
+  const emit = raw => { const u = new Uint8Array(raw); dev.oninputreport && dev.oninputreport({ data: new DataView(u.buffer) }); };
+  function reply(b){
+    const cmd = b[5], p = b.slice(7);
+    const r = new Array(63).fill(0);
+    r[4] = cmd;
+    const put = a => a.forEach((v, i) => r[6 + i] = v);
+    switch (cmd){
+      case 9: put([st.profile, 1, 0, 0x20, 3, 3, 1, 0, 1, 60, 0, 4]); break;
+      case 7: put([77]); break;
+      case 15: put([0]); break;
+      case 26: put([5]); break;
+      case 28: put([1, 2, 3]); break;
+      case 71: put([0xe2, 0x91, 0x3c, 0x5a, 0xd1, 0xb4, 0x07, 0x00]); break;
+      case 136: put([2, 1, 7]); break;
+      case 74: put([0, 1, 24, 0, 0, 0]); break;
+      case 34: put([0, 1, 200, 0]); break;
+      case 23: { const a = p[0] | (p[1] << 8), n = p[2]; put([p[0], p[1], n, ...mem.slice(a, a + n)]); break; }
+      case 5: { const [idx, c, x, y, z] = p;
+        const stored = c === 1 ? [1,0,y,0,0] : c === 3 ? [3,x,0,y,z] : c === 2 ? [2,0,0,y,z] : c === 5 ? [5,0,x,y,z] : [c,0,0,0,0];
+        stored.forEach((v, j) => mem[82 + 5*idx + j] = v); break; }
+      case 6: if (p[8]) [4,0,0,p[8],0].forEach((v, j) => mem[82 + 5*p[0] + j] = v); break;
+      case 10: st.profile = p[0]; break;
+      case 2: { const i = p[0], o = 3 + 8*i; mem[o] = p[1]; mem[o+1] = p[2]; mem[o+2] = p[3]; mem[o+3] = p[4]; break; }
+      default: break;
+    }
+    emit(r);
+  }
+  return dev;
+}
+
+async function startDemo(){
+  if (IS_MOBILE) return;
+  document.title += ' (demo)';
+  $('#demoBar').classList.remove('hidden');
+  await attach(makeDemoMouse());
+  $('#status').className = 'status';
+  $('#status').innerHTML = '<b>Demo</b> · simulated';
+  $('#connect').textContent = 'Exit demo';
+  $('#connect').classList.add('ghost');
+  $('#connect').onclick = () => { location.href = '../index.html'; };
+}
+
+if (DEMO) startDemo(); else autoConnect();
 
 /* ── render ──────────────────────────────────────────────────────── */
 const RING = 238.76;
@@ -2758,6 +2835,7 @@ async function readAll(){
   info.push(['Protocol', drv instanceof CompxDriver
     ? `COMPX (0xFF04), DPI group ${drv.group}`
     : `BITMOUSE (0xFF05), target ${drv.mouseTarget}`]);
+  if (DEMO) info.unshift(['Mode', 'Demo: simulated, not a real device']);
 
   if (s.stale) toast('Mouse didn’t answer — move it to wake it', 1);
 

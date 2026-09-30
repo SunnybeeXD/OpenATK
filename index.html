@@ -124,6 +124,10 @@
   .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);font-weight:500;padding:11px 18px;font-size:13.5px;
     box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
   .btn.ghost:hover{background:rgba(61,220,132,.08);box-shadow:0 0 0 1px rgba(61,220,132,.45),0 0 18px -6px var(--glow);filter:none}
+  .demoline{margin:36px auto 0;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--dimmer)}
+  .demoline .tag{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#ffd66b;
+    padding:4px 7px;border-radius:6px;background:rgba(245,196,81,.1);border:1px solid rgba(245,196,81,.35);margin-right:8px}
+  .demoline a{color:var(--dim)}
   .hidden{display:none !important}
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation:none !important;transition:none !important}
@@ -188,6 +192,10 @@
   </div>
   </div>
   <p class="note warn hidden" id="unsupported"></p>
+
+  <p class="demoline" id="demoLine"><span class="tag">Demo</span>No device handy? Try a simulated
+    <a href="mouse/index.html?demo=1">mouse</a> or <a href="keyboard/index.html?demo=1">keyboard</a>.
+    Nothing is sent to real hardware.</p>
 </div>
 
 <p class="foot"><a href="tested.html">Tested hardware</a> &middot; not affiliated with ATK</p>
@@ -216,6 +224,7 @@ const IS_MOBILE = navigator.userAgentData?.mobile === true
   || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
   || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
+if (IS_MOBILE) $('#demoLine').classList.add('hidden');
 if (IS_MOBILE || !('hid' in navigator)){
   $('#anyWrap').classList.add('hidden');
   $('#unsupported').textContent = IS_MOBILE
