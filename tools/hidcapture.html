@@ -191,7 +191,10 @@ function capture(){
   P.close=function(){add({k:'ev',dev:key(this),text:'close'});return origClose.apply(this,arguments)};
   const nh=navigator.hid,gd=nh.getDevices.bind(nh),rd=nh.requestDevice.bind(nh);
   nh.getDevices=async function(){const r=await gd.apply(null,arguments);r.forEach(watch);return r};
-  nh.requestDevice=async function(){const r=await rd.apply(null,arguments);r.forEach(watch);return r};
+  nh.requestDevice=async function(o){
+    add({k:'ev',dev:'',text:'requestDevice filters '+JSON.stringify(o&&o.filters)});
+    const r=await rd.apply(null,arguments);r.forEach(watch);return r;
+  };
   nh.addEventListener('connect',e=>{watch(e.device);add({k:'ev',dev:key(e.device),text:'connect'})});
   nh.addEventListener('disconnect',e=>add({k:'ev',dev:key(e.device),text:'disconnect'}));
   gd().then(r=>r.forEach(watch)).catch(()=>{});
