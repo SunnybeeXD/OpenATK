@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HID capture</title>
+<style>
+  :root{
+    --bg:#06080b; --card:#10151b; --card2:#161d25; --line:#232c37; --line2:#2f3a47;
+    --ink:#f1f6fb; --dim:#98a6b4; --dimmer:#5f6c79;
+    --acc:#3ddc84; --acc2:#22d3ee; --warn:#f5c451; --bad:#f87171;
+    --mono:ui-monospace,'IBM Plex Mono',SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+    font:15px/1.55 Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 90px}
+  h1{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}
+  h1 span{color:var(--acc)}
+  .sub{color:var(--dim);margin:0 0 26px}
+  h2{margin:0 0 12px;font-size:17px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  h2 i{font:600 12px/1 var(--mono);font-style:normal;color:#03170b;background:var(--acc);
+    width:22px;height:22px;border-radius:7px;display:grid;place-items:center}
+  section{background:var(--card);border-radius:16px;padding:20px;margin:0 0 16px;
+    box-shadow:0 0 0 1px rgba(255,255,255,.07)}
+  p{margin:0 0 10px}
+  .dim{color:var(--dim)}
+  .warn{background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.3);color:#f7dc9a;
+    border-radius:10px;padding:10px 13px;margin:12px 0 0;font-size:14px}
+  .bad{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:#fbb5b5;
+    border-radius:10px;padding:10px 13px;margin:12px 0 0;font-size:14px}
+  ol,ul{margin:0 0 6px;padding-left:22px}
+  li{margin:5px 0}
+  code,kbd{font-family:var(--mono);font-size:12.5px;background:var(--card2);padding:2px 6px;border-radius:5px}
+  textarea{width:100%;min-height:150px;resize:vertical;background:#0a0e13;color:#bfe9d0;
+    border:1px solid var(--line2);border-radius:10px;padding:12px;font:12px/1.5 var(--mono)}
+  .btn{font:600 14px/1 inherit;padding:11px 17px;border-radius:9px;border:0;cursor:pointer;
+    color:#03170b;background:linear-gradient(180deg,#5cf0a2,#2fc774)}
+  .btn.ghost{color:var(--ink);background:var(--card2);box-shadow:0 0 0 1px var(--line2)}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+  .checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:4px 18px;
+    list-style:none;padding:0;margin:8px 0 0}
+  .checks li{margin:3px 0}
+  .checks label{display:flex;gap:9px;align-items:flex-start;cursor:pointer;font-size:14px}
+  .checks input{margin-top:4px;accent-color:var(--acc)}
+  .checks input:checked + span{color:var(--dimmer);text-decoration:line-through}
+  .tag{font:600 11px/1 var(--mono);color:var(--acc2);margin-left:2px}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:500}
+  td.m{font-family:var(--mono);font-size:12px}
+  .log{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#0a0e13}
+  .log table td,.log table th{padding:3px 8px;border-bottom:1px solid #151c24;white-space:nowrap}
+  .log tr.mark td{background:rgba(61,220,132,.12);color:var(--acc);font-weight:600;white-space:normal}
+  .k-out td.d{color:#7fd9ff}.k-fout td.d{color:#a4a8ff}.k-in td.d{color:#ffd27a}.k-fin td.d{color:#ffb28a}
+  .k-err td{color:var(--bad)}
+  .hx{font-family:var(--mono);font-size:12px}
+  .hx b{color:#fff;background:rgba(61,220,132,.28);font-weight:500;border-radius:2px}
+  .hx .z{color:var(--dimmer)}
+  .filters{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:0 0 10px;font-size:13px}
+  .filters input[type=text]{background:#0a0e13;color:var(--ink);border:1px solid var(--line2);
+    border-radius:8px;padding:7px 10px;font:13px var(--mono);width:200px}
+  .stat{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 10px;color:var(--dim);font-size:13px}
+  .stat b{color:var(--ink)}
+  .empty{color:var(--dimmer);padding:18px;text-align:center}
+  .tag-sig{font-family:var(--mono)}
+  @media(max-width:600px){.wrap{padding:20px 14px 70px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>HID <span>capture</span></h1>
+  <p class="sub">Records every report the official MelGeek Hive page sends to and gets back from your device, so the protocol can be worked out. Nothing is uploaded: the log stays on your computer until you send the file.</p>
+
+  <section>
+    <h2><i>1</i>Install the recorder on the Hive page</h2>
+    <ol>
+      <li>Open <code>https://hive.melgeek.com</code> in Chrome or Edge, plug the device in, and let Hive load and show it.</li>
+      <li>Press <kbd>F12</kbd>, open the <b>Console</b> tab, paste the code below and press Enter. If Chrome blocks pasting, type <code>allow pasting</code>, press Enter, then paste again.</li>
+      <li>A small green panel appears at the bottom right of the Hive page. That is the recorder. <b>Do not refresh the page</b>, a refresh wipes it.</li>
+      <li><b>Unplug and replug the device</b> (or switch the dongle off and on), then wait for Hive to reconnect. This captures the start-up handshake, which is the most useful part.</li>
+    </ol>
+    <textarea id="snippet" readonly spellcheck="false"></textarea>
+    <div class="row">
+      <button class="btn" id="copy">Copy code</button>
+      <span class="dim" id="copied"></span>
+    </div>
+    <div class="warn">The recorder only listens. It never sends anything to the device itself and never contacts any server. It runs inside Hive's own page, so it sees exactly what Hive sees.</div>
+  </section>
+
+  <section>
+    <h2><i>2</i>Do these, one at a time</h2>
+    <p>Before each one, type its name in the green panel and press <b>Mark</b>, then make the change in Hive, then wait two seconds. Marks are what let the packets be matched to a setting. Use values that are easy to tell apart (800, then 1600, then 3200 beats 800 then 850).</p>
+    <p class="dim">Do only what your device has. Skip the rest.</p>
+    <ul class="checks" id="todo"></ul>
+    <div class="bad"><b>Do not</b> use firmware update, factory reset, calibration or anything that says it will restart the device. A failed flash can brick it, and none of that is needed for this.</div>
+  </section>
+
+  <section>
+    <h2><i>3</i>Save the log and send it</h2>
+    <p>Press <b>Download</b> in the green panel. You get a <code>hidcapture-….json</code> file. Open it below to check that it looks right, then send the file.</p>
+    <p class="dim">The log holds device IDs, firmware or serial strings the device reports, and the bytes of every setting you changed. It does not hold your account, name or anything else from the page.</p>
+  </section>
+
+  <section>
+    <h2><i>+</i>Optional: read the device descriptor</h2>
+    <p>Lists what the device exposes over HID (vendor and product ID, report sizes). Read-only: it opens nothing and sends nothing.</p>
+    <div class="row">
+      <button class="btn ghost" id="probe">Pick a device</button>
+      <button class="btn ghost" id="probeDl" disabled>Download descriptor</button>
+    </div>
+    <div id="probeOut" style="margin-top:12px"></div>
+    <div class="warn" id="nohid" hidden>This browser has no WebHID. Use Chrome or Edge on a computer.</div>
+  </section>
+
+  <section>
+    <h2><i>?</i>Check a log</h2>
+    <p>Open a capture file here to see what was recorded.</p>
+    <div class="row"><input type="file" id="file" accept=".json,application/json"></div>
+    <div id="viewer" style="margin-top:14px"></div>
+  </section>
+</div>
+
+<script>
+function capture(){
+  if(window.__hidcap){window.__hidcap.host.style.display='';return}
+  if(!navigator.hid||typeof HIDDevice==='undefined'){alert('This page has no WebHID. Use Chrome or Edge.');return}
+  const log=[],meta={started:new Date().toISOString(),ua:navigator.userAgent,page:location.href,devices:[]};
+  const t0=performance.now(),LIMIT=60000,seen=new Set(),ids=new Map();
+  let dropped=0;
+  const h4=n=>Number(n).toString(16).padStart(4,'0');
+  const hex=d=>{
+    if(d==null)return '';
+    const u=d instanceof ArrayBuffer?new Uint8Array(d):new Uint8Array(d.buffer,d.byteOffset,d.byteLength);
+    let s='';for(let i=0;i<u.length;i++)s+=u[i].toString(16).padStart(2,'0');return s;
+  };
+  const bytes=it=>Math.ceil((it.reportSize||0)*(it.reportCount||0)/8);
+  const describe=d=>{
+    const cols=(d.collections||[]).map(c=>({
+      usagePage:c.usagePage,usage:c.usage,
+      input:(c.inputReports||[]).map(r=>({id:r.reportId,bytes:(r.items||[]).reduce((a,i)=>a+bytes(i),0)})),
+      output:(c.outputReports||[]).map(r=>({id:r.reportId,bytes:(r.items||[]).reduce((a,i)=>a+bytes(i),0)})),
+      feature:(c.featureReports||[]).map(r=>({id:r.reportId,bytes:(r.items||[]).reduce((a,i)=>a+bytes(i),0)}))
+    }));
+    return {vendorId:d.vendorId,productId:d.productId,productName:d.productName,collections:cols};
+  };
+  const key=d=>{
+    if(ids.has(d))return ids.get(d);
+    const c=(d.collections||[])[0];
+    const k=h4(d.vendorId)+':'+h4(d.productId)+(c?' '+c.usagePage.toString(16)+'/'+c.usage.toString(16):'');
+    ids.set(d,k);return k;
+  };
+  const t=()=>Math.round((performance.now()-t0)*100)/100;
+  const add=e=>{
+    e.t=t();
+    const last=log[log.length-1];
+    if(e.k==='in'&&last&&last.k==='in'&&last.dev===e.dev&&last.id===e.id&&last.hex===e.hex){last.n=(last.n||1)+1;last.t2=e.t;return}
+    if(log.length>=LIMIT){dropped++;ui.count();return}
+    log.push(e);ui.count();
+  };
+  const watch=d=>{
+    if(!d||seen.has(d))return;
+    seen.add(d);
+    const info=describe(d);
+    if(!meta.devices.some(x=>x.vendorId===info.vendorId&&x.productId===info.productId&&JSON.stringify(x.collections)===JSON.stringify(info.collections)))meta.devices.push(info);
+    d.addEventListener('inputreport',ev=>add({k:'in',dev:key(d),id:ev.reportId,hex:hex(ev.data)}));
+  };
+  const P=HIDDevice.prototype;
+  const origSend=P.sendReport,origFSend=P.sendFeatureReport,origRecv=P.receiveFeatureReport,origOpen=P.open,origClose=P.close;
+  P.sendReport=function(id,data){
+    watch(this);add({k:'out',dev:key(this),id,hex:hex(data)});
+    const p=origSend.apply(this,arguments);
+    if(p&&p.catch)p.catch(e=>add({k:'err',dev:key(this),text:'sendReport: '+(e&&e.message)}));
+    return p;
+  };
+  P.sendFeatureReport=function(id,data){
+    watch(this);add({k:'fout',dev:key(this),id,hex:hex(data)});
+    const p=origFSend.apply(this,arguments);
+    if(p&&p.catch)p.catch(e=>add({k:'err',dev:key(this),text:'sendFeatureReport: '+(e&&e.message)}));
+    return p;
+  };
+  P.receiveFeatureReport=async function(id){
+    watch(this);
+    try{const r=await origRecv.apply(this,arguments);add({k:'fin',dev:key(this),id,hex:hex(r)});return r}
+    catch(e){add({k:'err',dev:key(this),text:'receiveFeatureReport: '+(e&&e.message)});throw e}
+  };
+  P.open=function(){watch(this);add({k:'ev',dev:key(this),text:'open'});return origOpen.apply(this,arguments)};
+  P.close=function(){add({k:'ev',dev:key(this),text:'close'});return origClose.apply(this,arguments)};
+  const nh=navigator.hid,gd=nh.getDevices.bind(nh),rd=nh.requestDevice.bind(nh);
+  nh.getDevices=async function(){const r=await gd.apply(null,arguments);r.forEach(watch);return r};
+  nh.requestDevice=async function(){const r=await rd.apply(null,arguments);r.forEach(watch);return r};
+  nh.addEventListener('connect',e=>{watch(e.device);add({k:'ev',dev:key(e.device),text:'connect'})});
+  nh.addEventListener('disconnect',e=>add({k:'ev',dev:key(e.device),text:'disconnect'}));
+  gd().then(r=>r.forEach(watch)).catch(()=>{});
+
+  const host=document.createElement('div');
+  host.style.cssText='all:initial;position:fixed;right:16px;bottom:16px;z-index:2147483647';
+  const root=host.attachShadow({mode:'open'});
+  root.innerHTML='<style>'+
+    ':host{all:initial}*{box-sizing:border-box;font:13px/1.4 system-ui,sans-serif}'+
+    '.p{width:290px;background:#0d1b13;color:#e9fff3;border:1px solid #2fc774;border-radius:12px;padding:12px;box-shadow:0 10px 40px rgba(0,0,0,.5)}'+
+    '.h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700;color:#5cf0a2}'+
+    '.h span{font-weight:400;color:#9fd9b8;font-size:12px}'+
+    'input{width:100%;padding:8px;border-radius:7px;border:1px solid #2f6b49;background:#06120b;color:#fff;margin-bottom:6px}'+
+    '.r{display:flex;gap:6px}'+
+    'button{flex:1;padding:8px;border-radius:7px;border:0;cursor:pointer;font-weight:700;background:#3ddc84;color:#03170b}'+
+    'button.g{background:#1b2c23;color:#cfeedd}'+
+    '.m{margin-top:6px;font-size:12px;color:#9fd9b8;min-height:16px}'+
+    '</style><div class="p"><div class="h">HID recorder <span id="c">0 reports</span></div>'+
+    '<input id="l" placeholder="What are you about to do? e.g. DPI stage 1 to 1600" maxlength="120">'+
+    '<div class="r"><button id="m">Mark</button><button class="g" id="d">Download</button><button class="g" id="x" title="Hide panel">_</button></div>'+
+    '<div class="m" id="s">Recording. Do not refresh this page.</div></div>';
+  const $=id=>root.getElementById(id);
+  const ui={count(){$('c').textContent=log.length+' reports'+(dropped?' (+'+dropped+' dropped)':'')}};
+  ['keydown','keyup','keypress'].forEach(n=>$('l').addEventListener(n,e=>e.stopPropagation()));
+  const mark=()=>{
+    const v=$('l').value.trim();
+    if(!v)return;
+    add({k:'mark',text:v});
+    $('l').value='';
+    $('s').textContent='Marked: '+v+'. Now make the change.';
+  };
+  $('m').onclick=mark;
+  $('l').addEventListener('keydown',e=>{if(e.key==='Enter')mark()});
+  const download=()=>{
+    const first=meta.devices[0];
+    const name='hidcapture-'+(first?h4(first.vendorId)+'-'+h4(first.productId):'device')+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+    const blob=new Blob([JSON.stringify({format:'hidcapture/1',meta:Object.assign({},meta,{ended:new Date().toISOString(),dropped}),log})],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+    document.body.appendChild(a);a.click();a.remove();
+    $('s').textContent='Saved '+name;
+  };
+  $('d').onclick=download;
+  $('x').onclick=()=>{host.style.display='none'};
+  document.documentElement.appendChild(host);
+  window.__hidcap={log,meta,host,download,mark:text=>add({k:'mark',text})};
+  ui.count();
+}
+(function(){
+  const $=id=>document.getElementById(id);
+  const snippet='('+capture.toString()+')();';
+  $('snippet').value=snippet;
+  $('copy').onclick=()=>{
+    const done=ok=>{$('copied').textContent=ok?'Copied.':'Could not copy, select the text and copy it by hand.'};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(snippet).then(()=>done(true),()=>{$('snippet').select();done(false)});
+    else{$('snippet').select();done(false)}
+  };
+  const TODO=[
+    ['Replug','Unplug and replug, wait for Hive to reconnect','all'],
+    ['Open every tab','Click through each tab in Hive once (no changes)','all'],
+    ['DPI stage 1 = 1600','Set DPI stage 1 to 1600','mouse'],
+    ['DPI stage 1 = 3200','Set DPI stage 1 to 3200','mouse'],
+    ['DPI stage 2 = 800','Set DPI stage 2 to 800','mouse'],
+    ['DPI stages = 3','Change how many DPI stages there are','mouse'],
+    ['Active DPI stage 2','Switch the active DPI stage','mouse'],
+    ['Polling 500','Set polling rate to 500 Hz','mouse'],
+    ['Polling 1000','Set polling rate to 1000 Hz','mouse'],
+    ['Polling 4000','Set polling rate to the highest your device offers','mouse'],
+    ['Lift-off low','Set lift-off / sensing height to low','mouse'],
+    ['Lift-off high','Set lift-off / sensing height to high','mouse'],
+    ['Debounce 4','Set debounce time to 4','mouse'],
+    ['Debounce 12','Set debounce time to 12','mouse'],
+    ['Angle snap on','Turn angle snapping on','mouse'],
+    ['Angle snap off','Turn angle snapping off','mouse'],
+    ['Motion sync on','Turn motion sync on','mouse'],
+    ['Motion sync off','Turn motion sync off','mouse'],
+    ['XY invert on','Turn X/Y inversion on','mouse'],
+    ['XY invert off','Turn it back off','mouse'],
+    ['Remap button','Remap one button to another key, then back','mouse'],
+    ['Light on','Change the light effect or colour','all'],
+    ['Light brightness','Change the light brightness','all'],
+    ['Profile 2','Switch to another profile','all'],
+    ['RT on','Turn rapid trigger on','keyboard'],
+    ['RT off','Turn rapid trigger off','keyboard'],
+    ['Travel 1.0','Set one key trigger travel to 1.0 mm','keyboard'],
+    ['Travel 2.0','Set the same key to 2.0 mm','keyboard'],
+    ['Remap key','Remap one key, then set it back','keyboard']
+  ];
+  const ul=$('todo');
+  TODO.forEach(([label,text,who])=>{
+    const li=document.createElement('li'),lb=document.createElement('label'),cb=document.createElement('input'),sp=document.createElement('span'),tg=document.createElement('span');
+    cb.type='checkbox';
+    sp.textContent=text+'  ';
+    const code=document.createElement('code');code.textContent=label;
+    sp.appendChild(document.createElement('br'));sp.appendChild(document.createTextNode('Mark as: '));sp.appendChild(code);
+    tg.className='tag';tg.textContent=who==='all'?'':who;
+    lb.append(cb,sp,tg);li.appendChild(lb);ul.appendChild(li);
+  });
+
+  let probeData=null;
+  if(!navigator.hid){$('nohid').hidden=false;$('probe').disabled=true}
+  $('probe').onclick=async()=>{
+    const out=$('probeOut');
+    out.textContent='';
+    let devs;
+    try{devs=await navigator.hid.requestDevice({filters:[]})}catch(e){out.textContent='Could not open the picker: '+e.message;return}
+    if(!devs.length){out.textContent='No device chosen.';return}
+    probeData=devs.map(d=>({
+      vendorId:d.vendorId,productId:d.productId,productName:d.productName,
+      collections:d.collections.map(c=>({
+        usagePage:c.usagePage,usage:c.usage,
+        input:c.inputReports.map(r=>r.reportId),
+        output:c.outputReports.map(r=>r.reportId),
+        feature:c.featureReports.map(r=>r.reportId),
+        sizes:{
+          input:c.inputReports.map(r=>(r.items||[]).reduce((a,i)=>a+Math.ceil((i.reportSize||0)*(i.reportCount||0)/8),0)),
+          output:c.outputReports.map(r=>(r.items||[]).reduce((a,i)=>a+Math.ceil((i.reportSize||0)*(i.reportCount||0)/8),0)),
+          feature:c.featureReports.map(r=>(r.items||[]).reduce((a,i)=>a+Math.ceil((i.reportSize||0)*(i.reportCount||0)/8),0))
+        }
+      }))
+    }));
+    $('probeDl').disabled=false;
+    const tbl=document.createElement('table');
+    tbl.innerHTML='<tr><th>Device</th><th>IDs</th><th>Usage</th><th>Input</th><th>Output</th><th>Feature</th></tr>';
+    probeData.forEach(d=>d.collections.forEach(c=>{
+      const tr=document.createElement('tr');
+      const cell=(txt,cls)=>{const td=document.createElement('td');td.textContent=txt;if(cls)td.className=cls;tr.appendChild(td)};
+      const rep=(ids,sz)=>ids.length?ids.map((x,i)=>'#'+x+' ('+sz[i]+'B)').join(' '):'-';
+      cell(d.productName||'?');
+      cell(d.vendorId.toString(16).padStart(4,'0')+':'+d.productId.toString(16).padStart(4,'0'),'m');
+      cell(c.usagePage.toString(16)+'/'+c.usage.toString(16),'m');
+      cell(rep(c.input,c.sizes.input),'m');cell(rep(c.output,c.sizes.output),'m');cell(rep(c.feature,c.sizes.feature),'m');
+      tbl.appendChild(tr);
+    }));
+    out.appendChild(tbl);
+  };
+  $('probeDl').onclick=()=>{
+    if(!probeData)return;
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify({format:'hiddescriptor/1',devices:probeData},null,1)],{type:'application/json'}));
+    a.download='hiddescriptor-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+    document.body.appendChild(a);a.click();a.remove();
+  };
+
+  const KIND={out:'out',fout:'feat out',in:'in',fin:'feat in',mark:'mark',err:'error',ev:'event'};
+  const viewer=$('viewer');
+  const render=data=>{
+    viewer.textContent='';
+    const log=data&&data.log;
+    if(!Array.isArray(log)){viewer.textContent='That file is not a capture.';return}
+    const meta=data.meta||{};
+    const counts={};
+    log.forEach(e=>{counts[e.k]=(counts[e.k]||0)+1});
+    const stat=document.createElement('div');stat.className='stat';
+    const addStat=(l,v)=>{const s=document.createElement('span');s.append(l+' ');const b=document.createElement('b');b.textContent=v;s.appendChild(b);stat.appendChild(s)};
+    addStat('reports',log.length);
+    Object.keys(counts).forEach(k=>addStat(KIND[k]||k,counts[k]));
+    (meta.devices||[]).forEach(d=>addStat('device',d.vendorId.toString(16).padStart(4,'0')+':'+d.productId.toString(16).padStart(4,'0')+' '+(d.productName||'')));
+    if(meta.dropped)addStat('dropped',meta.dropped);
+    viewer.appendChild(stat);
+    if(!counts.out&&!counts.fout)viewer.appendChild(Object.assign(document.createElement('div'),{className:'warn',textContent:'No reports were sent to the device. The recorder may have been installed after Hive finished talking to it, or the page was refreshed. Replug the device with the recorder on screen and capture again.'}));
+    if(!counts.mark)viewer.appendChild(Object.assign(document.createElement('div'),{className:'warn',textContent:'No marks in this log. Without marks the packets cannot be matched to settings.'}));
+
+    const filters=document.createElement('div');filters.className='filters';
+    const checks={};
+    ['out','fout','in','fin','err','ev'].forEach(k=>{
+      const l=document.createElement('label');const c=document.createElement('input');c.type='checkbox';c.checked=true;checks[k]=c;
+      l.append(c,' '+KIND[k]);filters.appendChild(l);
+    });
+    const q=document.createElement('input');q.type='text';q.placeholder='filter hex or text';filters.appendChild(q);
+    const cp=document.createElement('button');cp.className='btn ghost';cp.textContent='Copy visible';cp.style.padding='7px 12px';filters.appendChild(cp);
+    viewer.appendChild(filters);
+    const box=document.createElement('div');box.className='log';viewer.appendChild(box);
+
+    const prev={};
+    const rows=log.map(e=>{
+      const id=e.k+'|'+e.dev;
+      const p=prev[id];prev[id]=e.hex;
+      return {e,p};
+    });
+    const trim=h=>h.replace(/(00)+$/,'');
+    const draw=()=>{
+      box.textContent='';
+      const tbl=document.createElement('table');
+      tbl.innerHTML='<tr><th>ms</th><th>dir</th><th>dev</th><th>id</th><th>bytes (changed vs previous in white, trailing 00 dimmed)</th></tr>';
+      const needle=q.value.trim().toLowerCase();
+      let shown=0;const text=[];
+      rows.forEach(({e,p})=>{
+        if(e.k!=='mark'&&checks[e.k]&&!checks[e.k].checked)return;
+        if(needle&&!(String(e.hex||'')+' '+String(e.text||'')).toLowerCase().includes(needle)&&e.k!=='mark')return;
+        const tr=document.createElement('tr');
+        if(e.k==='mark'){
+          tr.className='mark';
+          const td=document.createElement('td');td.colSpan=5;td.textContent='MARK  '+e.text+'   @ '+e.t+' ms';tr.appendChild(td);
+          text.push('--- MARK: '+e.text+' @'+e.t);
+        }else{
+          tr.className='k-'+e.k;
+          const mk=(v,cls)=>{const td=document.createElement('td');td.textContent=v;if(cls)td.className=cls;tr.appendChild(td);return td};
+          mk(e.t);mk((KIND[e.k]||e.k)+(e.n?' x'+e.n:''),'d');mk(e.dev||'');mk(e.id==null?'':e.id);
+          const td=mk('','hx');
+          if(e.hex!=null&&e.hex!==''){
+            const body=trim(e.hex);const tail=e.hex.slice(body.length);
+            const ph=p||'';
+            for(let i=0;i<body.length;i+=2){
+              const by=body.substr(i,2);
+              const span=by===ph.substr(i,2)?document.createTextNode(by+' '):Object.assign(document.createElement('b'),{textContent:by+' '});
+              td.appendChild(span);
+            }
+            if(tail){const z=document.createElement('span');z.className='z';z.textContent='+'+(tail.length/2)+'x00';td.appendChild(z)}
+            text.push(e.t+' '+(KIND[e.k]||e.k)+' '+e.dev+' id'+e.id+' '+body+(tail?' (+'+tail.length/2+'x00)':''));
+          }else{td.textContent=e.text||'';text.push(e.t+' '+(KIND[e.k]||e.k)+' '+(e.text||''))}
+        }
+        tbl.appendChild(tr);shown++;
+      });
+      box.appendChild(tbl);
+      if(!shown)box.appendChild(Object.assign(document.createElement('div'),{className:'empty',textContent:'Nothing matches.'}));
+      box.dataset.text=text.join('\n');
+    };
+    Object.values(checks).forEach(c=>c.onchange=draw);
+    q.oninput=draw;
+    cp.onclick=()=>{
+      const v=box.dataset.text||'';
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).then(()=>{cp.textContent='Copied'},()=>{cp.textContent='Failed'});
+      setTimeout(()=>{cp.textContent='Copy visible'},1500);
+    };
+    draw();
+  };
+  $('file').onchange=ev=>{
+    const f=ev.target.files[0];
+    if(!f)return;
+    if(f.size>60*1024*1024){viewer.textContent='File is too large.';return}
+    const r=new FileReader();
+    r.onload=()=>{
+      let d;
+      try{d=JSON.parse(r.result)}catch(e){viewer.textContent='That is not valid JSON.';return}
+      render(d);
+    };
+    r.readAsText(f);
+  };
+})();
+</script>
+</body>
+</html>
