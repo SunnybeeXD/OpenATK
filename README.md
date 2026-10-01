@@ -64,7 +64,7 @@ the details behind each entry, on the **[tested hardware page](tested.html)** â€
 
 Note that F1 Ultra Max 2.0 ships under two PIDs with different sensors â€” `0x126E` is a PAW3950 Ultra, `0x11ED` a PAW3395 Ultra. They use different DPI encodings and different lift-off ranges, and the app picks the right one per device.
 
-The app carries a name registry covering **263 product IDs and 221 CID/MID pairs** across both families, so most ATK and VXE mice on these two interfaces should at least connect and identify. Anything on a different vendor interface won't appear in the browser's device picker at all.
+The app carries a name registry covering **265 product IDs and 221 CID/MID pairs** across both families, so most ATK and VXE mice on these two interfaces should at least connect and identify. Anything on a different vendor interface won't appear in the browser's device picker at all.
 
 Most devices use vendor ID `0x373B`. The first-generation Dragonfly F1 (Pro, Pro Max, MOBA, F1S, Elden and JOJO editions) and first-generation VXE R1 (R1, R1 Pro, R1 Pro Max, R1SE, R1SE+) use `0x3554` and speak COMPX on the same `0xFF04` interface, so they're supported too, along with their 1K and 4K dongles.
 
