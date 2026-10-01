@@ -639,7 +639,10 @@ const REGISTRY = {"pids":{"1084":["VXE R1S+","cxX"],"10e7":["VXE V3 NK","cxX"],"
 const VID = 0x373B;
 const VID_OLD = 0x3554;
 const $ = s => document.querySelector(s);
-const DEMO = new URLSearchParams(location.search).has('demo');
+const DEMO = (() => {
+  const v = new URLSearchParams(location.search).get('demo');
+  return v !== null && !['0', 'false', 'off', 'no'].includes(v.toLowerCase());
+})();
 const store = (() => {
   if (!DEMO){ try { return localStorage; } catch {} }
   const mem = new Map();
@@ -2692,6 +2695,8 @@ function makeDemoMouse(){
 async function startDemo(){
   if (IS_MOBILE) return;
   document.title += ' (demo)';
+  for (const a of document.querySelectorAll('a[href^="../keyboard/"], a[href^="../mouse/"]'))
+    a.setAttribute('href', a.getAttribute('href') + '?demo=1');
   $('#demoBar').classList.remove('hidden');
   await attach(makeDemoMouse());
   $('#status').className = 'status';
