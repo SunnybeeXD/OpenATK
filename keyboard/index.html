@@ -328,6 +328,10 @@
     .hero p{font-size:14px;margin-bottom:18px}
     .reel{height:150px}
   }
+
+  body.embed header .brand, body.embed header .lead, body.embed header .icon, body.embed header #connect,
+  body.embed .demobar a, body.embed a[href^="../keyboard/"], body.embed a[href^="../mouse/"]{display:none !important}
+  body.embed .wrap{padding-top:8px}
 </style>
 </head>
 <body>
@@ -783,6 +787,17 @@ const WIDTHS = {
 };
 
 const $ = s => document.querySelector(s);
+const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+if (EMBED){
+  document.body.classList.add('embed');
+  for (const a of document.querySelectorAll('a[href^="../"]')){
+    a.target = '_top';
+    if (/^\.\.\/(mouse|keyboard)\//.test(a.getAttribute('href'))){
+      const p = a.previousSibling;
+      if (p && p.nodeType === 3) p.textContent = p.textContent.replace(/[\s\u00b7]+$/, '');
+    }
+  }
+}
 const DEMO = (() => {
   const v = new URLSearchParams(location.search).get('demo');
   return v !== null && !['0', 'false', 'off', 'no'].includes(v.toLowerCase());

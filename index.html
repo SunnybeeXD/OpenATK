@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OpenATK</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -142,23 +142,48 @@
     .pick .img{height:120px}
     .pick img{max-height:120px}
   }
+
+  header .tabs{display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;padding:2px}
+  header .tabs::-webkit-scrollbar{display:none}
+  .chip{display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;max-width:260px;padding:8px 13px;border-radius:11px;border:0;
+    background:rgba(255,255,255,.03);color:var(--ink);font:500 13px/1 Inter,sans-serif;cursor:pointer;box-shadow:0 0 0 1px oklch(1 0 0 / .1);
+    transition-property:box-shadow,background-color,scale;transition-duration:.15s;transition-timing-function:ease-out}
+  .chip:hover{background:rgba(61,220,132,.07);box-shadow:0 0 0 1px rgba(61,220,132,.4)}
+  .chip:active{scale:.97}
+  .chip[aria-current=true]{background:rgba(61,220,132,.12);box-shadow:0 0 0 1px rgba(61,220,132,.7),0 0 20px -8px var(--glow)}
+  .chip .k{font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+  .chip .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip .b{color:var(--dim);font-size:12px}
+  .chip .x{margin-left:2px;color:var(--dimmer);padding:0 2px;font-size:15px;line-height:1}
+  .chip .x:hover{color:var(--bad)}
+  .chip.demo .k{color:#ffd66b}
+  #stage{position:relative;z-index:1;margin:12px 0 0}
+  #stage iframe{display:block;width:100%;border:0;border-radius:18px;background:transparent;height:calc(100vh - 96px);min-height:520px}
+  body.app .wrap{max-width:1360px;padding:14px 16px 16px}
+  @media (max-width: 760px){
+    body.app .wrap{padding:10px}
+    header .brand{margin-right:0}
+    .chip{max-width:190px}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <a class="brand" href="index.html" aria-label="OpenATK">
+  <a class="brand" href="#" id="home" aria-label="OpenATK home">
     <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
     <b>Open<span>ATK</span></b>
   </a>
-  <div style="flex:1"></div>
+  <div class="tabs hidden" id="tabs" role="tablist" aria-label="Devices"></div>
+  <div style="flex:1" id="spacer"></div>
+  <button class="btn ghost hidden" id="addTab" type="button">+ Add device</button>
   <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
      target="_blank" rel="noopener noreferrer"
      aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
 </header>
 
-<div class="hero">
+<div class="hero" id="homeView">
   <div class="kicker">WebHID configurator</div>
   <h2>Tune your ATK gear, right in the browser</h2>
   <p>Pick what you want to set up. Close ATK HUB first if it's running, since only one
@@ -171,13 +196,13 @@
 
   <div id="pickSection">
   <div class="picks">
-    <a class="pick" href="mouse/index.html" id="pickMouse">
+    <a class="pick" href="#any=mouse" id="pickMouse">
       <div class="img"><img src="assets/mouse.webp" alt=""></div>
       <b>Mouse</b>
       <em>DPI, polling, lift-off, buttons, macros, lighting</em>
       <span class="go">Open mouse configurator &rarr;</span>
     </a>
-    <a class="pick" href="keyboard/index.html" id="pickKeyboard">
+    <a class="pick" href="#any=keyboard" id="pickKeyboard">
       <div class="img"><img src="assets/keyboard.svg" alt=""></div>
       <b>Keyboard</b>
       <em>Trigger travel, rapid trigger, advanced keys, lighting</em>
@@ -194,11 +219,13 @@
   <p class="note warn hidden" id="unsupported"></p>
 
   <p class="demoline" id="demoLine"><span class="tag">Demo</span>No device handy? Try a simulated
-    <a href="mouse/index.html?demo=1">mouse</a> or <a href="keyboard/index.html?demo=1">keyboard</a>.
+    <a href="#demo=mouse">mouse</a> or <a href="#demo=keyboard">keyboard</a>.
     Nothing is sent to real hardware.</p>
 </div>
 
-<p class="foot"><a href="tested.html">Tested hardware</a> &middot; not affiliated with ATK</p>
+<div id="stage" class="hidden"></div>
+
+<p class="foot" id="foot"><a href="tested.html">Tested hardware</a> &middot; not affiliated with ATK</p>
 </div>
 
 <div id="toast"></div>
@@ -223,31 +250,54 @@ function toast(msg){
 const IS_MOBILE = navigator.userAgentData?.mobile === true
   || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
   || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const HAS_HID = !IS_MOBILE && 'hid' in navigator;
 
 if (IS_MOBILE) $('#demoLine').classList.add('hidden');
-if (IS_MOBILE || !('hid' in navigator)){
+if (!HAS_HID){
   $('#anyWrap').classList.add('hidden');
   $('#unsupported').textContent = IS_MOBILE
-    ? 'Phones and tablets can\u2019t talk to USB devices from a web page. Open OpenATK on a computer, in Chrome, Edge or Opera.'
+    ? 'Phones and tablets can’t talk to USB devices from a web page. Open OpenATK on a computer, in Chrome, Edge or Opera.'
     : navigator.brave
-      ? 'Brave has WebHID switched off. Turn it on in brave://flags (search for \u201cHID\u201d), or use Chrome, Edge or Opera.'
-      : 'This browser can\u2019t talk to USB devices. Open OpenATK in Chrome, Edge or Opera.';
+      ? 'Brave has WebHID switched off. Turn it on in brave://flags (search for “HID”), or use Chrome, Edge or Opera.'
+      : 'This browser can’t talk to USB devices. Open OpenATK in Chrome, Edge or Opera.';
   $('#unsupported').classList.remove('hidden');
 }
 
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
-const saved = d => { try { return JSON.parse(localStorage.getItem('openatk.dev.' + devId(d)) || '{}') || {}; } catch { return {}; } };
+const saved = id => { try { return JSON.parse(localStorage.getItem('openatk.dev.' + id) || '{}') || {}; } catch { return {}; } };
 const ago = t => {
   const m = Math.round((Date.now() - t) / 60000);
   return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`;
 };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const safeBatt = info => { const p = Number(info.battery); return Number.isFinite(p) && info.at ? Math.max(0, Math.min(100, Math.round(p))) : null; };
+const safeName = (info, fallback) => typeof info.name === 'string' && info.name ? info.name.slice(0, 80) : fallback;
+
+let devices = [];
+const extra = new Map();
+const frames = new Map();
+
+const kindOf = d => matches(d, KEYBOARDS) ? 'keyboard' : 'mouse';
+const hashFor = (kind, id) => `#d=${encodeURIComponent(id)}&k=${kind}`;
+
+function parseHash(){
+  const p = new URLSearchParams(location.hash.slice(1));
+  const d = p.get('d'), any = p.get('any'), demo = p.get('demo');
+  if (d && /^[0-9a-f]{1,4}:[0-9a-f]{1,4}$/i.test(d)){
+    const kind = p.get('k') === 'keyboard' ? 'keyboard' : 'mouse';
+    return { key: 'd:' + d.toLowerCase(), kind, src: `${kind}/index.html?d=${encodeURIComponent(d.toLowerCase())}&embed=1` };
+  }
+  if (any === 'mouse' || any === 'keyboard') return { key: 'any:' + any, kind: any, src: `${any}/index.html?embed=1`, extra: { label: any === 'mouse' ? 'Mouse' : 'Keyboard' } };
+  if (demo === 'mouse' || demo === 'keyboard') return { key: 'demo:' + demo, kind: demo, src: `${demo}/index.html?demo=1&embed=1`, extra: { label: 'Demo ' + demo, demo: true } };
+  return null;
+}
 
 function card(d){
   const kb = matches(d, KEYBOARDS);
-  const info = saved(d);
+  const id = devId(d);
+  const info = saved(id);
   const a = el('a', 'dev');
-  a.href = `${kb ? 'keyboard' : 'mouse'}/index.html?d=${encodeURIComponent(devId(d))}`;
+  a.href = hashFor(kindOf(d), id);
   const shot = el('div', 'shot'), img = el('img');
   const photo = typeof info.img === 'string' && info.img.startsWith('https://bpcdn.atkgear.com/') ? info.img : null;
   const stock = kb ? 'assets/keyboard.svg' : 'assets/mouse.webp';
@@ -256,44 +306,118 @@ function card(d){
   img.onerror = () => { if (img.src.indexOf(stock) === -1) img.src = stock; };
   shot.append(img);
   const meta = el('div', 'meta');
-  const name = typeof info.name === 'string' && info.name ? info.name.slice(0, 80) : (d.productName || (kb ? 'ATK keyboard' : 'ATK mouse'));
-  meta.append(el('b', null, name));
+  meta.append(el('b', null, safeName(info, d.productName || (kb ? 'ATK keyboard' : 'ATK mouse'))));
   const row = el('div', 'row');
   row.append(el('span', 'kind', kb ? 'Keyboard' : 'Mouse'));
-  const pct = Number(info.battery);
-  if (!kb && Number.isFinite(pct) && info.at){
-    const b = el('span', 'batt', `${Math.max(0, Math.min(100, Math.round(pct)))}%${info.charging ? ' charging' : ''}`);
+  const pct = safeBatt(info);
+  if (!kb && pct !== null){
+    const b = el('span', 'batt', `${pct}%${info.charging ? ' charging' : ''}`);
     b.title = `Battery when last read, ${ago(info.at)}`;
-    b.append(el('span', null, `\u00b7 ${ago(info.at)}`));
+    b.append(el('span', null, `· ${ago(info.at)}`));
     row.append(b);
   }
-  row.append(el('span', 'go', 'Configure \u2192'));
+  row.append(el('span', 'go', 'Configure →'));
   meta.append(row);
   a.append(shot, meta);
   return a;
 }
 
+function chip(key, kind, label, href, opts = {}){
+  const b = el('button', 'chip' + (opts.demo ? ' demo' : ''));
+  b.type = 'button';
+  b.setAttribute('role', 'tab');
+  b.dataset.key = key;
+  b.append(el('span', 'k', opts.demo ? 'Demo' : kind === 'keyboard' ? 'KB' : 'Mouse'), el('span', 'n', label));
+  if (opts.batt != null) b.append(el('span', 'b', opts.batt + '%'));
+  b.onclick = () => { location.hash = href; };
+  if (opts.close){
+    const x = el('span', 'x', '×');
+    x.title = 'Close';
+    x.onclick = e => { e.stopPropagation(); closeView(key); };
+    b.append(x);
+  }
+  return b;
+}
+
+function renderTabs(){
+  const cur = parseHash();
+  const tabs = $('#tabs');
+  const list = [];
+  for (const d of devices){
+    const id = devId(d), kind = kindOf(d), info = saved(id);
+    list.push(chip('d:' + id, kind, safeName(info, d.productName || (kind === 'keyboard' ? 'ATK keyboard' : 'ATK mouse')), hashFor(kind, id), { batt: kind === 'mouse' ? safeBatt(info) : null }));
+  }
+  for (const [key, v] of extra){
+    if (key.startsWith('d:')) continue;
+    list.push(chip(key, v.kind, v.label, key.startsWith('demo:') ? `#demo=${v.kind}` : `#any=${v.kind}`, { demo: !!v.demo, close: true }));
+  }
+  tabs.replaceChildren(...list);
+  for (const c of tabs.children) c.setAttribute('aria-current', String(!!cur && c.dataset.key === cur.key));
+  const show = list.length > 0 || !!cur;
+  tabs.classList.toggle('hidden', !list.length);
+  $('#spacer').classList.toggle('hidden', !!list.length);
+  $('#addTab').classList.toggle('hidden', !HAS_HID || !show);
+}
+
+function closeView(key){
+  const f = frames.get(key);
+  if (f){ f.remove(); frames.delete(key); }
+  extra.delete(key);
+  if (parseHash()?.key === key) location.hash = '';
+  else renderTabs();
+}
+
+function route(){
+  const r = parseHash();
+  document.body.classList.toggle('app', !!r);
+  $('#homeView').classList.toggle('hidden', !!r);
+  $('#foot').classList.toggle('hidden', !!r);
+  $('#stage').classList.toggle('hidden', !r);
+  if (r){
+    if (r.extra && !extra.has(r.key)) extra.set(r.key, { kind: r.kind, ...r.extra });
+    if (!frames.has(r.key)){
+      const f = document.createElement('iframe');
+      f.src = r.src;
+      f.title = r.key;
+      f.dataset.key = r.key;
+      $('#stage').append(f);
+      frames.set(r.key, f);
+    }
+    for (const [k, f] of frames) f.classList.toggle('hidden', k !== r.key);
+  }
+  renderTabs();
+}
+
 async function addDevices(){
   try { await navigator.hid.requestDevice({ filters: [...MICE, ...KEYBOARDS] }); }
   catch (e) { toast(e.message); return; }
-  renderDevices();
+  await renderDevices();
 }
 
 async function renderDevices(){
-  if (IS_MOBILE || !('hid' in navigator)) return;
+  if (!HAS_HID){ route(); return; }
   let list = [];
   try { list = (await navigator.hid.getDevices()).filter(d => matches(d, [...MICE, ...KEYBOARDS])); } catch {}
   const seen = new Set();
   list = list.filter(d => !seen.has(devId(d)) && seen.add(devId(d)));
   list.sort((a, b) => Number(matches(a, KEYBOARDS)) - Number(matches(b, KEYBOARDS)));
-  const grid = $('#devGrid');
-  grid.replaceChildren(...list.map(card));
+  devices = list;
+  const live = new Set(list.map(d => 'd:' + devId(d)));
+  for (const [k, f] of [...frames]) if (k.startsWith('d:') && !live.has(k)){ f.remove(); frames.delete(k); }
+  $('#devGrid').replaceChildren(...list.map(card));
   $('#devSection').classList.toggle('hidden', !list.length);
   $('#pickSection').classList.toggle('hidden', !!list.length);
+  const r = parseHash();
+  if (r && r.key.startsWith('d:') && !live.has(r.key)) { location.hash = ''; return; }
+  route();
 }
 
 $('#connectAny').onclick = addDevices;
 $('#addDevice').onclick = addDevices;
+$('#addTab').onclick = addDevices;
+$('#home').addEventListener('click', e => { e.preventDefault(); if (location.hash) location.hash = ''; else route(); });
+window.addEventListener('hashchange', route);
+window.addEventListener('storage', () => { if (!parseHash()) $('#devGrid').replaceChildren(...devices.map(card)); renderTabs(); });
 navigator.hid?.addEventListener('connect', renderDevices);
 navigator.hid?.addEventListener('disconnect', renderDevices);
 renderDevices();

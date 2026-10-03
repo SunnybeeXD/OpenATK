@@ -13,13 +13,13 @@ Set sensitivity, polling rate, lift-off distance, tracking corrections, click de
 
 Use https://sunnybee.lol/openatk, or download the repository and open [`index.html`](index.html).
 
-The start page lets you pick **Mouse** or **Keyboard**, or press **Connect any ATK device** to choose from every ATK mouse and keyboard in one list and jump straight to the right configurator.
+The start page is the whole app. Press **Connect any ATK device** (or **+ Add device**) to pick several mice and keyboards at once. Each one gets a tab at the top, and you switch between them without leaving the page. Tabs stay loaded, so switching is instant.
 
 | Page | What it is |
 |---|---|
-| [`index.html`](index.html) | Start page: choose mouse or keyboard |
-| [`mouse/index.html`](mouse/index.html) | Mouse configurator (self-contained apart from its fallback image in `assets/`) |
-| [`keyboard/index.html`](keyboard/index.html) | Keyboard configurator (untested on hardware) |
+| [`index.html`](index.html) | The hub: device tabs and the dashboard. Hosts the two configurators below in-page |
+| [`mouse/index.html`](mouse/index.html) | Mouse configurator, also usable on its own (self-contained apart from its fallback image in `assets/`) |
+| [`keyboard/index.html`](keyboard/index.html) | Keyboard configurator, also usable on its own (untested on hardware) |
 
 No device handy? Add `?demo=1` to the mouse or keyboard page (or use the *Demo* links on the start page) to try it against a simulated device. A banner says it's a demo, nothing is sent to hardware, nothing is saved, and actions that only make sense on a real device (like factory reset) say so instead of pretending to work. It works in any desktop browser, including ones without WebHID.
 
