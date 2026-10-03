@@ -196,13 +196,13 @@
 
   <div id="pickSection">
   <div class="picks">
-    <a class="pick" href="#any=mouse" id="pickMouse">
+    <a class="pick" href="#" id="pickMouse" data-kind="mouse">
       <div class="img"><img src="assets/mouse.webp" alt=""></div>
       <b>Mouse</b>
       <em>DPI, polling, lift-off, buttons, macros, lighting</em>
       <span class="go">Open mouse configurator &rarr;</span>
     </a>
-    <a class="pick" href="#any=keyboard" id="pickKeyboard">
+    <a class="pick" href="#" id="pickKeyboard" data-kind="keyboard">
       <div class="img"><img src="assets/keyboard.svg" alt=""></div>
       <b>Keyboard</b>
       <em>Trigger travel, rapid trigger, advanced keys, lighting</em>
@@ -274,6 +274,7 @@ const safeBatt = info => { const p = Number(info.battery); return Number.isFinit
 const safeName = (info, fallback) => typeof info.name === 'string' && info.name ? info.name.slice(0, 80) : fallback;
 
 let devices = [];
+let loaded = false;
 const extra = new Map();
 const frames = new Map();
 
@@ -282,12 +283,13 @@ const hashFor = (kind, id) => `#d=${encodeURIComponent(id)}&k=${kind}`;
 
 function parseHash(){
   const p = new URLSearchParams(location.hash.slice(1));
-  const d = p.get('d'), any = p.get('any'), demo = p.get('demo');
+  const d = p.get('d'), demo = p.get('demo');
   if (d && /^[0-9a-f]{1,4}:[0-9a-f]{1,4}$/i.test(d)){
-    const kind = p.get('k') === 'keyboard' ? 'keyboard' : 'mouse';
-    return { key: 'd:' + d.toLowerCase(), kind, src: `${kind}/index.html?d=${encodeURIComponent(d.toLowerCase())}&embed=1` };
+    const id = d.toLowerCase();
+    const dev = devices.find(x => devId(x) === id);
+    const kind = dev ? kindOf(dev) : p.get('k') === 'keyboard' ? 'keyboard' : 'mouse';
+    return { key: 'd:' + id, kind, known: !!dev, src: `${kind}/index.html?d=${encodeURIComponent(id)}&embed=1` };
   }
-  if (any === 'mouse' || any === 'keyboard') return { key: 'any:' + any, kind: any, src: `${any}/index.html?embed=1`, extra: { label: any === 'mouse' ? 'Mouse' : 'Keyboard' } };
   if (demo === 'mouse' || demo === 'keyboard') return { key: 'demo:' + demo, kind: demo, src: `${demo}/index.html?demo=1&embed=1`, extra: { label: 'Demo ' + demo, demo: true } };
   return null;
 }
@@ -349,7 +351,7 @@ function renderTabs(){
   }
   for (const [key, v] of extra){
     if (key.startsWith('d:')) continue;
-    list.push(chip(key, v.kind, v.label, key.startsWith('demo:') ? `#demo=${v.kind}` : `#any=${v.kind}`, { demo: !!v.demo, close: true }));
+    list.push(chip(key, v.kind, v.label, `#demo=${v.kind}`, { demo: true, close: true }));
   }
   tabs.replaceChildren(...list);
   for (const c of tabs.children) c.setAttribute('aria-current', String(!!cur && c.dataset.key === cur.key));
@@ -369,6 +371,10 @@ function closeView(key){
 
 function route(){
   const r = parseHash();
+  if (r && r.key.startsWith('d:') && !r.known){
+    if (loaded) location.hash = '';
+    return;
+  }
   document.body.classList.toggle('app', !!r);
   $('#homeView').classList.toggle('hidden', !!r);
   $('#foot').classList.toggle('hidden', !!r);
@@ -379,6 +385,7 @@ function route(){
       const f = document.createElement('iframe');
       f.src = r.src;
       f.title = r.key;
+      f.allow = 'hid';
       f.dataset.key = r.key;
       $('#stage').append(f);
       frames.set(r.key, f);
@@ -394,24 +401,34 @@ async function addDevices(){
   await renderDevices();
 }
 
+async function pick(kind){
+  if (!HAS_HID){ toast($('#unsupported').textContent || 'This browser can\u2019t talk to USB devices.'); return; }
+  let got;
+  try { got = await navigator.hid.requestDevice({ filters: kind === 'keyboard' ? KEYBOARDS : MICE }); }
+  catch (e) { toast(e.message); return; }
+  await renderDevices();
+  const d = got.find(x => matches(x, kind === 'keyboard' ? KEYBOARDS : MICE));
+  if (d) location.hash = hashFor(kind, devId(d));
+}
+
 async function renderDevices(){
-  if (!HAS_HID){ route(); return; }
+  if (!HAS_HID){ loaded = true; route(); return; }
   let list = [];
   try { list = (await navigator.hid.getDevices()).filter(d => matches(d, [...MICE, ...KEYBOARDS])); } catch {}
   const seen = new Set();
   list = list.filter(d => !seen.has(devId(d)) && seen.add(devId(d)));
   list.sort((a, b) => Number(matches(a, KEYBOARDS)) - Number(matches(b, KEYBOARDS)));
   devices = list;
+  loaded = true;
   const live = new Set(list.map(d => 'd:' + devId(d)));
   for (const [k, f] of [...frames]) if (k.startsWith('d:') && !live.has(k)){ f.remove(); frames.delete(k); }
   $('#devGrid').replaceChildren(...list.map(card));
   $('#devSection').classList.toggle('hidden', !list.length);
   $('#pickSection').classList.toggle('hidden', !!list.length);
-  const r = parseHash();
-  if (r && r.key.startsWith('d:') && !live.has(r.key)) { location.hash = ''; return; }
   route();
 }
 
+for (const a of document.querySelectorAll('.pick')) a.onclick = e => { e.preventDefault(); pick(a.dataset.kind); };
 $('#connectAny').onclick = addDevices;
 $('#addDevice').onclick = addDevices;
 $('#addTab').onclick = addDevices;
