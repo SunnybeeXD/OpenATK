@@ -629,6 +629,27 @@
 
     <section class="panel hidden" data-panel="device">
       <div class="phead"><div><h2>Device</h2><p>What the keyboard reports about itself, plus the raw activity log.</p></div></div>
+    <div class="item" id="shareItem">
+      <div class="t">Share settings</div>
+      <div class="d" style="color:var(--dim);font-size:13.5px;margin-top:4px">Save this keyboard's settings, including every key's travel and rapid trigger, to a file or a short
+        code, or load a set someone sent you. Key remaps and advanced keys are not included.</div>
+      <div class="gridbar">
+        <button class="btn ghost" id="shareFile">Save to file</button>
+        <button class="btn ghost" id="shareCopy">Copy share code</button>
+        <label class="btn ghost" style="cursor:pointer">Load file<input type="file" id="shareLoad" accept=".json,application/json" hidden></label>
+      </div>
+      <textarea id="sharePaste" rows="2" spellcheck="false" aria-label="Paste a share code"
+        placeholder="Or paste a share code here"
+        style="width:100%;margin-top:12px;resize:vertical;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)"></textarea>
+      <div id="sharePreview" class="hidden" style="margin-top:12px">
+        <div id="shareFrom" style="font-size:13px;color:var(--dim);margin-bottom:6px"></div>
+        <ul id="shareList" style="margin:0 0 12px;padding-left:20px;font-size:13.5px"></ul>
+        <div class="gridbar">
+          <button class="btn" id="shareApply">Apply to this keyboard</button>
+          <button class="btn ghost" id="shareCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
     <div class="item">
       <div class="t">Device info</div>
       <table class="kv" id="kv" style="margin-top:12px"></table>
@@ -1447,6 +1468,227 @@ const gridUp = v => (Math.ceil((v - 1e-9) / STEP) * STEP).toFixed(2);
 const gridDown = v => (Math.floor((v + 1e-9) / STEP) * STEP).toFixed(2);
 const gridStep = v => Math.max(STEP, Math.round((v || 0) / STEP) * STEP).toFixed(2);
 const snap = v => Math.round(v / STEP) * STEP;
+
+const SHARE_MAX = 200000;
+const b64u = u8 => { let t = ''; for (const b of u8) t += String.fromCharCode(b);
+  return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function deflate(u8){
+  return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+}
+async function inflate(u8){
+  const r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+  const parts = []; let n = 0;
+  for (;;){
+    const { done, value } = await r.read();
+    if (done) break;
+    n += value.length;
+    if (n > SHARE_MAX * 4){ await r.cancel(); throw new Error('That share code is too large.'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(n); let o = 0;
+  for (const c of parts){ out.set(c, o); o += c.length; }
+  return out;
+}
+async function encodeShare(cfg){
+  const raw = new TextEncoder().encode(JSON.stringify(cfg));
+  return typeof CompressionStream === 'function' ? 'OATK1.' + b64u(await deflate(raw)) : 'OATK0.' + b64u(raw);
+}
+async function decodeShare(text){
+  const t = text.trim();
+  if (t.length > SHARE_MAX) throw new Error('That share code is too large.');
+  if (t[0] === '{') return JSON.parse(t);
+  const m = /^OATK([01])\.([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) throw new Error('That is not an OpenATK share code.');
+  let u8 = unb64u(m[2]);
+  if (m[1] === '1'){
+    if (typeof DecompressionStream !== 'function') throw new Error('This browser cannot read compressed share codes.');
+    u8 = await inflate(u8);
+  }
+  return JSON.parse(new TextDecoder().decode(u8));
+}
+
+
+async function snapshot(){
+  const s = {};
+  const grab = async (key, fn) => { try { s[key] = await fn(); } catch {} };
+  await grab('rate', () => kb.getReportRate());
+  await grab('sleep', () => kb.getSleep());
+  await grab('deadZone', async () => { const d = await kb.getDeadZone(); return { top: d.top, bottom: d.bottom }; });
+  await grab('feature', async () => { const f = await kb.getFeature();
+    return { macMode: !!f.macMode, exchangeWasd: !!f.exchangeWasd, winLock: !!f.winLock, nkro: f.nkro }; });
+  await grab('flags', async () => ({ gameMode: !!(await kb.getFlag(CH.gameMode)), aiMatch: !!(await kb.getFlag(CH.aiMatch)),
+    bottomOpt: !!(await kb.getFlag(CH.bottomOptimize)) }));
+  await grab('light', async () => { const c = await kb.getLightConfig();
+    return { effect: c.effect, brightness: c.brightness, speed: c.speed, color: [...c.color], colorful: !!c.colorful }; });
+  const zones = {};
+  for (const name of Object.keys(ZONE)){
+    try { const z = await kb.getZoneLight(ZONE[name]);
+      zones[name] = { effect: z.effect, brightness: z.brightness, speed: z.speed, color: [...z.color] }; } catch {}
+  }
+  if (Object.keys(zones).length) s.zones = zones;
+  await grab('capsColor', async () => [...(await kb.getKeyLight(0)).color]);
+  await grab('winColor', async () => [...(await kb.getKeyLight(1)).color]);
+  s.keys = { rows: kb.rows, cols: kb.cols, travel: travelValues.map(v => v ?? null),
+             rt: rtValues.map(v => v ? { on: v.on ? 1 : 0, press: v.press, release: v.release } : null) };
+  return { app: 'openatk', v: 1, kind: 'keyboard', model: $('#devName').textContent.slice(0, 80),
+           made: new Date().toISOString().slice(0, 10), settings: s };
+}
+
+const isRgb = a => Array.isArray(a) && a.length === 3 && a.every(x => Number.isFinite(Number(x)));
+const toRgb = a => a.map(x => clampInt(x, 0, 255, 0));
+const clampInt = (v, lo, hi, dflt) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? clamp(n, lo, hi) : dflt; };
+const clampNum = (v, lo, hi) => { const n = Number(v); return Number.isFinite(n) ? clamp(n, lo, hi) : null; };
+
+function planShare(cfg){
+  if (!cfg || typeof cfg !== 'object' || cfg.app !== 'openatk' || cfg.v !== 1)
+    throw new Error('That is not an OpenATK settings file.');
+  if (cfg.kind !== 'keyboard') throw new Error(`That file is for a ${String(cfg.kind).slice(0, 20)}, not a keyboard.`);
+  const c = cfg.settings && typeof cfg.settings === 'object' ? cfg.settings : {};
+  const steps = [], notes = [];
+  const add = (label, run) => steps.push({ label, run });
+  const bad = what => notes.push(`${what} was not valid and was skipped`);
+  const nameOf = (list, v) => list.find(x => x[0] === v)?.[1];
+
+  if (c.rate != null){ if (RATES.some(r => r[0] === c.rate)) add(`Polling rate ${nameOf(RATES, c.rate)}`, () => kb.setReportRate(c.rate)); else bad('Polling rate'); }
+  if (c.sleep != null){ if (SLEEP.some(r => r[0] === c.sleep)) add(`Sleep: ${nameOf(SLEEP, c.sleep)}`, () => kb.setSleep(c.sleep)); else bad('Sleep time'); }
+  if (c.deadZone && typeof c.deadZone === 'object'){
+    const top = clampNum(c.deadZone.top, +$('#dzTop').min, +$('#dzTop').max), bottom = clampNum(c.deadZone.bottom, +$('#dzBottom').min, +$('#dzBottom').max);
+    if (top != null && bottom != null) add(`Dead zone ${top.toFixed(2)} / ${bottom.toFixed(2)} mm`, () => kb.setDeadZone(top, bottom)); else bad('Dead zone');
+  }
+  if (c.feature && typeof c.feature === 'object'){
+    const f = c.feature;
+    if (NKRO.some(n => n[0] === f.nkro) || ['macMode', 'exchangeWasd', 'winLock'].some(k => typeof f[k] === 'boolean'))
+      add('Keyboard options (MAC mode, WASD exchange, Win lock, key rollover)', async () => {
+        const cur = await kb.getFeature();
+        for (const k of ['macMode', 'exchangeWasd', 'winLock']) if (typeof f[k] === 'boolean') cur[k] = f[k] ? 1 : 0;
+        if (NKRO.some(n => n[0] === f.nkro)) cur.nkro = f.nkro;
+        await kb.setFeature(cur);
+      });
+    else bad('Keyboard options');
+  }
+  if (c.flags && typeof c.flags === 'object')
+    for (const [k, ch, name] of [['gameMode', CH.gameMode, 'Extreme mode'], ['aiMatch', CH.aiMatch, 'AI match'], ['bottomOpt', CH.bottomOptimize, 'Anti-accidental touch']])
+      if (typeof c.flags[k] === 'boolean') add(`${name} ${c.flags[k] ? 'on' : 'off'}`, () => kb.setFlag(ch, c.flags[k] ? 1 : 0));
+  if (c.light && typeof c.light === 'object'){
+    const l = c.light;
+    if (EFFECTS.some(e => e[0] === l.effect) && isRgb(l.color)){
+      const cfgL = { effect: l.effect, brightness: clampInt(l.brightness, +$('#brightness').min, +$('#brightness').max, 50),
+        speed: clampInt(l.speed, +$('#speed').min, +$('#speed').max, 128), color: toRgb(l.color), colorful: l.colorful ? 1 : 0 };
+      add(`Back lamp: ${nameOf(EFFECTS, l.effect)}`, () => kb.setLightConfig(cfgL));
+    } else bad('Back lamp');
+  }
+  if (c.zones && typeof c.zones === 'object')
+    for (const name of Object.keys(ZONE)){
+      const z = c.zones[name];
+      if (!z || typeof z !== 'object') continue;
+      if (ZONE_EFFECTS.some(e => e[0] === z.effect) && isRgb(z.color)){
+        const zl = { effect: z.effect, brightness: clampInt(z.brightness, +$('#zoneBrightness').min, +$('#zoneBrightness').max, 50),
+          speed: clampInt(z.speed, +$('#zoneSpeed').min, +$('#zoneSpeed').max, 50), color: toRgb(z.color), colorful: 0 };
+        add(`${name[0].toUpperCase() + name.slice(1)} light: ${nameOf(ZONE_EFFECTS, z.effect)}`, () => kb.setZoneLight(ZONE[name], zl));
+      } else bad(`${name} light`);
+    }
+  if (c.capsColor != null){ if (isRgb(c.capsColor)) add('Caps Lock colour', () => kb.setKeyLight(0, toRgb(c.capsColor))); else bad('Caps Lock colour'); }
+  if (c.winColor != null){ if (isRgb(c.winColor)) add('Win Lock colour', () => kb.setKeyLight(1, toRgb(c.winColor))); else bad('Win Lock colour'); }
+  if (c.keys && typeof c.keys === 'object'){
+    if (c.keys.rows !== kb.rows || c.keys.cols !== kb.cols) notes.push('Per-key settings were made for a different key layout and were skipped');
+    else {
+      const live = new Set(allLiveKeys()), n = kb.rows * kb.cols;
+      const travel = Array.isArray(c.keys.travel) ? c.keys.travel.slice(0, n) : [];
+      const rt = Array.isArray(c.keys.rt) ? c.keys.rt.slice(0, n) : [];
+      const jobs = [];
+      travel.forEach((v, i) => {
+        const mm = v == null ? null : clampNum(v, limits.travelMin, limits.travelMax);
+        if (mm != null && live.has(i)) jobs.push(['t', i, mm]);
+      });
+      rt.forEach((v, i) => {
+        if (!v || typeof v !== 'object' || !live.has(i)) return;
+        const press = clampNum(v.press, limits.rtMin, limits.rtMax), release = clampNum(v.release, limits.rtMin, limits.rtMax);
+        if (press != null && release != null) jobs.push(['r', i, { on: v.on ? 1 : 0, press, release }]);
+      });
+      if (jobs.length) add(`Per-key trigger travel and rapid trigger (${jobs.length} settings)`, async () => {
+        let failed = 0;
+        for (const [kind, i, v] of jobs){
+          const r = Math.floor(i / kb.cols), col = i % kb.cols;
+          try {
+            if (kind === 't'){ await kb.setKeyTravel(r, col, v); travelValues[i] = v; }
+            else { await kb.setKeyRt(r, col, v.on, v.press, v.release); rtValues[i] = v; }
+          } catch { failed++; }
+        }
+        if (failed) throw new Error(`${failed} keys did not save`);
+      });
+    }
+  }
+  return { steps, notes, from: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '' };
+}
+
+let pendingShare = null;
+function showShare(plan){
+  pendingShare = plan;
+  const list = $('#shareList');
+  list.replaceChildren();
+  for (const st of plan.steps){ const li = document.createElement('li'); li.textContent = st.label; list.appendChild(li); }
+  for (const n of plan.notes){ const li = document.createElement('li'); li.textContent = n; li.style.color = 'var(--warn)'; list.appendChild(li); }
+  $('#shareFrom').textContent = plan.steps.length
+    ? `Made on ${plan.from || 'an ATK keyboard'}${plan.made ? ', ' + plan.made : ''}. This will change:`
+    : 'Nothing in that file can be applied to this keyboard.';
+  $('#shareApply').classList.toggle('hidden', !plan.steps.length);
+  $('#sharePreview').classList.remove('hidden');
+}
+function clearShare(){
+  pendingShare = null;
+  $('#sharePreview').classList.add('hidden');
+  $('#sharePaste').value = '';
+  $('#shareLoad').value = '';
+}
+async function loadShare(text){
+  try { showShare(planShare(await decodeShare(text))); }
+  catch (e){ pendingShare = null; $('#sharePreview').classList.add('hidden'); toast(e instanceof SyntaxError ? 'That is not a valid settings file.' : e.message, 1); }
+}
+const fileSafe = t => t.replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'keyboard';
+$('#shareFile').onclick = async () => {
+  if (!kb) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(await snapshot(), null, 1)], { type: 'application/json' }));
+  a.download = `openatk-${fileSafe($('#devName').textContent)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+$('#shareCopy').onclick = async () => {
+  if (!kb) return;
+  const code = await encodeShare(await snapshot());
+  try { await navigator.clipboard.writeText(code); toast('Share code copied'); }
+  catch { $('#sharePaste').value = code; $('#sharePaste').select(); toast('Copy the code from the box below'); }
+};
+$('#shareLoad').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.size > SHARE_MAX){ toast('That file is too large.', 1); return; }
+  const r = new FileReader();
+  r.onload = () => loadShare(String(r.result));
+  r.readAsText(f);
+};
+let pasteTimer = null;
+$('#sharePaste').oninput = e => {
+  clearTimeout(pasteTimer);
+  const v = e.target.value.trim();
+  if (!v){ $('#sharePreview').classList.add('hidden'); return; }
+  pasteTimer = setTimeout(() => loadShare(v), 250);
+};
+$('#shareCancel').onclick = clearShare;
+$('#shareApply').onclick = async () => {
+  if (!pendingShare || !kb) return;
+  const btn = $('#shareApply'), steps = pendingShare.steps;
+  btn.disabled = true;
+  let failed = 0;
+  for (const st of steps){
+    try { await st.run(); } catch { failed++; }
+  }
+  btn.disabled = false;
+  clearShare();
+  toast(failed ? `Applied ${steps.length - failed} of ${steps.length} settings` : `Applied ${steps.length} settings`, failed ? 1 : 0);
+  await readAll();
+};
 
 async function readAll(){
   const info = [];

@@ -603,6 +603,28 @@
         </div>
       </div>
 
+      <div class="item" id="shareItem">
+        <div class="t">Share settings</div>
+        <div class="d">Save this mouse's settings to a file or a short code, or load a set someone
+          sent you. Pairing, receiver light, profile slots and firmware are never included.</div>
+        <div class="erow">
+          <button class="btn ghost" id="shareFile">Save to file</button>
+          <button class="btn ghost" id="shareCopy">Copy share code</button>
+          <label class="btn ghost" style="cursor:pointer">Load file<input type="file" id="shareLoad" accept=".json,application/json" hidden></label>
+        </div>
+        <textarea id="sharePaste" rows="2" spellcheck="false" aria-label="Paste a share code"
+          placeholder="Or paste a share code here"
+          style="width:100%;margin-top:12px;resize:vertical;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)"></textarea>
+        <div id="sharePreview" class="hidden" style="margin-top:12px">
+          <div id="shareFrom" style="font-size:13px;color:var(--dim);margin-bottom:6px"></div>
+          <ul id="shareList" style="margin:0 0 12px;padding-left:20px;font-size:13.5px"></ul>
+          <div class="erow">
+            <button class="btn" id="shareApply">Apply to this mouse</button>
+            <button class="btn ghost" id="shareCancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+
       <div class="item">
         <table class="kv" id="kv"></table>
         <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
@@ -2740,8 +2762,262 @@ function showBattery(s){
   $('#sCharge').classList.toggle('hidden', !(s.battery != null && s.charging));
 }
 
+let lastS = null;
+const SHARE_MAX = 200000;
+const b64u = u8 => { let t = ''; for (const b of u8) t += String.fromCharCode(b);
+  return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function deflate(u8){
+  return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+}
+async function inflate(u8){
+  const r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+  const parts = []; let n = 0;
+  for (;;){
+    const { done, value } = await r.read();
+    if (done) break;
+    n += value.length;
+    if (n > SHARE_MAX * 4){ await r.cancel(); throw new Error('That share code is too large.'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(n); let o = 0;
+  for (const c of parts){ out.set(c, o); o += c.length; }
+  return out;
+}
+async function encodeShare(cfg){
+  const raw = new TextEncoder().encode(JSON.stringify(cfg));
+  return typeof CompressionStream === 'function' ? 'OATK1.' + b64u(await deflate(raw)) : 'OATK0.' + b64u(raw);
+}
+async function decodeShare(text){
+  const t = text.trim();
+  if (t.length > SHARE_MAX) throw new Error('That share code is too large.');
+  if (t[0] === '{') return JSON.parse(t);
+  const m = /^OATK([01])\.([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) throw new Error('That is not an OpenATK share code.');
+  let u8 = unb64u(m[2]);
+  if (m[1] === '1'){
+    if (typeof DecompressionStream !== 'function') throw new Error('This browser cannot read compressed share codes.');
+    u8 = await inflate(u8);
+  }
+  return JSON.parse(new TextDecoder().decode(u8));
+}
+
+const pressedVal = host => { const b = [...$(host).children].find(x => x.getAttribute('aria-pressed') === 'true'); return b ? +b.dataset.value : null; };
+function snapshot(){
+  const s = {};
+  const put = (k, v) => { if (v != null && !Number.isNaN(v)) s[k] = v; };
+  put('dpi', pressedVal('#segDpi'));
+  put('rate', pressedVal('#segRate'));
+  put('debounce', pressedVal('#segDebounce'));
+  put('sleep', pressedVal('#segSleep'));
+  put('sensorMode', pressedVal('#segSensorMode'));
+  if (!$('#lodSlider').classList.contains('hidden')) put('lodMm', parseFloat($('#lod').value));
+  else put('lodCode', pressedVal('#segLod'));
+  if (lastS?.angleDeg != null) s.angle = { on: angleOn, deg: angleDeg };
+  const tog = {};
+  for (const [f, id] of [['motionSync','movesync'], ['lineCorr','linecorr'], ['ripple','ripple'], ['farDist','fardist']])
+    if (lastS?.[f] != null) tog[f] = $('#' + id).checked;
+  if (Object.keys(tog).length) s.toggles = tog;
+  if (lastS?.stages?.length && drv.setStageColor)
+    s.stageColors = [...$('#dpiColors').querySelectorAll('input')].map(i => hexToRgb(i.value));
+  if (lastS?.light) s.light = { mode: light.mode, brightness: light.brightness, speed: light.speed };
+  if (lastS?.bhop && drv.setBhop) s.bhop = { on: bhop.on, ms: bhop.ms };
+  if (buttons){
+    s.buttons = buttons.map(b => ({ ...b }));
+    const macros = {};
+    buttons.forEach((b, i) => { if (b.kind === 'macro') macros[i] = loadMacro(i); });
+    if (Object.keys(macros).length) s.macros = macros;
+  }
+  return { app: 'openatk', v: 1, kind: 'mouse', model: $('#devName').textContent.slice(0, 80),
+           made: new Date().toISOString().slice(0, 10), settings: s };
+}
+
+const inVals = (v, list) => list.some(x => x === v);
+function cleanAction(a){
+  if (!a || typeof a !== 'object') return null;
+  switch (a.kind){
+    case 'mouse':   return Number.isInteger(a.btn) && a.btn >= 0 && a.btn < MOUSE_NAMES.length ? { kind:'mouse', btn:a.btn } : null;
+    case 'disable': return { kind:'disable' };
+    case 'dpi':     return ['cycle','up','down'].includes(a.op) ? { kind:'dpi', op:a.op } : null;
+    case 'scroll':  return ['up','down','left','right'].includes(a.dir) ? { kind:'scroll', dir:a.dir } : null;
+    case 'profile': return a.n === 'cycle' ? { kind:'profile', n:'cycle' }
+                      : Number.isInteger(a.n) && a.n >= 0 && a.n <= 3 ? { kind:'profile', n:a.n } : null;
+    case 'media':   { const c = Array.isArray(a.code) ? a.code.map(Number) : [];
+                      return MEDIA.some(m => m[0].join() === c.join()) ? { kind:'media', code:c } : null; }
+    case 'key':     return { kind:'key', mods: clampInt(a.mods, 0, 15, 0), key: clampInt(a.key, 0, 255, 0) };
+    case 'fire':    return { kind:'fire', interval: clampInt(a.interval, 3, 255, 50), count: [0,1,2,3].includes(a.count) ? a.count : 0 };
+    case 'macro':   return { kind:'macro' };
+    default:        return null;
+  }
+}
+function cleanMacro(m){
+  if (!m || typeof m !== 'object' || !Array.isArray(m.steps)) return null;
+  const steps = [];
+  for (const st of m.steps.slice(0, 200).map(cleanStep)){
+    if (!st) continue;
+    if (macroSize([...steps, st]) > MAX_MACRO_STEPS) break;
+    steps.push(st);
+  }
+  return steps.length ? { steps, mode: MACRO_MODES.some(([v]) => v === m.mode) ? m.mode : 'hold',
+                          count: clampInt(m.count, 1, 250, 1) } : null;
+}
+
+function planShare(cfg){
+  if (!cfg || typeof cfg !== 'object' || cfg.app !== 'openatk' || cfg.v !== 1)
+    throw new Error('That is not an OpenATK settings file.');
+  if (cfg.kind !== 'mouse') throw new Error(`That file is for a ${String(cfg.kind).slice(0, 20)}, not a mouse.`);
+  const c = cfg.settings && typeof cfg.settings === 'object' ? cfg.settings : {};
+  const steps = [], notes = [];
+  const add = (label, run) => steps.push({ label, run });
+  const label = (list, v) => list.find(x => x[0] === v)?.[1];
+  const bad = what => notes.push(`${what} was not valid and was skipped`);
+
+  if (c.dpi != null){ if (inVals(c.dpi, DPIS)) add(`Sensitivity ${c.dpi}`, () => drv.setDpi(c.dpi)); else bad('Sensitivity'); }
+  if (c.rate != null){ if (inVals(c.rate, RATE_HZ)) add(`Polling rate ${c.rate} Hz`, () => drv.setRate(c.rate)); else bad('Polling rate'); }
+  if (c.debounce != null){ if (DEBOUNCE.some(d => d[0] === c.debounce)) add(`Click debounce ${label(DEBOUNCE, c.debounce)}`, () => drv.setDebounce(c.debounce)); else bad('Debounce'); }
+  if (c.sleep != null){ if (SLEEP.some(d => d[0] === c.sleep)) add(`Sleep after ${label(SLEEP, c.sleep)}`, () => drv.setSleep(c.sleep)); else bad('Sleep time'); }
+  if (c.sensorMode != null){ if (SENSOR_MODES.some(d => d[0] === c.sensorMode)) add(`Sensor performance: ${label(SENSOR_MODES, c.sensorMode)}`, () => drv.setSensorMode(c.sensorMode)); else bad('Sensor performance'); }
+  const slider = !$('#lodSlider').classList.contains('hidden');
+  if (c.lodMm != null){
+    const mm = Math.round(Number(c.lodMm) * 10) / 10;
+    if (!slider) notes.push('Lift-off distance (millimetres) does not apply to this sensor');
+    else if (mm >= 0.7 && mm <= 1.7) add(`Lift-off ${mm.toFixed(1)} mm`, () => drv.setLod(mm));
+    else bad('Lift-off distance');
+  }
+  if (c.lodCode != null){
+    const codes = [...$('#segLod').children].map(b => +b.dataset.value);
+    if (slider) notes.push('Lift-off steps do not apply to this sensor');
+    else if (codes.includes(c.lodCode)) add(`Lift-off ${[...$('#segLod').children].find(b => +b.dataset.value === c.lodCode).textContent}`, () => drv.setLodLevel(c.lodCode));
+    else notes.push('Lift-off distance is not available on this mouse');
+  }
+  if (c.angle && typeof c.angle === 'object' && lastS?.angleDeg != null){
+    const deg = clampInt(c.angle.deg, -ANGLE_LIMIT, ANGLE_LIMIT, 0), on = !!c.angle.on;
+    add(on ? `Sensor rotation ${deg > 0 ? '+' : ''}${deg}°` : 'Sensor rotation off', () => drv.setAngle(on, deg));
+  }
+  const names = { motionSync:'Movement smoothing', lineCorr:'Straight line correction', ripple:'Ripple correction', farDist:'Long range mode' };
+  if (c.toggles && typeof c.toggles === 'object')
+    for (const f of Object.keys(names))
+      if (typeof c.toggles[f] === 'boolean' && lastS?.[f] != null)
+        add(`${names[f]} ${c.toggles[f] ? 'on' : 'off'}`, () => drv.setToggle(f, c.toggles[f]));
+  if (Array.isArray(c.stageColors) && lastS?.stages?.length && drv.setStageColor){
+    c.stageColors.slice(0, lastS.stages.length).forEach((rgb, i) => {
+      if (Array.isArray(rgb) && rgb.length === 3){
+        const v = rgb.map(x => clampInt(x, 0, 255, 0));
+        add(`DPI stage ${i + 1} colour`, () => drv.setStageColor(i, v));
+      }
+    });
+  }
+  if (c.light && typeof c.light === 'object' && lastS?.light){
+    const l = { mode: c.light.mode, brightness: c.light.brightness, speed: c.light.speed };
+    if (LIGHT_MODES.some(m => m[0] === l.mode) && LIGHT_LEVELS.some(m => m[0] === l.brightness) && LIGHT_SPEEDS.some(m => m[0] === l.speed))
+      add(`DPI light: ${label(LIGHT_MODES, l.mode)}`, async () => { await drv.setLight(l); light = l; });
+    else bad('DPI light');
+  }
+  if (c.bhop && typeof c.bhop === 'object' && lastS?.bhop && drv.setBhop){
+    const on = !!c.bhop.on;
+    if (BHOP_MS.some(m => m[0] === c.bhop.ms)) add(on ? `Scroll anti-mistouch ${c.bhop.ms} ms` : 'Scroll anti-mistouch off', async () => { await drv.setBhop(on, c.bhop.ms); bhop = { on, ms: c.bhop.ms }; });
+    else bad('Scroll anti-mistouch');
+  }
+  if (Array.isArray(c.buttons) && buttons){
+    const macros = c.macros && typeof c.macros === 'object' ? c.macros : {};
+    const next = buttons.map(b => ({ ...b }));
+    const jobs = [];
+    c.buttons.slice(0, buttons.length).forEach((raw, i) => {
+      const a = cleanAction(raw);
+      if (!a){ notes.push(`${BUTTON_NAMES[i]} had an unknown action and was left as it is`); return; }
+      if (a.kind === 'macro'){
+        const m = cleanMacro(macros[i]);
+        if (!m){ notes.push(`${BUTTON_NAMES[i]} macro was empty or invalid and was left as it is`); return; }
+        next[i] = a;
+        jobs.push({ i, a, m });
+      } else if (actionValue(a) !== actionValue(buttons[i])){
+        next[i] = a;
+        jobs.push({ i, a });
+      }
+    });
+    const keepsLeft = next.some(b => b.kind === 'mouse' && b.btn === 0);
+    if (jobs.length && !keepsLeft) notes.push('Buttons were skipped: none would be left doing a left click');
+    else for (const j of jobs)
+      add(`${BUTTON_NAMES[j.i]}: ${j.m ? 'macro' : describe(j.a)}`, async () => {
+        if (j.m){ await drv.setMacro(j.i, j.m); saveMacro(j.i, j.m); } else await drv.setButton(j.i, j.a);
+        buttons[j.i] = j.a;
+      });
+  }
+  return { steps, notes, from: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '' };
+}
+
+let pendingShare = null;
+function showShare(plan){
+  pendingShare = plan;
+  const list = $('#shareList');
+  list.replaceChildren();
+  for (const st of plan.steps){ const li = document.createElement('li'); li.textContent = st.label; list.appendChild(li); }
+  for (const n of plan.notes){ const li = document.createElement('li'); li.textContent = n; li.style.color = 'var(--warn)'; list.appendChild(li); }
+  $('#shareFrom').textContent = plan.steps.length
+    ? `Made on ${plan.from || 'an ATK mouse'}${plan.made ? ', ' + plan.made : ''}. This will change:`
+    : 'Nothing in that file can be applied to this mouse.';
+  $('#shareApply').classList.toggle('hidden', !plan.steps.length);
+  $('#sharePreview').classList.remove('hidden');
+}
+function clearShare(){
+  pendingShare = null;
+  $('#sharePreview').classList.add('hidden');
+  $('#sharePaste').value = '';
+  $('#shareLoad').value = '';
+}
+async function loadShare(text){
+  try { showShare(planShare(await decodeShare(text))); }
+  catch (e){ pendingShare = null; $('#sharePreview').classList.add('hidden'); toast(e instanceof SyntaxError ? 'That is not a valid settings file.' : e.message, 1); }
+}
+const fileSafe = t => t.replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'mouse';
+$('#shareFile').onclick = () => {
+  if (!drv) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: 'application/json' }));
+  a.download = `openatk-${fileSafe($('#devName').textContent)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+$('#shareCopy').onclick = async () => {
+  if (!drv) return;
+  const code = await encodeShare(snapshot());
+  try { await navigator.clipboard.writeText(code); toast('Share code copied'); }
+  catch { $('#sharePaste').value = code; $('#sharePaste').select(); toast('Copy the code from the box below'); }
+};
+$('#shareLoad').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.size > SHARE_MAX){ toast('That file is too large.', 1); return; }
+  const r = new FileReader();
+  r.onload = () => loadShare(String(r.result));
+  r.readAsText(f);
+};
+let pasteTimer = null;
+$('#sharePaste').oninput = e => {
+  clearTimeout(pasteTimer);
+  const v = e.target.value.trim();
+  if (!v){ $('#sharePreview').classList.add('hidden'); return; }
+  pasteTimer = setTimeout(() => loadShare(v), 250);
+};
+$('#shareCancel').onclick = clearShare;
+$('#shareApply').onclick = async () => {
+  if (!pendingShare || !drv) return;
+  const btn = $('#shareApply'), steps = pendingShare.steps;
+  btn.disabled = true;
+  let failed = 0;
+  for (const st of steps){
+    try { await st.run(); } catch { failed++; }
+  }
+  btn.disabled = false;
+  clearShare();
+  renderButtons();
+  toast(failed ? `Applied ${steps.length - failed} of ${steps.length} settings` : `Applied ${steps.length} settings`, failed ? 1 : 0);
+  await refresh();
+};
+
 async function readAll(){
   const s = await drv.readState();
+  lastS = s;
   const info = s.info;
 
   /* a receiver reports a generic product name — the paired mouse is
@@ -2848,6 +3124,7 @@ async function readAll(){
   }
 
   $('#pairItem').classList.toggle('hidden', !drv.isReceiver);
+  $('#shareItem').classList.toggle('hidden', !!drv.isReceiver);
   $('#pairModel').classList.toggle('hidden', !(drv.isReceiver && drv instanceof CompxDriver));
   if (drv.isReceiver && drv instanceof CompxDriver && !$('#pairModel').options.length)
     fillPairModels(s.cidMid);
