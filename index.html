@@ -223,6 +223,14 @@
     Nothing is sent to real hardware.</p>
 </div>
 
+<div class="hero hidden" id="cfgView">
+  <div class="kicker">Shared settings</div>
+  <h2 id="cfgTitle">Apply shared settings</h2>
+  <p id="cfgText"></p>
+  <div class="devgrid" id="cfgDevices"></div>
+  <p><a class="btn ghost" href="#" id="cfgAdd">+ Add a device</a> <a class="btn ghost" href="#" id="cfgHome">Cancel</a></p>
+</div>
+
 <div id="stage" class="hidden"></div>
 
 <p class="foot" id="foot"><a href="tested.html">Tested hardware</a> &middot; not affiliated with ATK</p>
@@ -369,7 +377,85 @@ function closeView(key){
   else renderTabs();
 }
 
+
+const CFG_MAX = 200000;
+async function peekCfg(code){
+  const t = code.trim();
+  if (t.length > CFG_MAX) throw new Error('too large');
+  const m = /^OATK([01])\.([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) throw new Error('bad');
+  let u8 = Uint8Array.from(atob(m[2].replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+  if (m[1] === '1'){
+    if (typeof DecompressionStream !== 'function') throw new Error('bad');
+    const r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+    const parts = []; let n = 0;
+    for (;;){
+      const { done, value } = await r.read();
+      if (done) break;
+      n += value.length;
+      if (n > CFG_MAX * 4){ await r.cancel(); throw new Error('too large'); }
+      parts.push(value);
+    }
+    u8 = new Uint8Array(n); let o = 0;
+    for (const c of parts){ u8.set(c, o); o += c.length; }
+  }
+  const cfg = JSON.parse(new TextDecoder().decode(u8));
+  if (!cfg || cfg.app !== 'openatk' || cfg.v !== 1 || (cfg.kind !== 'mouse' && cfg.kind !== 'keyboard')) throw new Error('bad');
+  return { kind: cfg.kind, model: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '', code: t };
+}
+
+let cfgToken = 0;
+let pendingCfg = null;
+function sendCfg(key){
+  if (!pendingCfg || pendingCfg.key !== key) return;
+  const f = frames.get(key);
+  if (!f) return;
+  const post = () => { f.contentWindow?.postMessage({ type: 'openatk-share', code: pendingCfg.code }, location.origin); pendingCfg = null; };
+  if (f.dataset.loaded === '1') post(); else f.addEventListener('load', post, { once: true });
+}
+
+async function showCfg(code){
+  const my = ++cfgToken;
+  document.body.classList.remove('app');
+  for (const id of ['#homeView', '#stage', '#foot']) $(id).classList.add('hidden');
+  const view = $('#cfgView');
+  view.classList.remove('hidden');
+  $('#cfgDevices').replaceChildren();
+  $('#cfgAdd').classList.add('hidden');
+  let info;
+  try { info = await peekCfg(code); }
+  catch {
+    if (my !== cfgToken) return;
+    $('#cfgTitle').textContent = 'That link does not work';
+    $('#cfgText').textContent = 'The shared settings in it are missing, damaged or from something that is not OpenATK.';
+    return;
+  }
+  if (my !== cfgToken) return;
+  const label = info.kind === 'keyboard' ? 'keyboard' : 'mouse';
+  $('#cfgTitle').textContent = `Settings for a ${label}`;
+  const matching = devices.filter(d => kindOf(d) === info.kind);
+  $('#cfgText').textContent = `${info.model ? 'Made on ' + info.model : 'Shared'}${info.made ? ', ' + info.made : ''}. ` +
+    (matching.length ? 'Pick the device to preview them on. Nothing is written until you confirm.'
+                     : `Connect a ${label} first, then open this link again.`);
+  $('#cfgAdd').classList.toggle('hidden', !HAS_HID);
+  $('#cfgDevices').replaceChildren(...matching.map(d => {
+    const a = card(d);
+    a.onclick = e => {
+      e.preventDefault();
+      pendingCfg = { key: 'd:' + devId(d), code: info.code };
+      location.hash = hashFor(info.kind, devId(d));
+    };
+    return a;
+  }));
+}
+
 function route(){
+  const cfgCode = new URLSearchParams(location.hash.slice(1)).get('cfg');
+  if (cfgCode){
+    if (!loaded) return;
+    showCfg(cfgCode); renderTabs(); return;
+  }
+  $('#cfgView').classList.add('hidden');
   const r = parseHash();
   if (r && r.key.startsWith('d:') && !r.known){
     if (loaded) location.hash = '';
@@ -387,9 +473,11 @@ function route(){
       f.title = r.key;
       f.allow = 'hid';
       f.dataset.key = r.key;
+      f.addEventListener('load', () => { f.dataset.loaded = '1'; });
       $('#stage').append(f);
       frames.set(r.key, f);
     }
+    sendCfg(r.key);
     for (const [k, f] of frames) f.classList.toggle('hidden', k !== r.key);
   }
   renderTabs();
@@ -432,6 +520,8 @@ for (const a of document.querySelectorAll('.pick')) a.onclick = e => { e.prevent
 $('#connectAny').onclick = addDevices;
 $('#addDevice').onclick = addDevices;
 $('#addTab').onclick = addDevices;
+$('#cfgAdd').onclick = e => { e.preventDefault(); addDevices(); };
+$('#cfgHome').onclick = e => { e.preventDefault(); location.hash = ''; };
 $('#home').addEventListener('click', e => { e.preventDefault(); if (location.hash) location.hash = ''; else route(); });
 window.addEventListener('hashchange', route);
 window.addEventListener('storage', () => { if (!parseHash()) $('#devGrid').replaceChildren(...devices.map(card)); renderTabs(); });

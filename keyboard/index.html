@@ -636,6 +636,7 @@
       <div class="gridbar">
         <button class="btn ghost" id="shareFile">Save to file</button>
         <button class="btn ghost" id="shareCopy">Copy share code</button>
+        <button class="btn ghost" id="shareLinkBtn">Copy share link</button>
         <label class="btn ghost" style="cursor:pointer">Load file<input type="file" id="shareLoad" accept=".json,application/json" hidden></label>
       </div>
       <textarea id="sharePaste" rows="2" spellcheck="false" aria-label="Paste a share code"
@@ -1675,6 +1676,24 @@ $('#sharePaste').oninput = e => {
   if (!v){ $('#sharePreview').classList.add('hidden'); return; }
   pasteTimer = setTimeout(() => loadShare(v), 250);
 };
+$('#shareLinkBtn').onclick = async () => {
+  if (!kb) return;
+  const url = new URL('../index.html', location.href);
+  url.search = '';
+  url.hash = 'cfg=' + await encodeShare(await snapshot());
+  try { await navigator.clipboard.writeText(url.href); toast('Share link copied'); }
+  catch { $('#sharePaste').value = url.href; $('#sharePaste').select(); toast('Copy the link from the box below'); }
+};
+window.addEventListener('message', async e => {
+  if (e.source !== window.parent || e.origin !== location.origin) return;
+  const d = e.data;
+  if (!d || d.type !== 'openatk-share' || typeof d.code !== 'string' || d.code.length > SHARE_MAX) return;
+  for (let i = 0; i < 100 && !(kb && travelValues.length); i++) await new Promise(r => setTimeout(r, 200));
+  if (!kb) return;
+  showTab('device');
+  $('#sharePaste').value = d.code;
+  await loadShare(d.code);
+});
 $('#shareCancel').onclick = clearShare;
 $('#shareApply').onclick = async () => {
   if (!pendingShare || !kb) return;
