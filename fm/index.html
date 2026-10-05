@@ -333,6 +333,46 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   body.embed header .brand, body.embed header .lead, body.embed header .icon, body.embed header #connect,
   body.embed .demobar a, body.embed a[href^="../keyboard/"], body.embed a[href^="../mouse/"]{display:none !important}
   body.embed .wrap{padding-top:8px}
+
+  .tmr-stage{display:grid;grid-template-columns:1fr minmax(160px,230px) 1fr;gap:18px;align-items:start;padding:26px 10px 10px}
+  .tmr-col{display:flex;flex-direction:column;align-items:center;gap:16px}
+  .tmr-col h3{margin:0;font:600 19px/1.2 var(--disp);letter-spacing:-.01em}
+  .tmr-toggle{display:flex;padding:4px;border-radius:999px;background:rgba(255,255,255,.03);box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
+  .tmr-toggle button{border:0;background:none;color:var(--dim);font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:9px 16px;border-radius:999px;cursor:pointer}
+  .tmr-toggle button[aria-pressed=true]{background:#f1f6fb;color:#06080b}
+  .tmr-toggle.off{opacity:.45}
+  .tmr-rail{position:relative;height:250px;width:130px;display:grid;grid-template-columns:60px 24px 12px;grid-template-rows:250px;gap:8px}
+  .tmr-ticks{position:relative;font:500 11.5px/1 var(--mono);color:var(--dim)}
+  .tmr-ticks span{position:absolute;right:0;transform:translateY(-50%)}
+  .tmr-ticks .star{right:38px;color:var(--acc2);font-size:15px}
+  .tmr-track{position:relative;display:flex;justify-content:center;background:repeating-linear-gradient(0deg,transparent 0 5px,rgba(255,255,255,.05) 5px 6px);border-radius:4px}
+  .tmr-track{cursor:pointer;touch-action:none}
+  .tmr-track input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+  .tmr-track .fill{position:absolute;left:50%;top:0;width:4px;margin-left:-2px;border-radius:2px;background:#e8eef4}
+  .tmr-track::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(255,255,255,.12)}
+  .tmr-track .thumb{position:absolute;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:0;padding:0;background:#f1f6fb;box-shadow:0 0 0 4px rgba(0,0,0,.35),0 2px 10px rgba(0,0,0,.5);cursor:grab}
+  .tmr-track .thumb:focus-visible{outline:2px solid var(--acc2);outline-offset:3px}
+  .tmr-col.mech .tmr-track,.tmr-col.uncal .tmr-track{cursor:default}
+  .tmr-zones{position:relative}
+  .tmr-zones i{position:absolute;left:3px;width:4px;border-radius:2px}
+  .tmr-zones .red{background:#e5484d} .tmr-zones .yel{background:#d6a91f} .tmr-zones .grn{background:#30a46c}
+  .tmr-col.mech .tmr-zones, .tmr-col.mech .tmr-ticks .star{opacity:.15}
+  .tmr-col.mech .tmr-track{opacity:.35}
+  .tmr-num{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:10px;background:#0a0e13;box-shadow:0 0 0 1px var(--line2);font:500 14px/1 var(--mono);color:var(--dim)}
+  .tmr-num input{width:52px;border:0;background:none;color:var(--ink);font:inherit;outline:0}
+  .tmr-col.mech .tmr-num{opacity:.5}
+  .tmr-srt{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .tmr-srt .lbl{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+  .tmr-srt .badge{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:4px;font:700 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);box-shadow:0 0 0 1px var(--line2)}
+  .tmr-srt .badge b{width:7px;height:7px;background:currentColor;border-radius:1px}
+  .tmr-srt .badge.on{color:#3fd68a;box-shadow:0 0 0 1px #2d9b62;background:rgba(48,164,108,.08)}
+  .tmr-note{min-height:18px;font-size:12.5px;color:var(--warn);text-align:center;max-width:220px}
+  .tmr-mid{display:grid;place-items:center;padding-top:40px}
+  .tmr-mouse{width:100%;max-width:220px;filter:drop-shadow(0 0 26px rgba(var(--acc2-rgb),.25))}
+  .tmr-mouse .btn-l,.tmr-mouse .btn-r{fill:rgba(var(--acc2-rgb),.06);stroke:rgba(var(--acc2-rgb),.55);stroke-width:1.5;transition:fill .1s}
+  .tmr-mouse .down{fill:rgba(var(--acc2-rgb),.45)}
+  .tmr-extra{margin-top:14px}
+  @media (max-width: 900px){ .tmr-stage{grid-template-columns:1fr 1fr} .tmr-mid{display:none} }
 </style>
 </head>
 <body>
@@ -440,7 +480,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     </section>
 
     <section class="panel hidden" data-panel="clicks">
-      <div class="phead"><div><h2>Clicks</h2><p>TMR analog trigger for each button. Analog needs the side calibrated in Finalmouse Xpanel first.</p></div></div>
+      <div class="phead"><div><h2>TMR-DS actuation</h2><p>Mechanical or analog for each click, and how far it travels before it fires. Analog needs that click calibrated in Finalmouse Xpanel first.</p></div></div>
       <div id="tmrHost"></div>
     </section>
 
@@ -740,28 +780,77 @@ $('#indColor').onchange = async e => {
 };
 
 const REL = [[0, 'Normal'], [1, 'Early'], [2, 'Late']];
-const ACT_MIN = 0.01, ACT_MAX = 0.4, ACT_DEFAULT = 0.25, SENS_MIN = 10, SENS_MAX = 220, SENS_DEFAULT = 150;
+const ACT_MIN = 0.01, ACT_MAX = 0.4, ACT_DEFAULT = 0.25, ACT_RED = 0.1, ACT_YELLOW = 0.2, SENS_MIN = 150, SENS_MAX = 250, SENS_STEP = 10, SENS_DEFAULT = 220;
 const sideKey = k => k === 'l' ? 'L' : 'R';
 const calibrated = k => (fm.state['msp' + sideKey(k)] ?? 0) > 0;
 const tmr = { l: {}, r: {} };
+function place(k){
+  const t = tmr[k], v = +t.act.value, pct = v / ACT_MAX * 100;
+  t.thumb.style.top = pct + '%';
+  t.fill.style.height = pct + '%';
+  t.thumb.setAttribute('aria-valuenow', v.toFixed(2));
+  t.thumb.disabled = t.act.disabled;
+}
+const MOUSE_SVG = `<svg viewBox="0 0 200 330" class="tmr-mouse" aria-hidden="true">
+  <defs><linearGradient id="tmrBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(var(--acc2-rgb),.16)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.04)"/></linearGradient></defs>
+  <path d="M100 8c48 0 74 34 76 92l4 104c3 74-30 118-80 118S17 278 20 204l4-104C26 42 52 8 100 8Z" fill="url(#tmrBody)" stroke="rgba(var(--acc2-rgb),.75)" stroke-width="2"/>
+  <path class="btn-l" d="M98 12C58 14 30 42 28 98l-1 26c22 8 46 12 71 12Z"/>
+  <path class="btn-r" d="M102 12c40 2 68 30 70 86l1 26c-22 8-46 12-71 12Z"/>
+  <rect x="92" y="40" width="16" height="40" rx="8" fill="none" stroke="rgba(var(--acc2-rgb),.8)" stroke-width="2"/>
+  <path d="M100 136v8M40 170h120M52 210h96M60 250h80" stroke="rgba(var(--acc2-rgb),.22)" stroke-width="1.5" stroke-dasharray="3 5"/>
+  <circle cx="100" cy="290" r="10" fill="none" stroke="rgba(var(--acc2-rgb),.35)" stroke-width="1.5"/>
+</svg>`;
 function buildTmr(){
   const host = $('#tmrHost');
   host.replaceChildren();
+  const stage = document.createElement('div');
+  stage.className = 'tmr-stage';
+  const side = k => {
+    const col = document.createElement('div');
+    col.className = 'tmr-col tmr-' + k;
+    const pct = v => ((v - 0) / (ACT_MAX - 0)) * 100;
+    col.innerHTML = `<h3>${k === 'l' ? 'Left Click' : 'Right Click'}</h3>
+      <div class="tmr-toggle" data-mode="${k}"></div>
+      <div class="tmr-rail">
+        <div class="tmr-ticks">${[0, 0.1, 0.2, 0.3, 0.4].map(v => `<span style="top:${pct(v)}%">${v.toFixed(2)}</span>`).join('')}
+          <span class="star" style="top:${pct(ACT_DEFAULT)}%" title="Recommended">&#9733;</span></div>
+        <div class="tmr-track" data-track="${k}"><input type="range" data-act="${k}" min="${ACT_MIN}" max="${ACT_MAX}" step="0.01" value="${ACT_DEFAULT}" tabindex="-1" aria-hidden="true"><div class="fill"></div><button class="thumb" role="slider" aria-label="${k === 'l' ? 'Left' : 'Right'} actuation point" aria-valuemin="${ACT_MIN}" aria-valuemax="${ACT_MAX}"></button></div>
+        <div class="tmr-zones" aria-hidden="true">
+          <i class="red" style="top:0;height:${pct(ACT_RED)}%" title="Benchmark only"></i>
+          <i class="yel" style="top:${pct(ACT_RED)}%;height:${pct(ACT_YELLOW) - pct(ACT_RED)}%" title="High sensitivity"></i>
+          <i class="grn" style="top:${pct(ACT_YELLOW)}%;height:${100 - pct(ACT_YELLOW)}%" title="Recommended"></i>
+        </div>
+      </div>
+      <label class="tmr-num"><input type="number" data-actnum="${k}" min="${ACT_MIN}" max="${ACT_MAX}" step="0.01" value="${ACT_DEFAULT.toFixed(2)}"><span>mm</span></label>
+      <div class="tmr-srt"><div class="lbl">Smart Rapid Trigger</div><div class="badge" data-srt="${k}"><b></b><span>Disabled</span></div></div>
+      <div class="tmr-note" data-note="${k}"></div>`;
+    return col;
+  };
+  const left = side('l'), right = side('r');
+  const mid = document.createElement('div');
+  mid.className = 'tmr-mid';
+  mid.innerHTML = MOUSE_SVG;
+  stage.append(left, mid, right);
+  host.appendChild(stage);
+
+  const extra = document.createElement('div');
+  extra.className = 'grid2 tmr-extra';
   for (const k of ['l', 'r']){
-    const S = sideKey(k);
-    const item = document.createElement('div'); item.className = 'item';
-    item.innerHTML = `<div class="t">${k === 'l' ? 'Left click' : 'Right click'}</div>
-      <div class="d" data-note="${k}"></div>
-      <div class="seg" data-mode="${k}"></div>
-      <div class="d" style="margin:14px 0 8px">Actuation depth</div>
-      <div class="slider"><input type="range" data-act="${k}" min="${ACT_MIN}" max="${ACT_MAX}" step="0.01" value="${ACT_DEFAULT}"><output data-actout="${k}">0.25 mm</output></div>
+    const it = document.createElement('div');
+    it.className = 'item';
+    it.innerHTML = `<div class="t">${k === 'l' ? 'Left' : 'Right'} click rapid trigger</div>
+      <div class="d" style="margin:10px 0 8px">Release point</div>
+      <div class="seg" data-rel="${k}"></div>
       <div class="d" style="margin:14px 0 8px">Rapid trigger sensitivity</div>
-      <div class="slider"><input type="range" data-sens="${k}" min="${SENS_MIN}" max="${SENS_MAX}" step="1" value="${SENS_DEFAULT}"><output data-sensout="${k}">150 um</output></div>
-      <div class="d" style="margin:14px 0 8px">Release point</div>
-      <div class="seg" data-rel="${k}"></div>`;
-    host.appendChild(item);
-    const segs = (attr, opts, on) => {
-      const el = item.querySelector(`[${attr}]`);
+      <div class="slider"><input type="range" data-sens="${k}" min="${SENS_MIN}" max="${SENS_MAX}" step="${SENS_STEP}" value="${SENS_DEFAULT}"><output data-sensout="${k}">${SENS_DEFAULT} &micro;m</output></div>
+      <div class="d" style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px"><span>Most sensitive</span><span>Least sensitive</span></div>`;
+    extra.appendChild(it);
+  }
+  host.appendChild(extra);
+
+  for (const k of ['l', 'r']){
+    const col = k === 'l' ? left : right, ex = extra.children[k === 'l' ? 0 : 1];
+    const segs = (el, opts, on) => {
       for (const [v, l] of opts){
         const b = document.createElement('button'); b.textContent = l; b.dataset.value = String(v); b.setAttribute('aria-pressed', 'false');
         b.onclick = async () => { if (!fm || el.classList.contains('off')) return; try { await on(v); } catch { toast('Could not save, try again', 1); } };
@@ -769,15 +858,50 @@ function buildTmr(){
       }
       return el;
     };
-    tmr[k].mode = segs(`data-mode`, [[0, 'Mechanical'], [1, 'Analog']], v => setMode(k, v));
-    tmr[k].rel = segs(`data-rel`, REL, v => setRel(k, v));
-    tmr[k].act = item.querySelector('[data-act]'); tmr[k].actOut = item.querySelector('[data-actout]');
-    tmr[k].sens = item.querySelector('[data-sens]'); tmr[k].sensOut = item.querySelector('[data-sensout]');
-    tmr[k].note = item.querySelector('[data-note]'); tmr[k].item = item;
+    tmr[k].mode = segs(col.querySelector('[data-mode]'), [[0, 'Mechanical'], [1, 'TMR Analog']], v => setMode(k, v));
+    tmr[k].rel = segs(ex.querySelector('[data-rel]'), REL, v => setRel(k, v));
+    tmr[k].act = col.querySelector('[data-act]');
+    tmr[k].actOut = col.querySelector('[data-actnum]');
+    tmr[k].srt = col.querySelector('[data-srt]');
+    tmr[k].col = col;
+    tmr[k].sens = ex.querySelector('[data-sens]'); tmr[k].sensOut = ex.querySelector('[data-sensout]');
+    tmr[k].note = col.querySelector('[data-note]');
     let ta, ts;
-    tmr[k].act.oninput = e => { const mm = +e.target.value; tmr[k].actOut.textContent = mm.toFixed(2) + ' mm'; clearTimeout(ta); ta = setTimeout(() => commitAct(k, mm), 250); };
-    tmr[k].sens.oninput = e => { const u = +e.target.value; tmr[k].sensOut.textContent = u + ' um'; clearTimeout(ts); ts = setTimeout(() => commitSens(k, u), 250); };
+    const track = col.querySelector('[data-track]'), thumb = track.querySelector('.thumb');
+    const setFromY = y => {
+      const r = track.getBoundingClientRect();
+      const mm = Math.round(clamp((y - r.top) / r.height * ACT_MAX, ACT_MIN, ACT_MAX) * 100) / 100;
+      if (+tmr[k].act.value !== mm){ tmr[k].act.value = mm; place(k); tmr[k].act.dispatchEvent(new Event('input')); }
+    };
+    let drag = false;
+    track.addEventListener('pointerdown', e => { if (tmr[k].act.disabled) return; drag = true; track.setPointerCapture(e.pointerId); setFromY(e.clientY); e.stopPropagation(); });
+    track.addEventListener('pointermove', e => { if (drag) setFromY(e.clientY); });
+    track.addEventListener('pointerup', () => { drag = false; });
+    track.addEventListener('pointercancel', () => { drag = false; });
+    thumb.addEventListener('keydown', e => {
+      if (tmr[k].act.disabled) return;
+      const d = e.key === 'ArrowDown' ? 0.01 : e.key === 'ArrowUp' ? -0.01 : 0;
+      if (!d) return;
+      e.preventDefault();
+      tmr[k].act.value = Math.round(clamp(+tmr[k].act.value + d, ACT_MIN, ACT_MAX) * 100) / 100;
+      place(k); tmr[k].act.dispatchEvent(new Event('input'));
+    });
+    tmr[k].thumb = thumb; tmr[k].fill = track.querySelector('.fill');
+    tmr[k].act.oninput = e => { const mm = +e.target.value; tmr[k].actOut.value = mm.toFixed(2); clearTimeout(ta); ta = setTimeout(() => commitAct(k, mm), 250); };
+    tmr[k].actOut.onchange = e => {
+      const v = Number(e.target.value);
+      if (!Number.isFinite(v)){ showTmr(); return; }
+      const mm = Math.round(clamp(v, ACT_MIN, ACT_MAX) * 100) / 100;
+      tmr[k].act.value = mm; e.target.value = mm.toFixed(2); place(k);
+      commitAct(k, mm);
+    };
+    tmr[k].sens.oninput = e => { const u = +e.target.value; tmr[k].sensOut.textContent = u + ' µm'; clearTimeout(ts); ts = setTimeout(() => commitSens(k, u), 250); };
   }
+  const press = (k, on) => mid.querySelector('.btn-' + k).classList.toggle('down', on);
+  const host2 = $('#tmrHost');
+  host2.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && (e.button === 0 || e.button === 2)) press(e.button === 0 ? 'l' : 'r', true); });
+  window.addEventListener('pointerup', e => { if (e.button === 0 || e.button === 2) press(e.button === 0 ? 'l' : 'r', false); });
+  host2.addEventListener('contextmenu', e => e.preventDefault());
 }
 function curSteps(){ const s = fm.state; return { l: s.thrL ?? 0, r: s.thrR ?? 0 }; }
 function curHyst(){ const s = fm.state; return { l: s.hystL ?? SENS_DEFAULT, r: s.hystR ?? SENS_DEFAULT }; }
@@ -825,14 +949,24 @@ function showTmr(){
     mark2(t.mode, s['mode' + S]);
     mark2(t.rel, s['rel' + S]);
     const thr = s['thr' + S];
-    if (thr != null && thr > 0){ const mm = clamp(thr / 100, ACT_MIN, ACT_MAX); t.act.value = mm; t.actOut.textContent = mm.toFixed(2) + ' mm'; }
+    if (thr != null && thr > 0 && document.activeElement !== t.actOut){
+      const mm = clamp(thr / 100, ACT_MIN, ACT_MAX);
+      t.act.value = mm; t.actOut.value = mm.toFixed(2);
+    }
+    if (!analog && document.activeElement !== t.actOut) t.actOut.value = ACT_MAX.toFixed(2);
     const hy = s['hyst' + S];
-    if (hy != null && hy >= SENS_MIN && hy <= SENS_MAX){ t.sens.value = hy; t.sensOut.textContent = hy + ' um'; }
+    if (hy != null && hy >= SENS_MIN && hy <= SENS_MAX){ t.sens.value = hy; t.sensOut.textContent = hy + ' µm'; }
+    t.col.classList.toggle('mech', !analog);
+    t.col.classList.toggle('uncal', !cal);
     t.mode.classList.toggle('off', !cal);
-    for (const el of [t.act, t.sens]) el.disabled = !cal || !analog;
+    for (const el of [t.act, t.actOut, t.sens]) el.disabled = !cal || !analog;
     t.rel.classList.toggle('off', !cal || !analog);
-    t.rel.style.opacity = t.mode.style.opacity = !cal ? '.45' : '';
-    t.note.textContent = s['msp' + S] == null ? 'Reading the button sensor...' : cal ? (analog ? 'Analog is on for this button.' : 'Mechanical is on. Switch to analog to set depth and sensitivity.') : 'This button is not calibrated. Calibrate it in Finalmouse Xpanel to use analog.';
+    if (!analog) t.act.value = ACT_MAX;
+    place(k);
+    t.rel.style.opacity = !cal || !analog ? '.45' : '';
+    t.srt.classList.toggle('on', cal && analog);
+    t.srt.querySelector('span').textContent = cal && analog ? 'Enabled' : 'Disabled';
+    t.note.textContent = s['msp' + S] == null ? 'Reading the button sensor...' : cal ? '' : 'Not calibrated. Calibrate this click in Finalmouse Xpanel to use analog.';
   }
 }
 function mark2(host, value){ for (const b of host.children) b.setAttribute('aria-pressed', String(value != null && +b.dataset.value === +value)); }
