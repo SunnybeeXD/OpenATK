@@ -433,7 +433,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
       <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
       <button data-tab="feel" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>Tracking</button>
       <button data-tab="clicks" aria-pressed="false" id="clicksTab" class="hidden"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v6M9 6l3 3 3-3M5 14a7 7 0 0 0 14 0"/></svg>Clicks</button>
-      <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Light</button>
+      <button data-tab="light" aria-pressed="false" id="lightTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Receiver</button>
       <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/></svg>Device</button>
     </nav>
     <p class="foot">Changes save to the mouse immediately. Not affiliated with Finalmouse.</p>
@@ -451,7 +451,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
           <output id="dpiOut">800</output>
         </div>
       </div>
-      <div class="item">
+      <div class="item" id="rateItem">
         <div class="t">Polling rate</div>
         <div class="d">How often the mouse reports its position. Higher feels smoother and uses more battery. 8,000 Hz needs recent receiver and mouse firmware.</div>
         <div class="seg" id="segRate"></div>
@@ -462,11 +462,11 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
       <div class="phead"><div><h2>Tracking</h2><p>Lift-off, smoothing and scroll behaviour.</p></div></div>
       <div class="item">
         <div class="t">Lift-off distance</div>
-        <div class="d">How far the mouse can be lifted before it stops tracking.</div>
+        <div class="d" id="lodDesc">How far the mouse can be lifted before it stops tracking.</div>
         <div class="seg" id="segLod"></div>
-        <div class="slider hidden" id="pawWrap"><input type="range" id="pawLod" min="0.01" max="0.4" step="0.01" value="0.2"><output id="pawOut">0.20 mm</output></div>
+        <div class="slider hidden" id="pawWrap" style="margin-top:14px"><input type="range" id="pawLod" min="1" max="1.7" step="0.1" value="1"><output id="pawOut">custom</output></div>
       </div>
-      <div class="item row">
+      <div class="item row" id="motionItem">
         <div><div class="t">Motion sync</div><div class="d">Lines mouse reports up with the sensor for steadier tracking, at a tiny cost in latency.</div></div>
         <input type="checkbox" class="sw" id="motionSync">
       </div>
@@ -485,10 +485,10 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     </section>
 
     <section class="panel hidden" data-panel="light">
-      <div class="phead"><div><h2>Light</h2><p>The status light on the mouse.</p></div></div>
+      <div class="phead"><div><h2>Receiver light</h2><p>The LEDs on the wireless receiver.</p></div></div>
       <div class="item">
-        <div class="t">Indicator</div>
-        <div class="d">What the light shows.</div>
+        <div class="t">Receiver LEDs</div>
+        <div class="d" id="indDesc">What the receiver's LEDs show.</div>
         <div class="seg" id="segInd"></div>
         <div id="indColorWrap" class="hidden" style="margin-top:14px">
           <div class="swatches"><label class="swatch">Colour<input type="color" id="indColor" value="#ffffff"></label></div>
@@ -560,11 +560,24 @@ const CMD = { GET_DPI_ULX: 3, GET_RATE_ULX: 4, VBAT: 5, RSSI: 13, SERIAL: 14, MF
   INDICATOR: 20, LOD: 21, PAW_LOD: 25, CLICK: 31, ACT: 53, MSP: 55, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, ALL: 96 };
 const DPI_PRESETS = [400, 800, 1600, 3200, 6400];
 const RATES = [500, 1000, 2000, 4000, 8000];
-const LODS = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0];
-const LOD_LEGACY = { 1: 0.7, 2: 1.0, 3: 2.0 };
+const LOD_PRESETS = [1, 2];
+const LOD_CUSTOM_MIN = 1.0, LOD_CUSTOM_MAX = 1.7;
+const PAW_BYTE = { 1: 0.7, 2: 1.0, 3: 2.0 };
+const PAW_PRESET = { 1: 2, 2: 3 };
+const BATT_V = [3, 3.62, 3.66, 3.74, 3.88, 4.17, 4.38], BATT_P = [0.2, 5, 10, 25, 50, 75, 100];
+function socFromMv(mv){
+  const v = mv / 1000;
+  if (v > 4.38) return 100;
+  if (v < 3) return 0;
+  for (let i = 0; i < BATT_V.length - 1; i++)
+    if (v >= BATT_V[i] && v <= BATT_V[i + 1]) return Math.round(BATT_P[i] + (BATT_P[i + 1] - BATT_P[i]) * (v - BATT_V[i]) / (BATT_V[i + 1] - BATT_V[i]));
+  return 100;
+}
+const verAtLeast = (v, min) => { if (!v) return false; const a = v.split('-')[0].split('.').map(Number), b = min.split('.').map(Number); for (let i = 0; i < 3; i++){ if ((a[i] || 0) !== b[i]) return (a[i] || 0) > b[i]; } return true; };
 const JS_MODES = [[0, 'Off'], [1, 'Scroll up'], [2, 'Scroll down'], [3, 'Both']];
 const JS_T = [100, 500, 1000, 1500];
-const IND = [[0, 'Off'], [1, 'Battery level'], [2, 'Custom colour']];
+const IND_ULX = [[0, 'Off'], [1, 'Battery level'], [2, 'Solid white']];
+const IND_SLX = [[0, 'Off'], [1, 'Battery level'], [2, 'Custom colour'], [4, 'TMR-DS']];
 const RING = 238.76;
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -605,7 +618,6 @@ class Finalmouse {
     this.inId = info.fam === 'ulx' ? 5 : 2;
     this.state = {};
     this.waiters = [];
-    this.legacyLod = false;
     this.onChange = () => {};
     this.listener = e => this.onReport(e);
     device.addEventListener('inputreport', this.listener);
@@ -642,14 +654,18 @@ class Finalmouse {
       case CMD.MOTION: if (p.length >= 1) s.motion = p[0] !== 0; break;
       case CMD.INDICATOR: if (p.length >= 1) s.indicator = p[0]; break;
       case CMD.COLOR: if (p.length >= 3) s.color = [p[0], p[1], p[2]]; break;
-      case CMD.LOD: if (p.length >= 1){ s.lodRaw = p[0]; s.lod = LOD_LEGACY[p[0]] ?? p[0] / 10; this.legacyLod = p[0] in LOD_LEGACY; } break;
-      case CMD.PAW_LOD: if (p.length >= 1) s.pawLod = p[0] / 100; break;
+      case CMD.LOD: if (p.length >= 1 && this.fam === 'ulx' && (p[0] === 1 || p[0] === 2)){ s.lod = p[0]; s.lodCustom = false; } break;
+      case CMD.PAW_LOD: if (p.length >= 1){
+        const b = p[0], mm = PAW_BYTE[b] ?? (b >= 7 && b <= 20 ? b / 10 : null);
+        if (mm != null){ s.lod = mm; s.lodCustom = b >= 7 && b <= 17; }
+      } break;
+      case CMD.VBAT: if (p.length >= 2){ const v = u16(p); s.vbat = v === 0 || v === 65535 ? null : v; } break;
       case CMD.CLICK: if (p.length >= 2){ s.modeR = p[0]; s.modeL = p[1]; if (p.length >= 4){ s.relR = p[2]; s.relL = p[3]; } } break;
       case CMD.ACT: if (p.length >= 8){ s.thrR = u16(p, 0); s.thrL = u16(p, 2); s.hystR = u16(p, 4); s.hystL = u16(p, 6); } break;
       case CMD.MSP: if (p.length >= 4){ s.mspR = u16(p, 0); s.mspL = u16(p, 2); } break;
       case CMD.JS_MODE: if (p.length >= 1) s.jsMode = p[0]; break;
       case CMD.JS_TIMEOUT: if (p.length >= 1) s.jsTimeout = p[0] * 100; break;
-      case CMD.BATTERY: if (p.length >= 3){ s.soc = p[0] > 100 ? null : p[0]; s.mv = u16(p, 1); } break;
+      case CMD.BATTERY: if (p.length >= 3){ s.soc = p[0] > 100 ? null : p[0]; s.mv = u16(p, 1) || null; } break;
       case CMD.CHARGING: if (p.length >= 1) s.charging = p[0] !== 0; break;
       case CMD.LINK: if (p.length >= 1) s.link = p[0]; break;
       case CMD.RSSI: if (p.length >= 1) s.rssi = p[0] > 127 ? p[0] - 256 : p[0]; break;
@@ -671,8 +687,8 @@ class Finalmouse {
     });
   }
   async readAll(){
-    const wanted = [CMD.DPI, CMD.RATE, CMD.MOTION, ...(this.fam === 'ulx' ? [CMD.LOD] : [CMD.PAW_LOD, CMD.MSP, CMD.CLICK, CMD.ACT]), CMD.INDICATOR, CMD.COLOR, CMD.JS_MODE, CMD.JS_TIMEOUT,
-      CMD.BATTERY, CMD.CHARGING, CMD.LINK, CMD.FW, CMD.SERIAL, CMD.MFG, CMD.RSSI];
+    const wanted = [CMD.DPI, ...(this.fam === 'ulx' ? [CMD.RATE, CMD.MOTION] : []), ...(this.fam === 'ulx' ? [CMD.LOD, CMD.PAW_LOD] : [CMD.PAW_LOD, CMD.MSP, CMD.CLICK, CMD.ACT]), CMD.INDICATOR, CMD.COLOR, CMD.JS_MODE, CMD.JS_TIMEOUT,
+      CMD.BATTERY, CMD.VBAT, CMD.CHARGING, CMD.LINK, CMD.FW, CMD.SERIAL, CMD.MFG, CMD.RSSI];
     let got = 0;
     for (const c of wanted){ if (await this.request(c)) got++; }
     if (this.info.recv) await this.request(CMD.RF_FW);
@@ -681,14 +697,15 @@ class Finalmouse {
   setDpi(v){ return this.send(CMD.DPI, [v & 255, v >> 8]); }
   setRate(v){ return this.send(CMD.RATE, [v & 255, v >> 8]); }
   setMotion(on){ return this.send(CMD.MOTION, [on ? 1 : 0]); }
-  setPawLod(mm){ return this.send(CMD.PAW_LOD, [clampInt(mm * 100, 1, 40, 1)]); }
+  setLodPreset(mm){ return this.fam === 'slx' && !this.info.recv ? this.send(CMD.PAW_LOD, [PAW_PRESET[mm]]) : this.send(CMD.LOD, [mm]); }
+  setLodCustom(mm){ return this.send(CMD.PAW_LOD, [clampInt(mm * 10, 10, 17, 10)]); }
   setClick(modeL, modeR, relL, relR){ const a = [modeR & 1, modeL & 1]; if (relL != null && relR != null) a.push(relR & 255, relL & 255); return this.send(CMD.CLICK, a); }
   setAct(stepL, stepR, hystL, hystR){
     const a = [stepR & 255, stepR >> 8, stepL & 255, stepL >> 8];
     if (hystL != null && hystR != null) a.push(hystR & 255, hystR >> 8, hystL & 255, hystL >> 8);
     return this.send(CMD.ACT, a);
   }
-  setLod(mm){ if (this.fam !== 'ulx') return this.setPawLod(mm); return this.send(CMD.LOD, [this.legacyLod ? ({ 0.7: 1, 1.0: 2, 2.0: 3 }[mm] ?? 2) : Math.round(mm * 10)]); }
+  setLod(mm){ return LOD_PRESETS.includes(mm) ? this.setLodPreset(mm) : this.setLodCustom(mm); }
   setIndicator(m){ return this.send(CMD.INDICATOR, [m]); }
   setColor(c){ return this.send(CMD.COLOR, c); }
   setJsMode(m){ return this.send(CMD.JS_MODE, [m]); }
@@ -755,8 +772,12 @@ buildSeg('#segRate', RATES.map(v => [v, v >= 1000 ? `${v / 1000}K` : String(v)])
   if (await confirmWrite(() => fm.setRate(v), CMD.RATE, 'rate', v, 'Polling rate')) toast(`Polling rate ${v} Hz`);
   show();
 });
-buildSeg('#segLod', LODS.map(v => [v, v.toFixed(1)]), async v => {
-  if (await confirmWrite(() => fm.setLod(v), CMD.LOD, 'lod', v, 'Lift-off')) toast(`Lift-off ${v.toFixed(1)} mm`);
+buildSeg('#segLod', LOD_PRESETS.map(v => [v, `${v} mm`]), async v => {
+  await fm.setLodPreset(v);
+  await sleep(150);
+  if (fm.fam === 'ulx') await fm.request(CMD.LOD); else await fm.request(CMD.PAW_LOD);
+  show();
+  if (fm.state.lod != null && fm.state.lod !== v) toast(`Lift-off: the mouse kept ${fm.state.lod} mm`, 1); else toast(`Lift-off ${v} mm`);
 });
 $('#motionSync').onchange = async e => {
   const on = e.target.checked;
@@ -769,10 +790,11 @@ buildSeg('#segJs', JS_MODES, async (v, l) => {
 buildSeg('#segJsT', JS_T.map(v => [v, `${v} ms`]), async v => {
   if (await confirmWrite(() => fm.setJsTimeout(v), CMD.JS_TIMEOUT, 'jsTimeout', v, 'Repeat window')) toast(`Repeat window ${v} ms`);
 });
-buildSeg('#segInd', IND, async (v, l) => {
+function buildInd(list){ buildSeg('#segInd', list, async (v, l) => {
   if (await confirmWrite(() => fm.setIndicator(v), CMD.INDICATOR, 'indicator', v, 'Indicator')) toast(`Indicator: ${l}`);
-  $('#indColorWrap').classList.toggle('hidden', v !== 2);
-});
+  $('#indColorWrap').classList.toggle('hidden', !(v === 2 && fm.fam === 'slx'));
+}); }
+buildInd(IND_ULX);
 $('#indColor').onchange = async e => {
   const c = hexToRgb(e.target.value);
   try { await fm.setColor(c); await sleep(120); await fm.request(CMD.COLOR); toast('Indicator colour saved'); }
@@ -966,19 +988,24 @@ function showTmr(){
     t.rel.style.opacity = !cal || !analog ? '.45' : '';
     t.srt.classList.toggle('on', cal && analog);
     t.srt.querySelector('span').textContent = cal && analog ? 'Enabled' : 'Disabled';
-    t.note.textContent = s['msp' + S] == null ? 'Reading the button sensor...' : cal ? '' : 'Not calibrated. Calibrate this click in Finalmouse Xpanel to use analog.';
+    const old = (s.thrL ?? 0) > 40 || (s.thrR ?? 0) > 40;
+    if (old){ t.mode.classList.add('off'); for (const el of [t.act, t.actOut, t.sens]) el.disabled = true; place(k); }
+    const late = t.rel.querySelector('[data-value="2"]');
+    if (late){ const okLate = verAtLeast(s.fw, '1.1.1'); late.disabled = !okLate; late.title = okLate ? '' : 'Needs mouse firmware 1.1.1 or newer'; }
+    t.note.textContent = old ? 'The mouse firmware is too old for these settings. Update it in Finalmouse Xpanel.'
+      : s['msp' + S] == null ? 'Reading the button sensor...' : cal ? '' : 'Not calibrated. Calibrate this click in Finalmouse Xpanel to use analog.';
   }
 }
 function mark2(host, value){ for (const b of host.children) b.setAttribute('aria-pressed', String(value != null && +b.dataset.value === +value)); }
 buildTmr();
 let pawTimer;
 $('#pawLod').oninput = e => {
-  const mm = +e.target.value;
-  $('#pawOut').textContent = mm.toFixed(2) + ' mm';
+  const mm = Math.round(+e.target.value * 10) / 10;
+  $('#pawOut').textContent = mm.toFixed(1) + ' mm';
   clearTimeout(pawTimer);
   pawTimer = setTimeout(async () => {
     if (!fm) return;
-    try { if (await confirmWrite(() => fm.setPawLod(mm), CMD.PAW_LOD, 'pawLod', mm, 'Lift-off')) toast(`Lift-off ${mm.toFixed(2)} mm`); }
+    try { if (await confirmWrite(() => fm.setLodCustom(mm), CMD.PAW_LOD, 'lod', mm, 'Lift-off')) toast(`Lift-off ${mm.toFixed(1)} mm`); }
     catch { toast('Could not save, try again', 1); }
     show();
   }, 250);
@@ -993,19 +1020,24 @@ function show(){
     mark('#segDpi', s.dpi);
   }
   if (s.rate != null){ $('#sRate').textContent = s.rate >= 1000 ? `${s.rate / 1000}K` : s.rate; mark('#segRate', s.rate); }
-  if (s.lod != null) mark('#segLod', s.lod);
-  if (s.pawLod != null){ $('#pawLod').value = clamp(s.pawLod, 0.01, 0.4); $('#pawOut').textContent = s.pawLod.toFixed(2) + ' mm'; }
+  if (s.lod != null){
+    mark('#segLod', s.lodCustom ? -1 : s.lod);
+    if (s.lodCustom && document.activeElement !== $('#pawLod')){ $('#pawLod').value = clamp(s.lod, LOD_CUSTOM_MIN, LOD_CUSTOM_MAX); $('#pawOut').textContent = s.lod.toFixed(1) + ' mm'; }
+    else if (!s.lodCustom) $('#pawOut').textContent = 'custom';
+  }
   if (s.motion != null) $('#motionSync').checked = s.motion;
   if (s.jsMode != null) mark('#segJs', s.jsMode);
   if (s.jsTimeout != null) mark('#segJsT', s.jsTimeout);
-  if (s.indicator != null){ mark('#segInd', s.indicator); $('#indColorWrap').classList.toggle('hidden', s.indicator !== 2); }
+  if (s.indicator != null){ mark('#segInd', s.indicator); $('#indColorWrap').classList.toggle('hidden', !(s.indicator === 2 && fm.fam === 'slx')); }
   if (s.color) $('#indColor').value = rgbToHex(s.color);
   const bar = $('#sBattBar');
-  if (s.soc == null){ $('#sBatt').textContent = s.mv ? `${(s.mv / 1000).toFixed(2)}V` : '-'; bar.style.strokeDashoffset = RING; }
+  const mv = s.mv ?? s.vbat;
+  const soc = s.soc ?? (mv ? socFromMv(mv) : null);
+  if (soc == null){ $('#sBatt').textContent = '-'; bar.style.strokeDashoffset = RING; }
   else {
-    $('#sBatt').textContent = s.soc + '%';
-    bar.style.strokeDashoffset = RING * (1 - s.soc / 100);
-    bar.style.stroke = s.soc < 20 ? '#f87171' : s.soc < 40 ? '#f5c451' : 'var(--acc)';
+    $('#sBatt').textContent = soc + '%';
+    bar.style.strokeDashoffset = RING * (1 - soc / 100);
+    bar.style.stroke = soc < 20 ? '#f87171' : soc < 40 ? '#f5c451' : 'var(--acc)';
   }
   const rows = [['Model', `${fm.info.name}${fm.info.recv ? ' (receiver)' : ''}`], ['USB ID', `${VID.toString(16)}:${fm.device.productId.toString(16)}`]];
   if (s.fw) rows.push(['Mouse firmware', s.fw]);
@@ -1015,14 +1047,19 @@ function show(){
   if (fm.fam === 'slx' && s.mspL != null) rows.push(['Click calibration', `left ${s.mspL > 0 ? 'yes' : 'no'}, right ${s.mspR > 0 ? 'yes' : 'no'}`]);
   if (s.link != null) rows.push(['Link', s.link ? 'Connected' : 'Mouse not linked']);
   if (s.rssi != null) rows.push(['Signal', `${s.rssi} dBm`]);
-  if (s.mv) rows.push(['Battery voltage', `${(s.mv / 1000).toFixed(2)} V${s.charging ? ', charging' : ''}`]);
+  if (mv) rows.push(['Battery voltage', `${(mv / 1000).toFixed(2)} V${s.charging ? ', charging' : ''}`]);
   rows.push(['Protocol', fm.fam === 'ulx' ? 'Ultralight X (report 4/5)' : 'Starlight X (report 1/2)']);
   if (DEMO) rows.unshift(['Mode', 'Demo: simulated, not a real device']);
   $('#kv').replaceChildren(...rows.map(([k, v]) => { const tr = document.createElement('tr'); for (const x of [k, v]){ const td = document.createElement('td'); td.textContent = String(x); tr.append(td); } return tr; }));
   $('#devName').textContent = `Finalmouse ${fm.info.name}`;
   const slx = fm.fam === 'slx';
-  $('#segLod').classList.toggle('hidden', slx);
   $('#pawWrap').classList.toggle('hidden', !slx);
+  $('#lodDesc').textContent = slx ? 'How far the mouse can be lifted before it stops tracking. Pick 1 or 2 mm, or drag for a custom 1.0 to 1.7 mm (needs mouse firmware 1.1.0 or newer).' : 'How far the mouse can be lifted before it stops tracking.';
+  $('#rateItem').classList.toggle('hidden', slx);
+  $('#motionItem').classList.toggle('hidden', slx);
+  $('#lightTab').classList.toggle('hidden', !fm.info.recv);
+  if ($('#segInd').childElementCount !== (slx ? IND_SLX : IND_ULX).length) buildInd(slx ? IND_SLX : IND_ULX);
+  $('#indDesc').textContent = slx ? "What the receiver's five LEDs show. Custom colour also belongs to the active profile." : "What the receiver's LEDs show.";
   $('#clicksTab').classList.toggle('hidden', !slx);
   if (slx) showTmr();
 }
@@ -1091,7 +1128,7 @@ async function autoConnect(){
 }
 
 function makeDemoMouse(slx){
-  const st = { pawLod: 20, modeL: 1, modeR: 0, relL: 0, relR: 0, thrL: 30, thrR: 40, hystL: 150, hystR: 150, mspL: 120, mspR: 110, dpi: 1600, rate: 1000, motion: true, lod: 10, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
+  const st = { pawLod: 2, modeL: 1, modeR: 0, relL: 0, relR: 0, thrL: 30, thrR: 40, hystL: 150, hystR: 150, mspL: 120, mspR: 110, dpi: 1600, rate: 1000, motion: true, lod: 1, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
   const ascii = t => [...t].map(c => c.charCodeAt(0));
   const dev = { vendorId: VID, productId: slx ? 0x310 : 0x100, productName: slx ? 'Starlight X' : 'Ultralight X dongle', opened: false, collections: [{ usagePage: PAGE, usage: 1 }], _l: [],
     addEventListener(t, f){ if (t === 'inputreport') this._l.push(f); }, removeEventListener(t, f){ this._l = this._l.filter(x => x !== f); },
@@ -1182,6 +1219,8 @@ async function decodeShare(text){
 function snapshot(){
   const s = fm.state, c = {};
   for (const k of ['dpi', 'rate', 'lod', 'motion', 'jsMode', 'jsTimeout', 'indicator']) if (s[k] != null) c[k] = s[k];
+  if (fm.fam !== 'ulx'){ delete c.rate; delete c.motion; }
+  if (!fm.info.recv) delete c.indicator;
   if (s.color) c.color = [...s.color];
   return { app: 'openatk', v: 1, kind: 'finalmouse', model: NAME(), made: new Date().toISOString().slice(0, 10), settings: c };
 }
@@ -1193,15 +1232,21 @@ function planShare(cfg){
   const add = (label, run) => steps.push({ label, run });
   const bad = w => notes.push(`${w} was not valid and was skipped`);
   if (c.dpi != null){ const v = clampInt(c.dpi, 400, 12800, null); if (v != null && Number.isInteger(c.dpi) && c.dpi >= 400 && c.dpi <= 12800) add(`Sensitivity ${Math.round(c.dpi / 100) * 100}`, () => fm.setDpi(Math.round(c.dpi / 100) * 100)); else bad('Sensitivity'); }
-  if (c.rate != null){ if (RATES.includes(c.rate)) add(`Polling rate ${c.rate} Hz`, () => fm.setRate(c.rate)); else bad('Polling rate'); }
-  if (c.lod != null && fm.fam !== 'ulx') notes.push('Lift-off is not supported on this model yet and was skipped');
-  else if (c.lod != null && fm.fam !== 'ulx') notes.push('Lift-off is not supported on this model yet and was skipped');
-  else if (c.lod != null){ if (LODS.includes(c.lod)) add(`Lift-off ${c.lod.toFixed(1)} mm`, () => fm.setLod(c.lod)); else bad('Lift-off'); }
-  if (typeof c.motion === 'boolean') add(`Motion sync ${c.motion ? 'on' : 'off'}`, () => fm.setMotion(c.motion));
+  if (c.rate != null && fm.fam !== 'ulx') notes.push('Polling rate is fixed (PerfectPolling) on this model and was skipped');
+  else if (c.rate != null){ if (RATES.includes(c.rate)) add(`Polling rate ${c.rate} Hz`, () => fm.setRate(c.rate)); else bad('Polling rate'); }
+  if (c.lod != null){
+    if (LOD_PRESETS.includes(c.lod)) add(`Lift-off ${c.lod} mm`, () => fm.setLodPreset(c.lod));
+    else if (typeof c.lod === 'number' && c.lod >= LOD_CUSTOM_MIN && c.lod <= LOD_CUSTOM_MAX && fm.fam === 'slx'){ const mm = Math.round(c.lod * 10) / 10; add(`Lift-off ${mm.toFixed(1)} mm`, () => fm.setLodCustom(mm)); }
+    else bad('Lift-off');
+  }
+  if (typeof c.motion === 'boolean' && fm.fam === 'ulx') add(`Motion sync ${c.motion ? 'on' : 'off'}`, () => fm.setMotion(c.motion));
   if (c.jsMode != null){ if (JS_MODES.some(m => m[0] === c.jsMode)) add(`Bhop scroll: ${JS_MODES.find(m => m[0] === c.jsMode)[1]}`, () => fm.setJsMode(c.jsMode)); else bad('Bhop scroll'); }
   if (c.jsTimeout != null){ if (JS_T.includes(c.jsTimeout)) add(`Repeat window ${c.jsTimeout} ms`, () => fm.setJsTimeout(c.jsTimeout)); else bad('Repeat window'); }
-  if (c.indicator != null){ if (IND.some(m => m[0] === c.indicator)) add(`Indicator: ${IND.find(m => m[0] === c.indicator)[1]}`, () => fm.setIndicator(c.indicator)); else bad('Indicator'); }
-  if (c.color != null){
+  const IND = fm.fam === 'slx' ? IND_SLX : IND_ULX;
+  if (c.indicator != null && !fm.info.recv) notes.push('Receiver LEDs were skipped: no receiver connected');
+  else if (c.indicator != null){ if (IND.some(m => m[0] === c.indicator)) add(`Receiver LEDs: ${IND.find(m => m[0] === c.indicator)[1]}`, () => fm.setIndicator(c.indicator)); else bad('Receiver LEDs'); }
+  if (c.color != null && fm.fam !== 'slx') notes.push('Receiver colour only applies to Starlight X and was skipped');
+  else if (c.color != null){
     if (Array.isArray(c.color) && c.color.length === 3 && c.color.every(x => Number.isFinite(Number(x)))){ const rgb = c.color.map(x => clampInt(x, 0, 255, 0)); add('Indicator colour', () => fm.setColor(rgb)); }
     else bad('Indicator colour');
   }
