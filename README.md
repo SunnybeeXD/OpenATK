@@ -13,13 +13,18 @@ Set sensitivity, polling rate, lift-off distance, tracking corrections, click de
 
 Use https://sunnybee.lol/openatk, or download the repository and open [`index.html`](index.html).
 
-The start page lets you pick **Mouse** or **Keyboard**, or press **Connect any ATK device** to choose from every ATK mouse and keyboard in one list and jump straight to the right configurator.
+The start page is the whole app. Press **Connect any ATK device** (or **+ Add device**) to pick several mice and keyboards at once. Each one gets a tab at the top, and you switch between them without leaving the page. Tabs stay loaded, so switching is instant.
 
 | Page | What it is |
 |---|---|
-| [`index.html`](index.html) | Start page: choose mouse or keyboard |
-| [`mouse/index.html`](mouse/index.html) | Mouse configurator (self-contained apart from its fallback image in `assets/`) |
-| [`keyboard/index.html`](keyboard/index.html) | Keyboard configurator (untested on hardware) |
+| [`index.html`](index.html) | The hub: device tabs and the dashboard. Hosts the two configurators below in-page |
+| [`mouse/index.html`](mouse/index.html) | Mouse configurator, also usable on its own (self-contained apart from its fallback image in `assets/`) |
+| [`fm/index.html`](fm/index.html) | Finalmouse Ultralight X and Starlight X configurator: DPI, polling, lift-off, motion sync, bhop scroll, indicator light, and the Starlight X analog (TMR) click settings. Read from Xpanel's public code, not yet tried on a real device. Calibration is not included |
+| [`keyboard/index.html`](keyboard/index.html) | Keyboard configurator, also usable on its own (untested on hardware) |
+
+**Look and feel:** pick an accent colour (green, cyan, violet, orange or pink) with the dots in the top bar. It applies to every open device tab and is remembered. Press **Ctrl K** (Cmd K on a Mac) anywhere to jump to a device, a demo, Add device or a colour.
+
+**Share settings:** the Device tab of each configurator can save the current settings to a file or a short share code (`OATK1.…`), and load a file or code someone sent you. **Copy share link** gives a link to the hub that carries the settings: opening it asks which of your connected devices to apply them to, then shows the preview in that device's Device tab. A preview lists exactly what will change before anything is written. Shared files are treated as untrusted: every value is range-checked, anything the connected device can't take is skipped, and a mouse can't be left without a left click. Pairing, receiver light, profile slots, firmware, key remaps and advanced keys are never included.
 
 No device handy? Add `?demo=1` to the mouse or keyboard page (or use the *Demo* links on the start page) to try it against a simulated device. A banner says it's a demo, nothing is sent to hardware, nothing is saved, and actions that only make sense on a real device (like factory reset) say so instead of pretending to work. It works in any desktop browser, including ones without WebHID.
 

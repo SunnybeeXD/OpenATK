@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
+addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==window){e.preventDefault();parent.postMessage({type:'openatk-palette'},location.origin)}});</script>
+
 <title>ATK Mouse Control</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -11,19 +16,24 @@
     --bg:#06080b; --card:#10151b; --card2:#161d25; --line:#232c37; --line2:#2f3a47;
     --ink:#f1f6fb; --dim:#98a6b4; --dimmer:#5f6c79;
     --acc:#3ddc84; --acc2:#22d3ee; --warn:#f5c451; --bad:#f87171;
-    --glow:rgba(61,220,132,.38); --stage:#3ddc84;
+    --glow:rgba(var(--acc-rgb),.38); --stage:var(--acc);
     --ring:0 0 0 1px oklch(1 0 0 / .08); --ring-hover:0 0 0 1px oklch(1 0 0 / .13);
     --ease:cubic-bezier(.2,0,0,1);
     --mono:'IBM Plex Mono',ui-monospace,monospace;
     --disp:'Space Grotesk',Inter,system-ui,sans-serif;
   }
+  :root{--acc-hi:#5cf0a2;--acc-lo:#2fc774;--acc-dk:#1f9e59;--acc-rgb:61,220,132;--acc2-rgb:34,211,238}
+  html[data-theme=cyan]{--acc:#22d3ee;--acc-hi:#67e8f9;--acc-lo:#0fb5d1;--acc-dk:#0b8ea6;--acc-rgb:34,211,238;--acc2:#a78bfa;--acc2-rgb:167,139,250}
+  html[data-theme=violet]{--acc:#a78bfa;--acc-hi:#c4b5fd;--acc-lo:#8b5cf6;--acc-dk:#6d3fd6;--acc-rgb:167,139,250;--acc2:#22d3ee;--acc2-rgb:34,211,238}
+  html[data-theme=orange]{--acc:#fb923c;--acc-hi:#fdba74;--acc-lo:#f97316;--acc-dk:#c2570c;--acc-rgb:251,146,60;--acc2:#facc15;--acc2-rgb:250,204,21}
+  html[data-theme=pink]{--acc:#f472b6;--acc-hi:#f9a8d4;--acc-lo:#ec4899;--acc-dk:#be2f7a;--acc-rgb:244,114,182;--acc2:#a78bfa;--acc2-rgb:167,139,250}
   *{box-sizing:border-box}
   html,body{margin:0;min-height:100%;color:var(--ink);
     font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
     -webkit-font-smoothing:antialiased}
   body{background:
-      radial-gradient(900px 520px at 8% -8%, rgba(61,220,132,.13), transparent 60%),
-      radial-gradient(800px 600px at 105% 105%, rgba(34,211,238,.10), transparent 60%),
+      radial-gradient(900px 520px at 8% -8%, rgba(var(--acc-rgb),.13), transparent 60%),
+      radial-gradient(800px 600px at 105% 105%, rgba(var(--acc2-rgb),.10), transparent 60%),
       var(--bg);background-attachment:fixed}
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     background-image:linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
@@ -40,8 +50,8 @@
   .brand{display:flex;align-items:center;gap:11px;padding-right:18px;margin-right:4px;
     border-right:1px solid var(--line);text-decoration:none}
   .brand .mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
-    background:linear-gradient(145deg,#1b2a22,#0c1310);border:1px solid rgba(61,220,132,.35);
-    box-shadow:0 0 22px rgba(61,220,132,.18), inset 0 1px 0 rgba(255,255,255,.06)}
+    background:linear-gradient(145deg,#1b2a22,#0c1310);border:1px solid rgba(var(--acc-rgb),.35);
+    box-shadow:0 0 22px rgba(var(--acc-rgb),.18), inset 0 1px 0 rgba(255,255,255,.06)}
   .brand b{font:700 17px/1 var(--disp);letter-spacing:-.01em}
   .brand b span{color:var(--acc)}
   h1{margin:0;font:600 18px/1.2 var(--disp);letter-spacing:-.01em;white-space:nowrap;
@@ -49,26 +59,26 @@
   h1 .brandtag{color:var(--dim);font-weight:500}
   .status{display:inline-flex;align-items:center;gap:7px;margin-top:3px;font-size:12.5px;color:var(--dim)}
   .status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--acc);
-    box-shadow:0 0 0 3px rgba(61,220,132,.16),0 0 12px var(--acc);animation:live 2.2s ease-in-out infinite}
+    box-shadow:0 0 0 3px rgba(var(--acc-rgb),.16),0 0 12px var(--acc);animation:live 2.2s ease-in-out infinite}
   .status b{color:var(--acc);font-weight:600}
   .status.off::before{background:var(--dimmer);box-shadow:none;animation:none}
-  @keyframes live{50%{box-shadow:0 0 0 6px rgba(61,220,132,0),0 0 16px var(--acc)}}
+  @keyframes live{50%{box-shadow:0 0 0 6px rgba(var(--acc-rgb),0),0 0 16px var(--acc)}}
 
   .btn{font:600 14px/1 Inter,sans-serif;padding:13px 21px;border-radius:10px;
     border:0;color:#03170b;cursor:pointer;text-decoration:none;
-    background:linear-gradient(180deg,#5cf0a2,#2fc774);
-    box-shadow:0 0 0 1px rgba(61,220,132,.25),0 8px 26px -8px rgba(61,220,132,.65),
+    background:linear-gradient(180deg,var(--acc-hi),var(--acc-lo));
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.25),0 8px 26px -8px rgba(var(--acc-rgb),.65),
       inset 0 1px 0 rgba(255,255,255,.45);
     transition-property:scale,box-shadow,filter,background-color;transition-duration:.15s;transition-timing-function:ease-out}
-  .btn:hover{filter:brightness(1.06);box-shadow:0 0 0 1px rgba(61,220,132,.4),
-    0 10px 32px -8px rgba(61,220,132,.85),inset 0 1px 0 rgba(255,255,255,.45)}
+  .btn:hover{filter:brightness(1.06);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.4),
+    0 10px 32px -8px rgba(var(--acc-rgb),.85),inset 0 1px 0 rgba(255,255,255,.45)}
   .btn:active:not(:disabled){scale:.96}
   .btn:disabled{opacity:.5;cursor:default}
   .btn.icon{padding:10px 12px;display:inline-grid;place-items:center}
   .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);
     font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
-  .btn.ghost:hover{background:rgba(61,220,132,.08);
-    box-shadow:0 0 0 1px rgba(61,220,132,.45),0 0 18px -6px var(--glow);filter:none}
+  .btn.ghost:hover{background:rgba(var(--acc-rgb),.08);
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.45),0 0 18px -6px var(--glow);filter:none}
   .btn.ghost.lead{padding-left:14px}
   .btn.quiet{background:rgba(248,113,113,.04);color:#ffbdbd;
     font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px #4f2a2a}
@@ -77,14 +87,14 @@
   .hero{margin:56px auto 0;max-width:760px;padding:52px 48px 46px;text-align:center;
     position:relative;overflow:hidden;border-radius:24px;border:1px solid transparent;
     background:linear-gradient(var(--card),var(--card)) padding-box,
-      linear-gradient(150deg,rgba(61,220,132,.5),rgba(255,255,255,.05) 40%,rgba(34,211,238,.35)) border-box;
-    box-shadow:0 40px 120px -40px rgba(61,220,132,.35)}
+      linear-gradient(150deg,rgba(var(--acc-rgb),.5),rgba(255,255,255,.05) 40%,rgba(var(--acc2-rgb),.35)) border-box;
+    box-shadow:0 40px 120px -40px rgba(var(--acc-rgb),.35)}
   .hero .art img{display:block;width:100%}
   .reel{height:240px}
   .reel img{width:100%;height:100%;object-fit:contain;animation:reelIn .45s ease-out}
   @keyframes reelIn{from{opacity:0;transform:scale(.96)}}
   .reelcap{font:500 11.5px var(--mono);color:var(--dim);margin:-4px 0 18px;min-height:17px;overflow-wrap:anywhere}
-  .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(61,220,132,.28));
+  .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(var(--acc-rgb),.28));
     animation:float 5s ease-in-out infinite}
   @keyframes float{50%{transform:translateY(-8px)}}
   .hero .kicker{font:600 11.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--acc)}
@@ -141,7 +151,7 @@
   .tabs button svg{flex:0 0 auto;opacity:.75}
   .tabs button:hover{background:rgba(255,255,255,.035);color:var(--ink)}
   .tabs button[aria-pressed=true]{color:var(--ink);
-    background:linear-gradient(90deg,rgba(61,220,132,.16),rgba(61,220,132,.03))}
+    background:linear-gradient(90deg,rgba(var(--acc-rgb),.16),rgba(var(--acc-rgb),.03))}
   .tabs button[aria-pressed=true] svg{opacity:1;color:var(--acc)}
   .tabs button[aria-pressed=true]::before{content:'';position:absolute;left:0;top:9px;bottom:9px;
     width:3px;border-radius:3px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
@@ -177,14 +187,14 @@
     transition-duration:.15s;transition-timing-function:ease-out}
   .seg button:active{scale:.96}
   .seg button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
-  .seg button[aria-pressed=true]{color:#03170b;background:linear-gradient(180deg,#5cf0a2,#2fc774);
-    box-shadow:0 0 0 1px rgba(61,220,132,.35),0 4px 18px -4px rgba(61,220,132,.7),
+  .seg button[aria-pressed=true]{color:#03170b;background:linear-gradient(180deg,var(--acc-hi),var(--acc-lo));
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.35),0 4px 18px -4px rgba(var(--acc-rgb),.7),
       inset 0 1px 0 rgba(255,255,255,.4)}
   .seg.busy{opacity:.55;pointer-events:none}
 
   .slider{display:flex;align-items:center;gap:18px;margin-top:16px}
   .slider input[type=range]{appearance:none;flex:1;height:6px;border-radius:4px;outline:none;cursor:pointer;
-    background:linear-gradient(90deg,rgba(61,220,132,.6),rgba(34,211,238,.45))}
+    background:linear-gradient(90deg,rgba(var(--acc-rgb),.6),rgba(var(--acc2-rgb),.45))}
   .slider input[type=range]::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:50%;
     background:#eafff3;border:4px solid #0b1410;box-shadow:0 0 0 2px var(--acc),0 0 18px var(--acc);cursor:grab}
   .slider input[type=range]::-webkit-slider-thumb:active{cursor:grabbing}
@@ -192,14 +202,14 @@
     background:#eafff3;border:4px solid #0b1410;box-shadow:0 0 0 2px var(--acc);cursor:grab}
   .slider output{flex:0 0 auto;min-width:96px;text-align:center;font:700 18px var(--disp);
     padding:8px 12px;border-radius:10px;background:#0a0e12;border:1px solid var(--line);
-    color:#c9ffe0;text-shadow:0 0 14px rgba(61,220,132,.45)}
+    color:#c9ffe0;text-shadow:0 0 14px rgba(var(--acc-rgb),.45)}
 
   .sw{appearance:none;flex:0 0 auto;width:52px;height:29px;border-radius:20px;
     background:#1c242d;border:1px solid var(--line2);position:relative;cursor:pointer;
     transition:background-color .15s ease-out,border-color .15s ease-out,box-shadow .15s ease-out}
   .sw::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;
     border-radius:50%;background:#8795a3;transition:transform .2s var(--ease),background-color .15s ease-out}
-  .sw:checked{background:linear-gradient(180deg,#2fc774,#1f9e59);border-color:#4fe496;
+  .sw:checked{background:linear-gradient(180deg,var(--acc-lo),var(--acc-dk));border-color:var(--acc-hi);
     box-shadow:0 0 18px -2px var(--glow)}
   .sw:checked::after{transform:translateX(23px);background:#f3fff8}
 
@@ -216,8 +226,8 @@
   #toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,18px) scale(.97);
     background:rgba(18,26,22,.9);color:#e9fff2;font-size:13.5px;font-weight:600;
     padding:12px 20px 12px 18px;border-radius:14px;opacity:0;pointer-events:none;
-    border:1px solid rgba(61,220,132,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    box-shadow:0 0 30px -6px rgba(61,220,132,.5),0 14px 40px rgba(0,0,0,.55);
+    border:1px solid rgba(var(--acc-rgb),.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 0 30px -6px rgba(var(--acc-rgb),.5),0 14px 40px rgba(0,0,0,.55);
     transition:opacity .2s ease-out,transform .2s ease-out;z-index:9}
   #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
   #toast.bad{background:rgba(40,14,14,.92);color:#ffe1e1;border-color:rgba(248,113,113,.6);
@@ -242,28 +252,28 @@
   .sel{font:500 13.5px/1.2 Inter,sans-serif;color:var(--ink);background:#0a0e12;
     border:1px solid var(--line2);border-radius:10px;padding:10px 12px;max-width:100%;min-width:0;
     transition:border-color .15s ease-out,box-shadow .15s ease-out}
-  .sel:hover,.sel:focus{outline:none;border-color:rgba(61,220,132,.55);box-shadow:0 0 16px -6px var(--glow)}
+  .sel:hover,.sel:focus{outline:none;border-color:rgba(var(--acc-rgb),.55);box-shadow:0 0 16px -6px var(--glow)}
   .btnwrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;margin-top:10px;align-items:start}
   .btnart{position:sticky;top:20px;padding:16px 10px;border-radius:14px;background:
-    radial-gradient(180px 160px at 50% 45%,rgba(61,220,132,.10),transparent 70%),#0a0e12;
+    radial-gradient(180px 160px at 50% 45%,rgba(var(--acc-rgb),.10),transparent 70%),#0a0e12;
     box-shadow:var(--ring)}
   .btnart svg{display:block;width:170px;margin:0 auto}
   .btnart .cap{margin-top:10px;text-align:center;font:500 12px var(--mono);color:var(--dimmer);min-height:18px}
   .btnrow{display:flex;align-items:center;gap:10px 14px;padding:10px 12px;margin:0 -12px;
     border-radius:12px;transition:background .15s}
-  .btnrow:hover,.btnrow.hl{background:rgba(61,220,132,.06)}
+  .btnrow:hover,.btnrow.hl{background:rgba(var(--acc-rgb),.06)}
   .btnrow .nm{flex:1 1 150px;min-width:0;font-size:14px;font-weight:600;display:flex;
     align-items:center;gap:10px;flex-wrap:wrap}
   .btnrow .nm .no{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;flex:0 0 auto;
-    font:700 11px var(--mono);color:var(--acc);background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.3)}
+    font:700 11px var(--mono);color:var(--acc);background:rgba(var(--acc-rgb),.1);border:1px solid rgba(var(--acc-rgb),.3)}
   .btnrow .nm small{flex-basis:100%;padding-left:32px;color:var(--dim);font-weight:400;font-size:12.5px;
     overflow-wrap:anywhere;margin-top:-4px}
   .btnrow .sel{flex:0 1 250px}
   .mp{stroke:transparent;stroke-width:4;cursor:pointer;transition:fill .15s ease-out,stroke .15s ease-out,filter .15s ease-out}
-  .mp:hover{fill:rgba(61,220,132,.2);stroke:rgba(61,220,132,.6)}
-  .mp.hl{fill:rgba(61,220,132,.38);stroke:var(--acc);stroke-width:5;filter:drop-shadow(0 0 6px var(--acc))}
-  .editor{margin-top:14px;padding:18px;border-radius:14px;border:1px solid rgba(61,220,132,.35);
-    background:linear-gradient(180deg,rgba(61,220,132,.06),rgba(61,220,132,0)),#0c1116;
+  .mp:hover{fill:rgba(var(--acc-rgb),.2);stroke:rgba(var(--acc-rgb),.6)}
+  .mp.hl{fill:rgba(var(--acc-rgb),.38);stroke:var(--acc);stroke-width:5;filter:drop-shadow(0 0 6px var(--acc))}
+  .editor{margin-top:14px;padding:18px;border-radius:14px;border:1px solid rgba(var(--acc-rgb),.35);
+    background:linear-gradient(180deg,rgba(var(--acc-rgb),.06),rgba(var(--acc-rgb),0)),#0c1116;
     box-shadow:0 0 40px -18px var(--glow);animation:rise .25s ease-out}
   .editor .et{font:600 16px/1.3 var(--disp)}
   .erow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px}
@@ -319,6 +329,10 @@
     .hero p{font-size:14px;margin-bottom:18px}
     .reel{height:210px}
   }
+
+  body.embed header .brand, body.embed header .lead, body.embed header .icon, body.embed header #connect,
+  body.embed .demobar a, body.embed a[href^="../keyboard/"], body.embed a[href^="../mouse/"]{display:none !important}
+  body.embed .wrap{padding-top:8px}
 </style>
 </head>
 <body>
@@ -326,7 +340,7 @@
 
 <header>
   <a class="brand" href="../index.html" aria-label="OpenATK">
-    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
+    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" style="color:var(--acc)" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
     <b>Open<span>ATK</span></b>
   </a>
   <div class="devhead" style="flex:1;min-width:0">
@@ -599,6 +613,29 @@
         </div>
       </div>
 
+      <div class="item" id="shareItem">
+        <div class="t">Share settings</div>
+        <div class="d">Save this mouse's settings to a file or a short code, or load a set someone
+          sent you. Pairing, receiver light, profile slots and firmware are never included.</div>
+        <div class="erow">
+          <button class="btn ghost" id="shareFile">Save to file</button>
+          <button class="btn ghost" id="shareCopy">Copy share code</button>
+          <button class="btn ghost" id="shareLinkBtn">Copy share link</button>
+          <label class="btn ghost" style="cursor:pointer">Load file<input type="file" id="shareLoad" accept=".json,application/json" hidden></label>
+        </div>
+        <textarea id="sharePaste" rows="2" spellcheck="false" aria-label="Paste a share code"
+          placeholder="Or paste a share code here"
+          style="width:100%;margin-top:12px;resize:vertical;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)"></textarea>
+        <div id="sharePreview" class="hidden" style="margin-top:12px">
+          <div id="shareFrom" style="font-size:13px;color:var(--dim);margin-bottom:6px"></div>
+          <ul id="shareList" style="margin:0 0 12px;padding-left:20px;font-size:13.5px"></ul>
+          <div class="erow">
+            <button class="btn" id="shareApply">Apply to this mouse</button>
+            <button class="btn ghost" id="shareCancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+
       <div class="item">
         <table class="kv" id="kv"></table>
         <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
@@ -639,6 +676,17 @@ const REGISTRY = {"pids":{"1084":["VXE R1S+","cxX"],"10e7":["VXE V3 NK","cxX"],"
 const VID = 0x373B;
 const VID_OLD = 0x3554;
 const $ = s => document.querySelector(s);
+const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+if (EMBED){
+  document.body.classList.add('embed');
+  for (const a of document.querySelectorAll('a[href^="../"]')){
+    a.target = '_top';
+    if (/^\.\.\/(mouse|keyboard)\//.test(a.getAttribute('href'))){
+      const p = a.previousSibling;
+      if (p && p.nodeType === 3) p.textContent = p.textContent.replace(/[\s\u00b7]+$/, '');
+    }
+  }
+}
 const DEMO = (() => {
   const v = new URLSearchParams(location.search).get('demo');
   return v !== null && !['0', 'false', 'off', 'no'].includes(v.toLowerCase());
@@ -1950,7 +1998,7 @@ const mouseImg = () => `<img src="${MOUSE_IMG}" alt="Mouse">`;
 function mouseDiagram(){
   const part = (n, shape) => shape.replace('/>',
     ` fill="rgba(255,255,255,0)" class="mp" data-part="${n}"><title>${BUTTON_NAMES[n]}</title></${shape.match(/^<(\w+)/)[1]}>`);
-  const label = (x, y, t) => `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="22" fill="rgba(6,10,13,.82)" stroke="rgba(61,220,132,.7)" stroke-width="3"/>
+  const label = (x, y, t) => `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="22" fill="rgba(6,10,13,.82)" stroke="rgba(var(--acc-rgb),.7)" stroke-width="3"/>
     <text x="${x}" y="${y + 9}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="25" font-weight="700" fill="#9ff0c4">${t}</text></g>`;
   const body = 'M495.1 103.0C520.0 103.0 551.2 108.3 570.1 112.0C589.0 115.7 597.5 120.3 608.4 125.0C619.4 129.7 627.7 135.0 635.6 140.0C643.4 145.0 649.3 149.7 655.3 155.0C661.4 160.3 667.5 166.2 671.9 172.0C676.3 177.8 678.2 183.7 681.7 190.0C685.1 196.3 689.7 202.5 692.4 210.0C695.1 217.5 696.6 226.7 697.9 235.0C699.1 243.3 699.6 250.8 700.0 260.0C700.4 269.2 700.2 280.0 700.0 290.0C699.8 300.0 699.2 310.0 699.0 320.0C698.8 330.0 698.9 340.0 698.6 350.0C698.2 360.0 697.7 370.0 697.0 380.0C696.3 390.0 694.9 400.0 694.2 410.0C693.6 420.0 693.4 430.0 693.0 440.0C692.6 450.0 692.0 460.0 692.0 470.0C692.0 480.0 692.6 490.0 693.1 500.0C693.6 510.0 694.4 520.0 695.1 530.0C695.9 540.0 696.5 550.0 697.6 560.0C698.6 570.0 700.2 580.0 701.3 590.0C702.4 600.0 703.3 610.0 704.2 620.0C705.1 630.0 706.3 640.0 706.8 650.0C707.2 660.0 707.2 670.0 707.0 680.0C706.8 690.0 706.6 700.0 705.4 710.0C704.2 720.0 702.3 730.0 699.8 740.0C697.3 750.0 694.6 760.0 690.3 770.0C686.1 780.0 681.1 790.0 674.3 800.0C667.6 810.0 660.0 820.0 650.0 830.0C640.0 840.0 624.9 852.5 614.4 860.0C604.0 867.5 596.9 870.7 587.6 875.0C578.2 879.3 572.4 882.9 558.2 886.0C544.0 889.1 521.0 893.5 502.2 893.5C483.5 893.5 460.0 889.1 445.7 886.0C431.3 882.9 425.6 879.3 416.2 875.0C406.8 870.7 399.7 867.5 389.2 860.0C378.7 852.5 363.3 840.0 353.2 830.0C343.2 820.0 335.7 810.0 329.0 800.0C322.3 790.0 317.2 780.0 312.9 770.0C308.6 760.0 305.6 750.0 303.1 740.0C300.6 730.0 299.0 720.0 297.7 710.0C296.3 700.0 295.4 690.0 295.0 680.0C294.6 670.0 294.9 660.0 295.3 650.0C295.7 640.0 296.8 630.0 297.4 620.0C298.1 610.0 298.5 600.0 299.4 590.0C300.2 580.0 301.7 570.0 302.6 560.0C303.4 550.0 303.9 540.0 304.5 530.0C305.0 520.0 305.6 510.0 305.9 500.0C306.2 490.0 306.6 480.0 306.4 470.0C306.3 460.0 305.4 450.0 304.9 440.0C304.3 430.0 303.9 420.0 303.1 410.0C302.2 400.0 300.6 390.0 299.7 380.0C298.8 370.0 298.2 360.0 297.6 350.0C297.0 340.0 296.4 330.0 296.0 320.0C295.6 310.0 295.1 300.0 295.0 290.0C294.9 280.0 295.1 269.2 295.4 260.0C295.8 250.8 296.3 243.3 297.3 235.0C298.4 226.7 299.9 217.5 301.9 210.0C303.9 202.5 306.4 196.3 309.4 190.0C312.5 183.7 315.9 177.8 320.3 172.0C324.8 166.2 330.5 160.3 336.3 155.0C342.2 149.7 347.6 145.0 355.4 140.0C363.2 135.0 372.3 129.7 383.1 125.0C393.9 120.3 401.8 115.7 420.4 112.0C439.1 108.3 470.1 103.0 495.1 103.0Z';
   return `<svg viewBox="228 84 500 820" role="img" aria-label="Mouse buttons">
@@ -2013,7 +2061,7 @@ function mouseDiagram(){
     <path d="${body}" fill="none" stroke="url(#dgRim)" stroke-width="3.5"/>
     <rect x="468" y="197" width="63" height="134" rx="11" fill="#020304"/>
     <g clip-path="url(#dgSlotClip)">
-      <ellipse cx="499.5" cy="322" rx="30" ry="18" fill="#3ddc84" opacity=".16" filter="url(#dgGlow)"/>
+      <ellipse cx="499.5" cy="322" rx="30" ry="18" style="fill:var(--acc)" opacity=".16" filter="url(#dgGlow)"/>
       <rect x="472" y="202" width="10" height="140" rx="3" fill="url(#dgRimM)"/>
       <rect x="517" y="202" width="10" height="140" rx="3" fill="url(#dgRimM)"/>
       <path d="M480.5 214Q480.5 203.5 499.5 203.5Q518.5 203.5 518.5 214V340H480.5Z" fill="url(#dgTread)"/>
@@ -2029,7 +2077,7 @@ function mouseDiagram(){
     <path d="M302.4 475.0C302.3 476.3 301.8 480.3 301.7 483.0C301.6 485.7 301.8 488.3 301.8 491.0C301.9 493.7 302.1 496.3 302.0 499.0C301.9 501.7 301.4 504.3 301.2 507.0C301.1 509.7 301.2 512.3 301.1 515.0C300.9 517.7 300.7 520.3 300.5 523.0C300.4 525.7 300.5 528.3 300.4 531.0C300.2 533.7 299.9 536.3 299.7 539.0C299.5 541.7 299.2 544.3 299.1 547.0C299.0 549.7 299.2 552.3 299.0 555.0C298.9 557.7 298.5 560.3 298.2 563.0C297.9 565.7 297.5 569.0 297.3 571.0C297.1 573.0 297.0 574.3 297.0 575.0Q298.0 584.0 303.5 584.0Q310.0 584.0 310.0 575.0C310.0 574.3 310.1 573.0 310.3 571.0C310.5 569.0 310.9 565.7 311.2 563.0C311.5 560.3 311.9 557.7 312.0 555.0C312.2 552.3 312.0 549.7 312.1 547.0C312.2 544.3 312.5 541.7 312.7 539.0C312.9 536.3 313.2 533.7 313.4 531.0C313.5 528.3 313.4 525.7 313.5 523.0C313.7 520.3 313.9 517.7 314.1 515.0C314.2 512.3 314.1 509.7 314.2 507.0C314.4 504.3 314.9 501.7 315.0 499.0C315.1 496.3 314.9 493.7 314.8 491.0C314.8 488.3 314.6 485.7 314.7 483.0C314.8 480.3 315.3 476.3 315.4 475.0Q315.4 466.0 308.9 466.0Q303.4 466.0 302.4 475.0Z" fill="url(#dgSide)" stroke="#05070a" stroke-width="2.5"/>
     <path d="M295.0 361.0C295.1 362.3 295.4 366.3 295.5 369.0C295.6 371.7 295.6 374.3 295.7 377.0C295.7 379.7 295.5 382.3 295.8 385.0C296.1 387.7 296.9 390.3 297.3 393.0C297.7 395.7 297.8 398.3 298.1 401.0C298.4 403.7 298.7 406.3 298.9 409.0C299.2 411.7 299.3 414.3 299.5 417.0C299.7 419.7 299.9 422.3 300.1 425.0C300.3 427.7 300.6 430.3 300.7 433.0C300.9 435.7 300.8 438.3 300.9 441.0C300.9 443.7 301.0 447.7 301.0 449.0M303.2 483.0C303.2 484.3 303.3 488.3 303.3 491.0C303.4 493.7 303.6 496.3 303.5 499.0C303.4 501.7 302.9 504.3 302.7 507.0C302.6 509.7 302.7 512.3 302.6 515.0C302.4 517.7 302.2 520.3 302.0 523.0C301.9 525.7 302.0 528.3 301.9 531.0C301.7 533.7 301.4 536.3 301.2 539.0C301.0 541.7 300.7 544.3 300.6 547.0C300.5 549.7 300.7 552.3 300.5 555.0C300.4 557.7 300.0 560.3 299.7 563.0C299.4 565.7 299.0 569.7 298.8 571.0" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="2" stroke-linecap="round"/>
     <rect x="485" y="142" width="29" height="13" rx="6.5" fill="#06080a" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>
-    <rect x="488" y="145" width="23" height="7" rx="3.5" fill="#3ddc84" filter="url(#dgGlow)" opacity=".9"/>
+    <rect x="488" y="145" width="23" height="7" rx="3.5" style="fill:var(--acc)" filter="url(#dgGlow)" opacity=".9"/>
     <rect x="489.5" y="146.2" width="20" height="4.6" rx="2.3" fill="#a9ffd0"/>
     <g transform="translate(500 758) scale(.165) translate(-753.5 -398)" stroke-linejoin="round">
       <defs><path id="dgBlade" d="M785 175Q758 300 729 458Q675 420 555 471Q690 360 785 175Z"/></defs>
@@ -2629,7 +2677,7 @@ function disconnected(){
   $('#sBatt').textContent = '—';
   $('#sBattBar').style.strokeDashoffset = RING;
   resetDeviceArt();
-  document.documentElement.style.setProperty('--stage', '#3ddc84');
+  document.documentElement.style.setProperty('--stage', 'var(--acc)');
   $('#sCharge').classList.add('hidden');
   $('#sConn').textContent = '—';
   $('#sDpi').textContent = '—';
@@ -2715,7 +2763,7 @@ function showBattery(s){
   if (s.battery == null){ $('#sBatt').textContent = 'Asleep'; bar.style.strokeDashoffset = RING; }
   else {
     const pct = Math.max(0, Math.min(100, s.battery));
-    const col = s.battery < 20 ? '#f87171' : s.battery < 40 ? '#f5c451' : '#3ddc84';
+    const col = s.battery < 20 ? '#f87171' : s.battery < 40 ? '#f5c451' : 'var(--acc)';
     $('#sBatt').textContent = s.battery + '%';
     remember({ battery: pct, charging: !!s.charging });
     bar.style.strokeDashoffset = RING * (1 - pct / 100);
@@ -2725,8 +2773,280 @@ function showBattery(s){
   $('#sCharge').classList.toggle('hidden', !(s.battery != null && s.charging));
 }
 
+let lastS = null;
+const SHARE_MAX = 200000;
+const b64u = u8 => { let t = ''; for (const b of u8) t += String.fromCharCode(b);
+  return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function deflate(u8){
+  return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+}
+async function inflate(u8){
+  const r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+  const parts = []; let n = 0;
+  for (;;){
+    const { done, value } = await r.read();
+    if (done) break;
+    n += value.length;
+    if (n > SHARE_MAX * 4){ await r.cancel(); throw new Error('That share code is too large.'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(n); let o = 0;
+  for (const c of parts){ out.set(c, o); o += c.length; }
+  return out;
+}
+async function encodeShare(cfg){
+  const raw = new TextEncoder().encode(JSON.stringify(cfg));
+  return typeof CompressionStream === 'function' ? 'OATK1.' + b64u(await deflate(raw)) : 'OATK0.' + b64u(raw);
+}
+async function decodeShare(text){
+  const t = text.trim();
+  if (t.length > SHARE_MAX) throw new Error('That share code is too large.');
+  if (t[0] === '{') return JSON.parse(t);
+  const m = /^OATK([01])\.([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) throw new Error('That is not an OpenATK share code.');
+  let u8 = unb64u(m[2]);
+  if (m[1] === '1'){
+    if (typeof DecompressionStream !== 'function') throw new Error('This browser cannot read compressed share codes.');
+    u8 = await inflate(u8);
+  }
+  return JSON.parse(new TextDecoder().decode(u8));
+}
+
+const pressedVal = host => { const b = [...$(host).children].find(x => x.getAttribute('aria-pressed') === 'true'); return b ? +b.dataset.value : null; };
+function snapshot(){
+  const s = {};
+  const put = (k, v) => { if (v != null && !Number.isNaN(v)) s[k] = v; };
+  put('dpi', pressedVal('#segDpi'));
+  put('rate', pressedVal('#segRate'));
+  put('debounce', pressedVal('#segDebounce'));
+  put('sleep', pressedVal('#segSleep'));
+  put('sensorMode', pressedVal('#segSensorMode'));
+  if (!$('#lodSlider').classList.contains('hidden')) put('lodMm', parseFloat($('#lod').value));
+  else put('lodCode', pressedVal('#segLod'));
+  if (lastS?.angleDeg != null) s.angle = { on: angleOn, deg: angleDeg };
+  const tog = {};
+  for (const [f, id] of [['motionSync','movesync'], ['lineCorr','linecorr'], ['ripple','ripple'], ['farDist','fardist']])
+    if (lastS?.[f] != null) tog[f] = $('#' + id).checked;
+  if (Object.keys(tog).length) s.toggles = tog;
+  if (lastS?.stages?.length && drv.setStageColor)
+    s.stageColors = [...$('#dpiColors').querySelectorAll('input')].map(i => hexToRgb(i.value));
+  if (lastS?.light) s.light = { mode: light.mode, brightness: light.brightness, speed: light.speed };
+  if (lastS?.bhop && drv.setBhop) s.bhop = { on: bhop.on, ms: bhop.ms };
+  if (buttons){
+    s.buttons = buttons.map(b => ({ ...b }));
+    const macros = {};
+    buttons.forEach((b, i) => { if (b.kind === 'macro') macros[i] = loadMacro(i); });
+    if (Object.keys(macros).length) s.macros = macros;
+  }
+  return { app: 'openatk', v: 1, kind: 'mouse', model: $('#devName').textContent.slice(0, 80),
+           made: new Date().toISOString().slice(0, 10), settings: s };
+}
+
+const inVals = (v, list) => list.some(x => x === v);
+function cleanAction(a){
+  if (!a || typeof a !== 'object') return null;
+  switch (a.kind){
+    case 'mouse':   return Number.isInteger(a.btn) && a.btn >= 0 && a.btn < MOUSE_NAMES.length ? { kind:'mouse', btn:a.btn } : null;
+    case 'disable': return { kind:'disable' };
+    case 'dpi':     return ['cycle','up','down'].includes(a.op) ? { kind:'dpi', op:a.op } : null;
+    case 'scroll':  return ['up','down','left','right'].includes(a.dir) ? { kind:'scroll', dir:a.dir } : null;
+    case 'profile': return a.n === 'cycle' ? { kind:'profile', n:'cycle' }
+                      : Number.isInteger(a.n) && a.n >= 0 && a.n <= 3 ? { kind:'profile', n:a.n } : null;
+    case 'media':   { const c = Array.isArray(a.code) ? a.code.map(Number) : [];
+                      return MEDIA.some(m => m[0].join() === c.join()) ? { kind:'media', code:c } : null; }
+    case 'key':     return { kind:'key', mods: clampInt(a.mods, 0, 15, 0), key: clampInt(a.key, 0, 255, 0) };
+    case 'fire':    return { kind:'fire', interval: clampInt(a.interval, 3, 255, 50), count: [0,1,2,3].includes(a.count) ? a.count : 0 };
+    case 'macro':   return { kind:'macro' };
+    default:        return null;
+  }
+}
+function cleanMacro(m){
+  if (!m || typeof m !== 'object' || !Array.isArray(m.steps)) return null;
+  const steps = [];
+  for (const st of m.steps.slice(0, 200).map(cleanStep)){
+    if (!st) continue;
+    if (macroSize([...steps, st]) > MAX_MACRO_STEPS) break;
+    steps.push(st);
+  }
+  return steps.length ? { steps, mode: MACRO_MODES.some(([v]) => v === m.mode) ? m.mode : 'hold',
+                          count: clampInt(m.count, 1, 250, 1) } : null;
+}
+
+function planShare(cfg){
+  if (!cfg || typeof cfg !== 'object' || cfg.app !== 'openatk' || cfg.v !== 1)
+    throw new Error('That is not an OpenATK settings file.');
+  if (cfg.kind !== 'mouse') throw new Error(`That file is for a ${String(cfg.kind).slice(0, 20)}, not a mouse.`);
+  const c = cfg.settings && typeof cfg.settings === 'object' ? cfg.settings : {};
+  const steps = [], notes = [];
+  const add = (label, run) => steps.push({ label, run });
+  const label = (list, v) => list.find(x => x[0] === v)?.[1];
+  const bad = what => notes.push(`${what} was not valid and was skipped`);
+
+  if (c.dpi != null){ if (inVals(c.dpi, DPIS)) add(`Sensitivity ${c.dpi}`, () => drv.setDpi(c.dpi)); else bad('Sensitivity'); }
+  if (c.rate != null){ if (inVals(c.rate, RATE_HZ)) add(`Polling rate ${c.rate} Hz`, () => drv.setRate(c.rate)); else bad('Polling rate'); }
+  if (c.debounce != null){ if (DEBOUNCE.some(d => d[0] === c.debounce)) add(`Click debounce ${label(DEBOUNCE, c.debounce)}`, () => drv.setDebounce(c.debounce)); else bad('Debounce'); }
+  if (c.sleep != null){ if (SLEEP.some(d => d[0] === c.sleep)) add(`Sleep after ${label(SLEEP, c.sleep)}`, () => drv.setSleep(c.sleep)); else bad('Sleep time'); }
+  if (c.sensorMode != null){ if (SENSOR_MODES.some(d => d[0] === c.sensorMode)) add(`Sensor performance: ${label(SENSOR_MODES, c.sensorMode)}`, () => drv.setSensorMode(c.sensorMode)); else bad('Sensor performance'); }
+  const slider = !$('#lodSlider').classList.contains('hidden');
+  if (c.lodMm != null){
+    const mm = Math.round(Number(c.lodMm) * 10) / 10;
+    if (!slider) notes.push('Lift-off distance (millimetres) does not apply to this sensor');
+    else if (mm >= 0.7 && mm <= 1.7) add(`Lift-off ${mm.toFixed(1)} mm`, () => drv.setLod(mm));
+    else bad('Lift-off distance');
+  }
+  if (c.lodCode != null){
+    const codes = [...$('#segLod').children].map(b => +b.dataset.value);
+    if (slider) notes.push('Lift-off steps do not apply to this sensor');
+    else if (codes.includes(c.lodCode)) add(`Lift-off ${[...$('#segLod').children].find(b => +b.dataset.value === c.lodCode).textContent}`, () => drv.setLodLevel(c.lodCode));
+    else notes.push('Lift-off distance is not available on this mouse');
+  }
+  if (c.angle && typeof c.angle === 'object' && lastS?.angleDeg != null){
+    const deg = clampInt(c.angle.deg, -ANGLE_LIMIT, ANGLE_LIMIT, 0), on = !!c.angle.on;
+    add(on ? `Sensor rotation ${deg > 0 ? '+' : ''}${deg}°` : 'Sensor rotation off', () => drv.setAngle(on, deg));
+  }
+  const names = { motionSync:'Movement smoothing', lineCorr:'Straight line correction', ripple:'Ripple correction', farDist:'Long range mode' };
+  if (c.toggles && typeof c.toggles === 'object')
+    for (const f of Object.keys(names))
+      if (typeof c.toggles[f] === 'boolean' && lastS?.[f] != null)
+        add(`${names[f]} ${c.toggles[f] ? 'on' : 'off'}`, () => drv.setToggle(f, c.toggles[f]));
+  if (Array.isArray(c.stageColors) && lastS?.stages?.length && drv.setStageColor){
+    c.stageColors.slice(0, lastS.stages.length).forEach((rgb, i) => {
+      if (Array.isArray(rgb) && rgb.length === 3){
+        const v = rgb.map(x => clampInt(x, 0, 255, 0));
+        add(`DPI stage ${i + 1} colour`, () => drv.setStageColor(i, v));
+      }
+    });
+  }
+  if (c.light && typeof c.light === 'object' && lastS?.light){
+    const l = { mode: c.light.mode, brightness: c.light.brightness, speed: c.light.speed };
+    if (LIGHT_MODES.some(m => m[0] === l.mode) && LIGHT_LEVELS.some(m => m[0] === l.brightness) && LIGHT_SPEEDS.some(m => m[0] === l.speed))
+      add(`DPI light: ${label(LIGHT_MODES, l.mode)}`, async () => { await drv.setLight(l); light = l; });
+    else bad('DPI light');
+  }
+  if (c.bhop && typeof c.bhop === 'object' && lastS?.bhop && drv.setBhop){
+    const on = !!c.bhop.on;
+    if (BHOP_MS.some(m => m[0] === c.bhop.ms)) add(on ? `Scroll anti-mistouch ${c.bhop.ms} ms` : 'Scroll anti-mistouch off', async () => { await drv.setBhop(on, c.bhop.ms); bhop = { on, ms: c.bhop.ms }; });
+    else bad('Scroll anti-mistouch');
+  }
+  if (Array.isArray(c.buttons) && buttons){
+    const macros = c.macros && typeof c.macros === 'object' ? c.macros : {};
+    const next = buttons.map(b => ({ ...b }));
+    const jobs = [];
+    c.buttons.slice(0, buttons.length).forEach((raw, i) => {
+      const a = cleanAction(raw);
+      if (!a){ notes.push(`${BUTTON_NAMES[i]} had an unknown action and was left as it is`); return; }
+      if (a.kind === 'macro'){
+        const m = cleanMacro(macros[i]);
+        if (!m){ notes.push(`${BUTTON_NAMES[i]} macro was empty or invalid and was left as it is`); return; }
+        next[i] = a;
+        jobs.push({ i, a, m });
+      } else if (actionValue(a) !== actionValue(buttons[i])){
+        next[i] = a;
+        jobs.push({ i, a });
+      }
+    });
+    const keepsLeft = next.some(b => b.kind === 'mouse' && b.btn === 0);
+    if (jobs.length && !keepsLeft) notes.push('Buttons were skipped: none would be left doing a left click');
+    else for (const j of jobs)
+      add(`${BUTTON_NAMES[j.i]}: ${j.m ? 'macro' : describe(j.a)}`, async () => {
+        if (j.m){ await drv.setMacro(j.i, j.m); saveMacro(j.i, j.m); } else await drv.setButton(j.i, j.a);
+        buttons[j.i] = j.a;
+      });
+  }
+  return { steps, notes, from: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '' };
+}
+
+let pendingShare = null;
+function showShare(plan){
+  pendingShare = plan;
+  const list = $('#shareList');
+  list.replaceChildren();
+  for (const st of plan.steps){ const li = document.createElement('li'); li.textContent = st.label; list.appendChild(li); }
+  for (const n of plan.notes){ const li = document.createElement('li'); li.textContent = n; li.style.color = 'var(--warn)'; list.appendChild(li); }
+  $('#shareFrom').textContent = plan.steps.length
+    ? `Made on ${plan.from || 'an ATK mouse'}${plan.made ? ', ' + plan.made : ''}. This will change:`
+    : 'Nothing in that file can be applied to this mouse.';
+  $('#shareApply').classList.toggle('hidden', !plan.steps.length);
+  $('#sharePreview').classList.remove('hidden');
+}
+function clearShare(){
+  pendingShare = null;
+  $('#sharePreview').classList.add('hidden');
+  $('#sharePaste').value = '';
+  $('#shareLoad').value = '';
+}
+async function loadShare(text){
+  try { showShare(planShare(await decodeShare(text))); }
+  catch (e){ pendingShare = null; $('#sharePreview').classList.add('hidden'); toast(e instanceof SyntaxError ? 'That is not a valid settings file.' : e.message, 1); }
+}
+const fileSafe = t => t.replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'mouse';
+$('#shareFile').onclick = () => {
+  if (!drv) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: 'application/json' }));
+  a.download = `openatk-${fileSafe($('#devName').textContent)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+$('#shareCopy').onclick = async () => {
+  if (!drv) return;
+  const code = await encodeShare(snapshot());
+  try { await navigator.clipboard.writeText(code); toast('Share code copied'); }
+  catch { $('#sharePaste').value = code; $('#sharePaste').select(); toast('Copy the code from the box below'); }
+};
+$('#shareLoad').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.size > SHARE_MAX){ toast('That file is too large.', 1); return; }
+  const r = new FileReader();
+  r.onload = () => loadShare(String(r.result));
+  r.readAsText(f);
+};
+let pasteTimer = null;
+$('#sharePaste').oninput = e => {
+  clearTimeout(pasteTimer);
+  const v = e.target.value.trim();
+  if (!v){ $('#sharePreview').classList.add('hidden'); return; }
+  pasteTimer = setTimeout(() => loadShare(v), 250);
+};
+$('#shareLinkBtn').onclick = async () => {
+  if (!drv) return;
+  const url = new URL('../index.html', location.href);
+  url.search = '';
+  url.hash = 'cfg=' + await encodeShare(await snapshot());
+  try { await navigator.clipboard.writeText(url.href); toast('Share link copied'); }
+  catch { $('#sharePaste').value = url.href; $('#sharePaste').select(); toast('Copy the link from the box below'); }
+};
+window.addEventListener('message', async e => {
+  if (e.source !== window.parent || e.origin !== location.origin) return;
+  const d = e.data;
+  if (!d || d.type !== 'openatk-share' || typeof d.code !== 'string' || d.code.length > SHARE_MAX) return;
+  for (let i = 0; i < 100 && !(drv && lastS); i++) await new Promise(r => setTimeout(r, 200));
+  if (!drv) return;
+  showTab('device');
+  $('#sharePaste').value = d.code;
+  await loadShare(d.code);
+});
+$('#shareCancel').onclick = clearShare;
+$('#shareApply').onclick = async () => {
+  if (!pendingShare || !drv) return;
+  const btn = $('#shareApply'), steps = pendingShare.steps;
+  btn.disabled = true;
+  let failed = 0;
+  for (const st of steps){
+    try { await st.run(); } catch { failed++; }
+  }
+  btn.disabled = false;
+  clearShare();
+  renderButtons();
+  toast(failed ? `Applied ${steps.length - failed} of ${steps.length} settings` : `Applied ${steps.length} settings`, failed ? 1 : 0);
+  await refresh();
+};
+
 async function readAll(){
   const s = await drv.readState();
+  lastS = s;
   const info = s.info;
 
   /* a receiver reports a generic product name — the paired mouse is
@@ -2799,7 +3119,7 @@ async function readAll(){
   renderStageColors(s.stages, s.stageColors, s.activeStage ?? 0);
   const stageCol = s.stageColors?.[s.activeStage ?? 0];
   document.documentElement.style.setProperty('--stage',
-    stageCol && stageCol[0] + stageCol[1] + stageCol[2] > 90 ? rgbToHex(stageCol) : '#3ddc84');
+    stageCol && stageCol[0] + stageCol[1] + stageCol[2] > 90 ? rgbToHex(stageCol) : 'var(--acc)');
 
   /* BITMOUSE cannot read its light back, so the controls start on their
      defaults there and only COMPX shows the mouse's real state. */
@@ -2833,6 +3153,7 @@ async function readAll(){
   }
 
   $('#pairItem').classList.toggle('hidden', !drv.isReceiver);
+  $('#shareItem').classList.toggle('hidden', !!drv.isReceiver);
   $('#pairModel').classList.toggle('hidden', !(drv.isReceiver && drv instanceof CompxDriver));
   if (drv.isReceiver && drv instanceof CompxDriver && !$('#pairModel').options.length)
     fillPairModels(s.cidMid);

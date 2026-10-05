@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
+addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==window){e.preventDefault();parent.postMessage({type:'openatk-palette'},location.origin)}});</script>
+
 <title>OpenATK</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -11,19 +16,24 @@
     --bg:#06080b; --card:#10151b; --card2:#161d25; --line:#232c37; --line2:#2f3a47;
     --ink:#f1f6fb; --dim:#98a6b4; --dimmer:#5f6c79;
     --acc:#3ddc84; --acc2:#22d3ee; --warn:#f5c451; --bad:#f87171;
-    --glow:rgba(61,220,132,.38); --stage:#3ddc84;
+    --glow:rgba(var(--acc-rgb),.38); --stage:var(--acc);
     --ring:0 0 0 1px oklch(1 0 0 / .08); --ring-hover:0 0 0 1px oklch(1 0 0 / .13);
     --ease:cubic-bezier(.2,0,0,1);
     --mono:'IBM Plex Mono',ui-monospace,monospace;
     --disp:'Space Grotesk',Inter,system-ui,sans-serif;
   }
+  :root{--acc-hi:#5cf0a2;--acc-lo:#2fc774;--acc-dk:#1f9e59;--acc-rgb:61,220,132;--acc2-rgb:34,211,238}
+  html[data-theme=cyan]{--acc:#22d3ee;--acc-hi:#67e8f9;--acc-lo:#0fb5d1;--acc-dk:#0b8ea6;--acc-rgb:34,211,238;--acc2:#a78bfa;--acc2-rgb:167,139,250}
+  html[data-theme=violet]{--acc:#a78bfa;--acc-hi:#c4b5fd;--acc-lo:#8b5cf6;--acc-dk:#6d3fd6;--acc-rgb:167,139,250;--acc2:#22d3ee;--acc2-rgb:34,211,238}
+  html[data-theme=orange]{--acc:#fb923c;--acc-hi:#fdba74;--acc-lo:#f97316;--acc-dk:#c2570c;--acc-rgb:251,146,60;--acc2:#facc15;--acc2-rgb:250,204,21}
+  html[data-theme=pink]{--acc:#f472b6;--acc-hi:#f9a8d4;--acc-lo:#ec4899;--acc-dk:#be2f7a;--acc-rgb:244,114,182;--acc2:#a78bfa;--acc2-rgb:167,139,250}
   *{box-sizing:border-box}
   html,body{margin:0;min-height:100%;color:var(--ink);
     font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
     -webkit-font-smoothing:antialiased}
   body{background:
-      radial-gradient(900px 520px at 8% -8%, rgba(61,220,132,.13), transparent 60%),
-      radial-gradient(800px 600px at 105% 105%, rgba(34,211,238,.10), transparent 60%),
+      radial-gradient(900px 520px at 8% -8%, rgba(var(--acc-rgb),.13), transparent 60%),
+      radial-gradient(800px 600px at 105% 105%, rgba(var(--acc2-rgb),.10), transparent 60%),
       var(--bg);background-attachment:fixed}
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     background-image:linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
@@ -40,8 +50,8 @@
   .brand{display:flex;align-items:center;gap:11px;padding-right:18px;margin-right:4px;
     border-right:1px solid var(--line);text-decoration:none}
   .brand .mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
-    background:linear-gradient(145deg,#1b2a22,#0c1310);border:1px solid rgba(61,220,132,.35);
-    box-shadow:0 0 22px rgba(61,220,132,.18), inset 0 1px 0 rgba(255,255,255,.06)}
+    background:linear-gradient(145deg,#1b2a22,#0c1310);border:1px solid rgba(var(--acc-rgb),.35);
+    box-shadow:0 0 22px rgba(var(--acc-rgb),.18), inset 0 1px 0 rgba(255,255,255,.06)}
   .brand b{font:700 17px/1 var(--disp);letter-spacing:-.01em}
   .brand b span{color:var(--acc)}
   h1{margin:0;font:600 18px/1.2 var(--disp);letter-spacing:-.01em;white-space:nowrap;
@@ -49,26 +59,26 @@
   h1 .brandtag{color:var(--dim);font-weight:500}
   .status{display:inline-flex;align-items:center;gap:7px;margin-top:3px;font-size:12.5px;color:var(--dim)}
   .status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--acc);
-    box-shadow:0 0 0 3px rgba(61,220,132,.16),0 0 12px var(--acc);animation:live 2.2s ease-in-out infinite}
+    box-shadow:0 0 0 3px rgba(var(--acc-rgb),.16),0 0 12px var(--acc);animation:live 2.2s ease-in-out infinite}
   .status b{color:var(--acc);font-weight:600}
   .status.off::before{background:var(--dimmer);box-shadow:none;animation:none}
-  @keyframes live{50%{box-shadow:0 0 0 6px rgba(61,220,132,0),0 0 16px var(--acc)}}
+  @keyframes live{50%{box-shadow:0 0 0 6px rgba(var(--acc-rgb),0),0 0 16px var(--acc)}}
 
   .btn{font:600 14px/1 Inter,sans-serif;padding:13px 21px;border-radius:10px;
     border:0;color:#03170b;cursor:pointer;text-decoration:none;
-    background:linear-gradient(180deg,#5cf0a2,#2fc774);
-    box-shadow:0 0 0 1px rgba(61,220,132,.25),0 8px 26px -8px rgba(61,220,132,.65),
+    background:linear-gradient(180deg,var(--acc-hi),var(--acc-lo));
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.25),0 8px 26px -8px rgba(var(--acc-rgb),.65),
       inset 0 1px 0 rgba(255,255,255,.45);
     transition-property:scale,box-shadow,filter,background-color;transition-duration:.15s;transition-timing-function:ease-out}
-  .btn:hover{filter:brightness(1.06);box-shadow:0 0 0 1px rgba(61,220,132,.4),
-    0 10px 32px -8px rgba(61,220,132,.85),inset 0 1px 0 rgba(255,255,255,.45)}
+  .btn:hover{filter:brightness(1.06);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.4),
+    0 10px 32px -8px rgba(var(--acc-rgb),.85),inset 0 1px 0 rgba(255,255,255,.45)}
   .btn:active:not(:disabled){scale:.96}
   .btn:disabled{opacity:.5;cursor:default}
   .btn.icon{padding:10px 12px;display:inline-grid;place-items:center}
   .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);
     font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
-  .btn.ghost:hover{background:rgba(61,220,132,.08);
-    box-shadow:0 0 0 1px rgba(61,220,132,.45),0 0 18px -6px var(--glow);filter:none}
+  .btn.ghost:hover{background:rgba(var(--acc-rgb),.08);
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.45),0 0 18px -6px var(--glow);filter:none}
   .btn.ghost.lead{padding-left:14px}
   .btn.quiet{background:rgba(248,113,113,.04);color:#ffbdbd;
     font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px #4f2a2a}
@@ -77,8 +87,8 @@
   .hero{margin:56px auto 0;max-width:760px;padding:52px 48px 46px;text-align:center;
     position:relative;overflow:hidden;border-radius:24px;border:1px solid transparent;
     background:linear-gradient(var(--card),var(--card)) padding-box,
-      linear-gradient(150deg,rgba(61,220,132,.5),rgba(255,255,255,.05) 40%,rgba(34,211,238,.35)) border-box;
-    box-shadow:0 40px 120px -40px rgba(61,220,132,.35)}
+      linear-gradient(150deg,rgba(var(--acc-rgb),.5),rgba(255,255,255,.05) 40%,rgba(var(--acc2-rgb),.35)) border-box;
+    box-shadow:0 40px 120px -40px rgba(var(--acc-rgb),.35)}
 
   .hero .kicker{font:600 11.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--acc)}
   .hero h2{margin:12px 0 10px;font:700 34px/1.1 var(--disp);letter-spacing:-.02em}
@@ -89,10 +99,10 @@
   .pick{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 20px 22px;border-radius:18px;
     text-decoration:none;color:var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0)),#0c1116;
     box-shadow:var(--ring);transition-property:box-shadow,scale;transition-duration:.15s;transition-timing-function:ease-out}
-  .pick:hover{box-shadow:0 0 0 1px rgba(61,220,132,.5),0 0 34px -10px var(--glow)}
+  .pick:hover{box-shadow:0 0 0 1px rgba(var(--acc-rgb),.5),0 0 34px -10px var(--glow)}
   .pick:active{scale:.98}
   .pick .img{height:150px;width:100%;display:grid;place-items:center;margin-bottom:8px}
-  .pick img{max-height:150px;max-width:100%;object-fit:contain;filter:drop-shadow(0 18px 30px rgba(61,220,132,.25))}
+  .pick img{max-height:150px;max-width:100%;object-fit:contain;filter:drop-shadow(0 18px 30px rgba(var(--acc-rgb),.25))}
   .pick b{font:700 21px/1.2 var(--disp);letter-spacing:-.01em}
   .pick em{font-style:normal;color:var(--dim);font-size:13.5px}
   .pick .go{margin-top:10px;font:600 13px/1 Inter,sans-serif;color:var(--acc)}
@@ -109,21 +119,21 @@
   .devgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin:30px 0 20px;text-align:left}
   .dev{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;text-decoration:none;color:var(--ink);
     background:#0c1116;box-shadow:var(--ring);transition-property:box-shadow,scale;transition-duration:.15s;transition-timing-function:ease-out}
-  .dev:hover{box-shadow:0 0 0 1px rgba(61,220,132,.5),0 0 34px -10px var(--glow)}
+  .dev:hover{box-shadow:0 0 0 1px rgba(var(--acc-rgb),.5),0 0 34px -10px var(--glow)}
   .dev:active{scale:.98}
   .dev .shot{height:170px;display:grid;place-items:center;padding:18px;
-    background:radial-gradient(220px 140px at 50% 55%,rgba(61,220,132,.12),transparent 70%)}
+    background:radial-gradient(220px 140px at 50% 55%,rgba(var(--acc-rgb),.12),transparent 70%)}
   .dev .shot img{max-width:100%;max-height:134px;object-fit:contain;filter:drop-shadow(0 16px 26px rgba(0,0,0,.6))}
   .dev .meta{padding:14px 18px 16px;border-top:1px solid var(--line)}
   .dev b{display:block;font:700 18px/1.25 var(--disp);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .dev .row{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12.5px;color:var(--dim)}
   .dev .row .kind{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--acc);
-    padding:4px 7px;border-radius:6px;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.3)}
+    padding:4px 7px;border-radius:6px;background:rgba(var(--acc-rgb),.1);border:1px solid rgba(var(--acc-rgb),.3)}
   .dev .row .batt{display:inline-flex;align-items:center;gap:5px}
   .dev .row .go{margin-left:auto;color:var(--acc);font-weight:600}
   .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);font-weight:500;padding:11px 18px;font-size:13.5px;
     box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
-  .btn.ghost:hover{background:rgba(61,220,132,.08);box-shadow:0 0 0 1px rgba(61,220,132,.45),0 0 18px -6px var(--glow);filter:none}
+  .btn.ghost:hover{background:rgba(var(--acc-rgb),.08);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.45),0 0 18px -6px var(--glow);filter:none}
   .demoline{margin:36px auto 0;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--dimmer)}
   .demoline .tag{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#ffd66b;
     padding:4px 7px;border-radius:6px;background:rgba(245,196,81,.1);border:1px solid rgba(245,196,81,.35);margin-right:8px}
@@ -142,23 +152,69 @@
     .pick .img{height:120px}
     .pick img{max-height:120px}
   }
+
+  header .tabs{display:flex;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;padding:2px}
+  header .tabs::-webkit-scrollbar{display:none}
+  .chip{display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;max-width:260px;padding:8px 13px;border-radius:11px;border:0;
+    background:rgba(255,255,255,.03);color:var(--ink);font:500 13px/1 Inter,sans-serif;cursor:pointer;box-shadow:0 0 0 1px oklch(1 0 0 / .1);
+    transition-property:box-shadow,background-color,scale;transition-duration:.15s;transition-timing-function:ease-out}
+  .chip:hover{background:rgba(var(--acc-rgb),.07);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.4)}
+  .chip:active{scale:.97}
+  .chip[aria-current=true]{background:rgba(var(--acc-rgb),.12);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.7),0 0 20px -8px var(--glow)}
+  .chip .k{font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+  .chip .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip .b{color:var(--dim);font-size:12px}
+  .chip .x{margin-left:2px;color:var(--dimmer);padding:0 2px;font-size:15px;line-height:1}
+  .chip .x:hover{color:var(--bad)}
+  .chip.demo .k{color:#ffd66b}
+  #stage{position:relative;z-index:1;margin:12px 0 0}
+  #stage iframe{display:block;width:100%;border:0;border-radius:18px;background:transparent;height:calc(100vh - 96px);min-height:520px}
+  body.app .wrap{max-width:1360px;padding:14px 16px 16px}
+  @media (max-width: 760px){
+    body.app .wrap{padding:10px}
+    header .brand{margin-right:0}
+    .chip{max-width:190px}
+  }
+
+  .themes{display:flex;gap:7px;align-items:center;padding:0 4px}
+  .themes button{width:18px;height:18px;border-radius:50%;border:0;padding:0;cursor:pointer;background:var(--c);
+    box-shadow:0 0 0 1px oklch(1 0 0 / .18);transition-property:scale,box-shadow;transition-duration:.15s;transition-timing-function:ease-out}
+  .themes button:hover{scale:1.18}
+  .themes button[aria-pressed=true]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--c),0 0 14px var(--c)}
+  .kbd{font:600 11px/1 var(--mono);color:var(--dim);padding:3px 6px;border-radius:6px;background:rgba(255,255,255,.06);margin-left:6px}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.995)}}
+  #stage iframe:not(.hidden){animation:pop .28s var(--ease)}
+  .hero:not(.hidden){animation:pop .35s var(--ease)}
+  .dev,.pick{transform-style:preserve-3d}
+  #pal{position:fixed;inset:0;z-index:20;display:grid;place-items:start center;padding-top:14vh;background:rgba(3,6,9,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+  #pal .box{width:min(560px,92vw);border-radius:18px;background:#0d1319;box-shadow:0 0 0 1px oklch(1 0 0 / .12),0 40px 120px -20px rgba(0,0,0,.8),0 0 60px -20px rgba(var(--acc-rgb),.4);overflow:hidden;animation:pop .18s var(--ease)}
+  #pal input{width:100%;border:0;outline:0;background:transparent;color:var(--ink);font:500 16px/1 Inter,sans-serif;padding:18px 20px;border-bottom:1px solid var(--line)}
+  #pal ul{list-style:none;margin:0;padding:6px;max-height:min(46vh,380px);overflow:auto}
+  #pal li{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:11px;cursor:pointer;font-size:14px}
+  #pal li small{margin-left:auto;color:var(--dimmer);font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+  #pal li[aria-selected=true]{background:rgba(var(--acc-rgb),.14);box-shadow:inset 0 0 0 1px rgba(var(--acc-rgb),.4)}
+  #pal .none{padding:18px;color:var(--dimmer);text-align:center;font-size:14px}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <a class="brand" href="index.html" aria-label="OpenATK">
-    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#3ddc84" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
+  <a class="brand" href="#" id="home" aria-label="OpenATK home">
+    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" style="color:var(--acc)" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
     <b>Open<span>ATK</span></b>
   </a>
-  <div style="flex:1"></div>
+  <div class="tabs hidden" id="tabs" role="tablist" aria-label="Devices"></div>
+  <div style="flex:1" id="spacer"></div>
+  <div class="themes" id="themes" role="group" aria-label="Accent colour"></div>
+  <button class="btn ghost" id="palBtn" type="button" aria-label="Search and jump">Jump<span class="kbd">Ctrl K</span></button>
+  <button class="btn ghost hidden" id="addTab" type="button">+ Add device</button>
   <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
      target="_blank" rel="noopener noreferrer"
      aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
 </header>
 
-<div class="hero">
+<div class="hero" id="homeView">
   <div class="kicker">WebHID configurator</div>
   <h2>Tune your ATK gear, right in the browser</h2>
   <p>Pick what you want to set up. Close ATK HUB first if it's running, since only one
@@ -171,13 +227,13 @@
 
   <div id="pickSection">
   <div class="picks">
-    <a class="pick" href="mouse/index.html" id="pickMouse">
+    <a class="pick" href="#" id="pickMouse" data-kind="mouse">
       <div class="img"><img src="assets/mouse.webp" alt=""></div>
       <b>Mouse</b>
       <em>DPI, polling, lift-off, buttons, macros, lighting</em>
       <span class="go">Open mouse configurator &rarr;</span>
     </a>
-    <a class="pick" href="keyboard/index.html" id="pickKeyboard">
+    <a class="pick" href="#" id="pickKeyboard" data-kind="keyboard">
       <div class="img"><img src="assets/keyboard.svg" alt=""></div>
       <b>Keyboard</b>
       <em>Trigger travel, rapid trigger, advanced keys, lighting</em>
@@ -194,13 +250,24 @@
   <p class="note warn hidden" id="unsupported"></p>
 
   <p class="demoline" id="demoLine"><span class="tag">Demo</span>No device handy? Try a simulated
-    <a href="mouse/index.html?demo=1">mouse</a> or <a href="keyboard/index.html?demo=1">keyboard</a>.
+    <a href="#demo=mouse">mouse</a> or <a href="#demo=keyboard">keyboard</a>.
     Nothing is sent to real hardware.</p>
 </div>
 
-<p class="foot"><a href="tested.html">Tested hardware</a> &middot; not affiliated with ATK</p>
+<div class="hero hidden" id="cfgView">
+  <div class="kicker">Shared settings</div>
+  <h2 id="cfgTitle">Apply shared settings</h2>
+  <p id="cfgText"></p>
+  <div class="devgrid" id="cfgDevices"></div>
+  <p><a class="btn ghost" href="#" id="cfgAdd">+ Add a device</a> <a class="btn ghost" href="#" id="cfgHome">Cancel</a></p>
 </div>
 
+<div id="stage" class="hidden"></div>
+
+<p class="foot" id="foot"><a href="tested.html">Tested hardware</a> &middot; <a href="fm/index.html">Finalmouse (Ultralight X, Starlight X)</a> &middot; not affiliated with ATK</p>
+</div>
+
+<div id="pal" class="hidden" role="dialog" aria-label="Jump to"><div class="box"><input id="palIn" placeholder="Jump to a device, theme or action" autocomplete="off" spellcheck="false" aria-label="Jump to"><ul id="palList" role="listbox"></ul></div></div>
 <div id="toast"></div>
 
 <script>
@@ -223,31 +290,56 @@ function toast(msg){
 const IS_MOBILE = navigator.userAgentData?.mobile === true
   || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
   || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const HAS_HID = !IS_MOBILE && 'hid' in navigator;
 
 if (IS_MOBILE) $('#demoLine').classList.add('hidden');
-if (IS_MOBILE || !('hid' in navigator)){
+if (!HAS_HID){
   $('#anyWrap').classList.add('hidden');
   $('#unsupported').textContent = IS_MOBILE
-    ? 'Phones and tablets can\u2019t talk to USB devices from a web page. Open OpenATK on a computer, in Chrome, Edge or Opera.'
+    ? 'Phones and tablets can’t talk to USB devices from a web page. Open OpenATK on a computer, in Chrome, Edge or Opera.'
     : navigator.brave
-      ? 'Brave has WebHID switched off. Turn it on in brave://flags (search for \u201cHID\u201d), or use Chrome, Edge or Opera.'
-      : 'This browser can\u2019t talk to USB devices. Open OpenATK in Chrome, Edge or Opera.';
+      ? 'Brave has WebHID switched off. Turn it on in brave://flags (search for “HID”), or use Chrome, Edge or Opera.'
+      : 'This browser can’t talk to USB devices. Open OpenATK in Chrome, Edge or Opera.';
   $('#unsupported').classList.remove('hidden');
 }
 
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
-const saved = d => { try { return JSON.parse(localStorage.getItem('openatk.dev.' + devId(d)) || '{}') || {}; } catch { return {}; } };
+const saved = id => { try { return JSON.parse(localStorage.getItem('openatk.dev.' + id) || '{}') || {}; } catch { return {}; } };
 const ago = t => {
   const m = Math.round((Date.now() - t) / 60000);
   return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`;
 };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const safeBatt = info => { const p = Number(info.battery); return Number.isFinite(p) && info.at ? Math.max(0, Math.min(100, Math.round(p))) : null; };
+const safeName = (info, fallback) => typeof info.name === 'string' && info.name ? info.name.slice(0, 80) : fallback;
+
+let devices = [];
+let loaded = false;
+const extra = new Map();
+const frames = new Map();
+
+const kindOf = d => matches(d, KEYBOARDS) ? 'keyboard' : 'mouse';
+const hashFor = (kind, id) => `#d=${encodeURIComponent(id)}&k=${kind}`;
+
+function parseHash(){
+  const p = new URLSearchParams(location.hash.slice(1));
+  const d = p.get('d'), demo = p.get('demo');
+  if (d && /^[0-9a-f]{1,4}:[0-9a-f]{1,4}$/i.test(d)){
+    const id = d.toLowerCase();
+    const dev = devices.find(x => devId(x) === id);
+    const kind = dev ? kindOf(dev) : p.get('k') === 'keyboard' ? 'keyboard' : 'mouse';
+    return { key: 'd:' + id, kind, known: !!dev, src: `${kind}/index.html?d=${encodeURIComponent(id)}&embed=1` };
+  }
+  if (demo === 'mouse' || demo === 'keyboard') return { key: 'demo:' + demo, kind: demo, src: `${demo}/index.html?demo=1&embed=1`, extra: { label: 'Demo ' + demo, demo: true } };
+  return null;
+}
 
 function card(d){
   const kb = matches(d, KEYBOARDS);
-  const info = saved(d);
+  const id = devId(d);
+  const info = saved(id);
   const a = el('a', 'dev');
-  a.href = `${kb ? 'keyboard' : 'mouse'}/index.html?d=${encodeURIComponent(devId(d))}`;
+  a.href = hashFor(kindOf(d), id);
   const shot = el('div', 'shot'), img = el('img');
   const photo = typeof info.img === 'string' && info.img.startsWith('https://bpcdn.atkgear.com/') ? info.img : null;
   const stock = kb ? 'assets/keyboard.svg' : 'assets/mouse.webp';
@@ -256,46 +348,298 @@ function card(d){
   img.onerror = () => { if (img.src.indexOf(stock) === -1) img.src = stock; };
   shot.append(img);
   const meta = el('div', 'meta');
-  const name = typeof info.name === 'string' && info.name ? info.name.slice(0, 80) : (d.productName || (kb ? 'ATK keyboard' : 'ATK mouse'));
-  meta.append(el('b', null, name));
+  meta.append(el('b', null, safeName(info, d.productName || (kb ? 'ATK keyboard' : 'ATK mouse'))));
   const row = el('div', 'row');
   row.append(el('span', 'kind', kb ? 'Keyboard' : 'Mouse'));
-  const pct = Number(info.battery);
-  if (!kb && Number.isFinite(pct) && info.at){
-    const b = el('span', 'batt', `${Math.max(0, Math.min(100, Math.round(pct)))}%${info.charging ? ' charging' : ''}`);
+  const pct = safeBatt(info);
+  if (!kb && pct !== null){
+    const b = el('span', 'batt', `${pct}%${info.charging ? ' charging' : ''}`);
     b.title = `Battery when last read, ${ago(info.at)}`;
-    b.append(el('span', null, `\u00b7 ${ago(info.at)}`));
+    b.append(el('span', null, `· ${ago(info.at)}`));
     row.append(b);
   }
-  row.append(el('span', 'go', 'Configure \u2192'));
+  row.append(el('span', 'go', 'Configure →'));
   meta.append(row);
   a.append(shot, meta);
   return a;
 }
 
+function chip(key, kind, label, href, opts = {}){
+  const b = el('button', 'chip' + (opts.demo ? ' demo' : ''));
+  b.type = 'button';
+  b.setAttribute('role', 'tab');
+  b.dataset.key = key;
+  b.append(el('span', 'k', opts.demo ? 'Demo' : kind === 'keyboard' ? 'KB' : 'Mouse'), el('span', 'n', label));
+  if (opts.batt != null) b.append(el('span', 'b', opts.batt + '%'));
+  b.onclick = () => { location.hash = href; };
+  if (opts.close){
+    const x = el('span', 'x', '×');
+    x.title = 'Close';
+    x.onclick = e => { e.stopPropagation(); closeView(key); };
+    b.append(x);
+  }
+  return b;
+}
+
+function renderTabs(){
+  const cur = parseHash();
+  const tabs = $('#tabs');
+  const list = [];
+  for (const d of devices){
+    const id = devId(d), kind = kindOf(d), info = saved(id);
+    list.push(chip('d:' + id, kind, safeName(info, d.productName || (kind === 'keyboard' ? 'ATK keyboard' : 'ATK mouse')), hashFor(kind, id), { batt: kind === 'mouse' ? safeBatt(info) : null }));
+  }
+  for (const [key, v] of extra){
+    if (key.startsWith('d:')) continue;
+    list.push(chip(key, v.kind, v.label, `#demo=${v.kind}`, { demo: true, close: true }));
+  }
+  tabs.replaceChildren(...list);
+  for (const c of tabs.children) c.setAttribute('aria-current', String(!!cur && c.dataset.key === cur.key));
+  const show = list.length > 0 || !!cur;
+  tabs.classList.toggle('hidden', !list.length);
+  $('#spacer').classList.toggle('hidden', !!list.length);
+  $('#addTab').classList.toggle('hidden', !HAS_HID || !show);
+}
+
+function closeView(key){
+  const f = frames.get(key);
+  if (f){ f.remove(); frames.delete(key); }
+  extra.delete(key);
+  if (parseHash()?.key === key) location.hash = '';
+  else renderTabs();
+}
+
+
+const CFG_MAX = 200000;
+async function peekCfg(code){
+  const t = code.trim();
+  if (t.length > CFG_MAX) throw new Error('too large');
+  const m = /^OATK([01])\.([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) throw new Error('bad');
+  let u8 = Uint8Array.from(atob(m[2].replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+  if (m[1] === '1'){
+    if (typeof DecompressionStream !== 'function') throw new Error('bad');
+    const r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+    const parts = []; let n = 0;
+    for (;;){
+      const { done, value } = await r.read();
+      if (done) break;
+      n += value.length;
+      if (n > CFG_MAX * 4){ await r.cancel(); throw new Error('too large'); }
+      parts.push(value);
+    }
+    u8 = new Uint8Array(n); let o = 0;
+    for (const c of parts){ u8.set(c, o); o += c.length; }
+  }
+  const cfg = JSON.parse(new TextDecoder().decode(u8));
+  if (!cfg || cfg.app !== 'openatk' || cfg.v !== 1 || (cfg.kind !== 'mouse' && cfg.kind !== 'keyboard')) throw new Error('bad');
+  return { kind: cfg.kind, model: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '', code: t };
+}
+
+let cfgToken = 0;
+let pendingCfg = null;
+function sendCfg(key){
+  if (!pendingCfg || pendingCfg.key !== key) return;
+  const f = frames.get(key);
+  if (!f) return;
+  const post = () => { f.contentWindow?.postMessage({ type: 'openatk-share', code: pendingCfg.code }, location.origin); pendingCfg = null; };
+  if (f.dataset.loaded === '1') post(); else f.addEventListener('load', post, { once: true });
+}
+
+async function showCfg(code){
+  const my = ++cfgToken;
+  document.body.classList.remove('app');
+  for (const id of ['#homeView', '#stage', '#foot']) $(id).classList.add('hidden');
+  const view = $('#cfgView');
+  view.classList.remove('hidden');
+  $('#cfgDevices').replaceChildren();
+  $('#cfgAdd').classList.add('hidden');
+  let info;
+  try { info = await peekCfg(code); }
+  catch {
+    if (my !== cfgToken) return;
+    $('#cfgTitle').textContent = 'That link does not work';
+    $('#cfgText').textContent = 'The shared settings in it are missing, damaged or from something that is not OpenATK.';
+    return;
+  }
+  if (my !== cfgToken) return;
+  const label = info.kind === 'keyboard' ? 'keyboard' : 'mouse';
+  $('#cfgTitle').textContent = `Settings for a ${label}`;
+  const matching = devices.filter(d => kindOf(d) === info.kind);
+  $('#cfgText').textContent = `${info.model ? 'Made on ' + info.model : 'Shared'}${info.made ? ', ' + info.made : ''}. ` +
+    (matching.length ? 'Pick the device to preview them on. Nothing is written until you confirm.'
+                     : `Connect a ${label} first, then open this link again.`);
+  $('#cfgAdd').classList.toggle('hidden', !HAS_HID);
+  $('#cfgDevices').replaceChildren(...matching.map(d => {
+    const a = card(d);
+    a.onclick = e => {
+      e.preventDefault();
+      pendingCfg = { key: 'd:' + devId(d), code: info.code };
+      location.hash = hashFor(info.kind, devId(d));
+    };
+    return a;
+  }));
+}
+
+function route(){
+  const cfgCode = new URLSearchParams(location.hash.slice(1)).get('cfg');
+  if (cfgCode){
+    if (!loaded) return;
+    showCfg(cfgCode); renderTabs(); return;
+  }
+  $('#cfgView').classList.add('hidden');
+  const r = parseHash();
+  if (r && r.key.startsWith('d:') && !r.known){
+    if (loaded) location.hash = '';
+    return;
+  }
+  document.body.classList.toggle('app', !!r);
+  $('#homeView').classList.toggle('hidden', !!r);
+  $('#foot').classList.toggle('hidden', !!r);
+  $('#stage').classList.toggle('hidden', !r);
+  if (r){
+    if (r.extra && !extra.has(r.key)) extra.set(r.key, { kind: r.kind, ...r.extra });
+    if (!frames.has(r.key)){
+      const f = document.createElement('iframe');
+      f.src = r.src;
+      f.title = r.key;
+      f.allow = 'hid';
+      f.dataset.key = r.key;
+      f.addEventListener('load', () => { f.dataset.loaded = '1'; });
+      $('#stage').append(f);
+      frames.set(r.key, f);
+    }
+    sendCfg(r.key);
+    for (const [k, f] of frames) f.classList.toggle('hidden', k !== r.key);
+  }
+  renderTabs();
+}
+
 async function addDevices(){
   try { await navigator.hid.requestDevice({ filters: [...MICE, ...KEYBOARDS] }); }
   catch (e) { toast(e.message); return; }
-  renderDevices();
+  await renderDevices();
+}
+
+async function pick(kind){
+  if (!HAS_HID){ toast($('#unsupported').textContent || 'This browser can\u2019t talk to USB devices.'); return; }
+  let got;
+  try { got = await navigator.hid.requestDevice({ filters: kind === 'keyboard' ? KEYBOARDS : MICE }); }
+  catch (e) { toast(e.message); return; }
+  await renderDevices();
+  const d = got.find(x => matches(x, kind === 'keyboard' ? KEYBOARDS : MICE));
+  if (d) location.hash = hashFor(kind, devId(d));
 }
 
 async function renderDevices(){
-  if (IS_MOBILE || !('hid' in navigator)) return;
+  if (!HAS_HID){ loaded = true; route(); return; }
   let list = [];
   try { list = (await navigator.hid.getDevices()).filter(d => matches(d, [...MICE, ...KEYBOARDS])); } catch {}
   const seen = new Set();
   list = list.filter(d => !seen.has(devId(d)) && seen.add(devId(d)));
   list.sort((a, b) => Number(matches(a, KEYBOARDS)) - Number(matches(b, KEYBOARDS)));
-  const grid = $('#devGrid');
-  grid.replaceChildren(...list.map(card));
+  devices = list;
+  loaded = true;
+  const live = new Set(list.map(d => 'd:' + devId(d)));
+  for (const [k, f] of [...frames]) if (k.startsWith('d:') && !live.has(k)){ f.remove(); frames.delete(k); }
+  $('#devGrid').replaceChildren(...list.map(card));
   $('#devSection').classList.toggle('hidden', !list.length);
   $('#pickSection').classList.toggle('hidden', !!list.length);
+  route();
 }
 
+for (const a of document.querySelectorAll('.pick')) a.onclick = e => { e.preventDefault(); pick(a.dataset.kind); };
 $('#connectAny').onclick = addDevices;
 $('#addDevice').onclick = addDevices;
+$('#addTab').onclick = addDevices;
+$('#cfgAdd').onclick = e => { e.preventDefault(); addDevices(); };
+$('#cfgHome').onclick = e => { e.preventDefault(); location.hash = ''; };
+$('#home').addEventListener('click', e => { e.preventDefault(); if (location.hash) location.hash = ''; else route(); });
+window.addEventListener('hashchange', route);
+window.addEventListener('storage', () => { if (!parseHash()) $('#devGrid').replaceChildren(...devices.map(card)); renderTabs(); });
 navigator.hid?.addEventListener('connect', renderDevices);
 navigator.hid?.addEventListener('disconnect', renderDevices);
+
+const THEMES = [['green', '#3ddc84'], ['cyan', '#22d3ee'], ['violet', '#a78bfa'], ['orange', '#fb923c'], ['pink', '#f472b6']];
+const themeName = () => document.documentElement.dataset.theme || 'green';
+function setTheme(name){
+  if (!THEMES.some(t => t[0] === name)) name = 'green';
+  document.documentElement.dataset.theme = name === 'green' ? '' : name;
+  try { localStorage.setItem('openatk.theme', name === 'green' ? '' : name); } catch {}
+  for (const f of frames.values()) f.contentWindow?.postMessage({ type: 'openatk-theme', theme: name === 'green' ? '' : name }, location.origin);
+  for (const b of $('#themes').children) b.setAttribute('aria-pressed', String(b.dataset.theme === name));
+}
+for (const [name, color] of THEMES){
+  const b = el('button');
+  b.type = 'button'; b.dataset.theme = name; b.title = name[0].toUpperCase() + name.slice(1);
+  b.setAttribute('aria-label', 'Accent ' + name);
+  b.style.setProperty('--c', color);
+  b.onclick = () => setTheme(name);
+  $('#themes').append(b);
+}
+for (const b of $('#themes').children) b.setAttribute('aria-pressed', String(b.dataset.theme === themeName()));
+
+let palItems = [], palSel = 0;
+function paletteCommands(){
+  const list = [];
+  list.push({ label: 'Start page', tag: 'Go', run: () => { location.hash = ''; } });
+  for (const d of devices){
+    const id = devId(d), kind = kindOf(d);
+    list.push({ label: safeName(saved(id), d.productName || (kind === 'keyboard' ? 'ATK keyboard' : 'ATK mouse')), tag: kind, run: () => { location.hash = hashFor(kind, id); } });
+  }
+  if (HAS_HID) list.push({ label: 'Add a device', tag: 'Action', run: addDevices });
+  if (!IS_MOBILE){
+    list.push({ label: 'Try the demo mouse', tag: 'Demo', run: () => { location.hash = '#demo=mouse'; } });
+    list.push({ label: 'Try the demo keyboard', tag: 'Demo', run: () => { location.hash = '#demo=keyboard'; } });
+  }
+  for (const [name] of THEMES) list.push({ label: `Accent: ${name}`, tag: 'Theme', run: () => setTheme(name) });
+  return list;
+}
+function drawPalette(){
+  const q = $('#palIn').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  palItems = paletteCommands().filter(c => q.every(w => (c.label + ' ' + c.tag).toLowerCase().includes(w)));
+  palSel = Math.min(palSel, Math.max(0, palItems.length - 1));
+  const ul = $('#palList');
+  if (!palItems.length){ const n = el('div', 'none', 'Nothing matches'); ul.replaceChildren(n); return; }
+  ul.replaceChildren(...palItems.map((c, i) => {
+    const li = el('li');
+    li.setAttribute('role', 'option');
+    li.setAttribute('aria-selected', String(i === palSel));
+    li.append(el('span', null, c.label), el('small', null, c.tag));
+    li.onmousemove = () => { if (palSel !== i){ palSel = i; drawPalette(); } };
+    li.onclick = () => runPalette(i);
+    return li;
+  }));
+  ul.children[palSel]?.scrollIntoView({ block: 'nearest' });
+}
+function openPalette(){
+  $('#pal').classList.remove('hidden');
+  $('#palIn').value = '';
+  palSel = 0;
+  drawPalette();
+  $('#palIn').focus();
+}
+function closePalette(){ $('#pal').classList.add('hidden'); }
+function runPalette(i){
+  const c = palItems[i];
+  closePalette();
+  if (c) c.run();
+}
+$('#palBtn').onclick = openPalette;
+$('#palIn').oninput = () => { palSel = 0; drawPalette(); };
+$('#pal').onclick = e => { if (e.target === $('#pal')) closePalette(); };
+$('#palIn').onkeydown = e => {
+  if (e.key === 'ArrowDown'){ e.preventDefault(); palSel = (palSel + 1) % Math.max(1, palItems.length); drawPalette(); }
+  else if (e.key === 'ArrowUp'){ e.preventDefault(); palSel = (palSel - 1 + palItems.length) % Math.max(1, palItems.length); drawPalette(); }
+  else if (e.key === 'Enter'){ e.preventDefault(); runPalette(palSel); }
+  else if (e.key === 'Escape'){ e.preventDefault(); closePalette(); }
+};
+window.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); $('#pal').classList.contains('hidden') ? openPalette() : closePalette(); }
+});
+window.addEventListener('message', e => {
+  if (e.origin === location.origin && e.data && e.data.type === 'openatk-palette' && [...frames.values()].some(f => f.contentWindow === e.source)) openPalette();
+});
 renderDevices();
 </script>
 </body>
