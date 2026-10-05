@@ -320,6 +320,10 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     .wrap{padding:14px 14px 40px}
     header{gap:10px;padding:10px 12px}
     header .devhead h1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #app{grid-template-columns:minmax(0,1fr);gap:14px}
+    .tabs{flex-direction:row;overflow-x:auto;scrollbar-width:none}
+    .tabs button{flex:0 0 auto;white-space:nowrap}
+    .tabs button[aria-pressed=true]::before{display:none}
     header .lbl{display:none}
     header .btn.ghost{padding:9px 11px}
     header{border-radius:18px;padding:8px}
@@ -395,7 +399,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   <div class="art" id="heroArt"></div>
   <div class="kicker">WebHID configurator</div>
   <h2>Tune your Finalmouse, right in the browser</h2>
-  <p>Plug in the Ultralight X or Starlight X receiver (or a wired Starlight X), then connect.
+  <p>Plug in the Ultralight X or Starlight X dongle (or a wired Starlight X), then connect.
      Close Finalmouse Xpanel first if it is open, since only one program can talk to the
      device at a time. Works in Chrome, Edge and Opera.</p>
   <button class="btn" id="connect2">Connect Finalmouse</button>
@@ -419,74 +423,94 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
             <div class="k">BATTERY</div></div></div>
         </div>
         <div class="minis">
-          <div class="mini"><div class="k">Sensitivity</div><div class="v" id="sDpi">&mdash;</div></div>
+          <div class="mini"><div class="k">DPI</div><div class="v" id="sDpi">&mdash;</div></div>
           <div class="mini"><div class="k">Polling</div><div class="v" id="sRate">&mdash;</div></div>
         </div>
       </div>
     </div>
     <nav class="tabs" id="tabs">
-      <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
-      <button data-tab="feel" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>Tracking</button>
-      <button data-tab="clicks" aria-pressed="false" id="clicksTab" class="hidden"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v6M9 6l3 3 3-3M5 14a7 7 0 0 0 14 0"/></svg>Clicks</button>
-      <button data-tab="light" aria-pressed="false" id="lightTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Receiver</button>
-      <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/></svg>Device</button>
+      <button data-tab="dpi" aria-pressed="true" id="dpiTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>DPI</button>
+      <button data-tab="tmr" aria-pressed="false" id="clicksTab" class="hidden"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v6M9 6l3 3 3-3M5 14a7 7 0 0 0 14 0"/></svg>TMR-DS™ Actuation</button>
+      <button data-tab="polling" aria-pressed="false" id="rateTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Polling Rate</button>
+      <button data-tab="perfect" aria-pressed="false" id="perfectTab" class="hidden"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>PerfectPolling™</button>
+      <button data-tab="motion" aria-pressed="false" id="motionTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>Motion Sync</button>
+      <button data-tab="lod" aria-pressed="false" id="lodTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>LOD</button>
+      <button data-tab="bhop" aria-pressed="false" id="bhopTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>Bhop Mode</button>
+      <button data-tab="led" aria-pressed="false" id="lightTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Dongle LED</button>
+      <button data-tab="device" aria-pressed="false" id="deviceTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/></svg>Device</button>
     </nav>
     <p class="foot">Changes save to the mouse immediately. Not affiliated with Finalmouse.</p>
   </aside>
 
   <main>
-    <section class="panel" data-panel="basics">
-      <div class="phead"><div><h2>Basics</h2><p>Speed and polling.</p></div></div>
+    <section class="panel" data-panel="dpi">
+      <div class="phead"><div><h2>DPI</h2><p>Pick a preset or drag for a custom value.</p></div></div>
       <div class="item">
-        <div class="t">Sensitivity</div>
-        <div class="d">Pointer speed in DPI. Pick a preset or drag for a custom value.</div>
+        <div class="t">DPI</div>
         <div class="seg" id="segDpi"></div>
         <div class="slider" style="margin-top:14px">
           <input type="range" id="dpi" min="400" max="12800" step="100" value="800">
           <output id="dpiOut">800</output>
         </div>
       </div>
+    </section>
+
+    <section class="panel hidden" data-panel="polling">
+      <div class="phead"><div><h2>Polling Rate</h2><p>How often the mouse reports its position. Higher feels smoother and uses more battery. 8,000Hz needs recent dongle and mouse firmware.</p></div></div>
       <div class="item" id="rateItem">
-        <div class="t">Polling rate</div>
-        <div class="d">How often the mouse reports its position. Higher feels smoother and uses more battery. 8,000 Hz needs recent receiver and mouse firmware.</div>
+        <div class="t">Polling Rate</div>
         <div class="seg" id="segRate"></div>
       </div>
     </section>
 
-    <section class="panel hidden" data-panel="feel">
-      <div class="phead"><div><h2>Tracking</h2><p>Lift-off, smoothing and scroll behaviour.</p></div></div>
+    <section class="panel hidden" data-panel="perfect">
+      <div class="phead"><div><h2>PerfectPolling™</h2><p>The Starlight X handles polling itself. There is nothing to set.</p></div></div>
       <div class="item">
-        <div class="t">Lift-off distance</div>
-        <div class="d" id="lodDesc">How far the mouse can be lifted before it stops tracking.</div>
-        <div class="seg" id="segLod"></div>
-        <div class="slider hidden" id="pawWrap" style="margin-top:14px"><input type="range" id="pawLod" min="1" max="1.7" step="0.1" value="1"><output id="pawOut">custom</output></div>
+        <div class="t">PerfectPolling™</div>
+        <div class="d">Enabled. Total End To End Latency: 250μS (.25 ms)</div>
       </div>
+    </section>
+
+    <section class="panel hidden" data-panel="motion">
+      <div class="phead"><div><h2>Motion Sync</h2><p>The motion sync setting has no effect when 8,000 Hz polling rate is selected. At 8K polling rate, motion sync is automatically disabled by the mouse, regardless of the selection below.</p></div></div>
       <div class="item row" id="motionItem">
-        <div><div class="t">Motion sync</div><div class="d">Lines mouse reports up with the sensor for steadier tracking, at a tiny cost in latency.</div></div>
+        <div><div class="t">Motion Sync</div></div>
         <input type="checkbox" class="sw" id="motionSync">
       </div>
+    </section>
+
+    <section class="panel hidden" data-panel="lod">
+      <div class="phead"><div><h2>LOD</h2><p id="lodDesc">How far the mouse can be lifted before it stops tracking.</p></div></div>
       <div class="item">
-        <div class="t">Bhop scroll</div>
-        <div class="d">Lets the scroll wheel register as a jump input for movement games. Pick which direction counts.</div>
+        <div class="t">LOD</div>
+        <div class="seg" id="segLod"></div>
+        <div class="slider hidden" id="pawWrap" style="margin-top:14px"><input type="range" id="pawLod" min="1" max="1.7" step="0.1" value="1"><output id="pawOut">CUSTOM</output></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="bhop">
+      <div class="phead"><div><h2>Bhop Mode</h2><p>Formerly known as Tournament Scroll. Bhop mode filters the first step of your scroll wheel to avoid unintended inputs. Every scroll after that goes through normally until the pass-through window runs out with no scrolling.</p></div></div>
+      <div class="item">
+        <div class="t">Bhop Mode</div>
         <div class="seg" id="segJs"></div>
-        <div class="d" style="margin:14px 0 8px">Repeat window</div>
+        <div class="d" style="margin:14px 0 8px">Pass-through window</div>
         <div class="seg" id="segJsT"></div>
       </div>
     </section>
 
-    <section class="panel hidden" data-panel="clicks">
-      <div class="phead"><div><h2>TMR-DS actuation</h2><p>Mechanical or analog for each click, and how far it travels before it fires. Analog needs that click calibrated in Finalmouse Xpanel first.</p></div></div>
+    <section class="panel hidden" data-panel="tmr">
+      <div class="phead"><div><h2>TMR-DS™ Actuation</h2><p>Mechanical or TMR Analog for each click, and how far it travels before it fires. TMR Analog needs that click calibrated in Finalmouse Xpanel first.</p></div></div>
       <div id="tmrHost"></div>
     </section>
 
-    <section class="panel hidden" data-panel="light">
-      <div class="phead"><div><h2>Receiver light</h2><p>The LEDs on the wireless receiver.</p></div></div>
+    <section class="panel hidden" data-panel="led">
+      <div class="phead"><div><h2>Dongle LED</h2><p>The five LEDs on the dongle.</p></div></div>
       <div class="item">
-        <div class="t">Receiver LEDs</div>
-        <div class="d" id="indDesc">What the receiver's LEDs show.</div>
+        <div class="t">Dongle LED</div>
+        <div class="d" id="indDesc"></div>
         <div class="seg" id="segInd"></div>
         <div id="indColorWrap" class="hidden" style="margin-top:14px">
-          <div class="swatches"><label class="swatch">Colour<input type="color" id="indColor" value="#ffffff"></label></div>
+          <div class="swatches"><label class="swatch">Custom Color<input type="color" id="indColor" value="#ffffff"></label></div>
         </div>
       </div>
     </section>
@@ -569,10 +593,13 @@ function socFromMv(mv){
   return 100;
 }
 const verAtLeast = (v, min) => { if (!v) return false; const a = v.split('-')[0].split('.').map(Number), b = min.split('.').map(Number); for (let i = 0; i < 3; i++){ if ((a[i] || 0) !== b[i]) return (a[i] || 0) > b[i]; } return true; };
-const JS_MODES = [[0, 'Off'], [1, 'Scroll up'], [2, 'Scroll down'], [3, 'Both']];
+const JS_MODES = [[0, 'OFF'], [1, 'SCROLL UP'], [2, 'SCROLL DOWN'], [3, 'BOTH']];
 const JS_T = [100, 500, 1000, 1500];
-const IND_ULX = [[0, 'Off'], [1, 'Battery level'], [2, 'Solid white']];
-const IND_SLX = [[0, 'Off'], [1, 'Battery level'], [2, 'Custom colour'], [4, 'TMR-DS']];
+const IND_ULX = [[0, 'Off'], [1, 'Battery Level'], [2, 'Solid White']];
+const IND_SLX = [[0, 'Off'], [1, 'Battery Level'], [2, 'Custom Color'], [4, 'TMR-DS']];
+const IND_INFO = { 0: 'All dongle LEDs stay off.', 1: 'The five LEDs form a battery bar for the mouse: 5 green LEDs when full, down to a single red LED that pulses when the battery is nearly empty. While charging, the empty LEDs fill up one by one. The bar fades out when the mouse disconnects.', 2: 'The same battery bar, painted in a color of your choice. This color belongs to the active profile: each profile has its own, and it is the color the dongle pulses when you cycle profiles with the hotkey.', 4: 'The two LEDs on each side light up for a click that is in TMR Analog mode, left side for the left click, right side for the right click, and stay off for a click in Mechanical mode. The middle LED keeps showing the battery level.' };
+const IND_INFO_ULX = { 2: 'All dongle LEDs stay solid white.' };
+const hz = v => `${v.toLocaleString('en-US')}Hz`;
 const RING = 238.76;
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -748,7 +775,7 @@ async function confirmWrite(write, request, key, want, label){
 }
 
 buildSeg('#segDpi', DPI_PRESETS.map(v => [v, String(v)]), async v => {
-  if (await confirmWrite(() => fm.setDpi(v), CMD.DPI, 'dpi', v, 'Sensitivity')) toast(`Sensitivity ${v}`);
+  if (await confirmWrite(() => fm.setDpi(v), CMD.DPI, 'dpi', v, 'DPI')) toast(`DPI ${v}`);
   show();
 });
 let dpiTimer;
@@ -758,41 +785,41 @@ $('#dpi').oninput = e => {
   clearTimeout(dpiTimer);
   dpiTimer = setTimeout(async () => {
     if (!fm) return;
-    try { if (await confirmWrite(() => fm.setDpi(v), CMD.DPI, 'dpi', v, 'Sensitivity')) toast(`Sensitivity ${v}`); }
+    try { if (await confirmWrite(() => fm.setDpi(v), CMD.DPI, 'dpi', v, 'DPI')) toast(`DPI ${v}`); }
     catch { toast('Could not save, try again', 1); }
     show();
   }, 220);
 };
-buildSeg('#segRate', RATES.map(v => [v, v >= 1000 ? `${v / 1000}K` : String(v)]), async v => {
-  if (await confirmWrite(() => fm.setRate(v), CMD.RATE, 'rate', v, 'Polling rate')) toast(`Polling rate ${v} Hz`);
+buildSeg('#segRate', RATES.map(v => [v, hz(v)]), async v => {
+  if (await confirmWrite(() => fm.setRate(v), CMD.RATE, 'rate', v, 'Polling Rate')) toast(`Polling Rate ${hz(v)}`);
   show();
 });
-buildSeg('#segLod', LOD_PRESETS.map(v => [v, `${v} mm`]), async v => {
+buildSeg('#segLod', LOD_PRESETS.map(v => [v, `${v}mm`]), async v => {
   await fm.setLodPreset(v);
   await sleep(150);
   if (fm.fam === 'ulx') await fm.request(CMD.LOD); else await fm.request(CMD.PAW_LOD);
   show();
-  if (fm.state.lod != null && fm.state.lod !== v) toast(`Lift-off: the mouse kept ${fm.state.lod} mm`, 1); else toast(`Lift-off ${v} mm`);
+  if (fm.state.lod != null && fm.state.lod !== v) toast(`LOD: the mouse kept ${fm.state.lod}mm`, 1); else toast(`LOD ${v}mm`);
 });
 $('#motionSync').onchange = async e => {
   const on = e.target.checked;
-  try { if (await confirmWrite(() => fm.setMotion(on), CMD.MOTION, 'motion', on, 'Motion sync')) toast(`Motion sync ${on ? 'on' : 'off'}`); }
+  try { if (await confirmWrite(() => fm.setMotion(on), CMD.MOTION, 'motion', on, 'Motion Sync')) toast(`Motion Sync ${on ? 'ON' : 'OFF'}`); }
   catch { e.target.checked = !on; toast('Could not save, try again', 1); }
 };
 buildSeg('#segJs', JS_MODES, async (v, l) => {
-  if (await confirmWrite(() => fm.setJsMode(v), CMD.JS_MODE, 'jsMode', v, 'Bhop scroll')) toast(`Bhop scroll: ${l}`);
+  if (await confirmWrite(() => fm.setJsMode(v), CMD.JS_MODE, 'jsMode', v, 'Bhop Mode')) toast(`Bhop Mode: ${l}`);
 });
-buildSeg('#segJsT', JS_T.map(v => [v, `${v} ms`]), async v => {
-  if (await confirmWrite(() => fm.setJsTimeout(v), CMD.JS_TIMEOUT, 'jsTimeout', v, 'Repeat window')) toast(`Repeat window ${v} ms`);
+buildSeg('#segJsT', JS_T.map(v => [v, `${v}ms`]), async v => {
+  if (await confirmWrite(() => fm.setJsTimeout(v), CMD.JS_TIMEOUT, 'jsTimeout', v, 'Pass-through window')) toast(`Pass-through window ${v}ms`);
 });
 function buildInd(list){ buildSeg('#segInd', list, async (v, l) => {
-  if (await confirmWrite(() => fm.setIndicator(v), CMD.INDICATOR, 'indicator', v, 'Indicator')) toast(`Indicator: ${l}`);
+  if (await confirmWrite(() => fm.setIndicator(v), CMD.INDICATOR, 'indicator', v, 'Dongle LED')) toast(`Dongle LED: ${l}`);
   $('#indColorWrap').classList.toggle('hidden', !(v === 2 && fm.fam === 'slx'));
 }); }
 buildInd(IND_ULX);
 $('#indColor').onchange = async e => {
   const c = hexToRgb(e.target.value);
-  try { await fm.setColor(c); await sleep(120); await fm.request(CMD.COLOR); toast('Indicator colour saved'); }
+  try { await fm.setColor(c); await sleep(120); await fm.request(CMD.COLOR); toast('Custom Color saved'); }
   catch { toast('Could not save, try again', 1); }
 };
 
@@ -839,7 +866,7 @@ function buildTmr(){
         </div>
       </div>
       <label class="tmr-num"><input type="number" data-actnum="${k}" min="${ACT_MIN}" max="${ACT_MAX}" step="0.01" value="${ACT_DEFAULT.toFixed(2)}"><span>mm</span></label>
-      <div class="tmr-srt"><div class="lbl">Smart Rapid Trigger</div><div class="badge" data-srt="${k}"><b></b><span>Disabled</span></div></div>
+      <div class="tmr-srt"><div class="lbl">Smart Rapid Trigger™</div><div class="badge" data-srt="${k}"><b></b><span>Disabled</span></div></div>
       <div class="tmr-note" data-note="${k}"></div>`;
     return col;
   };
@@ -856,9 +883,9 @@ function buildTmr(){
     const it = document.createElement('div');
     it.className = 'item';
     it.innerHTML = `<div class="t">${k === 'l' ? 'Left' : 'Right'} click rapid trigger</div>
-      <div class="d" style="margin:10px 0 8px">Release point</div>
+      <div class="d" style="margin:10px 0 8px">Release Point</div>
       <div class="seg" data-rel="${k}"></div>
-      <div class="d" style="margin:14px 0 8px">Rapid trigger sensitivity</div>
+      <div class="d" style="margin:14px 0 8px">Rapid Trigger Sensitivity</div>
       <div class="slider"><input type="range" data-sens="${k}" min="${SENS_MIN}" max="${SENS_MAX}" step="${SENS_STEP}" value="${SENS_DEFAULT}"><output data-sensout="${k}">${SENS_DEFAULT} &micro;m</output></div>
       <div class="d" style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px"><span>Most sensitive</span><span>Least sensitive</span></div>`;
     extra.appendChild(it);
@@ -955,7 +982,7 @@ async function commitAct(k, mm){
 async function commitSens(k, u){
   if (!fm || !calibrated(k)) return;
   const st = curSteps(); const h = curHyst(); h[k] = u;
-  try { await fm.setAct(st.l, st.r, h.l, h.r); await after(CMD.ACT); toast(`${k === 'l' ? 'Left' : 'Right'} rapid trigger sensitivity ${u} um`); }
+  try { await fm.setAct(st.l, st.r, h.l, h.r); await after(CMD.ACT); toast(`${k === 'l' ? 'Left' : 'Right'} Rapid Trigger Sensitivity ${u}µm`); }
   catch { toast('Could not save, try again', 1); }
 }
 function showTmr(){
@@ -1000,7 +1027,7 @@ $('#pawLod').oninput = e => {
   clearTimeout(pawTimer);
   pawTimer = setTimeout(async () => {
     if (!fm) return;
-    try { if (await confirmWrite(() => fm.setLodCustom(mm), CMD.PAW_LOD, 'lod', mm, 'Lift-off')) toast(`Lift-off ${mm.toFixed(1)} mm`); }
+    try { if (await confirmWrite(() => fm.setLodCustom(mm), CMD.PAW_LOD, 'lod', mm, 'LOD')) toast(`LOD ${mm.toFixed(1)}mm`); }
     catch { toast('Could not save, try again', 1); }
     show();
   }, 250);
@@ -1018,12 +1045,12 @@ function show(){
   if (s.lod != null){
     mark('#segLod', s.lodCustom ? -1 : s.lod);
     if (s.lodCustom && document.activeElement !== $('#pawLod')){ $('#pawLod').value = clamp(s.lod, LOD_CUSTOM_MIN, LOD_CUSTOM_MAX); $('#pawOut').textContent = s.lod.toFixed(1) + ' mm'; }
-    else if (!s.lodCustom) $('#pawOut').textContent = 'custom';
+    else if (!s.lodCustom) $('#pawOut').textContent = 'CUSTOM';
   }
   if (s.motion != null) $('#motionSync').checked = s.motion;
   if (s.jsMode != null) mark('#segJs', s.jsMode);
   if (s.jsTimeout != null) mark('#segJsT', s.jsTimeout);
-  if (s.indicator != null){ mark('#segInd', s.indicator); $('#indColorWrap').classList.toggle('hidden', !(s.indicator === 2 && fm.fam === 'slx')); }
+  if (s.indicator != null){ mark('#segInd', s.indicator); $('#indDesc').textContent = (fm.fam === 'slx' ? IND_INFO[s.indicator] : IND_INFO_ULX[s.indicator] ?? IND_INFO[s.indicator]) ?? ''; $('#indColorWrap').classList.toggle('hidden', !(s.indicator === 2 && fm.fam === 'slx')); }
   if (s.color) $('#indColor').value = rgbToHex(s.color);
   const bar = $('#sBattBar');
   const mv = s.mv ?? s.vbat;
@@ -1034,14 +1061,14 @@ function show(){
     bar.style.strokeDashoffset = RING * (1 - soc / 100);
     bar.style.stroke = soc < 20 ? '#f87171' : soc < 40 ? '#f5c451' : 'var(--acc)';
   }
-  const rows = [['Model', `${fm.info.name}${fm.info.recv ? ' (receiver)' : ''}`], ['USB ID', `${VID.toString(16)}:${fm.device.productId.toString(16)}`]];
-  if (s.fw) rows.push(['Mouse firmware', s.fw]);
-  if (s.rfFw) rows.push(['Receiver firmware', s.rfFw]);
+  const rows = [['Model', `${fm.info.name}${fm.info.recv ? ' (dongle)' : ''}`], ['USB ID', `${VID.toString(16)}:${fm.device.productId.toString(16)}`]];
+  if (s.fw) rows.push(['Mouse Firmware', s.fw]);
+  if (s.rfFw) rows.push(['Dongle RF Firmware', s.rfFw]);
   if (s.serial) rows.push(['Serial', s.serial]);
   if (s.mfg) rows.push(['Made', s.mfg]);
   if (fm.fam === 'slx' && s.mspL != null) rows.push(['Click calibration', `left ${s.mspL > 0 ? 'yes' : 'no'}, right ${s.mspR > 0 ? 'yes' : 'no'}`]);
   if (s.link != null) rows.push(['Link', s.link ? 'Connected' : 'Mouse not linked']);
-  if (s.rssi != null) rows.push(['Signal', `${s.rssi} dBm`]);
+  if (s.rssi != null) rows.push(['Wireless Signal Strength', `${s.rssi} dBm`]);
   if (mv) rows.push(['Battery voltage', `${(mv / 1000).toFixed(2)} V${s.charging ? ', charging' : ''}`]);
   rows.push(['Protocol', fm.fam === 'ulx' ? 'Ultralight X (report 4/5)' : 'Starlight X (report 1/2)']);
   if (DEMO) rows.unshift(['Mode', 'Demo: simulated, not a real device']);
@@ -1050,12 +1077,14 @@ function show(){
   const slx = fm.fam === 'slx';
   $('#pawWrap').classList.toggle('hidden', !slx);
   $('#lodDesc').textContent = slx ? 'How far the mouse can be lifted before it stops tracking. Pick 1 or 2 mm, or drag for a custom 1.0 to 1.7 mm (needs mouse firmware 1.1.0 or newer).' : 'How far the mouse can be lifted before it stops tracking.';
-  $('#rateItem').classList.toggle('hidden', slx);
-  $('#motionItem').classList.toggle('hidden', slx);
+  $('#rateTab').classList.toggle('hidden', slx);
+  $('#perfectTab').classList.toggle('hidden', !slx);
+  $('#motionTab').classList.toggle('hidden', slx);
   $('#lightTab').classList.toggle('hidden', !fm.info.recv);
   if ($('#segInd').childElementCount !== (slx ? IND_SLX : IND_ULX).length) buildInd(slx ? IND_SLX : IND_ULX);
-  $('#indDesc').textContent = slx ? "What the receiver's five LEDs show. Custom colour also belongs to the active profile." : "What the receiver's LEDs show.";
   $('#clicksTab').classList.toggle('hidden', !slx);
+  const cur = document.querySelector('#tabs button[aria-pressed=true]');
+  if (cur && cur.classList.contains('hidden')) showTab('dpi');
   if (slx) showTmr();
 }
 
@@ -1226,24 +1255,24 @@ function planShare(cfg){
   const steps = [], notes = [];
   const add = (label, run) => steps.push({ label, run });
   const bad = w => notes.push(`${w} was not valid and was skipped`);
-  if (c.dpi != null){ const v = clampInt(c.dpi, 400, 12800, null); if (v != null && Number.isInteger(c.dpi) && c.dpi >= 400 && c.dpi <= 12800) add(`Sensitivity ${Math.round(c.dpi / 100) * 100}`, () => fm.setDpi(Math.round(c.dpi / 100) * 100)); else bad('Sensitivity'); }
-  if (c.rate != null && fm.fam !== 'ulx') notes.push('Polling rate is fixed (PerfectPolling) on this model and was skipped');
-  else if (c.rate != null){ if (RATES.includes(c.rate)) add(`Polling rate ${c.rate} Hz`, () => fm.setRate(c.rate)); else bad('Polling rate'); }
+  if (c.dpi != null){ const v = clampInt(c.dpi, 400, 12800, null); if (v != null && Number.isInteger(c.dpi) && c.dpi >= 400 && c.dpi <= 12800) add(`DPI ${Math.round(c.dpi / 100) * 100}`, () => fm.setDpi(Math.round(c.dpi / 100) * 100)); else bad('DPI'); }
+  if (c.rate != null && fm.fam !== 'ulx') notes.push('Polling Rate is fixed (PerfectPolling™) on this model and was skipped');
+  else if (c.rate != null){ if (RATES.includes(c.rate)) add(`Polling Rate ${hz(c.rate)}`, () => fm.setRate(c.rate)); else bad('Polling Rate'); }
   if (c.lod != null){
-    if (LOD_PRESETS.includes(c.lod)) add(`Lift-off ${c.lod} mm`, () => fm.setLodPreset(c.lod));
-    else if (typeof c.lod === 'number' && c.lod >= LOD_CUSTOM_MIN && c.lod <= LOD_CUSTOM_MAX && fm.fam === 'slx'){ const mm = Math.round(c.lod * 10) / 10; add(`Lift-off ${mm.toFixed(1)} mm`, () => fm.setLodCustom(mm)); }
-    else bad('Lift-off');
+    if (LOD_PRESETS.includes(c.lod)) add(`LOD ${c.lod}mm`, () => fm.setLodPreset(c.lod));
+    else if (typeof c.lod === 'number' && c.lod >= LOD_CUSTOM_MIN && c.lod <= LOD_CUSTOM_MAX && fm.fam === 'slx'){ const mm = Math.round(c.lod * 10) / 10; add(`LOD ${mm.toFixed(1)}mm`, () => fm.setLodCustom(mm)); }
+    else bad('LOD');
   }
-  if (typeof c.motion === 'boolean' && fm.fam === 'ulx') add(`Motion sync ${c.motion ? 'on' : 'off'}`, () => fm.setMotion(c.motion));
-  if (c.jsMode != null){ if (JS_MODES.some(m => m[0] === c.jsMode)) add(`Bhop scroll: ${JS_MODES.find(m => m[0] === c.jsMode)[1]}`, () => fm.setJsMode(c.jsMode)); else bad('Bhop scroll'); }
-  if (c.jsTimeout != null){ if (JS_T.includes(c.jsTimeout)) add(`Repeat window ${c.jsTimeout} ms`, () => fm.setJsTimeout(c.jsTimeout)); else bad('Repeat window'); }
+  if (typeof c.motion === 'boolean' && fm.fam === 'ulx') add(`Motion Sync ${c.motion ? 'ON' : 'OFF'}`, () => fm.setMotion(c.motion));
+  if (c.jsMode != null){ if (JS_MODES.some(m => m[0] === c.jsMode)) add(`Bhop Mode: ${JS_MODES.find(m => m[0] === c.jsMode)[1]}`, () => fm.setJsMode(c.jsMode)); else bad('Bhop Mode'); }
+  if (c.jsTimeout != null){ if (JS_T.includes(c.jsTimeout)) add(`Pass-through window ${c.jsTimeout}ms`, () => fm.setJsTimeout(c.jsTimeout)); else bad('Pass-through window'); }
   const IND = fm.fam === 'slx' ? IND_SLX : IND_ULX;
-  if (c.indicator != null && !fm.info.recv) notes.push('Receiver LEDs were skipped: no receiver connected');
-  else if (c.indicator != null){ if (IND.some(m => m[0] === c.indicator)) add(`Receiver LEDs: ${IND.find(m => m[0] === c.indicator)[1]}`, () => fm.setIndicator(c.indicator)); else bad('Receiver LEDs'); }
-  if (c.color != null && fm.fam !== 'slx') notes.push('Receiver colour only applies to Starlight X and was skipped');
+  if (c.indicator != null && !fm.info.recv) notes.push('Dongle LED was skipped: no dongle connected');
+  else if (c.indicator != null){ if (IND.some(m => m[0] === c.indicator)) add(`Dongle LED: ${IND.find(m => m[0] === c.indicator)[1]}`, () => fm.setIndicator(c.indicator)); else bad('Dongle LED'); }
+  if (c.color != null && fm.fam !== 'slx') notes.push('Custom Color only applies to Starlight X and was skipped');
   else if (c.color != null){
-    if (Array.isArray(c.color) && c.color.length === 3 && c.color.every(x => Number.isFinite(Number(x)))){ const rgb = c.color.map(x => clampInt(x, 0, 255, 0)); add('Indicator colour', () => fm.setColor(rgb)); }
-    else bad('Indicator colour');
+    if (Array.isArray(c.color) && c.color.length === 3 && c.color.every(x => Number.isFinite(Number(x)))){ const rgb = c.color.map(x => clampInt(x, 0, 255, 0)); add('Custom Color', () => fm.setColor(rgb)); }
+    else bad('Custom Color');
   }
   return { steps, notes, from: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '' };
 }
