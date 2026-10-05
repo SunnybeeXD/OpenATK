@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
+addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==window){e.preventDefault();parent.postMessage({type:'openatk-palette'},location.origin)}});</script>
+
+<title>Leviathan V4 GT</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06080b; --card:#10151b; --card2:#161d25; --line:#232c37; --line2:#2f3a47;
+    --ink:#f1f6fb; --dim:#98a6b4; --dimmer:#5f6c79;
+    --acc:#3ddc84; --acc2:#22d3ee; --warn:#f5c451; --bad:#f87171;
+    --glow:rgba(var(--acc-rgb),.38); --stage:var(--acc);
+    --ring:0 0 0 1px oklch(1 0 0 / .08); --ring-hover:0 0 0 1px oklch(1 0 0 / .13);
+    --ease:cubic-bezier(.2,0,0,1);
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --disp:'Space Grotesk',Inter,system-ui,sans-serif;
+  }
+  :root{--acc-hi:#5cf0a2;--acc-lo:#2fc774;--acc-dk:#1f9e59;--acc-rgb:61,220,132;--acc2-rgb:34,211,238}
+  html[data-theme=cyan]{--acc:#22d3ee;--acc-hi:#67e8f9;--acc-lo:#0fb5d1;--acc-dk:#0b8ea6;--acc-rgb:34,211,238;--acc2:#a78bfa;--acc2-rgb:167,139,250}
+  html[data-theme=violet]{--acc:#a78bfa;--acc-hi:#c4b5fd;--acc-lo:#8b5cf6;--acc-dk:#6d3fd6;--acc-rgb:167,139,250;--acc2:#22d3ee;--acc2-rgb:34,211,238}
+  html[data-theme=orange]{--acc:#fb923c;--acc-hi:#fdba74;--acc-lo:#f97316;--acc-dk:#c2570c;--acc-rgb:251,146,60;--acc2:#facc15;--acc2-rgb:250,204,21}
+  html[data-theme=pink]{--acc:#f472b6;--acc-hi:#f9a8d4;--acc-lo:#ec4899;--acc-dk:#be2f7a;--acc-rgb:244,114,182;--acc2:#a78bfa;--acc2-rgb:167,139,250}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  body{background:
+      radial-gradient(900px 520px at 8% -8%, rgba(var(--acc-rgb),.13), transparent 60%),
+      radial-gradient(800px 600px at 105% 105%, rgba(var(--acc2-rgb),.10), transparent 60%),
+      var(--bg);background-attachment:fixed}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%);
+    mask-image:radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%)}
+  .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:26px 32px 80px}
+  a{color:inherit}
+
+  header{display:flex;align-items:center;gap:16px;padding:10px;
+    box-shadow:var(--ring);border-radius:20px;background:rgba(14,19,25,.72);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .brand{display:flex;align-items:center;gap:11px;padding-right:18px;margin-right:4px;
+    border-right:1px solid var(--line);text-decoration:none}
+  .brand .mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(145deg,#1b2a22,#0c1310);border:1px solid rgba(var(--acc-rgb),.35);
+    box-shadow:0 0 22px rgba(var(--acc-rgb),.18), inset 0 1px 0 rgba(255,255,255,.06)}
+  .brand b{font:700 17px/1 var(--disp);letter-spacing:-.01em}
+  .brand b span{color:var(--acc)}
+  h1{margin:0;font:600 18px/1.2 var(--disp);letter-spacing:-.01em;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  h1 .brandtag{color:var(--dim);font-weight:500}
+  .status{display:inline-flex;align-items:center;gap:7px;margin-top:3px;font-size:12.5px;color:var(--dim)}
+  .status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--acc);
+    box-shadow:0 0 0 3px rgba(var(--acc-rgb),.16),0 0 12px var(--acc);animation:live 2.2s ease-in-out infinite}
+  .status b{color:var(--acc);font-weight:600}
+  .status.off::before{background:var(--dimmer);box-shadow:none;animation:none}
+  @keyframes live{50%{box-shadow:0 0 0 6px rgba(var(--acc-rgb),0),0 0 16px var(--acc)}}
+
+  .btn{font:600 14px/1 Inter,sans-serif;padding:13px 21px;border-radius:10px;
+    border:0;color:#03170b;cursor:pointer;text-decoration:none;
+    background:linear-gradient(180deg,var(--acc-hi),var(--acc-lo));
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.25),0 8px 26px -8px rgba(var(--acc-rgb),.65),
+      inset 0 1px 0 rgba(255,255,255,.45);
+    transition-property:scale,box-shadow,filter,background-color;transition-duration:.15s;transition-timing-function:ease-out}
+  .btn:hover{filter:brightness(1.06);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.4),
+    0 10px 32px -8px rgba(var(--acc-rgb),.85),inset 0 1px 0 rgba(255,255,255,.45)}
+  .btn:active:not(:disabled){scale:.96}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn.icon{padding:10px 12px;display:inline-grid;place-items:center}
+  .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);
+    font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
+  .btn.ghost:hover{background:rgba(var(--acc-rgb),.08);
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.45),0 0 18px -6px var(--glow);filter:none}
+  .btn.ghost.lead{padding-left:14px}
+  .btn.quiet{background:rgba(248,113,113,.04);color:#ffbdbd;
+    font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px #4f2a2a}
+  .btn.quiet:hover{background:#2a1717;box-shadow:0 0 0 1px #6a3434,0 0 18px -6px rgba(248,113,113,.6);filter:none}
+
+  .hero{margin:56px auto 0;max-width:760px;padding:52px 48px 46px;text-align:center;
+    position:relative;overflow:hidden;border-radius:24px;border:1px solid transparent;
+    background:linear-gradient(var(--card),var(--card)) padding-box,
+      linear-gradient(150deg,rgba(var(--acc-rgb),.5),rgba(255,255,255,.05) 40%,rgba(var(--acc2-rgb),.35)) border-box;
+    box-shadow:0 40px 120px -40px rgba(var(--acc-rgb),.35)}
+  .hero .art img{display:block;width:100%}
+  .reel{height:240px}
+  .reel img{width:100%;height:100%;object-fit:contain;animation:reelIn .45s ease-out}
+  @keyframes reelIn{from{opacity:0;transform:scale(.96)}}
+  .reelcap{font:500 11.5px var(--mono);color:var(--dim);margin:-4px 0 18px;min-height:17px;overflow-wrap:anywhere}
+  .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(var(--acc-rgb),.28));
+    animation:float 5s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-8px)}}
+  .hero .kicker{font:600 11.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--acc)}
+  .hero h2{margin:12px 0 10px;font:700 34px/1.1 var(--disp);letter-spacing:-.02em}
+  .hero p{margin:0 auto 26px;max-width:470px;color:var(--dim);font-size:15px}
+  .hero .btn{padding:16px 29px;font-size:15px}
+
+  #app{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;margin-top:22px;align-items:start}
+  aside{position:sticky;top:20px;display:flex;flex-direction:column;gap:14px}
+  .devcard{border-radius:20px;padding:20px 18px 18px;position:relative;overflow:hidden;
+    border:1px solid transparent;
+    background:radial-gradient(260px 200px at 50% 20%, color-mix(in srgb,var(--stage) 22%,transparent), transparent 70%) padding-box,
+      linear-gradient(var(--card),var(--card)) padding-box,
+      linear-gradient(160deg,color-mix(in srgb,var(--stage) 60%,transparent),rgba(255,255,255,.05) 45%,rgba(255,255,255,.03)) border-box;
+    transition:background .5s}
+  .devcard .art{width:112px;margin:2px auto 10px;
+    filter:drop-shadow(0 16px 30px color-mix(in srgb,var(--stage) 45%,transparent))}
+  .devcard .art.photo{width:auto;max-width:220px;filter:drop-shadow(0 18px 30px color-mix(in srgb,var(--stage) 40%,transparent))}
+  .devcard .art.photo img{display:block;max-width:100%;max-height:200px;margin:0 auto;object-fit:contain;animation:fade .25s ease-out}
+  .devcard .art.wait{height:200px}
+  .skins{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+  .skin{width:16px;height:16px;padding:0;border-radius:50%;border:2px solid #0b1015;cursor:pointer;
+    box-shadow:0 0 0 1px var(--line2);transition:box-shadow .15s ease-out,scale .15s ease-out}
+  .skin:hover{scale:1.15}
+  .skin:active{scale:.96}
+  .skin[aria-pressed=true]{box-shadow:0 0 0 2px var(--acc),0 0 10px var(--glow)}
+  .gauges{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;margin-top:6px}
+  .ring{position:relative;width:96px;height:96px}
+  .ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+  .ring .trk{fill:none;stroke:#1f2832;stroke-width:8}
+  #sBattBar{fill:none;stroke:var(--acc);stroke-width:8;stroke-linecap:round;
+    stroke-dasharray:238.76;stroke-dashoffset:238.76;
+    transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1),stroke .3s;
+    filter:drop-shadow(0 0 5px currentColor)}
+  .ring .mid{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+  .ring .mid .v{font:700 20px/1 var(--disp)}
+  .ring .mid .k{font:500 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--dimmer);margin-top:4px}
+  .batt-row{display:flex;align-items:center;gap:4px;justify-content:center}
+  .chg-bolt{color:var(--acc);animation:chgPulse 1.6s ease-in-out infinite}
+  @keyframes chgPulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .minis{display:flex;flex-direction:column;gap:8px}
+  .mini{padding:10px 13px;border-radius:12px;background:rgba(255,255,255,.025);box-shadow:var(--ring)}
+  .mini .k{font:500 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
+  .mini .v{font:700 17px/1.25 var(--disp);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #sDpi{color:color-mix(in srgb,var(--stage) 70%,#fff);text-shadow:0 0 18px color-mix(in srgb,var(--stage) 55%,transparent)}
+
+  .tabs{display:flex;flex-direction:column;gap:3px;padding:7px;border-radius:18px;
+    background:rgba(14,19,25,.7);box-shadow:var(--ring)}
+  .tabs button{display:flex;align-items:center;gap:12px;text-align:left;
+    font:600 14px/1 Inter,sans-serif;padding:12px 14px;border:0;border-radius:11px;
+    background:transparent;color:var(--dim);cursor:pointer;position:relative;
+    transition-property:background-color,color,scale;transition-duration:.15s;transition-timing-function:ease-out}
+  .tabs button:active{scale:.96}
+  .tabs button svg{flex:0 0 auto;opacity:.75}
+  .tabs button:hover{background:rgba(255,255,255,.035);color:var(--ink)}
+  .tabs button[aria-pressed=true]{color:var(--ink);
+    background:linear-gradient(90deg,rgba(var(--acc-rgb),.16),rgba(var(--acc-rgb),.03))}
+  .tabs button[aria-pressed=true] svg{opacity:1;color:var(--acc)}
+  .tabs button[aria-pressed=true]::before{content:'';position:absolute;left:0;top:9px;bottom:9px;
+    width:3px;border-radius:3px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+
+  main{min-width:0}
+  .panel{animation:fade .12s ease-out}
+  @keyframes fade{from{opacity:0}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
+  .phead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:4px 2px 14px}
+  .phead h2{margin:0;font:700 28px/1.1 var(--disp);letter-spacing:-.02em}
+  .phead p{margin:6px 0 0;color:var(--dim);font-size:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid2 .item{margin-bottom:0}
+  .grid2 + .item, .grid2 + .grid2{margin-top:12px}
+
+  .item{position:relative;border-radius:16px;padding:19px 21px;margin-bottom:12px;
+    box-shadow:var(--ring);
+    background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0)) ,var(--card);
+    transition:box-shadow .15s ease-out}
+  .item:hover{box-shadow:var(--ring-hover),0 18px 40px -26px rgba(0,0,0,.9)}
+  .item .t{font:600 16px/1.3 var(--disp);letter-spacing:-.005em}
+  .item .d{font-size:13px;color:var(--dim);margin-top:4px}
+  .item.row{display:flex;align-items:center;gap:18px}
+  .item.row>div{flex:1;min-width:0}
+  .item .head{display:flex;align-items:center;gap:18px}
+  .item .head>div{flex:1;min-width:0}
+
+  .seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:14px;padding:4px;
+    background:#0a0e12;box-shadow:inset var(--ring);border-radius:12px}
+  .seg button{flex:1 1 auto;min-width:62px;font:600 13.5px/1 Inter,sans-serif;
+    padding:11px 8px;border:0;border-radius:8px;background:transparent;
+    color:var(--dim);cursor:pointer;transition-property:background-color,color,box-shadow,scale;
+    transition-duration:.15s;transition-timing-function:ease-out}
+  .seg button:active{scale:.96}
+  .seg button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+  .seg button[aria-pressed=true]{color:#03170b;background:linear-gradient(180deg,var(--acc-hi),var(--acc-lo));
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.35),0 4px 18px -4px rgba(var(--acc-rgb),.7),
+      inset 0 1px 0 rgba(255,255,255,.4)}
+  .seg.busy{opacity:.55;pointer-events:none}
+
+  .slider{display:flex;align-items:center;gap:18px;margin-top:16px}
+  .slider input[type=range]{appearance:none;flex:1;height:6px;border-radius:4px;outline:none;cursor:pointer;
+    background:linear-gradient(90deg,rgba(var(--acc-rgb),.6),rgba(var(--acc2-rgb),.45))}
+  .slider input[type=range]::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:50%;
+    background:#eafff3;border:4px solid #0b1410;box-shadow:0 0 0 2px var(--acc),0 0 18px var(--acc);cursor:grab}
+  .slider input[type=range]::-webkit-slider-thumb:active{cursor:grabbing}
+  .slider input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+    background:#eafff3;border:4px solid #0b1410;box-shadow:0 0 0 2px var(--acc);cursor:grab}
+  .slider output{flex:0 0 auto;min-width:96px;text-align:center;font:700 18px var(--disp);
+    padding:8px 12px;border-radius:10px;background:#0a0e12;border:1px solid var(--line);
+    color:#c9ffe0;text-shadow:0 0 14px rgba(var(--acc-rgb),.45)}
+
+  .sw{appearance:none;flex:0 0 auto;width:52px;height:29px;border-radius:20px;
+    background:#1c242d;border:1px solid var(--line2);position:relative;cursor:pointer;
+    transition:background-color .15s ease-out,border-color .15s ease-out,box-shadow .15s ease-out}
+  .sw::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;
+    border-radius:50%;background:#8795a3;transition:transform .2s var(--ease),background-color .15s ease-out}
+  .sw:checked{background:linear-gradient(180deg,var(--acc-lo),var(--acc-dk));border-color:var(--acc-hi);
+    box-shadow:0 0 18px -2px var(--glow)}
+  .sw:checked::after{transform:translateX(23px);background:#f3fff8}
+
+  .kv{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+  .kv td{padding:7px 0;border-bottom:1px dashed #1e2731}
+  .kv tr:last-child td{border-bottom:0}
+  .kv td:first-child{color:var(--dim)}
+  .kv td:last-child{text-align:right;color:#dff7ea}
+  #log{font-family:var(--mono);font-size:11px;line-height:1.6;background:#04070a;
+    border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-top:14px;
+    height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--dimmer)}
+  #log .tx{color:#7dabdd} #log .rx{color:#5fbe88} #log .er{color:var(--bad)}
+
+  #toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,18px) scale(.97);
+    background:rgba(18,26,22,.9);color:#e9fff2;font-size:13.5px;font-weight:600;
+    padding:12px 20px 12px 18px;border-radius:14px;opacity:0;pointer-events:none;
+    border:1px solid rgba(var(--acc-rgb),.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 0 30px -6px rgba(var(--acc-rgb),.5),0 14px 40px rgba(0,0,0,.55);
+    transition:opacity .2s ease-out,transform .2s ease-out;z-index:9}
+  #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+  #toast.bad{background:rgba(40,14,14,.92);color:#ffe1e1;border-color:rgba(248,113,113,.6);
+    box-shadow:0 0 30px -6px rgba(248,113,113,.55),0 14px 40px rgba(0,0,0,.55)}
+
+  .heads{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;
+    padding:13px 16px;border-radius:14px;font-size:13px;color:var(--dim);
+    background:linear-gradient(90deg,rgba(245,196,81,.08),rgba(245,196,81,.02));border:1px solid #3d3722}
+  .heads span{flex:0 0 auto;color:var(--warn)}
+  .heads b{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+
+  .swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .swatch{display:flex;align-items:center;gap:8px;font:500 12.5px var(--mono);color:var(--dim);
+    background:#0a0e12;border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;
+    transition:border-color .15s ease-out,box-shadow .15s ease-out}
+  .swatch:hover{border-color:var(--line2)}
+  .swatch input{width:28px;height:22px;padding:0;border:0;background:none;cursor:pointer}
+  .swatch.on{border-color:var(--acc);color:var(--ink);box-shadow:0 0 16px -4px var(--glow)}
+  .swatchlbl{margin-top:16px;font:600 10.5px/1 var(--mono);letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dimmer)}
+
+  .sel{font:500 13.5px/1.2 Inter,sans-serif;color:var(--ink);background:#0a0e12;
+    border:1px solid var(--line2);border-radius:10px;padding:10px 12px;max-width:100%;min-width:0;
+    transition:border-color .15s ease-out,box-shadow .15s ease-out}
+  .sel:hover,.sel:focus{outline:none;border-color:rgba(var(--acc-rgb),.55);box-shadow:0 0 16px -6px var(--glow)}
+  .btnwrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;margin-top:10px;align-items:start}
+  .btnart{position:sticky;top:20px;padding:16px 10px;border-radius:14px;background:
+    radial-gradient(180px 160px at 50% 45%,rgba(var(--acc-rgb),.10),transparent 70%),#0a0e12;
+    box-shadow:var(--ring)}
+  .btnart svg{display:block;width:170px;margin:0 auto}
+  .btnart .cap{margin-top:10px;text-align:center;font:500 12px var(--mono);color:var(--dimmer);min-height:18px}
+  .btnrow{display:flex;align-items:center;gap:10px 14px;padding:10px 12px;margin:0 -12px;
+    border-radius:12px;transition:background .15s}
+  .btnrow:hover,.btnrow.hl{background:rgba(var(--acc-rgb),.06)}
+  .btnrow .nm{flex:1 1 150px;min-width:0;font-size:14px;font-weight:600;display:flex;
+    align-items:center;gap:10px;flex-wrap:wrap}
+  .btnrow .nm .no{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;flex:0 0 auto;
+    font:700 11px var(--mono);color:var(--acc);background:rgba(var(--acc-rgb),.1);border:1px solid rgba(var(--acc-rgb),.3)}
+  .btnrow .nm small{flex-basis:100%;padding-left:32px;color:var(--dim);font-weight:400;font-size:12.5px;
+    overflow-wrap:anywhere;margin-top:-4px}
+  .btnrow .sel{flex:0 1 250px}
+  .mp{stroke:transparent;stroke-width:4;cursor:pointer;transition:fill .15s ease-out,stroke .15s ease-out,filter .15s ease-out}
+  .mp:hover{fill:rgba(var(--acc-rgb),.2);stroke:rgba(var(--acc-rgb),.6)}
+  .mp.hl{fill:rgba(var(--acc-rgb),.38);stroke:var(--acc);stroke-width:5;filter:drop-shadow(0 0 6px var(--acc))}
+  .editor{margin-top:14px;padding:18px;border-radius:14px;border:1px solid rgba(var(--acc-rgb),.35);
+    background:linear-gradient(180deg,rgba(var(--acc-rgb),.06),rgba(var(--acc-rgb),0)),#0c1116;
+    box-shadow:0 0 40px -18px var(--glow);animation:rise .25s ease-out}
+  .editor .et{font:600 16px/1.3 var(--disp)}
+  .erow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px}
+  .erow label{font-size:13px;color:var(--dim);display:inline-flex;align-items:center;gap:7px}
+  .erow input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
+  .num{width:88px;font:500 13.5px var(--mono);color:var(--ink);background:#0a0e12;
+    border:1px solid var(--line2);border-radius:9px;padding:8px}
+  .num:focus{outline:none;border-color:var(--acc)}
+  .capture{min-width:200px;padding:12px 14px;border:1px dashed var(--line2);border-radius:10px;
+    font:600 14px var(--mono);color:var(--ink);background:#0a0e12;cursor:pointer;text-align:left}
+  .capture:focus{outline:none;border-color:var(--acc);border-style:solid;box-shadow:0 0 20px -6px var(--glow)}
+  .steps{margin-top:12px;max-height:280px;overflow:auto;border:1px solid var(--line);
+    border-radius:10px;background:#0a0e12;counter-reset:step}
+  .steps:empty{display:none}
+  .step{display:flex;align-items:center;gap:10px;padding:7px 12px;font:12.5px var(--mono);
+    border-top:1px solid #19212a;counter-increment:step}
+  .step::before{content:counter(step);min-width:22px;color:var(--dimmer);font-size:11px}
+  .step:first-child{border-top:0}
+  .step span{flex:1;min-width:0}
+  .step .num{width:80px;padding:5px 6px}
+  .pad{margin-top:12px;padding:26px;text-align:center;border:1px dashed var(--line2);
+    border-radius:12px;color:var(--dim);font-size:13px;user-select:none;
+    transition:border-color .15s ease-out,color .15s ease-out,background-color .15s ease-out}
+  .pad.rec{border-color:var(--bad);border-style:solid;color:#ffdada;
+    background:rgba(248,113,113,.06);box-shadow:0 0 30px -10px rgba(248,113,113,.6);
+    animation:recp 1.4s ease-in-out infinite}
+  @keyframes recp{50%{box-shadow:0 0 40px -6px rgba(248,113,113,.55)}}
+  .xbtn{background:none;border:0;color:var(--dim);cursor:pointer;font-size:16px;padding:0 4px}
+  .xbtn:hover{color:var(--bad)}
+  .demobar{display:flex;align-items:center;gap:14px;margin:14px 0 0;padding:12px 16px;border-radius:14px;
+    font-size:13.5px;color:#ffe9b3;background:linear-gradient(90deg,rgba(245,196,81,.16),rgba(245,196,81,.05));
+    box-shadow:0 0 0 1px rgba(245,196,81,.45)}
+  .demobar b{color:#ffd66b;font-weight:700}
+  .demobar span{flex:1;min-width:0}
+  .demobar a{flex:0 0 auto;color:#1a1200;background:#f5c451;font:600 12.5px/1 Inter,sans-serif;padding:9px 13px;border-radius:9px;text-decoration:none}
+  .demobar a:hover{filter:brightness(1.08)}
+  .hidden{display:none !important}
+  .foot{margin-top:22px;color:var(--dimmer);font-size:12.5px}
+  .foot a{color:var(--dim)}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important}
+  }
+  @media (max-width: 760px){
+    .wrap{padding:14px 14px 40px}
+    header{gap:10px;padding:10px 12px}
+    header .devhead h1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #app{grid-template-columns:minmax(0,1fr);gap:14px}
+    aside{position:static}
+    .tabs{flex-direction:row;overflow-x:auto;scrollbar-width:none}
+    .tabs button{flex:0 0 auto;white-space:nowrap}
+    .tabs button[aria-pressed=true]::before{display:none}
+    header .lbl{display:none}
+    header .btn.ghost{padding:9px 11px}
+    header{border-radius:18px;padding:8px}
+    .hero{margin-top:18px;padding:30px 20px 28px;border-radius:20px}
+    .hero h2{font-size:25px}
+    .hero p{font-size:14px;margin-bottom:18px}
+    .reel{height:210px}
+  }
+
+  body.embed header .brand, body.embed header .lead, body.embed header .icon, body.embed header #connect,
+  body.embed .demobar a, body.embed a[href^="../keyboard/"], body.embed a[href^="../mouse/"]{display:none !important}
+  body.embed .wrap{padding-top:8px}
+
+
+  .profbar{display:flex;align-items:center;gap:16px;padding:12px 16px}
+  .profbar .seg{margin:0;flex:1}
+  .profbar .t{font-size:14px;color:var(--dim)}
+  code{font:12px var(--mono);background:rgba(255,255,255,.07);padding:1px 6px;border-radius:5px}
+
+  .km{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:start}
+  .kmstage{padding:26px 14px 20px;margin-bottom:0}
+  .kmwrap{display:grid;grid-template-columns:auto minmax(120px,190px) auto;gap:10px;align-items:center;justify-content:center}
+  .kmmouse svg{display:block;width:100%;filter:drop-shadow(0 0 24px rgba(var(--acc2-rgb),.2))}
+  .kmmouse .btn-l,.kmmouse .btn-r{fill:rgba(255,255,255,.03);stroke:rgba(255,255,255,.2);stroke-width:1.5;transition:fill .15s,stroke .15s}
+  .kmmouse .on{fill:rgba(41,98,255,.38);stroke:#2f6bff}
+  .kmbox{min-width:92px;padding:12px 12px 10px;border-radius:10px;background:#0d1217;box-shadow:var(--ring);
+    font:500 13px var(--mono);color:var(--dim);display:flex;flex-direction:column;gap:8px}
+  .kmbox .row{display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .kmbox .row svg{flex:0 0 auto}
+  .kmbox .row b{font-weight:700;color:var(--ink)}
+  .kmbox .row i{font-style:normal;color:var(--dimmer)}
+  .kmbox .row.hl, .kmbox .row.hl b{color:#4d86ff}
+  .kmbox .sw2{display:flex;justify-content:center;padding-top:8px;border-top:1px solid var(--line);color:var(--dim)}
+  .kmbox .sw2.hl{color:#4d86ff}
+  .kmbox.sel{box-shadow:0 0 0 1px #2f6bff}
+  .kmctl{margin-bottom:0}
+  .kmtabs{margin-top:0}
+  .kmtabs button[aria-pressed=true]{background:linear-gradient(180deg,#3b77ff,#2559e0);color:#fff;box-shadow:0 0 0 1px #2f6bff,0 4px 16px -4px rgba(47,107,255,.7)}
+  .kmnote{margin-top:10px;font-size:12.5px;color:var(--warn)}
+  .item.inner{box-shadow:none;background:rgba(255,255,255,.02);padding:14px 16px;margin-bottom:0}
+  .kmsl{margin-top:20px}
+  .kmsl .slider{margin-top:12px}
+  .kmsl.off{opacity:.4;pointer-events:none}
+  .kmsl .slider output{min-width:60px}
+  .kmsl input[type=range]{background:linear-gradient(90deg,#2f6bff,rgba(var(--acc2-rgb),.5))}
+  .kmscale{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-top:8px}
+  .kmwarn{margin-top:10px;font-size:12.5px;color:var(--warn)}
+  .kmticks{display:flex;justify-content:space-between;font:500 11px var(--mono);color:var(--dim);margin-top:8px}
+  .kmradios{display:grid;gap:10px;margin-top:12px}
+  .kmtype{display:flex;align-items:center;gap:16px;padding:12px 16px;border-radius:12px;border:0;cursor:pointer;
+    background:#0d1217;box-shadow:var(--ring);color:var(--ink);font:600 14px Inter,sans-serif;text-align:left;
+    transition:box-shadow .15s,background .15s}
+  .kmtype:hover{background:#121920}
+  .kmtype .ic{width:60px;height:60px;display:grid;place-items:center;color:var(--dim)}
+  .kmtype .lb{flex:1}
+  .kmtype .rd{width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 2px var(--line2);background:transparent}
+  .kmtype[aria-pressed=true]{box-shadow:0 0 0 1px #2f6bff;background:rgba(47,107,255,.08)}
+  .kmtype[aria-pressed=true] .rd{background:radial-gradient(circle,#fff 0 3px,#2f6bff 4px);box-shadow:0 0 0 2px #2f6bff}
+  .kmtype[aria-pressed=true] .ic{color:#4d86ff}
+  .kmtype:disabled{opacity:.45;cursor:default}
+
+  .modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(2,4,6,.72);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px}
+  .mbox{width:min(460px,100%);padding:26px 26px 22px;border-radius:18px;background:var(--card);box-shadow:var(--ring),0 40px 100px -30px #000;text-align:center}
+  .mbox h3{margin:0 0 16px;font:700 19px/1.25 var(--disp);letter-spacing:-.01em}
+  .mstep{font-size:15px;min-height:46px;display:grid;place-items:center;margin-bottom:14px}
+  .mbars{display:grid;gap:10px;margin:0 0 16px}
+  .mbars>div{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center;font:500 12px var(--mono);color:var(--dim);text-align:left}
+  .mbars i{display:block;height:8px;border-radius:5px;background:#0a0e12;box-shadow:inset var(--ring);overflow:hidden}
+  .mbars b{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f6bff,var(--acc2));transition:width .2s}
+  .mbars .done b{background:var(--acc)}
+  .mres{margin:0 0 16px;font-size:13.5px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04)}
+  .mres.ok{color:var(--acc)} .mres.bad{color:var(--bad)}
+  @media (max-width: 980px){ .km{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width: 520px){ .kmwrap{grid-template-columns:1fr 1fr;} .kmmouse{display:none} .profbar{flex-wrap:wrap} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="devhead" style="flex:1;min-width:0">
+    <h1 id="devName">Leviathan V4 GT</h1>
+    <div class="status off" id="status">Not connected</div>
+  </div>
+  <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK" target="_blank" rel="noopener noreferrer" aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
+  <button class="btn" id="connect">Connect</button>
+</header>
+
+<div class="demobar hidden" id="demoBar" role="status">
+  <span id="demoText"><b>Demo mode.</b> This is a simulated Leviathan V4 GT (add <code>?demo=dongle</code> for the 8K dongle), not a real device. Nothing here is sent to any hardware.</span>
+  <a href="../index.html">Exit demo</a>
+</div>
+
+<div class="hero" id="hero">
+  <div class="art" id="heroArt"></div>
+  <div class="kicker">WebHID configurator</div>
+  <h2>Tune your Leviathan V4 GT, right in the browser</h2>
+  <p>Plug in the mouse by cable or the 8K dongle, then connect. Close RAWM HUB first if it is open,
+     since only one program can talk to the mouse at a time. Works in Chrome, Edge and Opera.</p>
+  <button class="btn" id="connect2">Connect Leviathan V4 GT</button>
+  <p style="margin:20px auto 0"><a href="?demo=1" id="demoLink" style="color:var(--dim);font-size:13px">Try a simulated mouse</a></p>
+</div>
+
+<div class="hero hidden" id="blocked">
+  <h2 id="blockedTitle">This needs a desktop</h2>
+  <p id="blockedText"></p>
+  <p style="margin:6px auto 0;font-size:13px;color:var(--dim)">Look around anyway: <a href="?demo=1" style="color:var(--acc)">Wired demo</a> &middot; <a href="?demo=dongle" style="color:var(--acc)">8K dongle demo</a></p>
+</div>
+
+<div id="app" class="hidden">
+  <aside>
+    <div class="devcard">
+      <div class="art" id="devArt"></div>
+      <div class="gauges">
+        <div class="ring">
+          <svg viewBox="0 0 96 96" aria-hidden="true"><circle class="trk" cx="48" cy="48" r="38"/><circle id="sBattBar" cx="48" cy="48" r="38"/></svg>
+          <div class="mid"><div>
+            <div class="v batt-row"><span id="sBatt">&mdash;</span></div>
+            <div class="k">BATTERY</div></div></div>
+        </div>
+        <div class="minis">
+          <div class="mini"><div class="k">DPI</div><div class="v" id="sDpi">&mdash;</div></div>
+          <div class="mini"><div class="k">Polling</div><div class="v" id="sRate">&mdash;</div></div>
+        </div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="dpi" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>DPI</button>
+      <button data-tab="keys" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10"/><path d="m8 9 4 4 4-4"/><path d="M5 17h14M7 21h10"/></svg>Key Mode</button>
+      <button data-tab="perf" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6Z"/></svg>Performance</button>
+      <button data-tab="led" aria-pressed="false" id="ledTab" class="hidden"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Receiver LED</button>
+      <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/></svg>Device</button>
+    </nav>
+    <p class="foot">Changes save to the mouse immediately. Not affiliated with RAWM.</p>
+  </aside>
+
+  <main>
+    <div class="item profbar" id="profBar">
+      <div class="t">Profile</div>
+      <div class="seg" id="segProfile"></div>
+    </div>
+
+    <section class="panel" data-panel="dpi">
+      <div class="phead"><div><h2>DPI</h2><p id="dpiDesc">Mouse movement DPI. Pick a stage, then drag or type a value for it.</p></div></div>
+      <div class="item">
+        <div class="head"><div><div class="t">DPI Stage</div></div>
+          <div class="erow" style="margin:0;flex:none"><button class="btn ghost" id="stageAdd">Add</button><button class="btn quiet" id="stageDel">Delete</button></div></div>
+        <div class="seg" id="segStage"></div>
+        <div class="slider" style="margin-top:18px">
+          <input type="range" id="dpiX" min="50" max="45000" step="50" value="800" aria-label="DPI value">
+          <output id="dpiXOut">800</output>
+        </div>
+        <div class="slider hidden" id="dpiYWrap" style="margin-top:12px">
+          <input type="range" id="dpiY" min="50" max="45000" step="50" value="800" aria-label="DPI Y value">
+          <output id="dpiYOut">800</output>
+        </div>
+        <div class="erow">
+          <label>Value <input class="num" type="number" id="dpiXNum" min="50" max="45000" step="1" style="width:100px"></label>
+          <label class="hidden" id="dpiYNumWrap">Y <input class="num" type="number" id="dpiYNum" min="50" max="45000" step="1" style="width:100px"></label>
+          <div class="swatches" style="margin:0"><label class="swatch">Color<input type="color" id="stageColor" value="#ffffff"></label></div>
+        </div>
+      </div>
+      <div class="item row">
+        <div><div class="t">Separate X/Y DPI</div><div class="d">Off keeps the vertical value equal to the horizontal one.</div></div>
+        <input type="checkbox" class="sw" id="dpiXY">
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="keys">
+      <div class="phead"><div><h2>Key Mode</h2><p>Travel, rapid trigger and switch type for the left and right click.</p></div></div>
+      <div class="km">
+        <div class="item kmstage">
+          <div class="kmwrap">
+            <div class="kmbox" data-side="l"></div>
+            <div class="kmmouse" id="kmMouse"></div>
+            <div class="kmbox" data-side="r"></div>
+          </div>
+          <div style="text-align:center;margin-top:14px"><button class="btn ghost" id="kmResetAll">Reset All</button></div>
+        </div>
+        <div class="item kmctl">
+          <div class="seg kmtabs" id="kmTabs">
+            <button data-km="act" aria-pressed="true">Actuation</button>
+            <button data-km="rt" aria-pressed="false">Rapid Trigger</button>
+            <button data-km="sw" aria-pressed="false">Switch</button>
+          </div>
+          <div class="t" style="margin-top:20px">Key Selection</div>
+          <select class="sel" id="kmKey" style="margin-top:10px;min-width:190px" aria-label="Key Selection">
+            <option value="0">All (L+R)</option>
+            <option value="1">Left Click</option>
+            <option value="2">Right Click</option>
+          </select>
+          <div class="kmnote hidden" id="kmNote"></div>
+
+          <div data-km-panel="act">
+            <div class="item row inner" style="margin-top:18px">
+              <div><div class="t">Travel</div><div class="d">Separate press/release travel.</div></div>
+              <input type="checkbox" class="sw" id="kmSep">
+            </div>
+            <div class="kmsl">
+              <div class="t" id="kmPressTitle">Trigger Travel</div>
+              <div class="slider"><input type="range" id="kmPress" min="1" max="10" step="1" value="4" aria-label="Trigger Travel"><output id="kmPressOut">4</output></div>
+              <div class="kmscale"><span>Short Press</span><span>Long Press</span></div>
+              <div class="kmwarn hidden" id="kmPressWarn">Pressing below level 3 may cause accidental triggers. Please set according to your needs</div>
+            </div>
+            <div class="kmsl hidden" id="kmRelBox">
+              <div class="t">Release</div>
+              <div class="slider"><input type="range" id="kmRel" min="1" max="10" step="1" value="4" aria-label="Release travel"><output id="kmRelOut">4</output></div>
+              <div class="kmscale"><span>Short</span><span>Long</span></div>
+              <div class="kmwarn hidden" id="kmRelWarn">Releasing below level 5 may cause early release. Please set according to your needs</div>
+            </div>
+          </div>
+
+          <div data-km-panel="rt" class="hidden">
+            <div class="kmsl" style="margin-top:18px">
+              <div class="t">Rapid Trigger (ms)</div>
+              <div class="d">Shorter time provides faster trigger response and higher sensitivity</div>
+              <div class="slider"><input type="range" id="kmRt" min="0" max="15" step="1" value="0" aria-label="Rapid Trigger (ms)"><output id="kmRtOut">0</output></div>
+              <div class="kmticks" id="kmRtTicks"></div>
+            </div>
+          </div>
+
+          <div data-km-panel="sw" class="hidden">
+            <div class="t" style="margin-top:18px">Switch Mode</div>
+            <div class="kmradios" id="kmTypes">
+              <button class="kmtype" data-type="3" aria-pressed="false"><span class="ic" id="icMag"></span><span class="lb">Magnetic</span><i class="rd"></i></button>
+              <button class="kmtype" data-type="2" aria-pressed="false"><span class="ic" id="icOpt"></span><span class="lb">Optical</span><i class="rd"></i></button>
+            </div>
+            <div class="t" style="margin-top:20px">Magnetic Switch Manual Calibration:</div>
+            <div class="kmwarn" id="kmCalNote" style="margin:8px 0 0"></div>
+            <div class="erow" style="margin-top:10px"><button class="btn ghost" id="kmCal">Manual Calibration</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="perf">
+      <div class="phead"><div><h2>Performance</h2><p>Polling, sensor and tracking behaviour for the current profile.</p></div></div>
+      <div class="item">
+        <div class="t">Polling Rate</div>
+        <div class="d">Also known as report rate, the mouse's data update frequency.</div>
+        <div class="seg" id="segRate"></div>
+      </div>
+      <div class="item">
+        <div class="t">Performance</div>
+        <div class="d" id="modeTip"></div>
+        <div class="seg" id="segMode"></div>
+        <div id="fpsWrap" class="hidden">
+          <div class="d" style="margin:16px 0 0">Sensor Polling Rate</div>
+          <div class="seg" id="segFps"></div>
+          <div class="d" id="fpsTip" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="item row">
+        <div><div class="t">Glass Mode</div><div class="d">For glass surfaces. Polling is held at 1K while it is on.</div></div>
+        <input type="checkbox" class="sw" id="glass">
+      </div>
+      <div class="item">
+        <div class="t">LOD</div>
+        <div class="d">The height at which the pointer cursor completely becomes unresponsive after the mouse is lifted away from the tracking surface</div>
+        <div class="seg" id="segLod"></div>
+      </div>
+      <div class="grid2">
+        <div class="item row"><div><div class="t">Motion Sync</div><div class="d">Make the pointer and mouse movement more synchronized and the trajectory more accurate</div></div><input type="checkbox" class="sw" id="motion"></div>
+        <div class="item row"><div><div class="t">Ripple Control</div><div class="d">Minimizes jitter and shake during rapid, high-DPI mouse movements</div></div><input type="checkbox" class="sw" id="ripple"></div>
+        <div class="item row"><div><div class="t">Angle Snap</div><div class="d">Straightens vertical and horizontal mouse movements to reduce minor user errors</div></div><input type="checkbox" class="sw" id="snap"></div>
+        <div class="item row"><div><div class="t">Button Combination</div><div class="d">Modify mouse settings by simultaneously clicking specific mouse buttons</div></div><input type="checkbox" class="sw" id="combine"></div>
+      </div>
+      <div class="item">
+        <div class="t">Angle Tune</div>
+        <div class="d">Adjust sensor angle for different grips and correct cursor deviation for accurate tracking</div>
+        <div class="slider"><input type="range" id="tune" min="-30" max="30" step="1" value="0" aria-label="Angle Tune"><output id="tuneOut">0</output></div>
+      </div>
+      <div class="item">
+        <div class="t">Sleep Time</div>
+        <div class="d" id="sleepDesc">Mouse enters sleep mode after the set idle time.</div>
+        <div class="slider"><input type="range" id="sleep" min="1" max="30" step="1" value="1" aria-label="Sleep Time"><output id="sleepOut">1 min</output></div>
+      </div>
+      <div class="item">
+        <div class="head"><div><div class="t">Scroll Hysteresis</div><div class="d">Prevents accidental scroll input caused by first wheel movement. Higher sensitivity settings increase protection interval</div></div>
+          <input type="checkbox" class="sw" id="scrollOn"></div>
+        <div class="slider"><input type="range" id="scrollWin" min="100" max="1000" step="100" value="100" aria-label="Sensitivity"><output id="scrollWinOut">100</output></div>
+        <div class="d" style="margin-top:6px">Sensitivity</div>
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="led">
+      <div class="phead"><div><h2>Receiver LED</h2><p>Select which status the receiver LED displays in wireless mode.</p></div></div>
+      <div class="item">
+        <div class="t">Receiver LED</div>
+        <div class="seg" id="segLed"></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="device">
+      <div class="phead"><div><h2>Device</h2><p>Firmware, link, sharing and diagnostics.</p></div></div>
+      <div class="item" id="shareItem">
+        <div class="t">Share settings</div>
+        <div class="d">Save the current profile to a file or a short code, or load a set someone sent you. A preview lists what will change first.</div>
+        <div class="erow">
+          <button class="btn ghost" id="shareFile">Save to file</button>
+          <button class="btn ghost" id="shareCopy">Copy share code</button>
+          <label class="btn ghost" style="cursor:pointer">Load file<input type="file" id="shareLoad" accept=".json,application/json" hidden></label>
+        </div>
+        <textarea id="sharePaste" rows="2" spellcheck="false" aria-label="Paste a share code" placeholder="Or paste a share code here"
+          style="width:100%;margin-top:12px;resize:vertical;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)"></textarea>
+        <div id="sharePreview" class="hidden" style="margin-top:12px">
+          <div id="shareFrom" style="font-size:13px;color:var(--dim);margin-bottom:6px"></div>
+          <ul id="shareList" style="margin:0 0 12px;padding-left:20px;font-size:13.5px"></ul>
+          <div class="erow"><button class="btn" id="shareApply">Apply to this profile</button><button class="btn ghost" id="shareCancel">Cancel</button></div>
+        </div>
+      </div>
+      <div class="item">
+        <table class="kv" id="kv"></table>
+        <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+          <button class="btn ghost" id="refresh">Refresh</button>
+          <button class="btn ghost" id="togglelog">Show activity log</button>
+          <button class="btn quiet" id="resetProfile">Reset Profile</button>
+        </div>
+        <div id="log" class="hidden"></div>
+      </div>
+      <p style="color:var(--dimmer);font-size:13px;margin:6px 4px 0">Not included yet: button remapping, macros, profile names and the factory reset. Firmware updates are deliberately left out.</p>
+    </section>
+  </main>
+</div>
+</div>
+
+<div class="modal hidden" id="calModal" role="dialog" aria-modal="true" aria-labelledby="calTitle">
+  <div class="mbox">
+    <h3 id="calTitle">Magnetic Switch Manual Calibration</h3>
+    <div class="mstep" id="calStep">Release the left and right buttons completely</div>
+    <div class="mbars" id="calBars">
+      <div><span>Left</span><i><b id="calBarL"></b></i></div>
+      <div><span>Right</span><i><b id="calBarR"></b></i></div>
+    </div>
+    <div class="mbars single hidden" id="calBarOne"><div><span>Progress</span><i><b id="calBarP"></b></i></div></div>
+    <div class="mres hidden" id="calRes"></div>
+    <div class="erow" style="justify-content:center"><button class="btn ghost" id="calClose">Close</button></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="askModal" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+  <div class="mbox">
+    <h3 id="askTitle"></h3>
+    <div class="mstep" id="askText"></div>
+    <div class="erow" style="justify-content:center"><button class="btn quiet" id="askYes">Confirm</button><button class="btn ghost" id="askNo">Cancel</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+const $ = s => document.querySelector(s);
+const QS = new URLSearchParams(location.search);
+const EMBED = QS.get('embed') === '1';
+if (EMBED) document.body.classList.add('embed');
+const DEMO_RAW = QS.get('demo');
+const DEMO = DEMO_RAW !== null && !['0', 'false', 'off', 'no'].includes(DEMO_RAW.toLowerCase());
+const DEMO_DONGLE = DEMO && DEMO_RAW.toLowerCase() === 'dongle';
+if (DEMO) $('#demoLink').classList.add('hidden');
+
+const VID = 0x373E, PID_WIRED = 0x0098, PID_DONGLE = 0x0099;
+const FILTERS = [{ vendorId: VID, productId: PID_WIRED }, { vendorId: VID, productId: PID_DONGLE }];
+const isOurs = d => d.vendorId === VID && (d.productId === PID_WIRED || d.productId === PID_DONGLE);
+const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
+
+const RATES = [[125, 8], [250, 4], [500, 2], [1000, 1], [2000, 32], [4000, 64], [8000, 128]];
+const rateKey = hz => (RATES.find(r => r[0] === hz) || [])[1];
+const rateHz = key => (RATES.find(r => r[1] === key) || [])[0];
+const rateLabel = hz => hz >= 1000 ? `${hz / 1000}K` : String(hz);
+const LODS = [0.7, 1, 2];
+const MODES = [[1, 'Low Power'], [2, 'High Performance'], [3, 'Competition']];
+const MODE_TIPS = {
+  1: 'For daily use and gaming, supports up to 1K polling rate with longer battery life',
+  2: 'High performance for most gaming scenarios, supports up to 8K polling rate with balanced battery life',
+  3: 'For competitive gaming, supports up to 8K polling rate and sensor scan mode switching with higher power consumption',
+};
+const LEDS = [[12, 'Connection'], [6, 'Battery'], [13, 'Battery Warn']];
+const STAGE_COLORS = [[0, 0, 255], [0, 255, 0], [255, 255, 0], [255, 0, 0], [47, 192, 250], [255, 0, 255]];
+const MAX_STAGES = 6, DPI_MIN = 50, DPI_MAX = 45000;
+const SLEEP_OFF = [0, 0xFF00, 0xFFFF];
+const CAL_STEPS = { 1: 'Release the left and right buttons completely', 2: 'Press and hold the left button fully', 3: 'Release the left button',
+  4: 'Press and hold the right button fully', 5: 'Release the right button', 6: 'Verifying and saving...', 7: 'Calibration Successful',
+  8: 'Calibration Failed', 9: 'Calibration Cancelled', 10: 'Press and hold both buttons fully', 11: 'Release both buttons; either can be released first' };
+const CAL_ERR = { 0: 'Calibration complete', 2: 'Calibration timed out. Fully press and release as prompted, then recalibrate.',
+  3: 'Abnormal button travel. Fully press and release, then recalibrate.',
+  4: 'Unstable calibration data. Keep the mouse still and operate the buttons smoothly, then recalibrate.',
+  8: 'Calibration canceled. Previous settings restored.', 9: 'Mouse is asleep. Move it to wake it, then recalibrate.',
+  10: 'USB connection changed during calibration. Keep the connection unchanged, then recalibrate.',
+  11: 'Another magnetic switch calibration is in progress. Try again later.',
+  12: 'Magnetic switch signal unavailable. Check the battery and connection, then recalibrate.',
+  13: 'Failed to save calibration. Previous settings restored. Please recalibrate.',
+  14: 'Button not fully released or release positions inconsistent. Fully release both buttons, then recalibrate.' };
+const RING = 238.76;
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const clampInt = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? clamp(n, lo, hi) : d; };
+const hexToRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const rgbToHex = c => '#' + c.map(v => (v & 255).toString(16).padStart(2, '0')).join('');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const hex = a => Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(' ');
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+function log(cls, label, detail){
+  const el = document.createElement('div');
+  el.className = cls;
+  el.textContent = `${new Date().toISOString().slice(11, 23)}  ${label}  ${detail ?? ''}`;
+  $('#log').appendChild(el);
+  if ($('#log').childElementCount > 400) $('#log').firstChild.remove();
+  $('#log').scrollTop = $('#log').scrollHeight;
+}
+$('#togglelog').onclick = e => {
+  const hid = $('#log').classList.toggle('hidden');
+  e.target.textContent = hid ? 'Show activity log' : 'Hide activity log';
+};
+let toastTimer;
+function toast(msg, bad){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 2400);
+}
+function ask(title, text, yes = 'Confirm'){
+  return new Promise(res => {
+    $('#askTitle').textContent = title; $('#askText').textContent = text; $('#askYes').textContent = yes;
+    $('#askModal').classList.remove('hidden');
+    const done = v => { $('#askModal').classList.add('hidden'); $('#askYes').onclick = $('#askNo').onclick = null; res(v); };
+    $('#askYes').onclick = () => done(true); $('#askNo').onclick = () => done(false);
+    $('#askNo').focus();
+  });
+}
+
+class Rawm {
+  constructor(setDev, readDev, opts = {}){
+    this.setDev = setDev;
+    this.readDev = readDev;
+    this.wired = setDev.productId === PID_WIRED;
+    this.delay = opts.delay ?? 30;
+    this.h = 1;
+    this.ready = false;
+    this.lockWrites = false;
+    this.detectWait = opts.detectWait ?? 200;
+    this.tail = Promise.resolve();
+    this.s = { profile: 1, profiles: 1, wired: this.wired, dpi: { stages: [], colors: [], active: 1, xy: false }, mag: { types: [2, 2], press: [3, 3], release: [9, 9], rt: [0, 0], manual: true, recal: false } };
+    this.onChange = () => {};
+    this.listener = e => this.onInput(e);
+    if (readDev && readDev.addEventListener) readDev.addEventListener('inputreport', this.listener);
+  }
+  lock(fn){ const run = this.tail.then(() => fn()); this.tail = run.catch(() => {}); return run; }
+  req(target, len, cat, cmd, args = []){ const r = new Uint8Array(64); r[2] = target; r[3] = len; r[4] = cat; r[5] = cmd; r.set(args, 6); return r; }
+  async rawSend(r){
+    if (!this.setDev.opened) await this.setDev.open();
+    log('tx', `c${r[4]} ${r[5].toString(16)}`, hex(r.subarray(2, 12)));
+    await this.setDev.sendFeatureReport(0, r);
+  }
+  async rawGet(){
+    if (!this.setDev.opened) await this.setDev.open();
+    const dv = await this.setDev.receiveFeatureReport(0);
+    return new Uint8Array(dv.buffer.slice(dv.byteOffset, dv.byteOffset + dv.byteLength));
+  }
+  norm(buf){ return buf.subarray(1 - this.h); }
+  async xfer(r, isGet){
+    return this.lock(async () => {
+      let mism = 0, n = new Uint8Array(0);
+      const D = this.delay;
+      const status = x => x.length > 8 && (x[0] === 0xA1 || x[0] === 2);
+      const accept = x => { if (!status(x)) return false; if (!isGet || x[5] === r[5]) return true; mism++; return false; };
+      const read = async () => this.norm(await this.rawGet());
+      try {
+        await this.rawSend(r);
+        await sleep(D);
+        n = await read();
+        if (accept(n)) { log('rx', `c${n[4]} ${n[5].toString(16)}`, hex(n.subarray(0, 14))); return n; }
+        for (let round = 0; round < 5 && mism < 12; round++){
+          if (n[0] > 0xA1){
+            await sleep(D);
+            await this.rawSend(r); await sleep(D);
+            n = await read();
+            if (accept(n)) return n;
+          } else {
+            const polls = n[0] === 0 ? 3 : 30, lim = mism + 3;
+            for (let i = 0; i < polls && mism < lim; i++){
+              await sleep(D);
+              n = await read();
+              if (accept(n)) return n;
+            }
+            await sleep(D);
+            await this.rawSend(r); await sleep(D);
+            n = await read();
+            if (accept(n)) return n;
+          }
+        }
+        log('er', mism ? 'echo mismatch' : 'no answer', hex(r.subarray(2, 12)) + (mism ? '  got ' + hex(n.subarray(0, 8)) : ''));
+        return null;
+      } catch (e){ log('er', 'io', String(e && e.message || e)); return null; }
+    });
+  }
+  get(r){ return this.xfer(r, true); }
+  set(r, opts){
+    if (!this.ready) return Promise.reject(new Error('not ready'));
+    if (this.lockWrites && !(opts && opts.cal)) return Promise.reject(new Error('calibrating'));
+    return this.xfer(r, false);
+  }
+
+  async detect(){
+    for (let i = 0; i < 3; i++){
+      const n = await this.lock(async () => {
+        try {
+          await this.rawSend(this.req(2, 16, 0, 0x81));
+          await sleep(this.detectWait);
+          let r = await this.rawGet();
+          if (r[6] !== 0x81 && r[5] !== 0x81){ await sleep(this.detectWait); r = await this.rawGet(); }
+          return r;
+        } catch (e){ return null; }
+      });
+      if (n && n[6] === 0x81){ this.h = 0; return `${n[7]}.${n[8]}.${n[9]}.${n[10]}`; }
+      if (n && n[5] === 0x81){ this.h = 1; return `${n[6]}.${n[7]}.${n[8]}.${n[9]}`; }
+      await sleep(100);
+    }
+    return null;
+  }
+  async fw(target){
+    const n = await this.get(this.req(target, 16, 0, 0x81));
+    return n ? `${n[6]}.${n[7]}.${n[8]}.${n[9]}` : null;
+  }
+  async getEid(){
+    const n = await this.get(this.req(2, 2, 0, 0x82));
+    if (!n) return null;
+    let v;
+    if (this.h === 0) v = n[7] === 0 || n[7] === 255 ? n[6] : n[6] + (n[7] << 8);
+    else v = n[7] === 0 || n[7] === 255 ? n[6] : n[7] + (n[6] << 8);
+    return v === 255 ? 0 : v;
+  }
+  async getBattery(){ const n = await this.get(this.req(2, 2, 0, 0x83)); return n ? { charging: n[6] === 1, pct: n[6] === 1 && n[7] === 100 ? 99 : n[7] } : null; }
+  async getProfiles(){ const n = await this.get(this.req(2, 1, 0, 0x86)); return n ? n[6] : null; }
+  async getProfile(){ const n = await this.get(this.req(2, 1, 0, 0x85)); return n ? n[6] : null; }
+  setProfile(p){ return this.set(this.req(2, 1, 0, 5, [p])); }
+  resetProfile(p){ return this.set(this.req(2, 1, 0, 13, [p])); }
+
+  async byte(cat, cmd, p, extra = []){ const n = await this.get(this.req(2, 2, cat, 0x80 | cmd, [p, ...extra])); return n ? n[7] : null; }
+  setByte(cat, cmd, p, v){ return this.set(this.req(2, 2, cat, cmd, [p, v & 255])); }
+  async getRate(p){ const v = await this.byte(1, 0, p); return v == null ? null : (v === 16 ? 1 : v); }
+  setRate(p, key){ return this.setByte(1, 0, p, key); }
+  getLod(p){ return this.byte(1, 8, p); }
+  setLod(p, mm){ return this.setByte(1, 8, p, mm >= 1 ? mm : ((mm * 10) | 128)); }
+  getGlass(p){ return this.byte(1, 14, p); }
+  setGlass(p, v){ return this.setByte(1, 14, p, v ? 1 : 0); }
+  getMotion(p){ return this.byte(1, 9, p); }
+  setMotion(p, v){ return this.setByte(1, 9, p, v ? 1 : 0); }
+  getRipple(p){ return this.byte(1, 10, p); }
+  setRipple(p, v){ return this.setByte(1, 10, p, v ? 1 : 0); }
+  getSnap(p){ return this.byte(1, 4, p); }
+  setSnap(p, v){ return this.setByte(1, 4, p, v ? 1 : 0); }
+  async getTune(p){ const v = await this.byte(1, 20, p); return v == null ? null : (v > 30 ? v - 256 : v); }
+  setTune(p, v){ return this.setByte(1, 20, p, v > 0 ? v : 256 - Math.abs(v)); }
+  async getMode(p){ const n = await this.get(this.req(2, 3, 1, 0x98, [p])); return n ? n[7] : null; }
+  setMode(p, v){ return this.set(this.req(2, 3, 1, 24, [p, v])); }
+  getTracking(p){ return this.byte(1, 19, p); }
+  setTracking(p, v){ return this.setByte(1, 19, p, v); }
+  getXY(p){ return this.byte(1, 13, p); }
+  setXY(p, v){ return this.setByte(1, 13, p, v ? 1 : 0); }
+  async getCombine(p){ const n = await this.get(this.req(2, 2, 3, 0x81, [p])); return n ? n[7] : null; }
+  setCombine(p, v){ return this.set(this.req(2, 2, 3, 1, [p, v ? 1 : 0])); }
+  async getSleep(p){ const n = await this.get(this.req(2, 3, 0, 0x87, [p])); return n ? (n[7] << 8) + n[8] : null; }
+  setSleep(p, sec){ return this.set(this.req(2, 3, 0, 7, [p, (sec >> 8) & 255, sec & 255])); }
+  async getScroll(p){ const n = await this.get(this.req(2, 4, 0, 0x99, [p])); return n ? { on: n[7] === 1, win: (n[8] << 8) + n[9] } : null; }
+  setScroll(p, on, win){ return this.set(this.req(2, 4, 0, 25, [p, on ? 1 : 0, (win >> 8) & 255, win & 255])); }
+
+  async getActive(p){ return this.byte(1, 2, p); }
+  setActive(p, st){ return this.set(this.req(2, 2, 1, 2, [p, st])); }
+  async getStages(p){
+    const n = await this.get(this.req(2, 10, 1, 0x81, [p, MAX_STAGES]));
+    if (!n) return null;
+    const count = n[7], stages = [];
+    for (let i = 0; i < count && i < MAX_STAGES; i++){
+      const o = 8 + i * 4;
+      stages.push({ x: (n[o] << 8) + n[o + 1], y: (n[o + 2] << 8) + n[o + 3] });
+    }
+    return stages;
+  }
+  setStages(p, stages, xy){
+    const a = [p, stages.length];
+    for (const st of stages){
+      const x = clampInt(st.x, DPI_MIN, DPI_MAX, 800), y = xy ? clampInt(st.y, DPI_MIN, DPI_MAX, x) : x;
+      a.push((x >> 8) & 255, x & 255, (y >> 8) & 255, y & 255);
+    }
+    return this.set(this.req(2, 26, 1, 1, a));
+  }
+  async getColors(p){
+    const n = await this.get(this.req(2, 19, 2, 0x81, [p]));
+    if (!n) return null;
+    const out = [];
+    for (let i = 0; i < MAX_STAGES; i++) out.push([n[7 + i * 3], n[8 + i * 3], n[9 + i * 3]]);
+    return out;
+  }
+  setColors(p, colors){
+    const a = [p];
+    for (let i = 0; i < MAX_STAGES; i++) a.push(...(colors[i] || [0, 0, 0]));
+    return this.set(this.req(2, 19, 2, 1, a));
+  }
+  async getLed(){ const n = await this.get(this.req(1, 5, 2, 0x80, [1])); return n ? n[8] : null; }
+  setLed(mode){ return this.set(this.req(1, 5, 2, 0, [1, 255, mode, 0, 0])); }
+
+  async getFault(){ return this.get(this.req(2, 6, 3, 0x86)); }
+  faultSet(state){ return this.set(this.req(2, 3, 3, 7, [state]), { cal: true }); }
+  async getTypes(){ const n = await this.get(this.req(2, 8, 0, 0x95)); return n ? [n[7], n[8]] : null; }
+  setTypes(eid, l, r){ return this.set(this.req(2, 8, 0, 21, [eid & 255, l, r])); }
+  async getTravel(p, key){ const n = await this.get(this.req(2, 4, 3, 0x85, [p, key])); return n ? [n[8], n[9]] : null; }
+  setTravel(p, key, press, release){ return this.set(this.req(2, 4, 3, 5, [p, key, press, release])); }
+  async getRt(p, key){ const n = await this.get(this.req(2, 3, 0, 0x98, [p, key])); return n ? n[8] : null; }
+  setRt(p, key, v){ return this.set(this.req(2, 3, 0, 24, [p, key, v])); }
+
+  async readMag(){
+    const s = this.s, p = s.profile, m = s.mag;
+    const f = await this.getFault();
+    m.manual = f ? f[10] !== 0 : true;
+    m.recal = f ? f[11] === 64 : false;
+    m.types = [2, 2];
+    if (!m.manual){ const t = await this.getTypes(); if (t) m.types = t; }
+    for (let k = 1; k <= 2; k++){
+      const tr = await this.getTravel(p, k);
+      if (tr){ m.press[k - 1] = tr[0]; m.release[k - 1] = tr[1]; }
+      const rt = await this.getRt(p, k);
+      if (rt != null) m.rt[k - 1] = rt;
+    }
+  }
+  async readProfile(){
+    const s = this.s, p = s.profile;
+    const take = async (key, fn) => { const v = await fn(); if (v != null) s[key] = v; return v; };
+    await take('rate', () => this.getRate(p));
+    await take('glass', () => this.getGlass(p));
+    await take('mode', () => this.getMode(p));
+    await take('tracking', () => this.getTracking(p));
+    await take('lod', () => this.getLod(p));
+    await take('motion', () => this.getMotion(p));
+    await take('ripple', () => this.getRipple(p));
+    await take('snap', () => this.getSnap(p));
+    await take('tune', () => this.getTune(p));
+    await take('combine', () => this.getCombine(p));
+    await take('sleep', () => this.getSleep(p));
+    const sc = await this.getScroll(p); if (sc) s.scroll = sc;
+    const xy = await this.getXY(p); if (xy != null) s.dpi.xy = xy === 1;
+    const st = await this.getStages(p); if (st) s.dpi.stages = st;
+    const co = await this.getColors(p); if (co) s.dpi.colors = co;
+    const ac = await this.getActive(p); if (ac != null) s.dpi.active = ac;
+    if (!this.wired){ const l = await this.getLed(); if (l != null) s.led = l; }
+    await this.readMag();
+    this.onChange();
+  }
+  async readAll(){
+    const s = this.s;
+    let fw = await this.detect();
+    if (!fw) return 0;
+    s.fw = fw;
+    this.ready = true;
+    if (!this.wired){
+      const d0 = await this.fw(0), d1 = await this.fw(1);
+      s.dongleFw = d1 && d1 !== '0.0.0.0' ? d1 : d0;
+    }
+    const n = await this.getProfiles(); if (n) s.profiles = clamp(n, 1, 8);
+    let cur = await this.getProfile();
+    for (let i = 0; i < 3 && (cur == null || cur < 1); i++){ await sleep(80); cur = await this.getProfile(); }
+    if (cur && cur >= 1) s.profile = cur;
+    const e = await this.getEid(); if (e != null) s.eid = e;
+    const b = await this.getBattery(); if (b) s.battery = b;
+    await this.readProfile();
+    return 1;
+  }
+
+  onInput(e){
+    if (e.reportId !== 4) return;
+    const d = new Uint8Array(e.data.buffer, e.data.byteOffset, e.data.byteLength);
+    const s = [4, ...d], st = this.s;
+    log('rx', `notify ${s[1]}`, hex(s.slice(1, 9)));
+    switch (s[1]){
+      case 1: this.stage(s[2], (s[3] << 8) + s[4], (s[5] << 8) + s[6]); break;
+      case 4: this.stage(s[3], (s[4] << 8) + s[5], (s[6] << 8) + s[7]); break;
+      case 3: if (s[2] > 0) st.battery = { charging: s[3] === 1, pct: s[3] === 1 && s[2] === 100 ? 99 : s[2] }; break;
+      case 6: st.online = s[2] === 1; if (s[2] === 1) this.onWake(); break;
+      case 7: st.lod = s[2]; break;
+      case 8: if (rateHz(s[2])) st.rate = s[2]; break;
+      case 15: st.motion = s[2]; break;
+      case 16: st.ripple = s[2]; break;
+      case 17: st.snap = s[2]; break;
+      case 34: st.combine = s[2]; break;
+      case 35: st.dpi.xy = s[2] === 1; break;
+      case 9: this.onReset(); break;
+    }
+    this.onChange();
+  }
+  stage(n, x, y){
+    const d = this.s.dpi;
+    if (n >= 1 && n <= MAX_STAGES){ d.active = n; if (d.stages[n - 1]){ d.stages[n - 1].x = x; d.stages[n - 1].y = y; } }
+  }
+  onWake(){}
+  onReset(){}
+  close(){ if (this.readDev && this.readDev.removeEventListener) this.readDev.removeEventListener('inputreport', this.listener); }
+}
+
+let rm = null;
+
+function makeDemo(){
+  const lead = QS.get('lead') === '1';
+  const flaky = QS.get('flaky') === '1';
+  const fwDelay = QS.get('fwdelay') === '1';
+  let asleep = QS.get('asleep') === '1';
+  const echoBad = QS.get('echobad') === '1';
+  const wired = !DEMO_DONGLE;
+  const prof = () => ({ rate: 1, lod: 1, glass: 0, motion: 1, ripple: 0, snap: 0, tune: 0, mode: 2, track: 1, xy: 0, combine: 1, sleep: 180,
+    scroll: { on: 0, win: 100 }, active: 2,
+    stages: [{ x: 400, y: 400 }, { x: 800, y: 800 }, { x: 1600, y: 1600 }, { x: 3200, y: 3200 }],
+    colors: [[0, 0, 255], [0, 255, 0], [255, 255, 0], [255, 0, 0], [0, 0, 0], [0, 0, 0]],
+    trav: [[4, 9], [4, 9]], rt: [0, 0] });
+  const st = { cur: 1, n: 4, p: [null, prof(), prof(), prof(), prof()], types: [3, 3], manual: false, recal: false, led: 12, bat: [0, 76], cal: null, eid: 255 };
+  let reply = new Uint8Array(64), pending = false;
+  const dev = { vendorId: VID, productId: wired ? PID_WIRED : PID_DONGLE, productName: 'Leviathan V4 GT', opened: false,
+    collections: [{ featureReports: [{ items: [{ reportCount: 64 }] }], inputReports: [] }], _l: [],
+    async open(){ this.opened = true; }, async close(){ this.opened = false; },
+    async sendFeatureReport(id, data){ handle(new Uint8Array(data.buffer ? data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) : data)); },
+    async receiveFeatureReport(id){
+      if (flaky && pending){ pending = false; return new DataView(new Uint8Array(lead ? 65 : 64).buffer); }
+      const out = new Uint8Array(lead ? 65 : 64); out.set(reply, lead ? 1 : 0);
+      return new DataView(out.buffer);
+    } };
+  const rdev = { vendorId: VID, productId: dev.productId, collections: [{ featureReports: [], inputReports: [{ reportId: 4 }] }], _l: [],
+    addEventListener(t, f){ if (t === 'inputreport') this._l.push(f); }, removeEventListener(t, f){ this._l = this._l.filter(x => x !== f); },
+    async open(){}, async close(){}, opened: true };
+  const notify = (type, ...b) => { const d = new Uint8Array(b.length + 1); d[0] = type; d.set(b, 1); const ev = { reportId: 4, data: new DataView(d.buffer) }; rdev._l.forEach(f => f(ev)); };
+  function handle(q){
+    if (asleep){ reply = new Uint8Array(64); pending = false; return; }
+    const t = q[2], len = q[3], cat = q[4], cmd = q[5], a = q.subarray(6), p = st.p[a[0]] || st.p[st.cur];
+    const N = new Uint8Array(64);
+    N[0] = 0xA1; N[2] = t; N[3] = len; N[4] = cat; N[5] = cmd; N.set(a.subarray(0, 10), 6);
+    const key = (cat << 8) | cmd;
+    switch (key){
+      case 0x0081: if (t === 0 || t === 1){ N.set([0, 0, 0, 12], 6); } else N.set([0, 0, 0, 28], 6); break;
+      case 0x0082: N[6] = 255; N[7] = 255; break;
+      case 0x0083: N[6] = st.bat[0]; N[7] = st.bat[1]; break;
+      case 0x0086: N[6] = st.n; break;
+      case 0x0085: N[6] = st.cur; break;
+      case 0x0005: st.cur = clamp(a[0], 1, st.n); break;
+      case 0x000D: st.p[a[0]] = prof(); break;
+      case 0x0095: N[7] = st.types[0]; N[8] = st.types[1]; break;
+      case 0x0015: st.types = [a[1], a[2]]; break;
+      case 0x0098: N[7] = a[1]; N[8] = p.rt[a[1] - 1]; break;
+      case 0x0018: p.rt[a[1] - 1] = a[2]; break;
+      case 0x0087: N[7] = p.sleep >> 8; N[8] = p.sleep & 255; break;
+      case 0x0007: p.sleep = (a[1] << 8) | a[2]; break;
+      case 0x0099: N[7] = p.scroll.on; N[8] = p.scroll.win >> 8; N[9] = p.scroll.win & 255; break;
+      case 0x0019: p.scroll = { on: a[1], win: (a[2] << 8) | a[3] }; break;
+      case 0x0180: N[7] = p.rate; break;
+      case 0x0100: p.rate = a[1]; break;
+      case 0x0188: N[7] = p.lod; break;
+      case 0x0108: p.lod = a[1]; break;
+      case 0x018E: N[7] = p.glass; break;
+      case 0x010E: p.glass = a[1]; break;
+      case 0x0189: N[7] = p.motion; break;
+      case 0x0109: p.motion = a[1]; break;
+      case 0x018A: N[7] = p.ripple; break;
+      case 0x010A: p.ripple = a[1]; break;
+      case 0x0184: N[7] = p.snap; break;
+      case 0x0104: p.snap = a[1]; break;
+      case 0x0194: N[7] = p.tune & 255; break;
+      case 0x0114: p.tune = a[1] > 128 ? a[1] - 256 : a[1]; break;
+      case 0x0198: N[7] = p.mode; break;
+      case 0x0118: p.mode = a[1]; break;
+      case 0x0193: N[7] = p.track; break;
+      case 0x0113: p.track = a[1]; break;
+      case 0x018D: N[7] = p.xy; break;
+      case 0x010D: p.xy = a[1]; break;
+      case 0x0182: N[7] = p.active; break;
+      case 0x0102: p.active = a[1]; break;
+      case 0x0181: {
+        N[7] = p.stages.length;
+        p.stages.forEach((s, i) => { const o = 8 + i * 4; N[o] = s.x >> 8; N[o + 1] = s.x & 255; N[o + 2] = s.y >> 8; N[o + 3] = s.y & 255; });
+        break;
+      }
+      case 0x0101: {
+        const c = a[1]; p.stages = [];
+        for (let i = 0; i < c; i++){ const o = 2 + i * 4; p.stages.push({ x: (a[o] << 8) | a[o + 1], y: (a[o + 2] << 8) | a[o + 3] }); }
+        if (p.active > c) p.active = 1;
+        break;
+      }
+      case 0x0280: N[7] = 1; N[8] = st.led; break;
+      case 0x0281: for (let i = 0; i < 18; i++) N[7 + i] = p.colors[(i / 3) | 0][i % 3]; break;
+      case 0x0200: st.led = a[2]; break;
+      case 0x0201: for (let i = 0; i < 6; i++) p.colors[i] = [a[1 + i * 3], a[2 + i * 3], a[3 + i * 3]]; break;
+      case 0x0381: N[7] = p.combine; break;
+      case 0x0301: p.combine = a[1]; break;
+      case 0x0385: N[8] = p.trav[a[1] - 1][0]; N[9] = p.trav[a[1] - 1][1]; break;
+      case 0x0305: p.trav[a[1] - 1] = [a[2], a[3]]; break;
+      case 0x0386: N[10] = st.manual ? 1 : 0; N[11] = st.recal ? 64 : 0; break;
+      case 0x0307: {
+        const c = a[0];
+        if (c === 5){
+          N[27] = 7;
+          if (st.cal){
+            const step = st.cal.seq[Math.min(st.cal.i, st.cal.seq.length - 1)];
+            N[7] = step.s; N[9] = step.code || 0; N[25] = step.mask || 0; N[30] = step.l || 0; N[31] = step.r || 0; N[32] = step.rdy || 0;
+            if (step.s === 7){ st.manual = false; st.recal = false; st.types = [3, 3]; }
+            st.cal.i++;
+          } else N[7] = 0;
+        } else if (c === 4){
+          st.cal = { i: 0, seq: [{ s: 10, mask: 12, l: 0, r: 0 }, { s: 10, mask: 16, l: 60, r: 40, rdy: 3 }, { s: 11, mask: 3, l: 100, r: 100, rdy: 3 }, { s: 6 }, { s: 7 }] };
+          if (QS.get('calfail') === '1') st.cal.seq = [{ s: 10, mask: 12 }, { s: 8, code: 4 }];
+        }
+        break;
+      }
+    }
+    if (echoBad && cat === 1 && cmd === 0x89) N[5] = 0x55;
+    if (fwDelay && cat === 0 && cmd === 0x81){ reply = new Uint8Array(64); pending = false; setTimeout(() => { reply = N; }, 60); return; }
+    reply = N; pending = flaky && !(cat === 0 && cmd === 0x81);
+  }
+  dev.__st = st; dev.__notify = notify; dev.__wake = () => { asleep = false; };
+  return { setDev: dev, readDev: rdev };
+}
+
+const UI = { km: 'act', key: 0, sep: [false, false], cal: false };
+const ICON_DOWN = '<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2v9M6.5 7.5 10 11l3.5-3.5"/><circle cx="10" cy="15" r="2"/><path d="M4 15h2.5M13.5 15H16"/></svg>';
+const ICON_UP = '<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11V2M6.5 5.5 10 2l3.5 3.5"/><circle cx="10" cy="15" r="2"/><path d="M4 15h2.5M13.5 15H16"/></svg>';
+const ICON_MAG = '<svg viewBox="0 0 40 28" width="36" height="25" aria-hidden="true"><rect x="4" y="3" width="32" height="14" rx="3" fill="currentColor" opacity=".9"/><rect x="11" y="8" width="8" height="6" rx="1" fill="#0b1015"/><rect x="21" y="8" width="8" height="6" rx="1" fill="#0b1015"/><path d="M8 17v7M16 17v7M24 17v7M32 17v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const ICON_OPT = '<svg viewBox="0 0 40 28" width="36" height="25" aria-hidden="true"><rect x="4" y="3" width="32" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 14h20" stroke="#f87171" stroke-width="3" stroke-linecap="round"/><path d="M20 3v7" stroke="currentColor" stroke-width="2"/></svg>';
+const ICON_MAG_BIG = '<svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true"><rect x="18" y="4" width="24" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="24" y="14" width="12" height="18" fill="currentColor" opacity=".55"/><rect x="14" y="32" width="32" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="18" y="35" width="11" height="8" fill="#ef4444"/><rect x="31" y="35" width="11" height="8" fill="#3b82f6"/><rect x="22" y="50" width="16" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+const ICON_OPT_BIG = '<svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true"><rect x="14" y="4" width="32" height="52" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="26" y="10" width="8" height="28" fill="currentColor" opacity=".55"/><rect x="18" y="38" width="24" height="5" rx="1" fill="#ef4444"/><rect x="24" y="50" width="12" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+$('#icMag').innerHTML = ICON_MAG_BIG; $('#icOpt').innerHTML = ICON_OPT_BIG;
+$('#kmMouse').innerHTML = `<svg viewBox="0 0 200 330" aria-hidden="true">
+  <path d="M100 8c48 0 74 34 76 92l4 104c3 74-30 118-80 118S17 278 20 204l4-104C26 42 52 8 100 8Z" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.28)" stroke-width="2"/>
+  <path class="btn-l" id="kmL" d="M98 12C58 14 30 42 28 98l-1 26c22 8 46 12 71 12Z"/>
+  <path class="btn-r" id="kmR" d="M102 12c40 2 68 30 70 86l1 26c-22 8-46 12-71 12Z"/>
+  <rect x="92" y="40" width="16" height="40" rx="8" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2"/>
+  <path d="M100 136v8" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>
+</svg>`;
+$('#heroArt').innerHTML = $('#devArt').innerHTML = '<svg viewBox="0 0 120 170" width="120" height="170" aria-hidden="true" style="filter:drop-shadow(0 18px 28px rgba(var(--acc-rgb),.3))"><path d="M60 8c24 0 36 18 37 44l2 50c1 34-14 60-39 60s-40-26-39-60l2-50C24 26 36 8 60 8Z" fill="#0d1318" stroke="rgba(var(--acc-rgb),.7)" stroke-width="2"/><path d="M60 10v56M22 70c24 7 52 7 76 0" fill="none" stroke="rgba(var(--acc-rgb),.45)" stroke-width="2"/><rect x="55" y="28" width="10" height="22" rx="5" fill="rgba(var(--acc-rgb),.8)"/></svg>';
+$('#kmRtTicks').innerHTML = Array.from({ length: 16 }, (_, i) => `<span>${i}</span>`).join('');
+
+function showTab(name){
+  for (const b of document.querySelectorAll('#tabs button')) b.setAttribute('aria-pressed', String(b.dataset.tab === name));
+  for (const p of document.querySelectorAll('.panel')) p.classList.toggle('hidden', p.dataset.panel !== name);
+}
+for (const b of document.querySelectorAll('#tabs button')) b.onclick = () => showTab(b.dataset.tab);
+
+function failToast(e, fallback = 'Could not save, try again'){
+  const m = e && e.message;
+  toast(m === 'not ready' ? 'The mouse has not answered yet. Wake it up and press Refresh.' : m === 'calibrating' ? 'Wait for the calibration to finish.' : fallback, 1);
+}
+function fillSeg(host, opts, pressed, onPick, disabledFn){
+  const el = $(host); el.replaceChildren();
+  for (const [value, label] of opts){
+    const b = document.createElement('button');
+    b.textContent = label; b.dataset.value = String(value);
+    b.setAttribute('aria-pressed', String(String(pressed) === String(value)));
+    if (disabledFn && disabledFn(value)){ b.disabled = true; b.style.opacity = '.35'; b.style.cursor = 'default'; }
+    b.onclick = async () => {
+      if (!rm || b.disabled) return;
+      el.classList.add('busy');
+      try { await onPick(value, label); }
+      catch (e) { failToast(e); }
+      finally { el.classList.remove('busy'); show(); }
+    };
+    el.appendChild(b);
+  }
+}
+
+async function commit(label, write, read, want, apply){
+  try {
+    await write();
+    await sleep(40);
+    const got = await read();
+    if (got == null){ toast(`${label}: no answer from the mouse`, 1); return false; }
+    if (!same(got, want)){ toast(`${label}: the mouse kept ${typeof got === 'object' ? JSON.stringify(got) : got}`, 1); await refreshProfile(); return false; }
+    if (apply) apply(got);
+    return true;
+  } catch (e) { failToast(e); return false; }
+}
+const P = () => rm.s.profile;
+
+let showQueued = false;
+function showSoon(){ if (showQueued) return; showQueued = true; requestAnimationFrame(() => { showQueued = false; if (rm) show(); }); }
+
+function stageLabel(st, xy){ return xy ? `${st.x}/${st.y}` : String(st.x); }
+function renderDpi(){
+  const s = rm.s, d = s.dpi, stages = d.stages;
+  if (!stages.length){ $('#segStage').replaceChildren(); return; }
+  const idx = clamp(d.active - 1, 0, stages.length - 1), st = stages[idx];
+  fillSeg('#segStage', stages.map((x, i) => [i + 1, stageLabel(x, d.xy)]), idx + 1, async n => {
+    const want = n;
+    await commit('DPI Stage', () => rm.setActive(P(), n), () => rm.getActive(P()), want, v => { d.active = v; });
+    toast(`Stage ${n}: ${stageLabel(stages[n - 1], d.xy)}`);
+  });
+  const act = document.activeElement;
+  if (act !== $('#dpiX') && act !== $('#dpiXNum')){ $('#dpiX').value = clamp(st.x, DPI_MIN, DPI_MAX); $('#dpiXNum').value = st.x; }
+  if (act !== $('#dpiY') && act !== $('#dpiYNum')){ $('#dpiY').value = clamp(st.y, DPI_MIN, DPI_MAX); $('#dpiYNum').value = st.y; }
+  $('#dpiXOut').textContent = st.x; $('#dpiYOut').textContent = st.y;
+  $('#dpiYWrap').classList.toggle('hidden', !d.xy);
+  $('#dpiYNumWrap').classList.toggle('hidden', !d.xy);
+  $('#dpiXY').checked = d.xy;
+  const col = d.colors[idx] && (d.colors[idx][0] || d.colors[idx][1] || d.colors[idx][2]) ? d.colors[idx] : STAGE_COLORS[idx % STAGE_COLORS.length];
+  $('#stageColor').value = rgbToHex(col);
+  $('#stageAdd').disabled = stages.length >= MAX_STAGES;
+  $('#stageDel').disabled = stages.length <= 1;
+  document.documentElement.style.setProperty('--stage', rgbToHex(col));
+}
+async function writeStage(x, y){
+  const d = rm.s.dpi, idx = clamp(d.active - 1, 0, d.stages.length - 1);
+  x = clampInt(x, DPI_MIN, DPI_MAX, 800); y = clampInt(y, DPI_MIN, DPI_MAX, x);
+  const next = d.stages.map((st, i) => i === idx ? { x, y: d.xy ? y : x } : st);
+  const ok = await commit('DPI', () => rm.setStages(P(), next, d.xy), () => rm.getStages(P()), next.map(st => ({ x: st.x, y: d.xy ? st.y : st.x })).map(st => ({ x: st.x, y: d.xy ? st.y : st.x })),
+    got => { d.stages = got; });
+  if (ok) toast(`DPI ${x}${d.xy ? '/' + y : ''}`);
+  show();
+}
+let dpiTimer;
+function dpiInput(from){
+  const d = rm.s.dpi;
+  const xv = from === 'xnum' ? +$('#dpiXNum').value : +$('#dpiX').value;
+  const yv = from === 'ynum' ? +$('#dpiYNum').value : +$('#dpiY').value;
+  if (from === 'x' || from === 'xnum'){ $('#dpiXOut').textContent = xv; if (from === 'x') $('#dpiXNum').value = xv; else $('#dpiX').value = clamp(xv, DPI_MIN, DPI_MAX); }
+  if (from === 'y' || from === 'ynum'){ $('#dpiYOut').textContent = yv; if (from === 'y') $('#dpiYNum').value = yv; else $('#dpiY').value = clamp(yv, DPI_MIN, DPI_MAX); }
+  clearTimeout(dpiTimer);
+  dpiTimer = setTimeout(() => { if (rm) writeStage(+$('#dpiXNum').value, d.xy ? +$('#dpiYNum').value : +$('#dpiXNum').value); }, from.endsWith('num') ? 50 : 260);
+}
+$('#dpiX').oninput = () => dpiInput('x');
+$('#dpiY').oninput = () => dpiInput('y');
+$('#dpiXNum').onchange = () => dpiInput('xnum');
+$('#dpiYNum').onchange = () => dpiInput('ynum');
+$('#stageColor').onchange = async e => {
+  if (!rm) return;
+  const d = rm.s.dpi, idx = clamp(d.active - 1, 0, d.stages.length - 1);
+  const colors = d.colors.map(c => [...c]);
+  colors[idx] = hexToRgb(e.target.value);
+  const ok = await commit('Color', () => rm.setColors(P(), colors), () => rm.getColors(P()), colors, got => { d.colors = got; });
+  if (ok) toast('Stage color saved');
+  show();
+};
+$('#dpiXY').onchange = async e => {
+  if (!rm) return;
+  const d = rm.s.dpi, on = e.target.checked;
+  const ok = await commit('X/Y DPI', async () => { await rm.setXY(P(), on); await rm.setStages(P(), d.stages, on); }, () => rm.getXY(P()), on ? 1 : 0, () => { d.xy = on; });
+  if (ok){ const st = await rm.getStages(P()); if (st) d.stages = st; toast(on ? 'X and Y set separately' : 'X and Y linked'); }
+  show();
+};
+$('#stageAdd').onclick = async () => {
+  if (!rm) return;
+  const d = rm.s.dpi;
+  if (d.stages.length >= MAX_STAGES) return;
+  const idx = d.stages.length, stages = [...d.stages, { x: 1600, y: 1600 }], colors = d.colors.map(c => [...c]);
+  while (colors.length < MAX_STAGES) colors.push([0, 0, 0]);
+  colors[idx] = [...STAGE_COLORS[idx]];
+  try {
+    await rm.setStages(P(), stages, d.xy); await rm.setColors(P(), colors); await rm.setActive(P(), idx + 1);
+    await refreshProfile(); toast(`Stage ${idx + 1} added`);
+  } catch (e) { failToast(e); }
+};
+$('#stageDel').onclick = async () => {
+  if (!rm) return;
+  const d = rm.s.dpi;
+  if (d.stages.length <= 1) return;
+  const idx = clamp(d.active - 1, 0, d.stages.length - 1);
+  const stages = d.stages.filter((_, i) => i !== idx), colors = d.colors.map(c => [...c]);
+  colors.splice(idx, 1); colors.push([0, 0, 0]);
+  try {
+    await rm.setStages(P(), stages, d.xy); await rm.setColors(P(), colors); await rm.setActive(P(), 1);
+    await refreshProfile(); toast('Stage deleted');
+  } catch (e) { failToast(e); }
+};
+
+const sideIdx = () => UI.key === 0 ? [0, 1] : [UI.key - 1];
+function renderKm(){
+  const m = rm.s.mag, sel = sideIdx();
+  for (const [i, side] of [[0, 'l'], [1, 'r']]){
+    const box = $(`.kmbox[data-side=${side}]`), isMag = m.types[i] === 3;
+    box.className = 'kmbox' + (sel.includes(i) ? ' sel' : '');
+    box.innerHTML = `<div class="row${UI.km === 'act' ? ' hl' : ''}">${ICON_DOWN}<b>${isMag ? m.press[i] : '-'}</b><i>|</i><span>${isMag && m.release[i] !== 9 ? m.release[i] : '-'}</span></div>`
+      + `<div class="row${UI.km === 'rt' ? ' hl' : ''}">${ICON_UP}<b>${isMag ? m.rt[i] : 0} ms</b></div>`
+      + `<div class="sw2${UI.km === 'sw' ? ' hl' : ''}">${isMag ? ICON_MAG : ICON_OPT}</div>`;
+  }
+  $('#kmL').classList.toggle('on', sel.includes(0)); $('#kmR').classList.toggle('on', sel.includes(1));
+  for (const b of $('#kmTabs').children) b.setAttribute('aria-pressed', String(b.dataset.km === UI.km));
+  for (const pnl of document.querySelectorAll('[data-km-panel]')) pnl.classList.toggle('hidden', pnl.dataset.kmPanel !== UI.km);
+  $('#kmKey').value = String(UI.key);
+
+  const magSides = sel.filter(i => m.types[i] === 3);
+  const note = $('#kmNote');
+  if (UI.km !== 'sw' && !magSides.length){ note.textContent = 'Travel and rapid trigger need the Magnetic switch mode. Change it in the Switch tab.'; note.classList.remove('hidden'); }
+  else if (UI.km !== 'sw' && magSides.length < sel.length){ note.textContent = `The ${sel.filter(i => m.types[i] !== 3).map(i => i ? 'right' : 'left').join(' and ')} click is Optical and is left unchanged.`; note.classList.remove('hidden'); }
+  else note.classList.add('hidden');
+  const off = !magSides.length;
+  const uniq = f => { const v = magSides.map(i => m[f][i]); return v.length && v.every(x => x === v[0]) ? v[0] : null; };
+  const press = uniq('press'), rel = uniq('release'), rt = uniq('rt');
+  const sep = magSides.some(i => m.release[i] !== 9 || UI.sep[i]);
+  $('#kmSep').checked = sep;
+  $('#kmPressTitle').textContent = sep ? 'Press' : 'Trigger Travel';
+  $('#kmRelBox').classList.toggle('hidden', !sep);
+  for (const el of document.querySelectorAll('[data-km-panel=act] .kmsl, [data-km-panel=rt] .kmsl')) el.classList.toggle('off', off);
+  $('#kmSep').disabled = off;
+  const act = document.activeElement;
+  if (act !== $('#kmPress')) $('#kmPress').value = press ?? 1;
+  if (act !== $('#kmRel')) $('#kmRel').value = rel && rel !== 9 ? rel : (press ?? 1);
+  if (act !== $('#kmRt')) $('#kmRt').value = rt ?? 0;
+  $('#kmPressOut').textContent = press ?? '—';
+  $('#kmRelOut').textContent = rel == null ? '—' : rel;
+  $('#kmRtOut').textContent = rt == null ? '—' : rt;
+  $('#kmPressWarn').classList.toggle('hidden', !(press != null && press < 3));
+  $('#kmRelWarn').classList.toggle('hidden', !(sep && rel != null && rel !== 9 && rel < 5));
+  for (const b of $('#kmTypes').children){
+    const t = +b.dataset.type, ts = sel.map(i => m.types[i]);
+    b.setAttribute('aria-pressed', String(ts.every(x => x === t)));
+  }
+  const cn = $('#kmCalNote');
+  cn.textContent = m.manual ? 'The magnetic switch has not been calibrated. Calibrate it to use the Magnetic mode.' : m.recal ? 'The magnetic switch needs recalibration.' : '';
+  cn.classList.toggle('hidden', !cn.textContent);
+}
+$('#kmKey').onchange = e => { UI.key = +e.target.value; show(); };
+for (const b of $('#kmTabs').children) b.onclick = () => { UI.km = b.dataset.km; show(); };
+async function writeTravel(mutate, label){
+  if (!rm) return;
+  const m = rm.s.mag, p = P(), jobs = sideIdx().filter(i => m.types[i] === 3);
+  if (!jobs.length) return;
+  try {
+    for (const i of jobs){
+      const next = mutate(i, m.press[i], m.release[i]);
+      await rm.setTravel(p, i + 1, next[0], next[1]);
+      const got = await rm.getTravel(p, i + 1);
+      if (got){ m.press[i] = got[0]; m.release[i] = got[1]; if (!same(got, next)) toast(`${label}: the mouse kept ${got[0]}/${got[1]}`, 1); }
+    }
+  } catch (e) { failToast(e); }
+  show();
+}
+$('#kmPress').oninput = e => { $('#kmPressOut').textContent = e.target.value; };
+$('#kmPress').onchange = e => { const v = +e.target.value; writeTravel((i, pr, re) => [v, re !== 9 || UI.sep[i] ? re : 9], 'Trigger Travel'); };
+$('#kmRel').oninput = e => { $('#kmRelOut').textContent = e.target.value; };
+$('#kmRel').onchange = e => { const v = +e.target.value; for (const i of sideIdx()) UI.sep[i] = v === 9; writeTravel((i, pr) => [pr, v], 'Release'); };
+$('#kmSep').onchange = e => {
+  const on = e.target.checked;
+  for (const i of sideIdx()) UI.sep[i] = false;
+  writeTravel((i, pr) => [pr, on ? (pr === 9 ? 10 : pr) : 9], 'Travel');
+};
+$('#kmRt').oninput = e => { $('#kmRtOut').textContent = e.target.value; };
+$('#kmRt').onchange = async e => {
+  if (!rm) return;
+  const m = rm.s.mag, p = P(), v = +e.target.value;
+  try {
+    for (const i of sideIdx().filter(j => m.types[j] === 3)){
+      await rm.setRt(p, i + 1, v);
+      const got = await rm.getRt(p, i + 1);
+      if (got != null){ m.rt[i] = got; if (got !== v) toast(`Rapid Trigger: the mouse kept ${got} ms`, 1); }
+    }
+  } catch (e) { failToast(e); }
+  show();
+};
+for (const b of $('#kmTypes').children) b.onclick = async () => {
+  if (!rm) return;
+  const t = +b.dataset.type, m = rm.s.mag, sel = sideIdx();
+  if (t === 3 && m.manual){ toast('Calibrate the magnetic switch first', 1); return; }
+  try {
+    const cur = await rm.getTypes();
+    const eid = rm.s.eid ?? await rm.getEid();
+    if (!cur || eid == null){ toast('The mouse did not answer. Try again.', 1); return; }
+    const next = [...cur]; for (const i of sel) next[i] = t;
+    await rm.setTypes(eid, next[0], next[1]);
+    await sleep(60);
+    const got = await rm.getTypes();
+    if (got){ m.types = got; if (!same(got, next)) toast('Switch Mode: the mouse kept its previous mode', 1); }
+    if (m.types.includes(3)){ const f = await rm.getFault(); if (f){ m.recal = f[11] === 64; } await rm.readMag(); }
+    toast(`Switch Mode: ${t === 3 ? 'Magnetic' : 'Optical'}`);
+  } catch (e) { failToast(e); }
+  show();
+};
+$('#kmResetAll').onclick = async () => {
+  if (!rm) return;
+  if (!await ask('Reset All', 'Sets press travel 3 and release travel off with rapid trigger 0 for both buttons, and switches both buttons to Optical.', 'Reset')) return;
+  try {
+    const p = P();
+    await rm.setTravel(p, 1, 3, 9); await rm.setTravel(p, 2, 3, 9);
+    await rm.setRt(p, 1, 0); await rm.setRt(p, 2, 0);
+    const eid = rm.s.eid ?? await rm.getEid();
+    if (eid == null) throw new Error('no eid');
+    await rm.setTypes(eid, 2, 2);
+    UI.sep = [false, false];
+    await rm.readMag(); toast('Restored');
+  } catch (e) { failToast(e); }
+  show();
+};
+
+function setCalText(t){ $('#calStep').textContent = t; }
+async function startCal(){
+  if (!rm || UI.cal) return;
+  const m = rm.s.mag;
+  UI.cal = true; UI.calOpen = true; rm.lockWrites = true;
+  $('#calModal').classList.remove('hidden'); $('#calClose').classList.add('hidden');
+  $('#calRes').classList.add('hidden'); $('#calClose').textContent = 'Close';
+  setCalText('Calibrating...');
+  for (const id of ['#calBarL', '#calBarR', '#calBarP']) $(id).style.width = '0';
+  $('#calBars').classList.remove('hidden'); $('#calBarOne').classList.add('hidden');
+  const finish = (ok, msg) => {
+    UI.cal = false; if (rm) rm.lockWrites = false;
+    $('#calClose').classList.remove('hidden');
+    const r = $('#calRes'); r.textContent = msg; r.className = 'mres ' + (ok ? 'ok' : 'bad');
+    if (!UI.calOpen) toast(msg, !ok);
+  };
+  try {
+    const first = await rm.faultSet(5);
+    if (!first){ finish(false, 'The mouse did not answer. Wake it up and try again.'); return; }
+    const two = first[27] === 7;
+    $('#calBars').classList.toggle('hidden', !two); $('#calBarOne').classList.toggle('hidden', two);
+    const started = await rm.faultSet(two ? 4 : 1);
+    if (!started){ finish(false, 'The mouse did not answer. Wake it up and try again.'); return; }
+    let state = 0, code = 0, bad = 0;
+    const t0 = Date.now();
+    setCalText(CAL_STEPS[1]);
+    while (state !== 7 && state !== 8 && state !== 9){
+      if (Date.now() - t0 > 240000){ finish(false, 'Calibration timed out. Fully press and release as prompted, then recalibrate.'); return; }
+      await sleep(rm.delay >= 30 ? 100 : 20);
+      if (!rm) { UI.cal = false; $('#calClose').classList.remove('hidden'); return; }
+      const r = await rm.faultSet(two ? 5 : 3);
+      if (!r){ if (++bad > 25){ finish(false, 'The mouse stopped answering during calibration.'); return; } continue; }
+      bad = 0;
+      state = r[7]; code = r[9];
+      if (two){
+        const mask = r[25];
+        if (mask){
+          const L = (mask & 4) ? 'Press and hold the left button fully' : (mask & 1) ? 'Release the left button' : (mask & 16) ? 'Keep steady' : '';
+          const R = (mask & 8) ? 'Press and hold the right button fully' : (mask & 2) ? 'Release the right button' : (mask & 16) ? 'Keep steady' : '';
+          setCalText([L && `Left: ${L}`, R && `Right: ${R}`].filter(Boolean).join('\n'));
+        } else setCalText(CAL_STEPS[state] || 'Calibrating...');
+        $('#calBarL').style.width = clamp(r[30], 0, 100) + '%'; $('#calBarR').style.width = clamp(r[31], 0, 100) + '%';
+        $('#calBars').children[0].classList.toggle('done', !!(r[32] & 1)); $('#calBars').children[1].classList.toggle('done', !!(r[32] & 2));
+      } else {
+        setCalText(CAL_STEPS[state] || 'Calibrating...');
+        $('#calBarP').style.width = clamp(r[8], 0, 100) + '%';
+      }
+    }
+    setCalText(CAL_STEPS[state] || '');
+    m.manual = state !== 7;
+    await rm.readMag(); show();
+    if (state === 7) finish(true, 'Calibration Successful');
+    else finish(false, state === 9 ? CAL_STEPS[9] : (CAL_ERR[code] || CAL_STEPS[8]));
+  } catch { finish(false, 'Calibration Failed'); }
+}
+$('#kmCal').onclick = async () => {
+  if (!rm) return;
+  if (await ask('Magnetic Switch Manual Calibration', 'Keep the mouse still on the desk and follow the prompts. Do not unplug it while it runs.', 'Start')) startCal();
+};
+$('#calClose').onclick = () => { UI.calOpen = false; $('#calModal').classList.add('hidden'); };
+
+function rateAllowed(hz){
+  const s = rm.s, i = RATES.findIndex(r => r[0] === hz);
+  if (s.mode === 1) return i <= 3;
+  if (s.mode === 2 || s.mode === 3) return i >= 3;
+  return true;
+}
+const curLod = () => { const v = rm.s.lod; return v == null ? null : v < 128 ? v : (v - 128) / 10; };
+function renderPerf(){
+  const s = rm.s;
+  const hz = s.glass === 1 ? 1000 : rateHz(s.rate);
+  fillSeg('#segRate', RATES.map(r => [r[0], rateLabel(r[0])]), hz, async v => {
+    const key = rateKey(v);
+    if (await commit('Polling Rate', () => rm.setRate(P(), key), () => rm.getRate(P()), key, got => { s.rate = got; })) toast(`Polling Rate ${v}Hz`);
+  }, v => !rateAllowed(v));
+  fillSeg('#segMode', MODES, s.mode, async v => {
+    if (!await commit('Performance', () => rm.setMode(P(), v), () => rm.getMode(P()), v, got => { s.mode = got; })) return;
+    const hzNow = rateHz(s.rate);
+    if (hzNow && !rateAllowed(hzNow)){ await rm.setRate(P(), 1); const r = await rm.getRate(P()); if (r != null) s.rate = r; }
+    if (v === 3){ const t = await rm.getTracking(P()); if (t != null) s.tracking = t; }
+    toast(`Performance: ${MODES.find(m => m[0] === v)[1]}`);
+  });
+  $('#modeTip').textContent = MODE_TIPS[s.mode] || '';
+  $('#fpsWrap').classList.toggle('hidden', !s.mode);
+  if (s.mode === 3){
+    $('#segFps').classList.remove('hidden');
+    const pressed = s.tracking === 1 ? 2 : s.tracking === 2 ? 1 : 0;
+    fillSeg('#segFps', [[1, '13K'], [2, '20K']], pressed, async k => {
+      const want = k === 1 ? 2 : 1;
+      if (await commit('Sensor Polling Rate', () => rm.setTracking(P(), want), () => rm.getTracking(P()), want, got => { s.tracking = got; })) toast(`Sensor Polling Rate ${k === 1 ? '13K' : '20K'}`);
+    });
+    $('#fpsTip').textContent = pressed === 1 ? 'Sensor performance mode with a fixed 13K scan rate' : pressed === 2 ? 'Full sensor performance, locked at 20000 FPS' : '';
+  } else {
+    $('#segFps').classList.add('hidden');
+    const dyn = s.mode === 1 || rateHz(s.rate) === 1000;
+    $('#fpsTip').textContent = s.mode ? (dyn ? 'Dynamic FPS: Sensor adjusts frame rate by surface, up to 13000 FPS' : 'Fixed FPS: Full sensor performance, locked at 20000 FPS') : '';
+  }
+  $('#glass').checked = s.glass === 1;
+  const lod = curLod();
+  fillSeg('#segLod', LODS.map(v => [v, `${v}mm`]), lod, async v => {
+    const raw = v >= 1 ? v : ((v * 10) | 128);
+    if (await commit('LOD', () => rm.setLod(P(), v), () => rm.getLod(P()), raw, got => { s.lod = got; })) toast(`LOD ${v}mm`);
+  });
+  $('#motion').checked = s.motion === 1; $('#ripple').checked = s.ripple === 1; $('#snap').checked = s.snap === 1; $('#combine').checked = s.combine === 1;
+  const act = document.activeElement;
+  if (act !== $('#tune')) $('#tune').value = s.tune ?? 0;
+  $('#tuneOut').textContent = (s.tune > 0 ? '+' : '') + (s.tune ?? 0);
+  const off = s.sleep != null && SLEEP_OFF.includes(s.sleep);
+  if (act !== $('#sleep')) $('#sleep').value = off ? 30 : clamp(Math.round((s.sleep ?? 60) / 60), 1, 30);
+  $('#sleepOut').textContent = off ? 'Off' : `${clamp(Math.round((s.sleep ?? 60) / 60), 1, 30)} min`;
+  $('#sleepDesc').textContent = off ? 'Sleep is switched off on this mouse. Moving the slider turns it on.' : 'Mouse enters sleep mode after the set idle time.';
+  const sc = s.scroll || { on: false, win: 100 };
+  $('#scrollOn').checked = sc.on;
+  if (act !== $('#scrollWin')) $('#scrollWin').value = clamp(sc.win, 100, 1000);
+  $('#scrollWinOut').textContent = clamp(sc.win, 100, 1000);
+  fillSeg('#segLed', LEDS, s.led, async v => {
+    if (await commit('Receiver LED', () => rm.setLed(v), () => rm.getLed(), v, got => { s.led = got; })) toast(`Receiver LED: ${LEDS.find(l => l[0] === v)[1]}`);
+  });
+}
+function bindToggle(sel, label, setter, getter, key){
+  $(sel).onchange = async e => {
+    if (!rm) return;
+    const on = e.target.checked, want = on ? 1 : 0;
+    const ok = await commit(label, () => setter(P(), on), () => getter(P()), want, got => { rm.s[key] = got; });
+    if (ok) toast(`${label} ${on ? 'ON' : 'OFF'}`); else e.target.checked = !on;
+    show();
+  };
+}
+bindToggle('#glass', 'Glass Mode', (p, v) => rm.setGlass(p, v), p => rm.getGlass(p), 'glass');
+bindToggle('#motion', 'Motion Sync', (p, v) => rm.setMotion(p, v), p => rm.getMotion(p), 'motion');
+bindToggle('#ripple', 'Ripple Control', (p, v) => rm.setRipple(p, v), p => rm.getRipple(p), 'ripple');
+bindToggle('#snap', 'Angle Snap', (p, v) => rm.setSnap(p, v), p => rm.getSnap(p), 'snap');
+bindToggle('#combine', 'Button Combination', (p, v) => rm.setCombine(p, v), p => rm.getCombine(p), 'combine');
+$('#tune').oninput = e => { const v = +e.target.value; $('#tuneOut').textContent = (v > 0 ? '+' : '') + v; };
+$('#tune').onchange = async e => {
+  if (!rm) return;
+  const v = +e.target.value;
+  if (await commit('Angle Tune', () => rm.setTune(P(), v), () => rm.getTune(P()), v, got => { rm.s.tune = got; })) toast(`Angle Tune ${v}`);
+  show();
+};
+$('#sleep').oninput = e => { $('#sleepOut').textContent = `${e.target.value} min`; };
+$('#sleep').onchange = async e => {
+  if (!rm) return;
+  const v = +e.target.value * 60;
+  if (await commit('Sleep Time', () => rm.setSleep(P(), v), () => rm.getSleep(P()), v, got => { rm.s.sleep = got; })) toast(`Sleep Time ${e.target.value} min`);
+  show();
+};
+async function writeScroll(on, win){
+  const want = { on, win };
+  if (await commit('Scroll Hysteresis', () => rm.setScroll(P(), on, win), () => rm.getScroll(P()), want, got => { rm.s.scroll = got; })) toast(`Scroll Hysteresis ${on ? 'ON' : 'OFF'}`);
+  show();
+}
+$('#scrollOn').onchange = e => { if (rm) writeScroll(e.target.checked, +$('#scrollWin').value); };
+$('#scrollWin').oninput = e => { $('#scrollWinOut').textContent = e.target.value; };
+$('#scrollWin').onchange = e => { if (rm) writeScroll($('#scrollOn').checked, +e.target.value); };
+
+function renderProfiles(){
+  const s = rm.s;
+  fillSeg('#segProfile', Array.from({ length: s.profiles }, (_, i) => [i + 1, `Profile ${i + 1}`]), s.profile, async n => {
+    await rm.setProfile(n); await sleep(60);
+    const got = await rm.getProfile();
+    if (got != null) s.profile = got;
+    UI.sep = [false, false];
+    await rm.readProfile();
+    toast(`Profile ${s.profile}`);
+  });
+}
+function renderDevice(){
+  const s = rm.s, id = `${rm.setDev.vendorId.toString(16)}:${rm.setDev.productId.toString(16).padStart(4, '0')}`;
+  const rows = [['Model', 'Leviathan V4 GT'], ['USB ID', id], ['Connection', rm.wired ? 'Wired' : '8K dongle']];
+  if (s.fw) rows.push(['Mouse Firmware', s.fw]);
+  if (s.dongleFw) rows.push(['Receiver Firmware', s.dongleFw]);
+  rows.push(['Profile', `${s.profile} of ${s.profiles}`]);
+  if (s.battery) rows.push(['Battery', `${s.battery.pct}%${s.battery.charging ? ', charging' : ''}`]);
+  rows.push(['Magnetic switch', s.mag.manual ? 'Not calibrated' : s.mag.recal ? 'Needs recalibration' : 'Calibrated']);
+  if (DEMO) rows.unshift(['Mode', 'Demo: simulated, not a real device']);
+  $('#kv').replaceChildren(...rows.map(([k, v]) => { const tr = document.createElement('tr'); for (const x of [k, v]){ const td = document.createElement('td'); td.textContent = String(x); tr.append(td); } return tr; }));
+}
+
+function show(){
+  if (!rm) return;
+  const s = rm.s;
+  $('#devName').textContent = 'Leviathan V4 GT';
+  $('#ledTab').classList.toggle('hidden', rm.wired);
+  const cur = document.querySelector('#tabs button[aria-pressed=true]');
+  if (cur && cur.classList.contains('hidden')) showTab('dpi');
+  const bar = $('#sBattBar'), pct = s.battery ? s.battery.pct : null;
+  if (pct == null){ $('#sBatt').textContent = '-'; bar.style.strokeDashoffset = RING; }
+  else {
+    $('#sBatt').textContent = pct + '%';
+    bar.style.strokeDashoffset = RING * (1 - pct / 100);
+    bar.style.stroke = pct < 20 ? '#f87171' : pct < 40 ? '#f5c451' : 'var(--acc)';
+  }
+  const d = s.dpi, st = d.stages[clamp(d.active - 1, 0, Math.max(0, d.stages.length - 1))];
+  $('#sDpi').textContent = st ? st.x : '—';
+  const hz = s.glass === 1 ? 1000 : rateHz(s.rate);
+  $('#sRate').textContent = hz ? rateLabel(hz) : '—';
+  renderProfiles(); renderDpi(); renderKm(); renderPerf(); renderDevice();
+}
+
+async function refreshProfile(){ if (!rm) return; await rm.readProfile(); show(); }
+async function refresh(){
+  if (!rm) return;
+  const ok = await rm.readAll();
+  show();
+  if (!ok) toast('The mouse did not answer. Move it to wake it up, then press Refresh.', 1);
+}
+$('#refresh').onclick = refresh;
+$('#resetProfile').onclick = async () => {
+  if (!rm) return;
+  if (!await ask('Reset Profile', `Profile ${rm.s.profile} goes back to its defaults. After reset, you need to reconfigure settings.`, 'Reset')) return;
+  try { await rm.resetProfile(P()); await sleep(300); await rm.readProfile(); toast('Profile reset'); }
+  catch (e) { failToast(e, 'Could not reset, try again'); }
+  show();
+};
+
+const NAME = () => $('#devName').textContent.slice(0, 80);
+const SHARE_MAX = 200000;
+const b64u = u8 => { let t = ''; for (const b of u8) t += String.fromCharCode(b); return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function deflate(u8){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); }
+async function inflate(u8){
+  const r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+  const parts = []; let n = 0;
+  for (;;){
+    const { done, value } = await r.read();
+    if (done) break;
+    n += value.length;
+    if (n > SHARE_MAX * 4){ await r.cancel(); throw new Error('That share code is too large.'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(n); let o = 0;
+  for (const c of parts){ out.set(c, o); o += c.length; }
+  return out;
+}
+async function encodeShare(cfg){
+  const raw = new TextEncoder().encode(JSON.stringify(cfg));
+  return typeof CompressionStream === 'function' ? 'OATK1.' + b64u(await deflate(raw)) : 'OATK0.' + b64u(raw);
+}
+async function decodeShare(text){
+  const t = text.trim();
+  if (t.length > SHARE_MAX) throw new Error('That share code is too large.');
+  if (t[0] === '{') return JSON.parse(t);
+  const m = /^OATK([01])\.([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) throw new Error('That is not an OpenATK share code.');
+  let u8 = unb64u(m[2]);
+  if (m[1] === '1'){
+    if (typeof DecompressionStream !== 'function') throw new Error('This browser cannot read compressed share codes.');
+    u8 = await inflate(u8);
+  }
+  return JSON.parse(new TextDecoder().decode(u8));
+}
+function snapshot(){
+  const s = rm.s, m = s.mag, c = {};
+  const d = s.dpi;
+  if (d.stages.length) c.dpi = { stages: d.stages.map(x => ({ x: x.x, y: x.y })), colors: d.colors.slice(0, d.stages.length).map(x => [...x]), active: d.active, xy: d.xy };
+  if (rateHz(s.rate)) c.rate = rateHz(s.rate);
+  for (const k of ['mode', 'tracking', 'tune']) if (s[k] != null) c[k] = s[k];
+  for (const k of ['glass', 'motion', 'ripple', 'snap', 'combine']) if (s[k] != null) c[k] = s[k] === 1;
+  const lod = curLod(); if (lod != null) c.lod = lod;
+  if (s.sleep != null && !SLEEP_OFF.includes(s.sleep)) c.sleepMin = clamp(Math.round(s.sleep / 60), 1, 30);
+  if (s.scroll) c.scroll = { on: s.scroll.on, win: s.scroll.win };
+  if (!rm.wired && s.led != null) c.led = s.led;
+  if (!m.manual) c.keys = { l: { type: m.types[0], press: m.press[0], release: m.release[0], rt: m.rt[0] }, r: { type: m.types[1], press: m.press[1], release: m.release[1], rt: m.rt[1] } };
+  return { app: 'openatk', v: 1, kind: 'rawm', model: NAME(), made: new Date().toISOString().slice(0, 10), settings: c };
+}
+function planShare(cfg){
+  if (!cfg || typeof cfg !== 'object' || cfg.app !== 'openatk' || cfg.v !== 1) throw new Error('That is not an OpenATK settings file.');
+  if (cfg.kind !== 'rawm') throw new Error(`That file is for a ${String(cfg.kind).slice(0, 20)}, not a RAWM mouse.`);
+  const c = cfg.settings && typeof cfg.settings === 'object' ? cfg.settings : {};
+  const steps = [], notes = [];
+  const add = (label, run) => steps.push({ label, run });
+  const bad = w => notes.push(`${w} was not valid and was skipped`);
+  const isInt = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
+  const s = rm.s, m = s.mag, p = () => rm.s.profile;
+  const bool = (key, label, fn) => { if (c[key] != null){ if (typeof c[key] === 'boolean') add(`${label} ${c[key] ? 'ON' : 'OFF'}`, () => fn(c[key])); else bad(label); } };
+
+  let mode = s.mode;
+  if (c.mode != null){
+    if (MODES.some(x => x[0] === c.mode)){ mode = c.mode; add(`Performance: ${MODES.find(x => x[0] === c.mode)[1]}`, () => rm.setMode(p(), c.mode)); }
+    else bad('Performance');
+  }
+  if (c.rate != null){
+    const i = RATES.findIndex(r => r[0] === c.rate);
+    const allowed = i >= 0 && (mode === 1 ? i <= 3 : (mode === 2 || mode === 3) ? i >= 3 : true);
+    if (i < 0) bad('Polling Rate');
+    else if (!allowed) notes.push(`Polling Rate ${rateLabel(c.rate)} is not available in that Performance mode and was skipped`);
+    else add(`Polling Rate ${c.rate}Hz`, () => rm.setRate(p(), RATES[i][1]));
+  }
+  if (c.tracking != null){
+    if ((c.tracking === 1 || c.tracking === 2) && mode === 3) add(`Sensor Polling Rate ${c.tracking === 2 ? '13K' : '20K'}`, () => rm.setTracking(p(), c.tracking));
+    else if (c.tracking !== 1 && c.tracking !== 2) bad('Sensor Polling Rate');
+  }
+  bool('glass', 'Glass Mode', v => rm.setGlass(p(), v));
+  if (c.lod != null){
+    if (LODS.includes(c.lod)) add(`LOD ${c.lod}mm`, () => rm.setLod(p(), c.lod)); else bad('LOD');
+  }
+  bool('motion', 'Motion Sync', v => rm.setMotion(p(), v));
+  bool('ripple', 'Ripple Control', v => rm.setRipple(p(), v));
+  bool('snap', 'Angle Snap', v => rm.setSnap(p(), v));
+  bool('combine', 'Button Combination', v => rm.setCombine(p(), v));
+  if (c.tune != null){ if (isInt(c.tune, -30, 30)) add(`Angle Tune ${c.tune}`, () => rm.setTune(p(), c.tune)); else bad('Angle Tune'); }
+  if (c.sleepMin != null){ if (isInt(c.sleepMin, 1, 30)) add(`Sleep Time ${c.sleepMin} min`, () => rm.setSleep(p(), c.sleepMin * 60)); else bad('Sleep Time'); }
+  if (c.scroll != null){
+    const sc = c.scroll;
+    if (sc && typeof sc === 'object' && typeof sc.on === 'boolean' && isInt(sc.win, 100, 1000) && sc.win % 100 === 0) add(`Scroll Hysteresis ${sc.on ? 'ON' : 'OFF'}, ${sc.win}`, () => rm.setScroll(p(), sc.on, sc.win));
+    else bad('Scroll Hysteresis');
+  }
+  if (c.led != null){
+    if (rm.wired) notes.push('Receiver LED was skipped: no dongle connected');
+    else if (LEDS.some(l => l[0] === c.led)) add(`Receiver LED: ${LEDS.find(l => l[0] === c.led)[1]}`, () => rm.setLed(c.led));
+    else bad('Receiver LED');
+  }
+  if (c.dpi != null){
+    const d = c.dpi;
+    const okStages = d && typeof d === 'object' && Array.isArray(d.stages) && d.stages.length >= 1 && d.stages.length <= MAX_STAGES
+      && d.stages.every(x => x && isInt(x.x, DPI_MIN, DPI_MAX) && isInt(x.y, DPI_MIN, DPI_MAX)) && typeof d.xy === 'boolean';
+    if (!okStages) bad('DPI stages');
+    else {
+      const colors = Array.isArray(d.colors) && d.colors.length === d.stages.length && d.colors.every(x => Array.isArray(x) && x.length === 3 && x.every(v => isInt(v, 0, 255))) ? d.colors : null;
+      const active = isInt(d.active, 1, d.stages.length) ? d.active : 1;
+      add(`DPI stages: ${d.stages.map(x => stageLabel(x, d.xy)).join(', ')}`, async () => {
+        await rm.setXY(p(), d.xy);
+        await rm.setStages(p(), d.stages, d.xy);
+        if (colors){ const all = colors.map(x => [...x]); while (all.length < MAX_STAGES) all.push([0, 0, 0]); await rm.setColors(p(), all); }
+        await rm.setActive(p(), active);
+      });
+      if (d.colors != null && !colors) bad('DPI colors');
+    }
+  }
+  if (c.keys != null){
+    const k = c.keys;
+    if (!k || typeof k !== 'object') bad('Key Mode');
+    else {
+      const types = [m.types[0], m.types[1]];
+      for (const [side, i] of [['l', 0], ['r', 1]]){
+        const o = k[side];
+        if (!o) continue;
+        const okType = o.type === 2 || o.type === 3, okPress = isInt(o.press, 1, 10), okRel = isInt(o.release, 1, 10), okRt = isInt(o.rt, 0, 15);
+        if (!okType || !okPress || !okRel || !okRt){ bad(`${side === 'l' ? 'Left' : 'Right'} click Key Mode`); continue; }
+        const name = side === 'l' ? 'Left Click' : 'Right Click';
+        if (o.type === 3 && m.manual){ notes.push(`${name}: Magnetic needs a calibrated switch, so it was skipped`); continue; }
+        types[i] = o.type;
+        add(`${name}: ${o.type === 3 ? 'Magnetic' : 'Optical'}${o.type === 3 ? `, travel ${o.press}${o.release === 9 ? '' : '/' + o.release}, RT ${o.rt} ms` : ''}`, async () => {
+          const t = [...rm.s.mag.types]; t[i] = o.type;
+          if (t[i] !== rm.s.mag.types[i]) await rm.setTypes(rm.s.eid, t[0], t[1]);
+          if (o.type === 3){ await rm.setTravel(p(), i + 1, o.press, o.release); await rm.setRt(p(), i + 1, o.rt); }
+        });
+      }
+    }
+  }
+  return { steps, notes, from: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '' };
+}
+let pendingShare = null;
+function showShare(plan){
+  pendingShare = plan;
+  const list = $('#shareList');
+  list.replaceChildren();
+  for (const st of plan.steps){ const li = document.createElement('li'); li.textContent = st.label; list.appendChild(li); }
+  for (const n of plan.notes){ const li = document.createElement('li'); li.textContent = n; li.style.color = 'var(--warn)'; list.appendChild(li); }
+  $('#shareFrom').textContent = plan.steps.length ? `Made on ${plan.from || 'a RAWM mouse'}${plan.made ? ', ' + plan.made : ''}. This will change:` : 'Nothing in that file can be applied to this mouse.';
+  $('#shareApply').classList.toggle('hidden', !plan.steps.length);
+  $('#sharePreview').classList.remove('hidden');
+}
+function clearShare(){ pendingShare = null; $('#sharePreview').classList.add('hidden'); $('#sharePaste').value = ''; $('#shareLoad').value = ''; }
+async function loadShare(text){
+  try { showShare(planShare(await decodeShare(text))); }
+  catch (e){ pendingShare = null; $('#sharePreview').classList.add('hidden'); toast(e instanceof SyntaxError ? 'That is not a valid settings file.' : e.message, 1); }
+}
+const fileSafe = t => t.replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'rawm';
+$('#shareFile').onclick = () => {
+  if (!rm) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: 'application/json' }));
+  a.download = `openatk-${fileSafe(NAME())}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+$('#shareCopy').onclick = async () => {
+  if (!rm) return;
+  const code = await encodeShare(snapshot());
+  try { await navigator.clipboard.writeText(code); toast('Share code copied'); }
+  catch { $('#sharePaste').value = code; $('#sharePaste').select(); toast('Copy the code from the box below'); }
+};
+$('#shareLoad').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.size > SHARE_MAX){ toast('That file is too large.', 1); return; }
+  const r = new FileReader();
+  r.onload = () => loadShare(String(r.result));
+  r.readAsText(f);
+};
+let pasteTimer;
+$('#sharePaste').oninput = e => {
+  clearTimeout(pasteTimer);
+  const v = e.target.value.trim();
+  if (!v){ $('#sharePreview').classList.add('hidden'); return; }
+  pasteTimer = setTimeout(() => loadShare(v), 250);
+};
+$('#shareCancel').onclick = clearShare;
+$('#shareApply').onclick = async () => {
+  if (!pendingShare || !rm) return;
+  const steps = pendingShare.steps;
+  $('#shareApply').disabled = true;
+  let failed = 0;
+  for (const st of steps){ try { await st.run(); await sleep(60); } catch { failed++; } }
+  $('#shareApply').disabled = false;
+  clearShare();
+  toast(failed ? `Applied ${steps.length - failed} of ${steps.length} settings` : `Applied ${steps.length} settings`, failed ? 1 : 0);
+  await refreshProfile();
+};
+
+let batTimer;
+async function attach(setDev, readDev, opts){
+  if (!setDev.opened) await setDev.open();
+  if (readDev && readDev !== setDev && !readDev.opened){ try { await readDev.open(); } catch {} }
+  rm = new Rawm(setDev, readDev, opts);
+  rm.onChange = showSoon;
+  rm.onWake = () => { if (rm) setTimeout(() => { if (!rm) return; if (rm.ready) refreshProfile(); else refresh(); }, 300); };
+  rm.onReset = () => { if (rm) setTimeout(() => refresh(), 300); };
+  $('#hero').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  $('#status').className = 'status';
+  $('#status').innerHTML = DEMO ? '<b>Demo</b> · simulated' : '<b>Connected</b>';
+  $('#connect').textContent = DEMO ? 'Exit demo' : 'Switch';
+  $('#connect').classList.add('ghost');
+  await refresh();
+  clearInterval(batTimer);
+  batTimer = setInterval(async () => {
+    if (!rm || document.hidden || UI.cal) return;
+    const b = await rm.getBattery(); if (b && rm){ rm.s.battery = b; showSoon(); }
+  }, 8000);
+}
+function disconnected(){
+  clearInterval(batTimer);
+  if (rm) rm.close();
+  rm = null;
+  $('#app').classList.add('hidden');
+  $('#hero').classList.remove('hidden');
+  $('#status').className = 'status off';
+  $('#status').textContent = 'Not connected';
+  $('#connect').textContent = 'Connect';
+  $('#connect').classList.remove('ghost');
+}
+function pickInterfaces(devs){
+  let setDev, readDev;
+  for (const d of devs){
+    for (const c of d.collections || []){
+      if ((c.inputReports || []).some(r => r.reportId === 4)) readDev = d;
+      if ((c.featureReports || []).some(r => r.items && r.items[0] && r.items[0].reportCount === 64)) setDev = d;
+    }
+  }
+  return { setDev, readDev };
+}
+async function connectDevices(picked){
+  const all = (await navigator.hid.getDevices()).filter(isOurs);
+  const pid = picked[0].productId;
+  const group = [...new Set([...picked, ...all.filter(d => d.productId === pid)])];
+  const { setDev, readDev } = pickInterfaces(group);
+  if (!setDev) throw new Error('The command interface of the mouse was not found. Unplug it, plug it back in and choose it again.');
+  if (rm){ for (const d of [rm.setDev, rm.readDev]) { try { if (d) await d.close(); } catch {} } disconnected(); }
+  await attach(setDev, readDev);
+}
+async function connect(){
+  if (DEMO){ location.href = '../index.html'; return; }
+  if (!navigator.hid){ toast('This browser cannot talk to USB devices. Use Chrome, Edge or Opera on a computer.', 1); return; }
+  try {
+    const picked = await navigator.hid.requestDevice({ filters: FILTERS });
+    if (!picked.length) return;
+    await connectDevices(picked);
+  } catch (e){ toast(e.message || 'Could not connect', 1); }
+}
+$('#connect').onclick = connect;
+$('#connect2').onclick = connect;
+
+const IS_MOBILE = navigator.userAgentData?.mobile === true || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+async function autoConnect(){
+  if (IS_MOBILE || !('hid' in navigator)){
+    $('#hero').classList.add('hidden'); $('#blocked').classList.remove('hidden'); $('#connect').classList.add('hidden');
+    $('#blockedText').textContent = IS_MOBILE
+      ? 'Phones and tablets cannot talk to USB devices from a web page. Open this page on a computer, in Chrome, Edge or Opera.'
+      : 'This browser cannot talk to USB devices. Open this page in Chrome, Edge or Opera.';
+    return;
+  }
+  navigator.hid.addEventListener('disconnect', e => { if (rm && (e.device === rm.setDev || e.device === rm.readDev)) disconnected(); });
+  try {
+    const want = QS.get('d');
+    const all = (await navigator.hid.getDevices()).filter(isOurs);
+    const first = all.find(d => devId(d) === want) ?? all[0];
+    if (first){
+      const { setDev, readDev } = pickInterfaces(all.filter(d => d.productId === first.productId));
+      if (setDev) await attach(setDev, readDev);
+    }
+  } catch {}
+}
+
+async function startDemo(){
+  document.title += ' (demo)';
+  $('#demoBar').classList.remove('hidden');
+  if (DEMO_DONGLE) $('#demoText').innerHTML = '<b>Demo mode.</b> This is a simulated Leviathan V4 GT on the 8K dongle (drop <code>?demo=dongle</code> for the wired one), not a real device. Nothing here is sent to any hardware.';
+  const { setDev, readDev } = makeDemo();
+  window.__demo = setDev;
+  await attach(setDev, readDev, { delay: QS.get('slow') === '1' ? 30 : 2, detectWait: QS.get('fwdelay') === '1' ? 40 : 20 });
+}
+if (DEMO) startDemo(); else autoConnect();
+</script>
+</body>
+</html>
