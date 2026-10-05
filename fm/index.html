@@ -9,7 +9,7 @@ addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentEleme
 addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
 addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==window){e.preventDefault();parent.postMessage({type:'openatk-palette'},location.origin)}});</script>
 
-<title>OpenATK for Finalmouse</title>
+<title>Finalmouse</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -319,10 +319,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   @media (max-width: 760px){
     .wrap{padding:14px 14px 40px}
     header{gap:10px;padding:10px 12px}
-    header .devhead{display:none}
+    header .devhead h1{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     header .lbl{display:none}
     header .btn.ghost{padding:9px 11px}
-    .brand{border-right:0;padding-right:0;margin-right:auto}
     header{border-radius:18px;padding:8px}
     .hero{margin-top:18px;padding:30px 20px 28px;border-radius:20px}
     .hero h2{font-size:25px}
@@ -379,10 +378,6 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <div class="wrap">
 
 <header>
-  <a class="brand" href="../index.html" aria-label="OpenATK">
-    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" style="color:var(--acc)" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
-    <b>Open<span>ATK</span></b>
-  </a>
   <div class="devhead" style="flex:1;min-width:0">
     <h1 id="devName">Finalmouse</h1>
     <div class="status off" id="status">Not connected</div>
@@ -539,7 +534,7 @@ const DEMO = DEMO_RAW !== null && !['0', 'false', 'off', 'no'].includes(DEMO_RAW
 const DEMO_SLX = DEMO && DEMO_RAW.toLowerCase() === 'slx';
 if (!DEMO) $('#demoLink').href = '?demo=1';
 else $('#demoLink').classList.add('hidden');
-if (DEMO_SLX) document.title = 'OpenATK for Finalmouse (Starlight X demo)';
+if (DEMO_SLX) document.title = 'Finalmouse (Starlight X demo)';
 
 const VID = 0x361D;
 const PAGE = 0xFF00;
