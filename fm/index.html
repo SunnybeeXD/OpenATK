@@ -352,7 +352,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 </header>
 
 <div class="demobar hidden" id="demoBar" role="status">
-  <span><b>Demo mode.</b> This is a simulated Finalmouse Ultralight X, not a real device. Nothing here is sent to any hardware.</span>
+  <span><b>Demo mode.</b> This is a simulated Finalmouse (add ?demo=slx for a Starlight X), not a real device. Nothing here is sent to any hardware.</span>
   <a href="../index.html">Exit demo</a>
 </div>
 
@@ -392,6 +392,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     <nav class="tabs" id="tabs">
       <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
       <button data-tab="feel" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>Tracking</button>
+      <button data-tab="clicks" aria-pressed="false" id="clicksTab" class="hidden"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v6M9 6l3 3 3-3M5 14a7 7 0 0 0 14 0"/></svg>Clicks</button>
       <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Light</button>
       <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/></svg>Device</button>
     </nav>
@@ -423,6 +424,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         <div class="t">Lift-off distance</div>
         <div class="d">How far the mouse can be lifted before it stops tracking.</div>
         <div class="seg" id="segLod"></div>
+        <div class="slider hidden" id="pawWrap"><input type="range" id="pawLod" min="0.01" max="0.4" step="0.01" value="0.2"><output id="pawOut">0.20 mm</output></div>
       </div>
       <div class="item row">
         <div><div class="t">Motion sync</div><div class="d">Lines mouse reports up with the sensor for steadier tracking, at a tiny cost in latency.</div></div>
@@ -435,6 +437,11 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         <div class="d" style="margin:14px 0 8px">Repeat window</div>
         <div class="seg" id="segJsT"></div>
       </div>
+    </section>
+
+    <section class="panel hidden" data-panel="clicks">
+      <div class="phead"><div><h2>Clicks</h2><p>TMR analog trigger for each button. Analog needs the side calibrated in Finalmouse Xpanel first.</p></div></div>
+      <div id="tmrHost"></div>
     </section>
 
     <section class="panel hidden" data-panel="light">
@@ -475,7 +482,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         </div>
         <div id="log" class="hidden"></div>
       </div>
-      <p style="color:var(--dimmer);font-size:13px;margin:6px 4px 0">Not included yet: profiles, button remapping, and the Starlight X analog trigger settings. Firmware updates are deliberately left out.</p>
+      <p style="color:var(--dimmer);font-size:13px;margin:6px 4px 0">Not included yet: profiles, button remapping and the analog calibration routine. Firmware updates are deliberately left out.</p>
     </section>
   </main>
 </div>
@@ -487,9 +494,12 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 const $ = s => document.querySelector(s);
 const EMBED = new URLSearchParams(location.search).get('embed') === '1';
 if (EMBED) document.body.classList.add('embed');
-const DEMO = (() => { const v = new URLSearchParams(location.search).get('demo'); return v !== null && !['0', 'false', 'off', 'no'].includes(v.toLowerCase()); })();
+const DEMO_RAW = new URLSearchParams(location.search).get('demo');
+const DEMO = DEMO_RAW !== null && !['0', 'false', 'off', 'no'].includes(DEMO_RAW.toLowerCase());
+const DEMO_SLX = DEMO && DEMO_RAW.toLowerCase() === 'slx';
 if (!DEMO) $('#demoLink').href = '?demo=1';
 else $('#demoLink').classList.add('hidden');
+if (DEMO_SLX) document.title = 'OpenATK for Finalmouse (Starlight X demo)';
 
 const VID = 0x361D;
 const PAGE = 0xFF00;
@@ -507,7 +517,7 @@ const isOurs = d => d.vendorId === VID && (d.productId === 0x100
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
 
 const CMD = { GET_DPI_ULX: 3, GET_RATE_ULX: 4, VBAT: 5, RSSI: 13, SERIAL: 14, MFG: 15, DPI: 16, RATE: 17, MOTION: 18,
-  INDICATOR: 20, LOD: 21, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, ALL: 96 };
+  INDICATOR: 20, LOD: 21, PAW_LOD: 25, CLICK: 31, ACT: 53, MSP: 55, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, ALL: 96 };
 const DPI_PRESETS = [400, 800, 1600, 3200, 6400];
 const RATES = [500, 1000, 2000, 4000, 8000];
 const LODS = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0];
@@ -593,6 +603,10 @@ class Finalmouse {
       case CMD.INDICATOR: if (p.length >= 1) s.indicator = p[0]; break;
       case CMD.COLOR: if (p.length >= 3) s.color = [p[0], p[1], p[2]]; break;
       case CMD.LOD: if (p.length >= 1){ s.lodRaw = p[0]; s.lod = LOD_LEGACY[p[0]] ?? p[0] / 10; this.legacyLod = p[0] in LOD_LEGACY; } break;
+      case CMD.PAW_LOD: if (p.length >= 1) s.pawLod = p[0] / 100; break;
+      case CMD.CLICK: if (p.length >= 2){ s.modeR = p[0]; s.modeL = p[1]; if (p.length >= 4){ s.relR = p[2]; s.relL = p[3]; } } break;
+      case CMD.ACT: if (p.length >= 8){ s.thrR = u16(p, 0); s.thrL = u16(p, 2); s.hystR = u16(p, 4); s.hystL = u16(p, 6); } break;
+      case CMD.MSP: if (p.length >= 4){ s.mspR = u16(p, 0); s.mspL = u16(p, 2); } break;
       case CMD.JS_MODE: if (p.length >= 1) s.jsMode = p[0]; break;
       case CMD.JS_TIMEOUT: if (p.length >= 1) s.jsTimeout = p[0] * 100; break;
       case CMD.BATTERY: if (p.length >= 3){ s.soc = p[0] > 100 ? null : p[0]; s.mv = u16(p, 1); } break;
@@ -617,7 +631,7 @@ class Finalmouse {
     });
   }
   async readAll(){
-    const wanted = [CMD.DPI, CMD.RATE, CMD.MOTION, ...(this.fam === 'ulx' ? [CMD.LOD] : []), CMD.INDICATOR, CMD.COLOR, CMD.JS_MODE, CMD.JS_TIMEOUT,
+    const wanted = [CMD.DPI, CMD.RATE, CMD.MOTION, ...(this.fam === 'ulx' ? [CMD.LOD] : [CMD.PAW_LOD, CMD.MSP, CMD.CLICK, CMD.ACT]), CMD.INDICATOR, CMD.COLOR, CMD.JS_MODE, CMD.JS_TIMEOUT,
       CMD.BATTERY, CMD.CHARGING, CMD.LINK, CMD.FW, CMD.SERIAL, CMD.MFG, CMD.RSSI];
     let got = 0;
     for (const c of wanted){ if (await this.request(c)) got++; }
@@ -627,7 +641,14 @@ class Finalmouse {
   setDpi(v){ return this.send(CMD.DPI, [v & 255, v >> 8]); }
   setRate(v){ return this.send(CMD.RATE, [v & 255, v >> 8]); }
   setMotion(on){ return this.send(CMD.MOTION, [on ? 1 : 0]); }
-  setLod(mm){ if (this.fam !== 'ulx') return Promise.reject(new Error('lift-off is not supported on this model yet')); return this.send(CMD.LOD, [this.legacyLod ? ({ 0.7: 1, 1.0: 2, 2.0: 3 }[mm] ?? 2) : Math.round(mm * 10)]); }
+  setPawLod(mm){ return this.send(CMD.PAW_LOD, [clampInt(mm * 100, 1, 40, 1)]); }
+  setClick(modeL, modeR, relL, relR){ const a = [modeR & 1, modeL & 1]; if (relL != null && relR != null) a.push(relR & 255, relL & 255); return this.send(CMD.CLICK, a); }
+  setAct(stepL, stepR, hystL, hystR){
+    const a = [stepR & 255, stepR >> 8, stepL & 255, stepL >> 8];
+    if (hystL != null && hystR != null) a.push(hystR & 255, hystR >> 8, hystL & 255, hystL >> 8);
+    return this.send(CMD.ACT, a);
+  }
+  setLod(mm){ if (this.fam !== 'ulx') return this.setPawLod(mm); return this.send(CMD.LOD, [this.legacyLod ? ({ 0.7: 1, 1.0: 2, 2.0: 3 }[mm] ?? 2) : Math.round(mm * 10)]); }
   setIndicator(m){ return this.send(CMD.INDICATOR, [m]); }
   setColor(c){ return this.send(CMD.COLOR, c); }
   setJsMode(m){ return this.send(CMD.JS_MODE, [m]); }
@@ -718,6 +739,117 @@ $('#indColor').onchange = async e => {
   catch { toast('Could not save, try again', 1); }
 };
 
+const REL = [[0, 'Normal'], [1, 'Early'], [2, 'Late']];
+const ACT_MIN = 0.01, ACT_MAX = 0.4, ACT_DEFAULT = 0.25, SENS_MIN = 10, SENS_MAX = 220, SENS_DEFAULT = 150;
+const sideKey = k => k === 'l' ? 'L' : 'R';
+const calibrated = k => (fm.state['msp' + sideKey(k)] ?? 0) > 0;
+const tmr = { l: {}, r: {} };
+function buildTmr(){
+  const host = $('#tmrHost');
+  host.replaceChildren();
+  for (const k of ['l', 'r']){
+    const S = sideKey(k);
+    const item = document.createElement('div'); item.className = 'item';
+    item.innerHTML = `<div class="t">${k === 'l' ? 'Left click' : 'Right click'}</div>
+      <div class="d" data-note="${k}"></div>
+      <div class="seg" data-mode="${k}"></div>
+      <div class="d" style="margin:14px 0 8px">Actuation depth</div>
+      <div class="slider"><input type="range" data-act="${k}" min="${ACT_MIN}" max="${ACT_MAX}" step="0.01" value="${ACT_DEFAULT}"><output data-actout="${k}">0.25 mm</output></div>
+      <div class="d" style="margin:14px 0 8px">Rapid trigger sensitivity</div>
+      <div class="slider"><input type="range" data-sens="${k}" min="${SENS_MIN}" max="${SENS_MAX}" step="1" value="${SENS_DEFAULT}"><output data-sensout="${k}">150 um</output></div>
+      <div class="d" style="margin:14px 0 8px">Release point</div>
+      <div class="seg" data-rel="${k}"></div>`;
+    host.appendChild(item);
+    const segs = (attr, opts, on) => {
+      const el = item.querySelector(`[${attr}]`);
+      for (const [v, l] of opts){
+        const b = document.createElement('button'); b.textContent = l; b.dataset.value = String(v); b.setAttribute('aria-pressed', 'false');
+        b.onclick = async () => { if (!fm || el.classList.contains('off')) return; try { await on(v); } catch { toast('Could not save, try again', 1); } };
+        el.appendChild(b);
+      }
+      return el;
+    };
+    tmr[k].mode = segs(`data-mode`, [[0, 'Mechanical'], [1, 'Analog']], v => setMode(k, v));
+    tmr[k].rel = segs(`data-rel`, REL, v => setRel(k, v));
+    tmr[k].act = item.querySelector('[data-act]'); tmr[k].actOut = item.querySelector('[data-actout]');
+    tmr[k].sens = item.querySelector('[data-sens]'); tmr[k].sensOut = item.querySelector('[data-sensout]');
+    tmr[k].note = item.querySelector('[data-note]'); tmr[k].item = item;
+    let ta, ts;
+    tmr[k].act.oninput = e => { const mm = +e.target.value; tmr[k].actOut.textContent = mm.toFixed(2) + ' mm'; clearTimeout(ta); ta = setTimeout(() => commitAct(k, mm), 250); };
+    tmr[k].sens.oninput = e => { const u = +e.target.value; tmr[k].sensOut.textContent = u + ' um'; clearTimeout(ts); ts = setTimeout(() => commitSens(k, u), 250); };
+  }
+}
+function curSteps(){ const s = fm.state; return { l: s.thrL ?? 0, r: s.thrR ?? 0 }; }
+function curHyst(){ const s = fm.state; return { l: s.hystL ?? SENS_DEFAULT, r: s.hystR ?? SENS_DEFAULT }; }
+function curRel(){ const s = fm.state; return { l: s.relL ?? 0, r: s.relR ?? 0 }; }
+async function after(cmd){ await sleep(150); await fm.request(cmd); show(); }
+async function setMode(k, v){
+  if (!calibrated(k)){ toast('Calibrate this side in Finalmouse Xpanel first', 1); show(); return; }
+  const s = fm.state;
+  const m = { l: s.modeL ?? 0, r: s.modeR ?? 0 }; m[k] = v;
+  const rel = curRel();
+  await fm.setClick(m.l, m.r, s.relL != null ? rel.l : null, s.relR != null ? rel.r : null);
+  await after(CMD.CLICK);
+  if (fm.state['mode' + sideKey(k)] !== v) toast('The mouse kept its click mode. Calibrate that side in Xpanel.', 1); else toast(`${k === 'l' ? 'Left' : 'Right'} click: ${v ? 'analog' : 'mechanical'}`);
+}
+async function setRel(k, v){
+  const s = fm.state;
+  const rel = curRel(); rel[k] = v;
+  await fm.setClick(s.modeL ?? 0, s.modeR ?? 0, rel.l, rel.r);
+  await after(CMD.CLICK);
+  toast(`${k === 'l' ? 'Left' : 'Right'} release: ${REL[v][1]}`);
+}
+async function commitAct(k, mm){
+  if (!fm || !calibrated(k)) return;
+  if (mm < 0.1 && !confirm('Below 0.10 mm even tiny movements can register a click. That range is meant for latency benchmarking. Use it anyway?')){ show(); return; }
+  const st = curSteps(); st[k] = Math.round(mm * 100);
+  if (!calibrated(k === 'l' ? 'r' : 'l')) st[k === 'l' ? 'r' : 'l'] = 0;
+  const h = curHyst();
+  try {
+    await fm.setAct(st.l, st.r, fm.state.hystL != null ? h.l : null, fm.state.hystR != null ? h.r : null);
+    await after(CMD.ACT);
+    toast(`${k === 'l' ? 'Left' : 'Right'} actuation ${mm.toFixed(2)} mm`);
+  } catch { toast('Could not save, try again', 1); }
+}
+async function commitSens(k, u){
+  if (!fm || !calibrated(k)) return;
+  const st = curSteps(); const h = curHyst(); h[k] = u;
+  try { await fm.setAct(st.l, st.r, h.l, h.r); await after(CMD.ACT); toast(`${k === 'l' ? 'Left' : 'Right'} rapid trigger sensitivity ${u} um`); }
+  catch { toast('Could not save, try again', 1); }
+}
+function showTmr(){
+  const s = fm.state;
+  for (const k of ['l', 'r']){
+    const S = sideKey(k), t = tmr[k];
+    const cal = (s['msp' + S] ?? 0) > 0, analog = s['mode' + S] === 1;
+    mark2(t.mode, s['mode' + S]);
+    mark2(t.rel, s['rel' + S]);
+    const thr = s['thr' + S];
+    if (thr != null && thr > 0){ const mm = clamp(thr / 100, ACT_MIN, ACT_MAX); t.act.value = mm; t.actOut.textContent = mm.toFixed(2) + ' mm'; }
+    const hy = s['hyst' + S];
+    if (hy != null && hy >= SENS_MIN && hy <= SENS_MAX){ t.sens.value = hy; t.sensOut.textContent = hy + ' um'; }
+    t.mode.classList.toggle('off', !cal);
+    for (const el of [t.act, t.sens]) el.disabled = !cal || !analog;
+    t.rel.classList.toggle('off', !cal || !analog);
+    t.rel.style.opacity = t.mode.style.opacity = !cal ? '.45' : '';
+    t.note.textContent = s['msp' + S] == null ? 'Reading the button sensor...' : cal ? (analog ? 'Analog is on for this button.' : 'Mechanical is on. Switch to analog to set depth and sensitivity.') : 'This button is not calibrated. Calibrate it in Finalmouse Xpanel to use analog.';
+  }
+}
+function mark2(host, value){ for (const b of host.children) b.setAttribute('aria-pressed', String(value != null && +b.dataset.value === +value)); }
+buildTmr();
+let pawTimer;
+$('#pawLod').oninput = e => {
+  const mm = +e.target.value;
+  $('#pawOut').textContent = mm.toFixed(2) + ' mm';
+  clearTimeout(pawTimer);
+  pawTimer = setTimeout(async () => {
+    if (!fm) return;
+    try { if (await confirmWrite(() => fm.setPawLod(mm), CMD.PAW_LOD, 'pawLod', mm, 'Lift-off')) toast(`Lift-off ${mm.toFixed(2)} mm`); }
+    catch { toast('Could not save, try again', 1); }
+    show();
+  }, 250);
+};
+
 function show(){
   const s = fm.state;
   if (s.dpi != null){
@@ -728,6 +860,7 @@ function show(){
   }
   if (s.rate != null){ $('#sRate').textContent = s.rate >= 1000 ? `${s.rate / 1000}K` : s.rate; mark('#segRate', s.rate); }
   if (s.lod != null) mark('#segLod', s.lod);
+  if (s.pawLod != null){ $('#pawLod').value = clamp(s.pawLod, 0.01, 0.4); $('#pawOut').textContent = s.pawLod.toFixed(2) + ' mm'; }
   if (s.motion != null) $('#motionSync').checked = s.motion;
   if (s.jsMode != null) mark('#segJs', s.jsMode);
   if (s.jsTimeout != null) mark('#segJsT', s.jsTimeout);
@@ -745,6 +878,7 @@ function show(){
   if (s.rfFw) rows.push(['Receiver firmware', s.rfFw]);
   if (s.serial) rows.push(['Serial', s.serial]);
   if (s.mfg) rows.push(['Made', s.mfg]);
+  if (fm.fam === 'slx' && s.mspL != null) rows.push(['Click calibration', `left ${s.mspL > 0 ? 'yes' : 'no'}, right ${s.mspR > 0 ? 'yes' : 'no'}`]);
   if (s.link != null) rows.push(['Link', s.link ? 'Connected' : 'Mouse not linked']);
   if (s.rssi != null) rows.push(['Signal', `${s.rssi} dBm`]);
   if (s.mv) rows.push(['Battery voltage', `${(s.mv / 1000).toFixed(2)} V${s.charging ? ', charging' : ''}`]);
@@ -752,7 +886,11 @@ function show(){
   if (DEMO) rows.unshift(['Mode', 'Demo: simulated, not a real device']);
   $('#kv').replaceChildren(...rows.map(([k, v]) => { const tr = document.createElement('tr'); for (const x of [k, v]){ const td = document.createElement('td'); td.textContent = String(x); tr.append(td); } return tr; }));
   $('#devName').textContent = `Finalmouse ${fm.info.name}`;
-  $('#segLod').parentElement.classList.toggle('hidden', fm.fam !== 'ulx');
+  const slx = fm.fam === 'slx';
+  $('#segLod').classList.toggle('hidden', slx);
+  $('#pawWrap').classList.toggle('hidden', !slx);
+  $('#clicksTab').classList.toggle('hidden', !slx);
+  if (slx) showTmr();
 }
 
 async function refresh(){
@@ -818,22 +956,39 @@ async function autoConnect(){
   } catch {}
 }
 
-function makeDemoMouse(){
-  const st = { dpi: 1600, rate: 1000, motion: true, lod: 10, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
+function makeDemoMouse(slx){
+  const st = { pawLod: 20, modeL: 1, modeR: 0, relL: 0, relR: 0, thrL: 30, thrR: 40, hystL: 150, hystR: 150, mspL: 120, mspR: 110, dpi: 1600, rate: 1000, motion: true, lod: 10, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
   const ascii = t => [...t].map(c => c.charCodeAt(0));
-  const dev = { vendorId: VID, productId: 0x100, productName: 'Ultralight X dongle', opened: false, collections: [{ usagePage: PAGE, usage: 1 }], _l: [],
+  const dev = { vendorId: VID, productId: slx ? 0x310 : 0x100, productName: slx ? 'Starlight X' : 'Ultralight X dongle', opened: false, collections: [{ usagePage: PAGE, usage: 1 }], _l: [],
     addEventListener(t, f){ if (t === 'inputreport') this._l.push(f); }, removeEventListener(t, f){ this._l = this._l.filter(x => x !== f); },
     async open(){ this.opened = true; }, async close(){ this.opened = false; },
     async sendReport(id, buf){ const b = Array.from(buf); setTimeout(() => reply(b), 3); } };
-  const out = (cmd, p) => { const r = new Uint8Array(63); r[0] = 2 + p.length; r[1] = 0x80 | cmd; r[2] = p.length; r.set(p, 3); const ev = { reportId: 5, data: new DataView(r.buffer) }; dev._l.forEach(f => f(ev)); };
+  const out = (cmd, p) => { const r = new Uint8Array(63); r[0] = 2 + p.length; r[1] = 0x80 | cmd; r[2] = p.length; r.set(p, 3); const ev = { reportId: slx ? 2 : 5, data: new DataView(r.buffer) }; dev._l.forEach(f => f(ev)); };
   function reply(b){
     const cmd = b[1] & 127, n = b[2], p = b.slice(3, 3 + n);
     const get = n === 0;
     switch (cmd){
       case 3: out(3, [st.dpi & 255, st.dpi >> 8]); break;
       case 4: out(4, [st.rate & 255, st.rate >> 8]); break;
-      case 16: st.dpi = p[0] | (p[1] << 8); break;
-      case 17: st.rate = p[0] | (p[1] << 8); break;
+      case 16: if (get) out(16, [st.dpi & 255, st.dpi >> 8]); else st.dpi = p[0] | (p[1] << 8); break;
+      case 17: if (get) out(17, [st.rate & 255, st.rate >> 8]); else st.rate = p[0] | (p[1] << 8); break;
+      case 25: if (get) out(25, [st.pawLod]); else st.pawLod = p[0]; break;
+      case 31:
+        if (get) out(31, [st.modeR, st.modeL, st.relR, st.relL]);
+        else {
+          if (p[1] === 0 || st.mspL > 0) st.modeL = p[1];
+          if (p[0] === 0 || st.mspR > 0) st.modeR = p[0];
+          if (n >= 4){ st.relR = p[2]; st.relL = p[3]; }
+        }
+        break;
+      case 53:
+        if (get) out(53, [st.thrR & 255, st.thrR >> 8, st.thrL & 255, st.thrL >> 8, st.hystR & 255, st.hystR >> 8, st.hystL & 255, st.hystL >> 8]);
+        else {
+          st.thrR = p[0] | (p[1] << 8); st.thrL = p[2] | (p[3] << 8);
+          if (n >= 8){ st.hystR = p[4] | (p[5] << 8); st.hystL = p[6] | (p[7] << 8); }
+        }
+        break;
+      case 55: out(55, [st.mspR & 255, st.mspR >> 8, st.mspL & 255, st.mspL >> 8]); break;
       case 18: if (get) out(18, [st.motion ? 1 : 0]); else st.motion = !!p[0]; break;
       case 21: if (get) out(21, [st.lod]); else st.lod = p[0]; break;
       case 20: if (get) out(20, [st.indicator]); else st.indicator = p[0]; break;
@@ -983,7 +1138,7 @@ async function startDemo(){
   if (IS_MOBILE) return;
   document.title += ' (demo)';
   $('#demoBar').classList.remove('hidden');
-  await attach(makeDemoMouse());
+  await attach(makeDemoMouse(DEMO_SLX));
 }
 if (DEMO) startDemo(); else autoConnect();
 </script>
