@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
+addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==window){e.preventDefault();parent.postMessage({type:'openatk-palette'},location.origin)}});</script>
+
+<title>OpenATK for Finalmouse</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06080b; --card:#10151b; --card2:#161d25; --line:#232c37; --line2:#2f3a47;
+    --ink:#f1f6fb; --dim:#98a6b4; --dimmer:#5f6c79;
+    --acc:#3ddc84; --acc2:#22d3ee; --warn:#f5c451; --bad:#f87171;
+    --glow:rgba(var(--acc-rgb),.38); --stage:var(--acc);
+    --ring:0 0 0 1px oklch(1 0 0 / .08); --ring-hover:0 0 0 1px oklch(1 0 0 / .13);
+    --ease:cubic-bezier(.2,0,0,1);
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --disp:'Space Grotesk',Inter,system-ui,sans-serif;
+  }
+  :root{--acc-hi:#5cf0a2;--acc-lo:#2fc774;--acc-dk:#1f9e59;--acc-rgb:61,220,132;--acc2-rgb:34,211,238}
+  html[data-theme=cyan]{--acc:#22d3ee;--acc-hi:#67e8f9;--acc-lo:#0fb5d1;--acc-dk:#0b8ea6;--acc-rgb:34,211,238;--acc2:#a78bfa;--acc2-rgb:167,139,250}
+  html[data-theme=violet]{--acc:#a78bfa;--acc-hi:#c4b5fd;--acc-lo:#8b5cf6;--acc-dk:#6d3fd6;--acc-rgb:167,139,250;--acc2:#22d3ee;--acc2-rgb:34,211,238}
+  html[data-theme=orange]{--acc:#fb923c;--acc-hi:#fdba74;--acc-lo:#f97316;--acc-dk:#c2570c;--acc-rgb:251,146,60;--acc2:#facc15;--acc2-rgb:250,204,21}
+  html[data-theme=pink]{--acc:#f472b6;--acc-hi:#f9a8d4;--acc-lo:#ec4899;--acc-dk:#be2f7a;--acc-rgb:244,114,182;--acc2:#a78bfa;--acc2-rgb:167,139,250}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased}
+  body{background:
+      radial-gradient(900px 520px at 8% -8%, rgba(var(--acc-rgb),.13), transparent 60%),
+      radial-gradient(800px 600px at 105% 105%, rgba(var(--acc2-rgb),.10), transparent 60%),
+      var(--bg);background-attachment:fixed}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%);
+    mask-image:radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%)}
+  .wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:26px 32px 80px}
+  a{color:inherit}
+
+  header{display:flex;align-items:center;gap:16px;padding:10px;
+    box-shadow:var(--ring);border-radius:20px;background:rgba(14,19,25,.72);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .brand{display:flex;align-items:center;gap:11px;padding-right:18px;margin-right:4px;
+    border-right:1px solid var(--line);text-decoration:none}
+  .brand .mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(145deg,#1b2a22,#0c1310);border:1px solid rgba(var(--acc-rgb),.35);
+    box-shadow:0 0 22px rgba(var(--acc-rgb),.18), inset 0 1px 0 rgba(255,255,255,.06)}
+  .brand b{font:700 17px/1 var(--disp);letter-spacing:-.01em}
+  .brand b span{color:var(--acc)}
+  h1{margin:0;font:600 18px/1.2 var(--disp);letter-spacing:-.01em;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis}
+  h1 .brandtag{color:var(--dim);font-weight:500}
+  .status{display:inline-flex;align-items:center;gap:7px;margin-top:3px;font-size:12.5px;color:var(--dim)}
+  .status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--acc);
+    box-shadow:0 0 0 3px rgba(var(--acc-rgb),.16),0 0 12px var(--acc);animation:live 2.2s ease-in-out infinite}
+  .status b{color:var(--acc);font-weight:600}
+  .status.off::before{background:var(--dimmer);box-shadow:none;animation:none}
+  @keyframes live{50%{box-shadow:0 0 0 6px rgba(var(--acc-rgb),0),0 0 16px var(--acc)}}
+
+  .btn{font:600 14px/1 Inter,sans-serif;padding:13px 21px;border-radius:10px;
+    border:0;color:#03170b;cursor:pointer;text-decoration:none;
+    background:linear-gradient(180deg,var(--acc-hi),var(--acc-lo));
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.25),0 8px 26px -8px rgba(var(--acc-rgb),.65),
+      inset 0 1px 0 rgba(255,255,255,.45);
+    transition-property:scale,box-shadow,filter,background-color;transition-duration:.15s;transition-timing-function:ease-out}
+  .btn:hover{filter:brightness(1.06);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.4),
+    0 10px 32px -8px rgba(var(--acc-rgb),.85),inset 0 1px 0 rgba(255,255,255,.45)}
+  .btn:active:not(:disabled){scale:.96}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn.icon{padding:10px 12px;display:inline-grid;place-items:center}
+  .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);
+    font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
+  .btn.ghost:hover{background:rgba(var(--acc-rgb),.08);
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.45),0 0 18px -6px var(--glow);filter:none}
+  .btn.ghost.lead{padding-left:14px}
+  .btn.quiet{background:rgba(248,113,113,.04);color:#ffbdbd;
+    font-weight:500;padding:10px 16px;font-size:13px;box-shadow:0 0 0 1px #4f2a2a}
+  .btn.quiet:hover{background:#2a1717;box-shadow:0 0 0 1px #6a3434,0 0 18px -6px rgba(248,113,113,.6);filter:none}
+
+  .hero{margin:56px auto 0;max-width:760px;padding:52px 48px 46px;text-align:center;
+    position:relative;overflow:hidden;border-radius:24px;border:1px solid transparent;
+    background:linear-gradient(var(--card),var(--card)) padding-box,
+      linear-gradient(150deg,rgba(var(--acc-rgb),.5),rgba(255,255,255,.05) 40%,rgba(var(--acc2-rgb),.35)) border-box;
+    box-shadow:0 40px 120px -40px rgba(var(--acc-rgb),.35)}
+  .hero .art img{display:block;width:100%}
+  .reel{height:240px}
+  .reel img{width:100%;height:100%;object-fit:contain;animation:reelIn .45s ease-out}
+  @keyframes reelIn{from{opacity:0;transform:scale(.96)}}
+  .reelcap{font:500 11.5px var(--mono);color:var(--dim);margin:-4px 0 18px;min-height:17px;overflow-wrap:anywhere}
+  .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(var(--acc-rgb),.28));
+    animation:float 5s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-8px)}}
+  .hero .kicker{font:600 11.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--acc)}
+  .hero h2{margin:12px 0 10px;font:700 34px/1.1 var(--disp);letter-spacing:-.02em}
+  .hero p{margin:0 auto 26px;max-width:470px;color:var(--dim);font-size:15px}
+  .hero .btn{padding:16px 29px;font-size:15px}
+
+  #app{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;margin-top:22px;align-items:start}
+  aside{position:sticky;top:20px;display:flex;flex-direction:column;gap:14px}
+  .devcard{border-radius:20px;padding:20px 18px 18px;position:relative;overflow:hidden;
+    border:1px solid transparent;
+    background:radial-gradient(260px 200px at 50% 20%, color-mix(in srgb,var(--stage) 22%,transparent), transparent 70%) padding-box,
+      linear-gradient(var(--card),var(--card)) padding-box,
+      linear-gradient(160deg,color-mix(in srgb,var(--stage) 60%,transparent),rgba(255,255,255,.05) 45%,rgba(255,255,255,.03)) border-box;
+    transition:background .5s}
+  .devcard .art{width:112px;margin:2px auto 10px;
+    filter:drop-shadow(0 16px 30px color-mix(in srgb,var(--stage) 45%,transparent))}
+  .devcard .art.photo{width:auto;max-width:220px;filter:drop-shadow(0 18px 30px color-mix(in srgb,var(--stage) 40%,transparent))}
+  .devcard .art.photo img{display:block;max-width:100%;max-height:200px;margin:0 auto;object-fit:contain;animation:fade .25s ease-out}
+  .devcard .art.wait{height:200px}
+  .skins{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+  .skin{width:16px;height:16px;padding:0;border-radius:50%;border:2px solid #0b1015;cursor:pointer;
+    box-shadow:0 0 0 1px var(--line2);transition:box-shadow .15s ease-out,scale .15s ease-out}
+  .skin:hover{scale:1.15}
+  .skin:active{scale:.96}
+  .skin[aria-pressed=true]{box-shadow:0 0 0 2px var(--acc),0 0 10px var(--glow)}
+  .gauges{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;margin-top:6px}
+  .ring{position:relative;width:96px;height:96px}
+  .ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+  .ring .trk{fill:none;stroke:#1f2832;stroke-width:8}
+  #sBattBar{fill:none;stroke:var(--acc);stroke-width:8;stroke-linecap:round;
+    stroke-dasharray:238.76;stroke-dashoffset:238.76;
+    transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1),stroke .3s;
+    filter:drop-shadow(0 0 5px currentColor)}
+  .ring .mid{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+  .ring .mid .v{font:700 20px/1 var(--disp)}
+  .ring .mid .k{font:500 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--dimmer);margin-top:4px}
+  .batt-row{display:flex;align-items:center;gap:4px;justify-content:center}
+  .chg-bolt{color:var(--acc);animation:chgPulse 1.6s ease-in-out infinite}
+  @keyframes chgPulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .minis{display:flex;flex-direction:column;gap:8px}
+  .mini{padding:10px 13px;border-radius:12px;background:rgba(255,255,255,.025);box-shadow:var(--ring)}
+  .mini .k{font:500 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
+  .mini .v{font:700 17px/1.25 var(--disp);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #sDpi{color:color-mix(in srgb,var(--stage) 70%,#fff);text-shadow:0 0 18px color-mix(in srgb,var(--stage) 55%,transparent)}
+
+  .tabs{display:flex;flex-direction:column;gap:3px;padding:7px;border-radius:18px;
+    background:rgba(14,19,25,.7);box-shadow:var(--ring)}
+  .tabs button{display:flex;align-items:center;gap:12px;text-align:left;
+    font:600 14px/1 Inter,sans-serif;padding:12px 14px;border:0;border-radius:11px;
+    background:transparent;color:var(--dim);cursor:pointer;position:relative;
+    transition-property:background-color,color,scale;transition-duration:.15s;transition-timing-function:ease-out}
+  .tabs button:active{scale:.96}
+  .tabs button svg{flex:0 0 auto;opacity:.75}
+  .tabs button:hover{background:rgba(255,255,255,.035);color:var(--ink)}
+  .tabs button[aria-pressed=true]{color:var(--ink);
+    background:linear-gradient(90deg,rgba(var(--acc-rgb),.16),rgba(var(--acc-rgb),.03))}
+  .tabs button[aria-pressed=true] svg{opacity:1;color:var(--acc)}
+  .tabs button[aria-pressed=true]::before{content:'';position:absolute;left:0;top:9px;bottom:9px;
+    width:3px;border-radius:3px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+
+  main{min-width:0}
+  .panel{animation:fade .12s ease-out}
+  @keyframes fade{from{opacity:0}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
+  .phead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:4px 2px 14px}
+  .phead h2{margin:0;font:700 28px/1.1 var(--disp);letter-spacing:-.02em}
+  .phead p{margin:6px 0 0;color:var(--dim);font-size:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid2 .item{margin-bottom:0}
+  .grid2 + .item, .grid2 + .grid2{margin-top:12px}
+
+  .item{position:relative;border-radius:16px;padding:19px 21px;margin-bottom:12px;
+    box-shadow:var(--ring);
+    background:linear-gradient(180deg,rgba(255,255,255,.022),rgba(255,255,255,0)) ,var(--card);
+    transition:box-shadow .15s ease-out}
+  .item:hover{box-shadow:var(--ring-hover),0 18px 40px -26px rgba(0,0,0,.9)}
+  .item .t{font:600 16px/1.3 var(--disp);letter-spacing:-.005em}
+  .item .d{font-size:13px;color:var(--dim);margin-top:4px}
+  .item.row{display:flex;align-items:center;gap:18px}
+  .item.row>div{flex:1;min-width:0}
+  .item .head{display:flex;align-items:center;gap:18px}
+  .item .head>div{flex:1;min-width:0}
+
+  .seg{display:flex;flex-wrap:wrap;gap:4px;margin-top:14px;padding:4px;
+    background:#0a0e12;box-shadow:inset var(--ring);border-radius:12px}
+  .seg button{flex:1 1 auto;min-width:62px;font:600 13.5px/1 Inter,sans-serif;
+    padding:11px 8px;border:0;border-radius:8px;background:transparent;
+    color:var(--dim);cursor:pointer;transition-property:background-color,color,box-shadow,scale;
+    transition-duration:.15s;transition-timing-function:ease-out}
+  .seg button:active{scale:.96}
+  .seg button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+  .seg button[aria-pressed=true]{color:#03170b;background:linear-gradient(180deg,var(--acc-hi),var(--acc-lo));
+    box-shadow:0 0 0 1px rgba(var(--acc-rgb),.35),0 4px 18px -4px rgba(var(--acc-rgb),.7),
+      inset 0 1px 0 rgba(255,255,255,.4)}
+  .seg.busy{opacity:.55;pointer-events:none}
+
+  .slider{display:flex;align-items:center;gap:18px;margin-top:16px}
+  .slider input[type=range]{appearance:none;flex:1;height:6px;border-radius:4px;outline:none;cursor:pointer;
+    background:linear-gradient(90deg,rgba(var(--acc-rgb),.6),rgba(var(--acc2-rgb),.45))}
+  .slider input[type=range]::-webkit-slider-thumb{appearance:none;width:22px;height:22px;border-radius:50%;
+    background:#eafff3;border:4px solid #0b1410;box-shadow:0 0 0 2px var(--acc),0 0 18px var(--acc);cursor:grab}
+  .slider input[type=range]::-webkit-slider-thumb:active{cursor:grabbing}
+  .slider input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+    background:#eafff3;border:4px solid #0b1410;box-shadow:0 0 0 2px var(--acc);cursor:grab}
+  .slider output{flex:0 0 auto;min-width:96px;text-align:center;font:700 18px var(--disp);
+    padding:8px 12px;border-radius:10px;background:#0a0e12;border:1px solid var(--line);
+    color:#c9ffe0;text-shadow:0 0 14px rgba(var(--acc-rgb),.45)}
+
+  .sw{appearance:none;flex:0 0 auto;width:52px;height:29px;border-radius:20px;
+    background:#1c242d;border:1px solid var(--line2);position:relative;cursor:pointer;
+    transition:background-color .15s ease-out,border-color .15s ease-out,box-shadow .15s ease-out}
+  .sw::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;
+    border-radius:50%;background:#8795a3;transition:transform .2s var(--ease),background-color .15s ease-out}
+  .sw:checked{background:linear-gradient(180deg,var(--acc-lo),var(--acc-dk));border-color:var(--acc-hi);
+    box-shadow:0 0 18px -2px var(--glow)}
+  .sw:checked::after{transform:translateX(23px);background:#f3fff8}
+
+  .kv{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+  .kv td{padding:7px 0;border-bottom:1px dashed #1e2731}
+  .kv tr:last-child td{border-bottom:0}
+  .kv td:first-child{color:var(--dim)}
+  .kv td:last-child{text-align:right;color:#dff7ea}
+  #log{font-family:var(--mono);font-size:11px;line-height:1.6;background:#04070a;
+    border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-top:14px;
+    height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--dimmer)}
+  #log .tx{color:#7dabdd} #log .rx{color:#5fbe88} #log .er{color:var(--bad)}
+
+  #toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,18px) scale(.97);
+    background:rgba(18,26,22,.9);color:#e9fff2;font-size:13.5px;font-weight:600;
+    padding:12px 20px 12px 18px;border-radius:14px;opacity:0;pointer-events:none;
+    border:1px solid rgba(var(--acc-rgb),.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 0 30px -6px rgba(var(--acc-rgb),.5),0 14px 40px rgba(0,0,0,.55);
+    transition:opacity .2s ease-out,transform .2s ease-out;z-index:9}
+  #toast.show{opacity:1;transform:translate(-50%,0) scale(1)}
+  #toast.bad{background:rgba(40,14,14,.92);color:#ffe1e1;border-color:rgba(248,113,113,.6);
+    box-shadow:0 0 30px -6px rgba(248,113,113,.55),0 14px 40px rgba(0,0,0,.55)}
+
+  .heads{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;
+    padding:13px 16px;border-radius:14px;font-size:13px;color:var(--dim);
+    background:linear-gradient(90deg,rgba(245,196,81,.08),rgba(245,196,81,.02));border:1px solid #3d3722}
+  .heads span{flex:0 0 auto;color:var(--warn)}
+  .heads b{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+
+  .swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .swatch{display:flex;align-items:center;gap:8px;font:500 12.5px var(--mono);color:var(--dim);
+    background:#0a0e12;border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;
+    transition:border-color .15s ease-out,box-shadow .15s ease-out}
+  .swatch:hover{border-color:var(--line2)}
+  .swatch input{width:28px;height:22px;padding:0;border:0;background:none;cursor:pointer}
+  .swatch.on{border-color:var(--acc);color:var(--ink);box-shadow:0 0 16px -4px var(--glow)}
+  .swatchlbl{margin-top:16px;font:600 10.5px/1 var(--mono);letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dimmer)}
+
+  .sel{font:500 13.5px/1.2 Inter,sans-serif;color:var(--ink);background:#0a0e12;
+    border:1px solid var(--line2);border-radius:10px;padding:10px 12px;max-width:100%;min-width:0;
+    transition:border-color .15s ease-out,box-shadow .15s ease-out}
+  .sel:hover,.sel:focus{outline:none;border-color:rgba(var(--acc-rgb),.55);box-shadow:0 0 16px -6px var(--glow)}
+  .btnwrap{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;margin-top:10px;align-items:start}
+  .btnart{position:sticky;top:20px;padding:16px 10px;border-radius:14px;background:
+    radial-gradient(180px 160px at 50% 45%,rgba(var(--acc-rgb),.10),transparent 70%),#0a0e12;
+    box-shadow:var(--ring)}
+  .btnart svg{display:block;width:170px;margin:0 auto}
+  .btnart .cap{margin-top:10px;text-align:center;font:500 12px var(--mono);color:var(--dimmer);min-height:18px}
+  .btnrow{display:flex;align-items:center;gap:10px 14px;padding:10px 12px;margin:0 -12px;
+    border-radius:12px;transition:background .15s}
+  .btnrow:hover,.btnrow.hl{background:rgba(var(--acc-rgb),.06)}
+  .btnrow .nm{flex:1 1 150px;min-width:0;font-size:14px;font-weight:600;display:flex;
+    align-items:center;gap:10px;flex-wrap:wrap}
+  .btnrow .nm .no{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;flex:0 0 auto;
+    font:700 11px var(--mono);color:var(--acc);background:rgba(var(--acc-rgb),.1);border:1px solid rgba(var(--acc-rgb),.3)}
+  .btnrow .nm small{flex-basis:100%;padding-left:32px;color:var(--dim);font-weight:400;font-size:12.5px;
+    overflow-wrap:anywhere;margin-top:-4px}
+  .btnrow .sel{flex:0 1 250px}
+  .mp{stroke:transparent;stroke-width:4;cursor:pointer;transition:fill .15s ease-out,stroke .15s ease-out,filter .15s ease-out}
+  .mp:hover{fill:rgba(var(--acc-rgb),.2);stroke:rgba(var(--acc-rgb),.6)}
+  .mp.hl{fill:rgba(var(--acc-rgb),.38);stroke:var(--acc);stroke-width:5;filter:drop-shadow(0 0 6px var(--acc))}
+  .editor{margin-top:14px;padding:18px;border-radius:14px;border:1px solid rgba(var(--acc-rgb),.35);
+    background:linear-gradient(180deg,rgba(var(--acc-rgb),.06),rgba(var(--acc-rgb),0)),#0c1116;
+    box-shadow:0 0 40px -18px var(--glow);animation:rise .25s ease-out}
+  .editor .et{font:600 16px/1.3 var(--disp)}
+  .erow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px}
+  .erow label{font-size:13px;color:var(--dim);display:inline-flex;align-items:center;gap:7px}
+  .erow input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
+  .num{width:88px;font:500 13.5px var(--mono);color:var(--ink);background:#0a0e12;
+    border:1px solid var(--line2);border-radius:9px;padding:8px}
+  .num:focus{outline:none;border-color:var(--acc)}
+  .capture{min-width:200px;padding:12px 14px;border:1px dashed var(--line2);border-radius:10px;
+    font:600 14px var(--mono);color:var(--ink);background:#0a0e12;cursor:pointer;text-align:left}
+  .capture:focus{outline:none;border-color:var(--acc);border-style:solid;box-shadow:0 0 20px -6px var(--glow)}
+  .steps{margin-top:12px;max-height:280px;overflow:auto;border:1px solid var(--line);
+    border-radius:10px;background:#0a0e12;counter-reset:step}
+  .steps:empty{display:none}
+  .step{display:flex;align-items:center;gap:10px;padding:7px 12px;font:12.5px var(--mono);
+    border-top:1px solid #19212a;counter-increment:step}
+  .step::before{content:counter(step);min-width:22px;color:var(--dimmer);font-size:11px}
+  .step:first-child{border-top:0}
+  .step span{flex:1;min-width:0}
+  .step .num{width:80px;padding:5px 6px}
+  .pad{margin-top:12px;padding:26px;text-align:center;border:1px dashed var(--line2);
+    border-radius:12px;color:var(--dim);font-size:13px;user-select:none;
+    transition:border-color .15s ease-out,color .15s ease-out,background-color .15s ease-out}
+  .pad.rec{border-color:var(--bad);border-style:solid;color:#ffdada;
+    background:rgba(248,113,113,.06);box-shadow:0 0 30px -10px rgba(248,113,113,.6);
+    animation:recp 1.4s ease-in-out infinite}
+  @keyframes recp{50%{box-shadow:0 0 40px -6px rgba(248,113,113,.55)}}
+  .xbtn{background:none;border:0;color:var(--dim);cursor:pointer;font-size:16px;padding:0 4px}
+  .xbtn:hover{color:var(--bad)}
+  .demobar{display:flex;align-items:center;gap:14px;margin:14px 0 0;padding:12px 16px;border-radius:14px;
+    font-size:13.5px;color:#ffe9b3;background:linear-gradient(90deg,rgba(245,196,81,.16),rgba(245,196,81,.05));
+    box-shadow:0 0 0 1px rgba(245,196,81,.45)}
+  .demobar b{color:#ffd66b;font-weight:700}
+  .demobar span{flex:1;min-width:0}
+  .demobar a{flex:0 0 auto;color:#1a1200;background:#f5c451;font:600 12.5px/1 Inter,sans-serif;padding:9px 13px;border-radius:9px;text-decoration:none}
+  .demobar a:hover{filter:brightness(1.08)}
+  .hidden{display:none !important}
+  .foot{margin-top:22px;color:var(--dimmer);font-size:12.5px}
+  .foot a{color:var(--dim)}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important}
+  }
+  @media (max-width: 760px){
+    .wrap{padding:14px 14px 40px}
+    header{gap:10px;padding:10px 12px}
+    header .devhead{display:none}
+    header .lbl{display:none}
+    header .btn.ghost{padding:9px 11px}
+    .brand{border-right:0;padding-right:0;margin-right:auto}
+    header{border-radius:18px;padding:8px}
+    .hero{margin-top:18px;padding:30px 20px 28px;border-radius:20px}
+    .hero h2{font-size:25px}
+    .hero p{font-size:14px;margin-bottom:18px}
+    .reel{height:210px}
+  }
+
+  body.embed header .brand, body.embed header .lead, body.embed header .icon, body.embed header #connect,
+  body.embed .demobar a, body.embed a[href^="../keyboard/"], body.embed a[href^="../mouse/"]{display:none !important}
+  body.embed .wrap{padding-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <a class="brand" href="../index.html" aria-label="OpenATK">
+    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" style="color:var(--acc)" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
+    <b>Open<span>ATK</span></b>
+  </a>
+  <div class="devhead" style="flex:1;min-width:0">
+    <h1 id="devName">Finalmouse</h1>
+    <div class="status off" id="status">Not connected</div>
+  </div>
+  <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK" target="_blank" rel="noopener noreferrer" aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
+  <button class="btn" id="connect">Connect</button>
+</header>
+
+<div class="demobar hidden" id="demoBar" role="status">
+  <span><b>Demo mode.</b> This is a simulated Finalmouse Ultralight X, not a real device. Nothing here is sent to any hardware.</span>
+  <a href="../index.html">Exit demo</a>
+</div>
+
+<div class="hero" id="hero">
+  <div class="art" id="heroArt"></div>
+  <div class="kicker">WebHID configurator</div>
+  <h2>Tune your Finalmouse, right in the browser</h2>
+  <p>Plug in the Ultralight X or Starlight X receiver (or a wired Starlight X), then connect.
+     Close Finalmouse Xpanel first if it is open, since only one program can talk to the
+     device at a time. Works in Chrome, Edge and Opera.</p>
+  <button class="btn" id="connect2">Connect Finalmouse</button>
+  <p style="margin:20px auto 0"><a href="../index.html?demo-fm" id="demoLink" style="color:var(--dim);font-size:13px">Try a simulated mouse</a></p>
+</div>
+
+<div class="hero hidden" id="blocked">
+  <h2 id="blockedTitle">This needs a desktop</h2>
+  <p id="blockedText"></p>
+</div>
+
+<div id="app" class="hidden">
+  <aside>
+    <div class="devcard">
+      <div class="art" id="devArt"></div>
+      <div class="gauges">
+        <div class="ring">
+          <svg viewBox="0 0 96 96" aria-hidden="true"><circle class="trk" cx="48" cy="48" r="38"/><circle id="sBattBar" cx="48" cy="48" r="38"/></svg>
+          <div class="mid"><div>
+            <div class="v batt-row"><span id="sBatt">&mdash;</span></div>
+            <div class="k">BATTERY</div></div></div>
+        </div>
+        <div class="minis">
+          <div class="mini"><div class="k">Sensitivity</div><div class="v" id="sDpi">&mdash;</div></div>
+          <div class="mini"><div class="k">Polling</div><div class="v" id="sRate">&mdash;</div></div>
+        </div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
+      <button data-tab="feel" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>Tracking</button>
+      <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Light</button>
+      <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/></svg>Device</button>
+    </nav>
+    <p class="foot">Changes save to the mouse immediately. Not affiliated with Finalmouse.</p>
+  </aside>
+
+  <main>
+    <section class="panel" data-panel="basics">
+      <div class="phead"><div><h2>Basics</h2><p>Speed and polling.</p></div></div>
+      <div class="item">
+        <div class="t">Sensitivity</div>
+        <div class="d">Pointer speed in DPI. Pick a preset or drag for a custom value.</div>
+        <div class="seg" id="segDpi"></div>
+        <div class="slider" style="margin-top:14px">
+          <input type="range" id="dpi" min="400" max="12800" step="100" value="800">
+          <output id="dpiOut">800</output>
+        </div>
+      </div>
+      <div class="item">
+        <div class="t">Polling rate</div>
+        <div class="d">How often the mouse reports its position. Higher feels smoother and uses more battery. 8,000 Hz needs recent receiver and mouse firmware.</div>
+        <div class="seg" id="segRate"></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="feel">
+      <div class="phead"><div><h2>Tracking</h2><p>Lift-off, smoothing and scroll behaviour.</p></div></div>
+      <div class="item">
+        <div class="t">Lift-off distance</div>
+        <div class="d">How far the mouse can be lifted before it stops tracking.</div>
+        <div class="seg" id="segLod"></div>
+      </div>
+      <div class="item row">
+        <div><div class="t">Motion sync</div><div class="d">Lines mouse reports up with the sensor for steadier tracking, at a tiny cost in latency.</div></div>
+        <input type="checkbox" class="sw" id="motionSync">
+      </div>
+      <div class="item">
+        <div class="t">Bhop scroll</div>
+        <div class="d">Lets the scroll wheel register as a jump input for movement games. Pick which direction counts.</div>
+        <div class="seg" id="segJs"></div>
+        <div class="d" style="margin:14px 0 8px">Repeat window</div>
+        <div class="seg" id="segJsT"></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="light">
+      <div class="phead"><div><h2>Light</h2><p>The status light on the mouse.</p></div></div>
+      <div class="item">
+        <div class="t">Indicator</div>
+        <div class="d">What the light shows.</div>
+        <div class="seg" id="segInd"></div>
+        <div id="indColorWrap" class="hidden" style="margin-top:14px">
+          <div class="swatches"><label class="swatch">Colour<input type="color" id="indColor" value="#ffffff"></label></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel hidden" data-panel="device">
+      <div class="phead"><div><h2>Device</h2><p>Firmware, link, sharing and diagnostics.</p></div></div>
+      <div class="item" id="shareItem">
+        <div class="t">Share settings</div>
+        <div class="d">Save the settings to a file or a short code, or load a set someone sent you. A preview lists what will change first.</div>
+        <div class="erow">
+          <button class="btn ghost" id="shareFile">Save to file</button>
+          <button class="btn ghost" id="shareCopy">Copy share code</button>
+          <label class="btn ghost" style="cursor:pointer">Load file<input type="file" id="shareLoad" accept=".json,application/json" hidden></label>
+        </div>
+        <textarea id="sharePaste" rows="2" spellcheck="false" aria-label="Paste a share code" placeholder="Or paste a share code here"
+          style="width:100%;margin-top:12px;resize:vertical;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)"></textarea>
+        <div id="sharePreview" class="hidden" style="margin-top:12px">
+          <div id="shareFrom" style="font-size:13px;color:var(--dim);margin-bottom:6px"></div>
+          <ul id="shareList" style="margin:0 0 12px;padding-left:20px;font-size:13.5px"></ul>
+          <div class="erow"><button class="btn" id="shareApply">Apply to this mouse</button><button class="btn ghost" id="shareCancel">Cancel</button></div>
+        </div>
+      </div>
+      <div class="item">
+        <table class="kv" id="kv"></table>
+        <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+          <button class="btn ghost" id="refresh">Refresh</button>
+          <button class="btn ghost" id="togglelog">Show activity log</button>
+        </div>
+        <div id="log" class="hidden"></div>
+      </div>
+      <p style="color:var(--dimmer);font-size:13px;margin:6px 4px 0">Not included yet: profiles, button remapping, and the Starlight X analog trigger settings. Firmware updates are deliberately left out.</p>
+    </section>
+  </main>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+if (EMBED) document.body.classList.add('embed');
+const DEMO = (() => { const v = new URLSearchParams(location.search).get('demo'); return v !== null && !['0', 'false', 'off', 'no'].includes(v.toLowerCase()); })();
+if (!DEMO) $('#demoLink').href = '?demo=1';
+else $('#demoLink').classList.add('hidden');
+
+const VID = 0x361D;
+const PAGE = 0xFF00;
+const PIDS = {
+  0x100: { name: 'Ultralight X', fam: 'ulx', recv: true },
+  0x300: { name: 'Starlight X', fam: 'slx', recv: true },
+  0x301: { name: 'Starlight X', fam: 'slx', recv: true },
+  0x310: { name: 'Starlight X', fam: 'slx', recv: false },
+  0x311: { name: 'Starlight X', fam: 'slx', recv: false },
+};
+const FILTERS = [{ vendorId: VID, productId: 0x100 },
+  ...[0x300, 0x301, 0x310, 0x311].map(p => ({ vendorId: VID, productId: p, usagePage: PAGE }))];
+const isOurs = d => d.vendorId === VID && (d.productId === 0x100
+  || (PIDS[d.productId] && d.collections.some(c => c.usagePage === PAGE)));
+const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
+
+const CMD = { GET_DPI_ULX: 3, GET_RATE_ULX: 4, VBAT: 5, RSSI: 13, SERIAL: 14, MFG: 15, DPI: 16, RATE: 17, MOTION: 18,
+  INDICATOR: 20, LOD: 21, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, ALL: 96 };
+const DPI_PRESETS = [400, 800, 1600, 3200, 6400];
+const RATES = [500, 1000, 2000, 4000, 8000];
+const LODS = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0];
+const LOD_LEGACY = { 1: 0.7, 2: 1.0, 3: 2.0 };
+const JS_MODES = [[0, 'Off'], [1, 'Scroll up'], [2, 'Scroll down'], [3, 'Both']];
+const JS_T = [100, 500, 1000, 1500];
+const IND = [[0, 'Off'], [1, 'Battery level'], [2, 'Custom colour']];
+const RING = 238.76;
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const clampInt = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? clamp(n, lo, hi) : d; };
+const hexToRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const rgbToHex = c => '#' + c.map(v => (v & 255).toString(16).padStart(2, '0')).join('');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const hex = a => Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(' ');
+const u16 = (a, o = 0) => a[o] | (a[o + 1] << 8);
+
+function log(cls, label, detail){
+  const el = document.createElement('div');
+  el.className = cls;
+  el.textContent = `${new Date().toISOString().slice(11, 23)}  ${label}  ${detail ?? ''}`;
+  $('#log').appendChild(el);
+  $('#log').scrollTop = $('#log').scrollHeight;
+}
+$('#togglelog').onclick = e => {
+  const hid = $('#log').classList.toggle('hidden');
+  e.target.textContent = hid ? 'Show activity log' : 'Hide activity log';
+};
+let toastTimer;
+function toast(msg, bad){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (bad ? ' bad' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 2200);
+}
+
+class Finalmouse {
+  constructor(device){
+    this.device = device;
+    const info = PIDS[device.productId] ?? PIDS[0x100];
+    this.info = info;
+    this.fam = info.fam;
+    this.outId = info.fam === 'ulx' ? 4 : 1;
+    this.inId = info.fam === 'ulx' ? 5 : 2;
+    this.state = {};
+    this.waiters = [];
+    this.legacyLod = false;
+    this.onChange = () => {};
+    this.listener = e => this.onReport(e);
+    device.addEventListener('inputreport', this.listener);
+  }
+  frame(cmd, args = []){
+    const f = new Uint8Array(63);
+    f[0] = 2 + args.length; f[1] = 0x80 | cmd; f[2] = args.length;
+    f.set(args, 3);
+    return f;
+  }
+  async send(cmd, args = []){
+    const f = this.frame(cmd, args);
+    log('tx', `cmd ${cmd}`, hex(f.subarray(0, 3 + args.length)));
+    await this.device.sendReport(this.outId, f);
+  }
+  onReport(e){
+    if (e.reportId !== this.inId) return;
+    const d = new Uint8Array(e.data.buffer, e.data.byteOffset, e.data.byteLength);
+    if (d.length < 3) return;
+    let cmd = d[1] & 127;
+    if (this.fam === 'ulx'){ if (cmd === CMD.GET_DPI_ULX) cmd = CMD.DPI; else if (cmd === CMD.GET_RATE_ULX) cmd = CMD.RATE; }
+    const len = d[2];
+    if (d.length < 3 + len) return;
+    const p = d.subarray(3, 3 + len);
+    log('rx', `cmd ${cmd}`, hex(p));
+    this.apply(cmd, p);
+    for (const w of [...this.waiters]) if (w.cmd === cmd){ this.waiters.splice(this.waiters.indexOf(w), 1); w.done(p); }
+  }
+  apply(cmd, p){
+    const s = this.state;
+    switch (cmd){
+      case CMD.DPI: if (p.length >= 2) s.dpi = u16(p); break;
+      case CMD.RATE: if (p.length >= 2) s.rate = u16(p); break;
+      case CMD.MOTION: if (p.length >= 1) s.motion = p[0] !== 0; break;
+      case CMD.INDICATOR: if (p.length >= 1) s.indicator = p[0]; break;
+      case CMD.COLOR: if (p.length >= 3) s.color = [p[0], p[1], p[2]]; break;
+      case CMD.LOD: if (p.length >= 1){ s.lodRaw = p[0]; s.lod = LOD_LEGACY[p[0]] ?? p[0] / 10; this.legacyLod = p[0] in LOD_LEGACY; } break;
+      case CMD.JS_MODE: if (p.length >= 1) s.jsMode = p[0]; break;
+      case CMD.JS_TIMEOUT: if (p.length >= 1) s.jsTimeout = p[0] * 100; break;
+      case CMD.BATTERY: if (p.length >= 3){ s.soc = p[0] > 100 ? null : p[0]; s.mv = u16(p, 1); } break;
+      case CMD.CHARGING: if (p.length >= 1) s.charging = p[0] !== 0; break;
+      case CMD.LINK: if (p.length >= 1) s.link = p[0]; break;
+      case CMD.RSSI: if (p.length >= 1) s.rssi = p[0] > 127 ? p[0] - 256 : p[0]; break;
+      case CMD.FW: s.fw = this.text(p); break;
+      case CMD.RF_FW: s.rfFw = this.text(p); break;
+      case CMD.SERIAL: s.serial = this.text(p); break;
+      case CMD.MFG: s.mfg = this.text(p); break;
+    }
+    this.onChange(cmd);
+  }
+  text(p){ const z = p.indexOf(0); return new TextDecoder('ascii').decode(z < 0 ? p : p.subarray(0, z)); }
+  request(cmd, ms = 700){
+    return new Promise(async resolve => {
+      const w = { cmd, done: v => { clearTimeout(t); resolve(v); } };
+      const t = setTimeout(() => { const i = this.waiters.indexOf(w); if (i >= 0) this.waiters.splice(i, 1); resolve(null); }, ms);
+      this.waiters.push(w);
+      try { await this.send(cmd === CMD.DPI && this.fam === 'ulx' ? CMD.GET_DPI_ULX : cmd === CMD.RATE && this.fam === 'ulx' ? CMD.GET_RATE_ULX : cmd); }
+      catch { w.done(null); }
+    });
+  }
+  async readAll(){
+    const wanted = [CMD.DPI, CMD.RATE, CMD.MOTION, ...(this.fam === 'ulx' ? [CMD.LOD] : []), CMD.INDICATOR, CMD.COLOR, CMD.JS_MODE, CMD.JS_TIMEOUT,
+      CMD.BATTERY, CMD.CHARGING, CMD.LINK, CMD.FW, CMD.SERIAL, CMD.MFG, CMD.RSSI];
+    let got = 0;
+    for (const c of wanted){ if (await this.request(c)) got++; }
+    if (this.info.recv) await this.request(CMD.RF_FW);
+    return got;
+  }
+  setDpi(v){ return this.send(CMD.DPI, [v & 255, v >> 8]); }
+  setRate(v){ return this.send(CMD.RATE, [v & 255, v >> 8]); }
+  setMotion(on){ return this.send(CMD.MOTION, [on ? 1 : 0]); }
+  setLod(mm){ if (this.fam !== 'ulx') return Promise.reject(new Error('lift-off is not supported on this model yet')); return this.send(CMD.LOD, [this.legacyLod ? ({ 0.7: 1, 1.0: 2, 2.0: 3 }[mm] ?? 2) : Math.round(mm * 10)]); }
+  setIndicator(m){ return this.send(CMD.INDICATOR, [m]); }
+  setColor(c){ return this.send(CMD.COLOR, c); }
+  setJsMode(m){ return this.send(CMD.JS_MODE, [m]); }
+  setJsTimeout(ms){ return this.send(CMD.JS_TIMEOUT, [Math.round(ms / 100) & 255]); }
+  close(){ this.device.removeEventListener('inputreport', this.listener); }
+}
+
+let fm = null;
+
+function showTab(name){
+  for (const b of document.querySelectorAll('#tabs button')) b.setAttribute('aria-pressed', String(b.dataset.tab === name));
+  for (const p of document.querySelectorAll('.panel')) p.classList.toggle('hidden', p.dataset.panel !== name);
+}
+for (const b of document.querySelectorAll('#tabs button')) b.onclick = () => showTab(b.dataset.tab);
+
+function mark(host, value){
+  for (const b of $(host).children) b.setAttribute('aria-pressed', String(+b.dataset.value === +value));
+}
+function buildSeg(host, opts, onPick){
+  const el = $(host); el.innerHTML = '';
+  for (const [value, label] of opts){
+    const b = document.createElement('button');
+    b.textContent = label; b.dataset.value = String(value);
+    b.setAttribute('aria-pressed', 'false');
+    b.onclick = async () => {
+      if (!fm) return;
+      const prev = [...el.children].find(c => c.getAttribute('aria-pressed') === 'true');
+      mark(host, value); el.classList.add('busy');
+      try { await onPick(value, label); }
+      catch { if (prev) mark(host, prev.dataset.value); toast('Could not save, try again', 1); }
+      finally { el.classList.remove('busy'); }
+    };
+    el.appendChild(b);
+  }
+}
+
+async function confirmWrite(write, request, key, want, label){
+  await write();
+  await sleep(120);
+  await fm.request(request);
+  const got = fm.state[key];
+  if (got != null && !(typeof want === 'number' && typeof got === 'number' ? Math.abs(got - want) < 1e-6 : got === want))
+    { toast(`${label}: the mouse kept ${got}`, 1); refresh(); return false; }
+  return true;
+}
+
+buildSeg('#segDpi', DPI_PRESETS.map(v => [v, String(v)]), async v => {
+  if (await confirmWrite(() => fm.setDpi(v), CMD.DPI, 'dpi', v, 'Sensitivity')) toast(`Sensitivity ${v}`);
+  show();
+});
+let dpiTimer;
+$('#dpi').oninput = e => {
+  const v = +e.target.value;
+  $('#dpiOut').textContent = v;
+  clearTimeout(dpiTimer);
+  dpiTimer = setTimeout(async () => {
+    if (!fm) return;
+    try { if (await confirmWrite(() => fm.setDpi(v), CMD.DPI, 'dpi', v, 'Sensitivity')) toast(`Sensitivity ${v}`); }
+    catch { toast('Could not save, try again', 1); }
+    show();
+  }, 220);
+};
+buildSeg('#segRate', RATES.map(v => [v, v >= 1000 ? `${v / 1000}K` : String(v)]), async v => {
+  if (await confirmWrite(() => fm.setRate(v), CMD.RATE, 'rate', v, 'Polling rate')) toast(`Polling rate ${v} Hz`);
+  show();
+});
+buildSeg('#segLod', LODS.map(v => [v, v.toFixed(1)]), async v => {
+  if (await confirmWrite(() => fm.setLod(v), CMD.LOD, 'lod', v, 'Lift-off')) toast(`Lift-off ${v.toFixed(1)} mm`);
+});
+$('#motionSync').onchange = async e => {
+  const on = e.target.checked;
+  try { if (await confirmWrite(() => fm.setMotion(on), CMD.MOTION, 'motion', on, 'Motion sync')) toast(`Motion sync ${on ? 'on' : 'off'}`); }
+  catch { e.target.checked = !on; toast('Could not save, try again', 1); }
+};
+buildSeg('#segJs', JS_MODES, async (v, l) => {
+  if (await confirmWrite(() => fm.setJsMode(v), CMD.JS_MODE, 'jsMode', v, 'Bhop scroll')) toast(`Bhop scroll: ${l}`);
+});
+buildSeg('#segJsT', JS_T.map(v => [v, `${v} ms`]), async v => {
+  if (await confirmWrite(() => fm.setJsTimeout(v), CMD.JS_TIMEOUT, 'jsTimeout', v, 'Repeat window')) toast(`Repeat window ${v} ms`);
+});
+buildSeg('#segInd', IND, async (v, l) => {
+  if (await confirmWrite(() => fm.setIndicator(v), CMD.INDICATOR, 'indicator', v, 'Indicator')) toast(`Indicator: ${l}`);
+  $('#indColorWrap').classList.toggle('hidden', v !== 2);
+});
+$('#indColor').onchange = async e => {
+  const c = hexToRgb(e.target.value);
+  try { await fm.setColor(c); await sleep(120); await fm.request(CMD.COLOR); toast('Indicator colour saved'); }
+  catch { toast('Could not save, try again', 1); }
+};
+
+function show(){
+  const s = fm.state;
+  if (s.dpi != null){
+    $('#sDpi').textContent = s.dpi;
+    $('#dpi').value = clamp(s.dpi, 400, 12800);
+    $('#dpiOut').textContent = s.dpi;
+    mark('#segDpi', s.dpi);
+  }
+  if (s.rate != null){ $('#sRate').textContent = s.rate >= 1000 ? `${s.rate / 1000}K` : s.rate; mark('#segRate', s.rate); }
+  if (s.lod != null) mark('#segLod', s.lod);
+  if (s.motion != null) $('#motionSync').checked = s.motion;
+  if (s.jsMode != null) mark('#segJs', s.jsMode);
+  if (s.jsTimeout != null) mark('#segJsT', s.jsTimeout);
+  if (s.indicator != null){ mark('#segInd', s.indicator); $('#indColorWrap').classList.toggle('hidden', s.indicator !== 2); }
+  if (s.color) $('#indColor').value = rgbToHex(s.color);
+  const bar = $('#sBattBar');
+  if (s.soc == null){ $('#sBatt').textContent = s.mv ? `${(s.mv / 1000).toFixed(2)}V` : '-'; bar.style.strokeDashoffset = RING; }
+  else {
+    $('#sBatt').textContent = s.soc + '%';
+    bar.style.strokeDashoffset = RING * (1 - s.soc / 100);
+    bar.style.stroke = s.soc < 20 ? '#f87171' : s.soc < 40 ? '#f5c451' : 'var(--acc)';
+  }
+  const rows = [['Model', `${fm.info.name}${fm.info.recv ? ' (receiver)' : ''}`], ['USB ID', `${VID.toString(16)}:${fm.device.productId.toString(16)}`]];
+  if (s.fw) rows.push(['Mouse firmware', s.fw]);
+  if (s.rfFw) rows.push(['Receiver firmware', s.rfFw]);
+  if (s.serial) rows.push(['Serial', s.serial]);
+  if (s.mfg) rows.push(['Made', s.mfg]);
+  if (s.link != null) rows.push(['Link', s.link ? 'Connected' : 'Mouse not linked']);
+  if (s.rssi != null) rows.push(['Signal', `${s.rssi} dBm`]);
+  if (s.mv) rows.push(['Battery voltage', `${(s.mv / 1000).toFixed(2)} V${s.charging ? ', charging' : ''}`]);
+  rows.push(['Protocol', fm.fam === 'ulx' ? 'Ultralight X (report 4/5)' : 'Starlight X (report 1/2)']);
+  if (DEMO) rows.unshift(['Mode', 'Demo: simulated, not a real device']);
+  $('#kv').replaceChildren(...rows.map(([k, v]) => { const tr = document.createElement('tr'); for (const x of [k, v]){ const td = document.createElement('td'); td.textContent = String(x); tr.append(td); } return tr; }));
+  $('#devName').textContent = `Finalmouse ${fm.info.name}`;
+  $('#segLod').parentElement.classList.toggle('hidden', fm.fam !== 'ulx');
+}
+
+async function refresh(){
+  if (!fm) return;
+  const got = await fm.readAll();
+  show();
+  if (!got) toast('The mouse did not answer. Move it to wake it up, then press Refresh.', 1);
+}
+
+async function attach(device){
+  if (!device.opened) await device.open();
+  fm = new Finalmouse(device);
+  fm.onChange = () => { if (fm) show(); };
+  $('#hero').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  $('#status').className = 'status';
+  $('#status').innerHTML = DEMO ? '<b>Demo</b> · simulated' : '<b>Connected</b>';
+  $('#connect').textContent = DEMO ? 'Exit demo' : 'Switch';
+  $('#connect').classList.add('ghost');
+  await refresh();
+}
+
+function disconnected(){
+  if (fm) fm.close();
+  fm = null;
+  $('#app').classList.add('hidden');
+  $('#hero').classList.remove('hidden');
+  $('#status').className = 'status off';
+  $('#status').textContent = 'Not connected';
+  $('#connect').textContent = 'Connect';
+  $('#connect').classList.remove('ghost');
+  $('#devName').textContent = 'Finalmouse';
+}
+
+async function connect(){
+  if (DEMO){ location.href = '../index.html'; return; }
+  try {
+    const picked = await navigator.hid.requestDevice({ filters: FILTERS });
+    if (!picked.length) return;
+    if (fm){ await fm.device.close().catch(() => {}); disconnected(); }
+    await attach(picked[0]);
+  } catch (e){ toast(e.message || 'Could not connect', 1); }
+}
+$('#connect').onclick = connect;
+$('#connect2').onclick = connect;
+$('#refresh').onclick = refresh;
+
+const IS_MOBILE = navigator.userAgentData?.mobile === true || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+async function autoConnect(){
+  if (IS_MOBILE || !('hid' in navigator)){
+    $('#hero').classList.add('hidden'); $('#blocked').classList.remove('hidden');
+    $('#blockedText').textContent = IS_MOBILE
+      ? 'Phones and tablets cannot talk to USB devices from a web page. Open this page on a computer, in Chrome, Edge or Opera.'
+      : 'This browser cannot talk to USB devices. Open this page in Chrome, Edge or Opera.';
+    return;
+  }
+  navigator.hid.addEventListener('disconnect', e => { if (fm && e.device === fm.device) disconnected(); });
+  try {
+    const want = new URLSearchParams(location.search).get('d');
+    const all = (await navigator.hid.getDevices()).filter(isOurs);
+    const known = all.find(d => devId(d) === want) ?? all[0];
+    if (known) await attach(known);
+  } catch {}
+}
+
+function makeDemoMouse(){
+  const st = { dpi: 1600, rate: 1000, motion: true, lod: 10, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
+  const ascii = t => [...t].map(c => c.charCodeAt(0));
+  const dev = { vendorId: VID, productId: 0x100, productName: 'Ultralight X dongle', opened: false, collections: [{ usagePage: PAGE, usage: 1 }], _l: [],
+    addEventListener(t, f){ if (t === 'inputreport') this._l.push(f); }, removeEventListener(t, f){ this._l = this._l.filter(x => x !== f); },
+    async open(){ this.opened = true; }, async close(){ this.opened = false; },
+    async sendReport(id, buf){ const b = Array.from(buf); setTimeout(() => reply(b), 3); } };
+  const out = (cmd, p) => { const r = new Uint8Array(63); r[0] = 2 + p.length; r[1] = 0x80 | cmd; r[2] = p.length; r.set(p, 3); const ev = { reportId: 5, data: new DataView(r.buffer) }; dev._l.forEach(f => f(ev)); };
+  function reply(b){
+    const cmd = b[1] & 127, n = b[2], p = b.slice(3, 3 + n);
+    const get = n === 0;
+    switch (cmd){
+      case 3: out(3, [st.dpi & 255, st.dpi >> 8]); break;
+      case 4: out(4, [st.rate & 255, st.rate >> 8]); break;
+      case 16: st.dpi = p[0] | (p[1] << 8); break;
+      case 17: st.rate = p[0] | (p[1] << 8); break;
+      case 18: if (get) out(18, [st.motion ? 1 : 0]); else st.motion = !!p[0]; break;
+      case 21: if (get) out(21, [st.lod]); else st.lod = p[0]; break;
+      case 20: if (get) out(20, [st.indicator]); else st.indicator = p[0]; break;
+      case 54: if (get) out(54, st.color); else st.color = [p[0], p[1], p[2]]; break;
+      case 23: if (get) out(23, [st.jsMode]); else st.jsMode = p[0]; break;
+      case 24: if (get) out(24, [st.jsTimeout]); else st.jsTimeout = p[0]; break;
+      case 38: out(38, [st.soc, st.mv & 255, st.mv >> 8]); break;
+      case 37: out(37, [st.charging]); break;
+      case 36: out(36, [st.link]); break;
+      case 13: out(13, [st.rssi & 255]); break;
+      case 12: out(12, ascii('8.0.3\0')); break;
+      case 11: out(11, ascii('8.0.3\0')); break;
+      case 14: out(14, ascii('DEMO-0001\0')); break;
+      case 15: out(15, ascii('2025-01-01\0')); break;
+    }
+  }
+  dev.__state = st;
+  return dev;
+}
+
+const NAME = () => $('#devName').textContent.slice(0, 80);
+const SHARE_MAX = 200000;
+const b64u = u8 => { let t = ''; for (const b of u8) t += String.fromCharCode(b); return btoa(t).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function deflate(u8){ return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); }
+async function inflate(u8){
+  const r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+  const parts = []; let n = 0;
+  for (;;){
+    const { done, value } = await r.read();
+    if (done) break;
+    n += value.length;
+    if (n > SHARE_MAX * 4){ await r.cancel(); throw new Error('That share code is too large.'); }
+    parts.push(value);
+  }
+  const out = new Uint8Array(n); let o = 0;
+  for (const c of parts){ out.set(c, o); o += c.length; }
+  return out;
+}
+async function encodeShare(cfg){
+  const raw = new TextEncoder().encode(JSON.stringify(cfg));
+  return typeof CompressionStream === 'function' ? 'OATK1.' + b64u(await deflate(raw)) : 'OATK0.' + b64u(raw);
+}
+async function decodeShare(text){
+  const t = text.trim();
+  if (t.length > SHARE_MAX) throw new Error('That share code is too large.');
+  if (t[0] === '{') return JSON.parse(t);
+  const m = /^OATK([01])\.([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) throw new Error('That is not an OpenATK share code.');
+  let u8 = unb64u(m[2]);
+  if (m[1] === '1'){
+    if (typeof DecompressionStream !== 'function') throw new Error('This browser cannot read compressed share codes.');
+    u8 = await inflate(u8);
+  }
+  return JSON.parse(new TextDecoder().decode(u8));
+}
+function snapshot(){
+  const s = fm.state, c = {};
+  for (const k of ['dpi', 'rate', 'lod', 'motion', 'jsMode', 'jsTimeout', 'indicator']) if (s[k] != null) c[k] = s[k];
+  if (s.color) c.color = [...s.color];
+  return { app: 'openatk', v: 1, kind: 'finalmouse', model: NAME(), made: new Date().toISOString().slice(0, 10), settings: c };
+}
+function planShare(cfg){
+  if (!cfg || typeof cfg !== 'object' || cfg.app !== 'openatk' || cfg.v !== 1) throw new Error('That is not an OpenATK settings file.');
+  if (cfg.kind !== 'finalmouse') throw new Error(`That file is for a ${String(cfg.kind).slice(0, 20)}, not a Finalmouse.`);
+  const c = cfg.settings && typeof cfg.settings === 'object' ? cfg.settings : {};
+  const steps = [], notes = [];
+  const add = (label, run) => steps.push({ label, run });
+  const bad = w => notes.push(`${w} was not valid and was skipped`);
+  if (c.dpi != null){ const v = clampInt(c.dpi, 400, 12800, null); if (v != null && Number.isInteger(c.dpi) && c.dpi >= 400 && c.dpi <= 12800) add(`Sensitivity ${Math.round(c.dpi / 100) * 100}`, () => fm.setDpi(Math.round(c.dpi / 100) * 100)); else bad('Sensitivity'); }
+  if (c.rate != null){ if (RATES.includes(c.rate)) add(`Polling rate ${c.rate} Hz`, () => fm.setRate(c.rate)); else bad('Polling rate'); }
+  if (c.lod != null && fm.fam !== 'ulx') notes.push('Lift-off is not supported on this model yet and was skipped');
+  else if (c.lod != null && fm.fam !== 'ulx') notes.push('Lift-off is not supported on this model yet and was skipped');
+  else if (c.lod != null){ if (LODS.includes(c.lod)) add(`Lift-off ${c.lod.toFixed(1)} mm`, () => fm.setLod(c.lod)); else bad('Lift-off'); }
+  if (typeof c.motion === 'boolean') add(`Motion sync ${c.motion ? 'on' : 'off'}`, () => fm.setMotion(c.motion));
+  if (c.jsMode != null){ if (JS_MODES.some(m => m[0] === c.jsMode)) add(`Bhop scroll: ${JS_MODES.find(m => m[0] === c.jsMode)[1]}`, () => fm.setJsMode(c.jsMode)); else bad('Bhop scroll'); }
+  if (c.jsTimeout != null){ if (JS_T.includes(c.jsTimeout)) add(`Repeat window ${c.jsTimeout} ms`, () => fm.setJsTimeout(c.jsTimeout)); else bad('Repeat window'); }
+  if (c.indicator != null){ if (IND.some(m => m[0] === c.indicator)) add(`Indicator: ${IND.find(m => m[0] === c.indicator)[1]}`, () => fm.setIndicator(c.indicator)); else bad('Indicator'); }
+  if (c.color != null){
+    if (Array.isArray(c.color) && c.color.length === 3 && c.color.every(x => Number.isFinite(Number(x)))){ const rgb = c.color.map(x => clampInt(x, 0, 255, 0)); add('Indicator colour', () => fm.setColor(rgb)); }
+    else bad('Indicator colour');
+  }
+  return { steps, notes, from: typeof cfg.model === 'string' ? cfg.model.slice(0, 80) : '', made: typeof cfg.made === 'string' ? cfg.made.slice(0, 10) : '' };
+}
+let pendingShare = null;
+function showShare(plan){
+  pendingShare = plan;
+  const list = $('#shareList');
+  list.replaceChildren();
+  for (const st of plan.steps){ const li = document.createElement('li'); li.textContent = st.label; list.appendChild(li); }
+  for (const n of plan.notes){ const li = document.createElement('li'); li.textContent = n; li.style.color = 'var(--warn)'; list.appendChild(li); }
+  $('#shareFrom').textContent = plan.steps.length ? `Made on ${plan.from || 'a Finalmouse'}${plan.made ? ', ' + plan.made : ''}. This will change:` : 'Nothing in that file can be applied to this mouse.';
+  $('#shareApply').classList.toggle('hidden', !plan.steps.length);
+  $('#sharePreview').classList.remove('hidden');
+}
+function clearShare(){ pendingShare = null; $('#sharePreview').classList.add('hidden'); $('#sharePaste').value = ''; $('#shareLoad').value = ''; }
+async function loadShare(text){
+  try { showShare(planShare(await decodeShare(text))); }
+  catch (e){ pendingShare = null; $('#sharePreview').classList.add('hidden'); toast(e instanceof SyntaxError ? 'That is not a valid settings file.' : e.message, 1); }
+}
+const fileSafe = t => t.replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'finalmouse';
+$('#shareFile').onclick = () => {
+  if (!fm) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(snapshot(), null, 1)], { type: 'application/json' }));
+  a.download = `openatk-${fileSafe(NAME())}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+$('#shareCopy').onclick = async () => {
+  if (!fm) return;
+  const code = await encodeShare(snapshot());
+  try { await navigator.clipboard.writeText(code); toast('Share code copied'); }
+  catch { $('#sharePaste').value = code; $('#sharePaste').select(); toast('Copy the code from the box below'); }
+};
+$('#shareLoad').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.size > SHARE_MAX){ toast('That file is too large.', 1); return; }
+  const r = new FileReader();
+  r.onload = () => loadShare(String(r.result));
+  r.readAsText(f);
+};
+let pasteTimer;
+$('#sharePaste').oninput = e => {
+  clearTimeout(pasteTimer);
+  const v = e.target.value.trim();
+  if (!v){ $('#sharePreview').classList.add('hidden'); return; }
+  pasteTimer = setTimeout(() => loadShare(v), 250);
+};
+$('#shareCancel').onclick = clearShare;
+$('#shareApply').onclick = async () => {
+  if (!pendingShare || !fm) return;
+  const steps = pendingShare.steps;
+  $('#shareApply').disabled = true;
+  let failed = 0;
+  for (const st of steps){ try { await st.run(); await sleep(60); } catch { failed++; } }
+  $('#shareApply').disabled = false;
+  clearShare();
+  toast(failed ? `Applied ${steps.length - failed} of ${steps.length} settings` : `Applied ${steps.length} settings`, failed ? 1 : 0);
+  await refresh();
+};
+
+$('#heroArt').innerHTML = $('#devArt').innerHTML = '<svg viewBox="0 0 120 170" width="120" height="170" aria-hidden="true" style="filter:drop-shadow(0 18px 28px rgba(var(--acc-rgb),.3))"><path d="M60 8c24 0 36 18 37 44l2 50c1 34-14 60-39 60s-40-26-39-60l2-50C24 26 36 8 60 8Z" fill="#0d1318" stroke="rgba(var(--acc-rgb),.7)" stroke-width="2"/><path d="M60 10v56M22 70c24 7 52 7 76 0" fill="none" stroke="rgba(var(--acc-rgb),.45)" stroke-width="2"/><rect x="55" y="28" width="10" height="22" rx="5" fill="rgba(var(--acc-rgb),.8)"/></svg>';
+
+async function startDemo(){
+  if (IS_MOBILE) return;
+  document.title += ' (demo)';
+  $('#demoBar').classList.remove('hidden');
+  await attach(makeDemoMouse());
+}
+if (DEMO) startDemo(); else autoConnect();
+</script>
+</body>
+</html>

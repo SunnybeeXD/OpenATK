@@ -19,6 +19,7 @@ The start page is the whole app. Press **Connect any ATK device** (or **+ Add de
 |---|---|
 | [`index.html`](index.html) | The hub: device tabs and the dashboard. Hosts the two configurators below in-page |
 | [`mouse/index.html`](mouse/index.html) | Mouse configurator, also usable on its own (self-contained apart from its fallback image in `assets/`) |
+| [`fm/index.html`](fm/index.html) | Finalmouse Ultralight X and Starlight X configurator (DPI, polling, lift-off, motion sync, bhop scroll, indicator light). Read from Xpanel's public code, not yet tried on a real device |
 | [`keyboard/index.html`](keyboard/index.html) | Keyboard configurator, also usable on its own (untested on hardware) |
 
 **Look and feel:** pick an accent colour (green, cyan, violet, orange or pink) with the dots in the top bar. It applies to every open device tab and is remembered. Press **Ctrl K** (Cmd K on a Mac) anywhere to jump to a device, a demo, Add device or a colour.
