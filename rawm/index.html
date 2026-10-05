@@ -489,7 +489,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         </div>
       </div>
       <div class="item row">
-        <div><div class="t">Set X and Y values separately</div><div class="d">Off keeps the vertical value equal to the horizontal one.</div></div>
+        <div><div class="t">Separate X/Y DPI</div><div class="d">Off keeps the vertical value equal to the horizontal one.</div></div>
         <input type="checkbox" class="sw" id="dpiXY">
       </div>
     </section>
@@ -564,12 +564,12 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     <section class="panel hidden" data-panel="perf">
       <div class="phead"><div><h2>Performance</h2><p>Polling, sensor and tracking behaviour for the current profile.</p></div></div>
       <div class="item">
-        <div class="t">Polling Rate (per second)</div>
+        <div class="t">Polling Rate</div>
         <div class="d">Also known as report rate, the mouse's data update frequency.</div>
         <div class="seg" id="segRate"></div>
       </div>
       <div class="item">
-        <div class="t">Sensor Mode</div>
+        <div class="t">Performance</div>
         <div class="d" id="modeTip"></div>
         <div class="seg" id="segMode"></div>
         <div id="fpsWrap" class="hidden">
@@ -764,6 +764,9 @@ class Rawm {
     this.wired = setDev.productId === PID_WIRED;
     this.delay = opts.delay ?? 30;
     this.h = 1;
+    this.ready = false;
+    this.lockWrites = false;
+    this.detectWait = opts.detectWait ?? 200;
     this.tail = Promise.resolve();
     this.s = { profile: 1, profiles: 1, wired: this.wired, dpi: { stages: [], colors: [], active: 1, xy: false }, mag: { types: [2, 2], press: [3, 3], release: [9, 9], rt: [0, 0], manual: true, recal: false } };
     this.onChange = () => {};
@@ -783,48 +786,58 @@ class Rawm {
     return new Uint8Array(dv.buffer.slice(dv.byteOffset, dv.byteOffset + dv.byteLength));
   }
   norm(buf){ return buf.subarray(1 - this.h); }
-  ok(n, r, isGet){ return n.length > 8 && (n[0] === 0xA1 || n[0] === 2) && (!isGet || n[5] === r[5]); }
   async xfer(r, isGet){
     return this.lock(async () => {
+      let mism = 0, n = new Uint8Array(0);
+      const D = this.delay;
+      const status = x => x.length > 8 && (x[0] === 0xA1 || x[0] === 2);
+      const accept = x => { if (!status(x)) return false; if (!isGet || x[5] === r[5]) return true; mism++; return false; };
+      const read = async () => this.norm(await this.rawGet());
       try {
         await this.rawSend(r);
-        await sleep(this.delay);
-        let n = this.norm(await this.rawGet());
-        if (this.ok(n, r, isGet)) { log('rx', `c${n[4]} ${n[5].toString(16)}`, hex(n.subarray(0, 14))); return n; }
-        for (let round = 0; round < 5; round++){
+        await sleep(D);
+        n = await read();
+        if (accept(n)) { log('rx', `c${n[4]} ${n[5].toString(16)}`, hex(n.subarray(0, 14))); return n; }
+        for (let round = 0; round < 5 && mism < 12; round++){
           if (n[0] > 0xA1){
-            await sleep(this.delay);
-            await this.rawSend(r); await sleep(this.delay);
-            n = this.norm(await this.rawGet());
-            if (this.ok(n, r, isGet)) return n;
+            await sleep(D);
+            await this.rawSend(r); await sleep(D);
+            n = await read();
+            if (accept(n)) return n;
           } else {
-            const polls = n[0] === 0 ? 3 : 30;
-            for (let i = 0; i < polls; i++){
-              await sleep(this.delay);
-              n = this.norm(await this.rawGet());
-              if (this.ok(n, r, isGet)) return n;
+            const polls = n[0] === 0 ? 3 : 30, lim = mism + 3;
+            for (let i = 0; i < polls && mism < lim; i++){
+              await sleep(D);
+              n = await read();
+              if (accept(n)) return n;
             }
-            await sleep(this.delay);
-            await this.rawSend(r); await sleep(this.delay);
-            n = this.norm(await this.rawGet());
-            if (this.ok(n, r, isGet)) return n;
+            await sleep(D);
+            await this.rawSend(r); await sleep(D);
+            n = await read();
+            if (accept(n)) return n;
           }
         }
-        log('er', 'no answer', hex(r.subarray(2, 12)));
+        log('er', mism ? 'echo mismatch' : 'no answer', hex(r.subarray(2, 12)) + (mism ? '  got ' + hex(n.subarray(0, 8)) : ''));
         return null;
       } catch (e){ log('er', 'io', String(e && e.message || e)); return null; }
     });
   }
   get(r){ return this.xfer(r, true); }
-  set(r){ return this.xfer(r, false); }
+  set(r, opts){
+    if (!this.ready) return Promise.reject(new Error('not ready'));
+    if (this.lockWrites && !(opts && opts.cal)) return Promise.reject(new Error('calibrating'));
+    return this.xfer(r, false);
+  }
 
   async detect(){
     for (let i = 0; i < 3; i++){
       const n = await this.lock(async () => {
         try {
           await this.rawSend(this.req(2, 16, 0, 0x81));
-          await sleep(this.delay * 2);
-          return await this.rawGet();
+          await sleep(this.detectWait);
+          let r = await this.rawGet();
+          if (r[6] !== 0x81 && r[5] !== 0x81){ await sleep(this.detectWait); r = await this.rawGet(); }
+          return r;
         } catch (e){ return null; }
       });
       if (n && n[6] === 0x81){ this.h = 0; return `${n[7]}.${n[8]}.${n[9]}.${n[10]}`; }
@@ -916,7 +929,7 @@ class Rawm {
   setLed(mode){ return this.set(this.req(1, 5, 2, 0, [1, 255, mode, 0, 0])); }
 
   async getFault(){ return this.get(this.req(2, 6, 3, 0x86)); }
-  faultSet(state){ return this.set(this.req(2, 3, 3, 7, [state])); }
+  faultSet(state){ return this.set(this.req(2, 3, 3, 7, [state]), { cal: true }); }
   async getTypes(){ const n = await this.get(this.req(2, 8, 0, 0x95)); return n ? [n[7], n[8]] : null; }
   setTypes(eid, l, r){ return this.set(this.req(2, 8, 0, 21, [eid & 255, l, r])); }
   async getTravel(p, key){ const n = await this.get(this.req(2, 4, 3, 0x85, [p, key])); return n ? [n[8], n[9]] : null; }
@@ -966,6 +979,7 @@ class Rawm {
     let fw = await this.detect();
     if (!fw) return 0;
     s.fw = fw;
+    this.ready = true;
     if (!this.wired){
       const d0 = await this.fw(0), d1 = await this.fw(1);
       s.dongleFw = d1 && d1 !== '0.0.0.0' ? d1 : d0;
@@ -1015,6 +1029,9 @@ let rm = null;
 function makeDemo(){
   const lead = QS.get('lead') === '1';
   const flaky = QS.get('flaky') === '1';
+  const fwDelay = QS.get('fwdelay') === '1';
+  let asleep = QS.get('asleep') === '1';
+  const echoBad = QS.get('echobad') === '1';
   const wired = !DEMO_DONGLE;
   const prof = () => ({ rate: 1, lod: 1, glass: 0, motion: 1, ripple: 0, snap: 0, tune: 0, mode: 2, track: 1, xy: 0, combine: 1, sleep: 180,
     scroll: { on: 0, win: 100 }, active: 2,
@@ -1037,6 +1054,7 @@ function makeDemo(){
     async open(){}, async close(){}, opened: true };
   const notify = (type, ...b) => { const d = new Uint8Array(b.length + 1); d[0] = type; d.set(b, 1); const ev = { reportId: 4, data: new DataView(d.buffer) }; rdev._l.forEach(f => f(ev)); };
   function handle(q){
+    if (asleep){ reply = new Uint8Array(64); pending = false; return; }
     const t = q[2], len = q[3], cat = q[4], cmd = q[5], a = q.subarray(6), p = st.p[a[0]] || st.p[st.cur];
     const N = new Uint8Array(64);
     N[0] = 0xA1; N[2] = t; N[3] = len; N[4] = cat; N[5] = cmd; N.set(a.subarray(0, 10), 6);
@@ -1116,9 +1134,11 @@ function makeDemo(){
         break;
       }
     }
+    if (echoBad && cat === 1 && cmd === 0x89) N[5] = 0x55;
+    if (fwDelay && cat === 0 && cmd === 0x81){ reply = new Uint8Array(64); pending = false; setTimeout(() => { reply = N; }, 60); return; }
     reply = N; pending = flaky && !(cat === 0 && cmd === 0x81);
   }
-  dev.__st = st; dev.__notify = notify;
+  dev.__st = st; dev.__notify = notify; dev.__wake = () => { asleep = false; };
   return { setDev: dev, readDev: rdev };
 }
 
@@ -1146,6 +1166,10 @@ function showTab(name){
 }
 for (const b of document.querySelectorAll('#tabs button')) b.onclick = () => showTab(b.dataset.tab);
 
+function failToast(e, fallback = 'Could not save, try again'){
+  const m = e && e.message;
+  toast(m === 'not ready' ? 'The mouse has not answered yet. Wake it up and press Refresh.' : m === 'calibrating' ? 'Wait for the calibration to finish.' : fallback, 1);
+}
 function fillSeg(host, opts, pressed, onPick, disabledFn){
   const el = $(host); el.replaceChildren();
   for (const [value, label] of opts){
@@ -1157,7 +1181,7 @@ function fillSeg(host, opts, pressed, onPick, disabledFn){
       if (!rm || b.disabled) return;
       el.classList.add('busy');
       try { await onPick(value, label); }
-      catch { toast('Could not save, try again', 1); }
+      catch (e) { failToast(e); }
       finally { el.classList.remove('busy'); show(); }
     };
     el.appendChild(b);
@@ -1173,7 +1197,7 @@ async function commit(label, write, read, want, apply){
     if (!same(got, want)){ toast(`${label}: the mouse kept ${typeof got === 'object' ? JSON.stringify(got) : got}`, 1); await refreshProfile(); return false; }
     if (apply) apply(got);
     return true;
-  } catch { toast('Could not save, try again', 1); return false; }
+  } catch (e) { failToast(e); return false; }
 }
 const P = () => rm.s.profile;
 
@@ -1252,7 +1276,7 @@ $('#stageAdd').onclick = async () => {
   try {
     await rm.setStages(P(), stages, d.xy); await rm.setColors(P(), colors); await rm.setActive(P(), idx + 1);
     await refreshProfile(); toast(`Stage ${idx + 1} added`);
-  } catch { toast('Could not save, try again', 1); }
+  } catch (e) { failToast(e); }
 };
 $('#stageDel').onclick = async () => {
   if (!rm) return;
@@ -1264,7 +1288,7 @@ $('#stageDel').onclick = async () => {
   try {
     await rm.setStages(P(), stages, d.xy); await rm.setColors(P(), colors); await rm.setActive(P(), 1);
     await refreshProfile(); toast('Stage deleted');
-  } catch { toast('Could not save, try again', 1); }
+  } catch (e) { failToast(e); }
 };
 
 const sideIdx = () => UI.key === 0 ? [0, 1] : [UI.key - 1];
@@ -1326,7 +1350,7 @@ async function writeTravel(mutate, label){
       const got = await rm.getTravel(p, i + 1);
       if (got){ m.press[i] = got[0]; m.release[i] = got[1]; if (!same(got, next)) toast(`${label}: the mouse kept ${got[0]}/${got[1]}`, 1); }
     }
-  } catch { toast('Could not save, try again', 1); }
+  } catch (e) { failToast(e); }
   show();
 }
 $('#kmPress').oninput = e => { $('#kmPressOut').textContent = e.target.value; };
@@ -1348,22 +1372,25 @@ $('#kmRt').onchange = async e => {
       const got = await rm.getRt(p, i + 1);
       if (got != null){ m.rt[i] = got; if (got !== v) toast(`Rapid Trigger: the mouse kept ${got} ms`, 1); }
     }
-  } catch { toast('Could not save, try again', 1); }
+  } catch (e) { failToast(e); }
   show();
 };
 for (const b of $('#kmTypes').children) b.onclick = async () => {
   if (!rm) return;
   const t = +b.dataset.type, m = rm.s.mag, sel = sideIdx();
   if (t === 3 && m.manual){ toast('Calibrate the magnetic switch first', 1); return; }
-  const next = [...m.types]; for (const i of sel) next[i] = t;
   try {
-    await rm.setTypes(rm.s.eid, next[0], next[1]);
+    const cur = await rm.getTypes();
+    const eid = rm.s.eid ?? await rm.getEid();
+    if (!cur || eid == null){ toast('The mouse did not answer. Try again.', 1); return; }
+    const next = [...cur]; for (const i of sel) next[i] = t;
+    await rm.setTypes(eid, next[0], next[1]);
     await sleep(60);
     const got = await rm.getTypes();
     if (got){ m.types = got; if (!same(got, next)) toast('Switch Mode: the mouse kept its previous mode', 1); }
     if (m.types.includes(3)){ const f = await rm.getFault(); if (f){ m.recal = f[11] === 64; } await rm.readMag(); }
     toast(`Switch Mode: ${t === 3 ? 'Magnetic' : 'Optical'}`);
-  } catch { toast('Could not save, try again', 1); }
+  } catch (e) { failToast(e); }
   show();
 };
 $('#kmResetAll').onclick = async () => {
@@ -1373,10 +1400,12 @@ $('#kmResetAll').onclick = async () => {
     const p = P();
     await rm.setTravel(p, 1, 3, 9); await rm.setTravel(p, 2, 3, 9);
     await rm.setRt(p, 1, 0); await rm.setRt(p, 2, 0);
-    await rm.setTypes(rm.s.eid, 2, 2);
+    const eid = rm.s.eid ?? await rm.getEid();
+    if (eid == null) throw new Error('no eid');
+    await rm.setTypes(eid, 2, 2);
     UI.sep = [false, false];
     await rm.readMag(); toast('Restored');
-  } catch { toast('Could not save, try again', 1); }
+  } catch (e) { failToast(e); }
   show();
 };
 
@@ -1384,14 +1413,15 @@ function setCalText(t){ $('#calStep').textContent = t; }
 async function startCal(){
   if (!rm || UI.cal) return;
   const m = rm.s.mag;
-  UI.cal = true; UI.calOpen = true;
-  $('#calModal').classList.remove('hidden');
+  UI.cal = true; UI.calOpen = true; rm.lockWrites = true;
+  $('#calModal').classList.remove('hidden'); $('#calClose').classList.add('hidden');
   $('#calRes').classList.add('hidden'); $('#calClose').textContent = 'Close';
   setCalText('Calibrating...');
   for (const id of ['#calBarL', '#calBarR', '#calBarP']) $(id).style.width = '0';
   $('#calBars').classList.remove('hidden'); $('#calBarOne').classList.add('hidden');
   const finish = (ok, msg) => {
-    UI.cal = false;
+    UI.cal = false; if (rm) rm.lockWrites = false;
+    $('#calClose').classList.remove('hidden');
     const r = $('#calRes'); r.textContent = msg; r.className = 'mres ' + (ok ? 'ok' : 'bad');
     if (!UI.calOpen) toast(msg, !ok);
   };
@@ -1408,7 +1438,7 @@ async function startCal(){
     while (state !== 7 && state !== 8 && state !== 9){
       if (Date.now() - t0 > 240000){ finish(false, 'Calibration timed out. Fully press and release as prompted, then recalibrate.'); return; }
       await sleep(rm.delay >= 30 ? 100 : 20);
-      if (!rm) { UI.cal = false; return; }
+      if (!rm) { UI.cal = false; $('#calClose').classList.remove('hidden'); return; }
       const r = await rm.faultSet(two ? 5 : 3);
       if (!r){ if (++bad > 25){ finish(false, 'The mouse stopped answering during calibration.'); return; } continue; }
       bad = 0;
@@ -1455,11 +1485,11 @@ function renderPerf(){
     if (await commit('Polling Rate', () => rm.setRate(P(), key), () => rm.getRate(P()), key, got => { s.rate = got; })) toast(`Polling Rate ${v}Hz`);
   }, v => !rateAllowed(v));
   fillSeg('#segMode', MODES, s.mode, async v => {
-    if (!await commit('Sensor Mode', () => rm.setMode(P(), v), () => rm.getMode(P()), v, got => { s.mode = got; })) return;
+    if (!await commit('Performance', () => rm.setMode(P(), v), () => rm.getMode(P()), v, got => { s.mode = got; })) return;
     const hzNow = rateHz(s.rate);
     if (hzNow && !rateAllowed(hzNow)){ await rm.setRate(P(), 1); const r = await rm.getRate(P()); if (r != null) s.rate = r; }
     if (v === 3){ const t = await rm.getTracking(P()); if (t != null) s.tracking = t; }
-    toast(`Sensor Mode: ${MODES.find(m => m[0] === v)[1]}`);
+    toast(`Performance: ${MODES.find(m => m[0] === v)[1]}`);
   });
   $('#modeTip').textContent = MODE_TIPS[s.mode] || '';
   $('#fpsWrap').classList.toggle('hidden', !s.mode);
@@ -1470,11 +1500,11 @@ function renderPerf(){
       const want = k === 1 ? 2 : 1;
       if (await commit('Sensor Polling Rate', () => rm.setTracking(P(), want), () => rm.getTracking(P()), want, got => { s.tracking = got; })) toast(`Sensor Polling Rate ${k === 1 ? '13K' : '20K'}`);
     });
-    $('#fpsTip').textContent = pressed === 1 ? 'Sensor adjusts frame rate by surface, up to 13000 FPS' : pressed === 2 ? 'Full sensor performance, locked at 20000 FPS' : '';
+    $('#fpsTip').textContent = pressed === 1 ? 'Sensor performance mode with a fixed 13K scan rate' : pressed === 2 ? 'Full sensor performance, locked at 20000 FPS' : '';
   } else {
     $('#segFps').classList.add('hidden');
     const dyn = s.mode === 1 || rateHz(s.rate) === 1000;
-    $('#fpsTip').textContent = s.mode ? (dyn ? 'Dynamic FPS: sensor adjusts frame rate by surface, up to 13000 FPS' : 'Fixed FPS: full sensor performance, locked at 20000 FPS') : '';
+    $('#fpsTip').textContent = s.mode ? (dyn ? 'Dynamic FPS: Sensor adjusts frame rate by surface, up to 13000 FPS' : 'Fixed FPS: Full sensor performance, locked at 20000 FPS') : '';
   }
   $('#glass').checked = s.glass === 1;
   const lod = curLod();
@@ -1591,7 +1621,7 @@ $('#resetProfile').onclick = async () => {
   if (!rm) return;
   if (!await ask('Reset Profile', `Profile ${rm.s.profile} goes back to its defaults. After reset, you need to reconfigure settings.`, 'Reset')) return;
   try { await rm.resetProfile(P()); await sleep(300); await rm.readProfile(); toast('Profile reset'); }
-  catch { toast('Could not reset, try again', 1); }
+  catch (e) { failToast(e, 'Could not reset, try again'); }
   show();
 };
 
@@ -1658,14 +1688,14 @@ function planShare(cfg){
 
   let mode = s.mode;
   if (c.mode != null){
-    if (MODES.some(x => x[0] === c.mode)){ mode = c.mode; add(`Sensor Mode: ${MODES.find(x => x[0] === c.mode)[1]}`, () => rm.setMode(p(), c.mode)); }
-    else bad('Sensor Mode');
+    if (MODES.some(x => x[0] === c.mode)){ mode = c.mode; add(`Performance: ${MODES.find(x => x[0] === c.mode)[1]}`, () => rm.setMode(p(), c.mode)); }
+    else bad('Performance');
   }
   if (c.rate != null){
     const i = RATES.findIndex(r => r[0] === c.rate);
     const allowed = i >= 0 && (mode === 1 ? i <= 3 : (mode === 2 || mode === 3) ? i >= 3 : true);
     if (i < 0) bad('Polling Rate');
-    else if (!allowed) notes.push(`Polling Rate ${rateLabel(c.rate)} is not available in that Sensor Mode and was skipped`);
+    else if (!allowed) notes.push(`Polling Rate ${rateLabel(c.rate)} is not available in that Performance mode and was skipped`);
     else add(`Polling Rate ${c.rate}Hz`, () => rm.setRate(p(), RATES[i][1]));
   }
   if (c.tracking != null){
@@ -1797,7 +1827,7 @@ async function attach(setDev, readDev, opts){
   if (readDev && readDev !== setDev && !readDev.opened){ try { await readDev.open(); } catch {} }
   rm = new Rawm(setDev, readDev, opts);
   rm.onChange = showSoon;
-  rm.onWake = () => { if (rm) setTimeout(() => refreshProfile(), 300); };
+  rm.onWake = () => { if (rm) setTimeout(() => { if (!rm) return; if (rm.ready) refreshProfile(); else refresh(); }, 300); };
   rm.onReset = () => { if (rm) setTimeout(() => refresh(), 300); };
   $('#hero').classList.add('hidden');
   $('#app').classList.remove('hidden');
@@ -1881,7 +1911,7 @@ async function startDemo(){
   if (DEMO_DONGLE) $('#demoText').innerHTML = '<b>Demo mode.</b> This is a simulated Leviathan V4 GT on the 8K dongle (drop <code>?demo=dongle</code> for the wired one), not a real device. Nothing here is sent to any hardware.';
   const { setDev, readDev } = makeDemo();
   window.__demo = setDev;
-  await attach(setDev, readDev, { delay: QS.get('slow') === '1' ? 30 : 2 });
+  await attach(setDev, readDev, { delay: QS.get('slow') === '1' ? 30 : 2, detectWait: QS.get('fwdelay') === '1' ? 40 : 20 });
 }
 if (DEMO) startDemo(); else autoConnect();
 </script>
