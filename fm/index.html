@@ -282,6 +282,18 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .num{width:88px;font:500 13.5px var(--mono);color:var(--ink);background:#0a0e12;
     border:1px solid var(--line2);border-radius:9px;padding:8px}
   .num:focus{outline:none;border-color:var(--acc)}
+  .modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(2,4,6,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px}
+  .mbox{width:min(480px,100%);padding:26px 26px 22px;border-radius:18px;background:var(--card);box-shadow:var(--ring),0 40px 100px -30px #000;text-align:center}
+  .mbox h3{margin:0 0 14px;font:700 19px/1.25 var(--disp);letter-spacing:-.01em}
+  .calcue{font-size:20px;font-weight:700;min-height:30px;margin:4px 0 6px}
+  .calhint{font-size:13.5px;color:var(--warn);min-height:20px;margin:0 0 10px}
+  .calhow{list-style:none;margin:14px 0;padding:0;display:grid;gap:6px;font-size:13px;color:var(--dim);text-align:left}
+  .caldots{display:flex;gap:8px;justify-content:center;margin:10px 0}
+  .caldots i{width:12px;height:12px;border-radius:50%;background:#0a0e12;box-shadow:inset var(--ring)}
+  .caldots i.on{background:var(--acc);box-shadow:0 0 12px -2px var(--acc)}
+  .calcount{font:500 12px var(--mono);color:var(--dim);margin:0 0 6px}
+  .calres{margin:12px 0;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);font-size:13.5px}
+  .calres.ok{color:var(--acc)} .calres.bad{color:var(--bad)}
   .capture{min-width:200px;padding:12px 14px;border:1px dashed var(--line2);border-radius:10px;
     font:600 14px var(--mono);color:var(--ink);background:#0a0e12;cursor:pointer;text-align:left}
   .capture:focus{outline:none;border-color:var(--acc);border-style:solid;box-shadow:0 0 20px -6px var(--glow)}
@@ -501,8 +513,13 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     </section>
 
     <section class="panel hidden" data-panel="tmr">
-      <div class="phead"><div><h2>TMR-DS™ Actuation</h2><p>Mechanical or TMR Analog for each click, and how far it travels before it fires. TMR Analog needs that click calibrated in Finalmouse Xpanel first.</p></div></div>
+      <div class="phead"><div><h2>TMR-DS™ Actuation</h2><p>Mechanical or TMR Analog for each click, and how far it travels before it fires. TMR Analog needs that click calibrated first.</p></div></div>
       <div id="tmrHost"></div>
+      <div class="item" id="calItem">
+        <div class="t">Click calibration</div>
+        <div class="d" id="calDesc">Teaches the mouse where each click sits, which TMR Analog needs. Do one side at a time, keep the mouse still and plugged in or in range, and press each button all the way down.</div>
+        <div class="erow"><button class="btn ghost" id="calL">Calibrate left</button><button class="btn ghost" id="calR">Calibrate right</button><button class="btn ghost" id="calBoth">Right, then left</button></div>
+      </div>
     </section>
 
     <section class="panel hidden" data-panel="led">
@@ -543,12 +560,28 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         </div>
         <div id="log" class="hidden"></div>
       </div>
-      <p style="color:var(--dimmer);font-size:13px;margin:6px 4px 0">Not included yet: profiles, button remapping and the analog calibration routine. Firmware updates are deliberately left out.</p>
+      <p style="color:var(--dimmer);font-size:13px;margin:6px 4px 0">Not included yet: profiles and button remapping. Firmware updates are deliberately left out.</p>
     </section>
   </main>
 </div>
 </div>
 
+<div class="modal hidden" id="calModal" role="dialog" aria-modal="true" aria-labelledby="calTitle">
+  <div class="mbox">
+    <h3 id="calTitle">SLX Calibration</h3>
+    <div class="calcue" id="calCue"></div>
+    <div class="calhint" id="calHint"></div>
+    <div class="caldots" id="calDots"></div>
+    <div class="calcount" id="calCount"></div>
+    <ol class="calhow">
+      <li>Press past the click, until the button bottoms out</li>
+      <li>Hold until it says let go</li>
+      <li>Let go completely and rest until it says press</li>
+    </ol>
+    <div class="calres hidden" id="calRes"></div>
+    <div class="erow" style="justify-content:center"><button class="btn ghost" id="calCancel">Cancel</button></div>
+  </div>
+</div>
 <div id="toast"></div>
 
 <script>
@@ -578,7 +611,7 @@ const isOurs = d => d.vendorId === VID && (d.productId === 0x100
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
 
 const CMD = { GET_DPI_ULX: 3, GET_RATE_ULX: 4, VBAT: 5, RSSI: 13, SERIAL: 14, MFG: 15, DPI: 16, RATE: 17, MOTION: 18,
-  INDICATOR: 20, LOD: 21, PAW_LOD: 25, CLICK: 31, ACT: 53, MSP: 55, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, ALL: 96 };
+  INDICATOR: 20, LOD: 21, PAW_LOD: 25, CLICK: 31, ACT: 53, MSP: 55, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, ALL: 96, CAL_CAPTURE: 27, CAL: 28 };
 const DPI_PRESETS = [400, 800, 1600, 3200, 6400];
 const RATES = [500, 1000, 2000, 4000, 8000];
 const LOD_PRESETS = [1, 2];
@@ -611,6 +644,9 @@ const rgbToHex = c => '#' + c.map(v => (v & 255).toString(16).padStart(2, '0')).
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const hex = a => Array.from(a).map(b => b.toString(16).padStart(2, '0')).join(' ');
 const u16 = (a, o = 0) => a[o] | (a[o + 1] << 8);
+const i16 = (a, o = 0) => { const v = u16(a, o); return v > 32767 ? v - 65536 : v; };
+const CAL_ACT = { start: 0, stop: 1, clear: 2, commit: 3, status: 4 };
+const CAL_BUCKETS = ['released', 'pressed', 'msp', 'mrp'];
 
 function log(cls, label, detail){
   const el = document.createElement('div');
@@ -668,7 +704,7 @@ class Finalmouse {
     const p = d.subarray(3, 3 + len);
     log('rx', `cmd ${cmd}`, hex(p));
     this.apply(cmd, p);
-    for (const w of [...this.waiters]) if (w.cmd === cmd){ this.waiters.splice(this.waiters.indexOf(w), 1); w.done(p); }
+    for (const w of [...this.waiters]) if (w.cmd === cmd && (!w.match || w.match(p))){ this.waiters.splice(this.waiters.indexOf(w), 1); w.done(p); }
   }
   apply(cmd, p){
     const s = this.state;
@@ -709,6 +745,23 @@ class Finalmouse {
       try { await this.send(cmd === CMD.DPI && this.fam === 'ulx' ? CMD.GET_DPI_ULX : cmd === CMD.RATE && this.fam === 'ulx' ? CMD.GET_RATE_ULX : cmd); }
       catch { w.done(null); }
     });
+  }
+  exchange(cmd, args, match, ms = 1500){
+    return new Promise(async resolve => {
+      const w = { cmd, match, done: v => { clearTimeout(t); resolve(v); } };
+      const t = setTimeout(() => { const i = this.waiters.indexOf(w); if (i >= 0) this.waiters.splice(i, 1); resolve(null); }, ms);
+      this.waiters.push(w);
+      try { await this.send(cmd, args); } catch { w.done(null); }
+    });
+  }
+  calCapture(side, action, arg){
+    const ch = side === 'R' ? 0 : 1, act = CAL_ACT[action];
+    return this.exchange(CMD.CAL_CAPTURE, arg != null ? [ch, act, arg] : [ch, act], p => p.length >= 3 && p[0] === ch && p[1] === act);
+  }
+  async readCal(){
+    const p = await this.exchange(CMD.CAL, [], () => true);
+    if (!p || p.length < 18) return null;
+    return { R: { released: i16(p, 0), pressed: i16(p, 2), valid: p[4] !== 0 }, L: { released: i16(p, 5), pressed: i16(p, 7), valid: p[9] !== 0 } };
   }
   async readAll(){
     const wanted = [CMD.DPI, ...(this.fam === 'ulx' ? [CMD.RATE, CMD.MOTION] : []), ...(this.fam === 'ulx' ? [CMD.LOD, CMD.PAW_LOD] : [CMD.PAW_LOD, CMD.MSP, CMD.CLICK, CMD.ACT]), CMD.INDICATOR, CMD.COLOR, CMD.JS_MODE, CMD.JS_TIMEOUT,
@@ -954,13 +1007,13 @@ function curHyst(){ const s = fm.state; return { l: s.hystL ?? SENS_DEFAULT, r: 
 function curRel(){ const s = fm.state; return { l: s.relL ?? 0, r: s.relR ?? 0 }; }
 async function after(cmd){ await sleep(150); await fm.request(cmd); show(); }
 async function setMode(k, v){
-  if (!calibrated(k)){ toast('Calibrate this side in Finalmouse Xpanel first', 1); show(); return; }
+  if (!calibrated(k)){ toast('Calibrate this click first (Click calibration, below)', 1); show(); return; }
   const s = fm.state;
   const m = { l: s.modeL ?? 0, r: s.modeR ?? 0 }; m[k] = v;
   const rel = curRel();
   await fm.setClick(m.l, m.r, s.relL != null ? rel.l : null, s.relR != null ? rel.r : null);
   await after(CMD.CLICK);
-  if (fm.state['mode' + sideKey(k)] !== v) toast('The mouse kept its click mode. Calibrate that side in Xpanel.', 1); else toast(`${k === 'l' ? 'Left' : 'Right'} click: ${v ? 'analog' : 'mechanical'}`);
+  if (fm.state['mode' + sideKey(k)] !== v) toast('The mouse kept its click mode. Calibrate that side first.', 1); else toast(`${k === 'l' ? 'Left' : 'Right'} click: ${v ? 'analog' : 'mechanical'}`);
 }
 async function setRel(k, v){
   const s = fm.state;
@@ -1016,10 +1069,117 @@ function showTmr(){
     if (old){ t.mode.classList.add('off'); for (const el of [t.act, t.actOut, t.sens]) el.disabled = true; place(k); }
     const late = t.rel.querySelector('[data-value="2"]');
     if (late){ const okLate = verAtLeast(s.fw, '1.1.1'); late.disabled = !okLate; late.title = okLate ? '' : 'Needs mouse firmware 1.1.1 or newer'; }
-    t.note.textContent = old ? 'The mouse firmware is too old for these settings. Update it in Finalmouse Xpanel.'
-      : s['msp' + S] == null ? 'Reading the button sensor...' : cal ? '' : 'Not calibrated. Calibrate this click in Finalmouse Xpanel to use analog.';
+    t.note.textContent = old ? 'The mouse firmware is too old for these settings. Update it with Finalmouse's own app.'
+      : s['msp' + S] == null ? 'Reading the button sensor...' : cal ? '' : 'Not calibrated. Use Click calibration below to use analog.';
   }
 }
+
+const CAL_PRESSES = 5, CAL_STEADY = 8, CAL_WEAK = 100, CAL_BAD = 50, CAL_POLL = DEMO ? 15 : 200, CAL_MAX_MISS = 11, CAL_TOO_LONG = 16, CAL_STALL_MS = 2000;
+const CAL_ERR_START = { 11: "The readings weren't steady enough to save. Press the button until it bottoms out, release it fully, and try again.", 16: 'A calibration is already running on this button. Cancel it and start again.', 22: 'The mouse rejected the request. Update its firmware and try again.' };
+const CAL_ERR_COMMIT = { 11: "Your presses weren't consistent enough. Bottom out every press, hold only until it says let go, and press the same way each time.", 22: "The mouse couldn't use these readings. Try again.", 34: 'The click point came out of range. Try again.', 61: 'The click point came out of range. Try again.' };
+function parseCalStatus(p){
+  if (!p || p.length < 38) return null;
+  const st = { errno: p[2], cycles: u16(p, 3), done: p[5] !== 0, active: p[6] !== 0, buckets: {} };
+  let o = 7;
+  for (const name of CAL_BUCKETS){ st.buckets[name] = { count: u16(p, o), value: i16(p, o + 2), min: i16(p, o + 4), max: i16(p, o + 6) }; o += 8; }
+  return st;
+}
+function calQuality(st){
+  const { released, pressed, msp, mrp } = st.buckets;
+  if (msp.count === 0 || mrp.count === 0) return { quality: 'bad', message: "The button's click point wasn't picked up. Press it past the click, all the way down until it bottoms out." };
+  if (released.count < CAL_STEADY || pressed.count < CAL_STEADY) return { quality: 'bad', message: "The mouse didn't get enough steady readings. Hold each press until it says let go, then let go completely and rest until it says press again." };
+  const d = released.value - pressed.value;
+  if (d < CAL_BAD) return { quality: 'bad', message: 'The sensor barely moved between released and pressed. Press past the click, until the button bottoms out. If this keeps happening, the button may need service.' };
+  if (d < CAL_WEAK) return { quality: 'weak', message: 'Saved, but the signal is on the weak side. Redoing it with full, firm presses may give a better result.' };
+  return { quality: 'good' };
+}
+function calCue(prev, st, now){
+  const { released, pressed, msp, mrp } = st.buckets;
+  const pressedNow = msp.count > mrp.count, edges = msp.count + mrp.count, base = pressedNow ? pressed.count : released.count;
+  let baseline, since;
+  if (prev && prev.edges === edges){ baseline = prev.baseline; since = prev.sinceMs; }
+  else if (!prev && edges === 0){ baseline = 0; since = now; }
+  else { baseline = base; since = now; }
+  const blocks = Math.max(0, base - baseline), steady = blocks >= CAL_STEADY;
+  const cue = pressedNow ? (steady ? 'let-go' : 'hold') : edges === 0 ? 'first-press' : steady ? 'press' : 'rest';
+  let hint = null;
+  if (!st.done){ if (pressedNow && blocks >= CAL_TOO_LONG) hint = 'too-long'; else if (!steady && now - since > CAL_STALL_MS) hint = pressedNow ? 'steady-press' : 'lift-off'; }
+  return { cue, hint, edges, baseline, sinceMs: since };
+}
+const CAL_CUE_TEXT = { 'first-press': 'Press past the click', press: 'Press past the click', hold: 'Hold it down', 'let-go': 'Let go', rest: 'Rest, stay released' };
+const CAL_HINT_TEXT = { 'too-long': 'Held too long. Let go now.', 'steady-press': 'Keep the button fully pressed.', 'lift-off': 'Keep your finger off the button.' };
+let calRun = 0, calOpen = false;
+const preventMenu = e => e.preventDefault();
+function calShow(cue, hint, cycles, count){
+  $('#calCue').textContent = cue; $('#calHint').textContent = hint || '';
+  $('#calDots').replaceChildren(...Array.from({ length: CAL_PRESSES }, (_, i) => { const d = document.createElement('i'); if (i < cycles) d.className = 'on'; return d; }));
+  $('#calCount').textContent = `${Math.min(cycles, CAL_PRESSES)} of ${CAL_PRESSES} presses done${count != null ? ` · ${count} readings` : ''}`;
+}
+function calResult(ok, msg){ const r = $('#calRes'); r.textContent = msg; r.className = 'calres ' + (ok ? 'ok' : 'bad'); $('#calCancel').textContent = 'Close'; }
+async function calibrateSide(side){
+  const name = side === 'L' ? 'left' : 'right', run = ++calRun;
+  $('#calTitle').textContent = `Calibrate the ${name} click`;
+  $('#calRes').className = 'calres hidden'; $('#calCancel').textContent = 'Cancel';
+  calShow('Starting...', '', 0, null);
+  const ok = async () => run === calRun;
+  await fm.calCapture(side, 'clear');
+  const started = await fm.calCapture(side, 'start', CAL_PRESSES);
+  if (!started){ calResult(false, "This mouse didn't respond to calibration commands. Update its firmware to the latest version and try again."); return false; }
+  if (started[2] !== 0){ calResult(false, CAL_ERR_START[started[2]] || `The mouse reported an error (${started[2]}).`); return false; }
+  let miss = 0, prev = null, last = null;
+  while (await ok()){
+    await sleep(CAL_POLL);
+    if (!(await ok())) return false;
+    const p = await fm.calCapture(side, 'status');
+    const st = parseCalStatus(p);
+    if (!st){
+      if (++miss < CAL_MAX_MISS) continue;
+      await fm.calCapture(side, 'clear'); calResult(false, 'The mouse stopped responding. Check the cable and try again.'); return false;
+    }
+    miss = 0; last = st;
+    prev = calCue(prev, st, Date.now());
+    calShow(CAL_CUE_TEXT[prev.cue], CAL_HINT_TEXT[prev.hint], Math.min(st.cycles, CAL_PRESSES), prev.edges);
+    if (st.done) break;
+  }
+  if (!(await ok())) return false;
+  const q = calQuality(last);
+  if (q.quality === 'bad'){ await fm.calCapture(side, 'clear'); calResult(false, q.message); return false; }
+  calShow('Saving...', '', CAL_PRESSES, null);
+  const done = await fm.calCapture(side, 'commit');
+  if (!done || done[2] !== 0){ await fm.calCapture(side, 'clear'); calResult(false, done ? (CAL_ERR_COMMIT[done[2]] || "Couldn't save on the mouse. Try again.") : "Couldn't save the calibration. Check the cable and try again."); return false; }
+  const cal = await fm.readCal();
+  await fm.request(CMD.MSP); await fm.request(CMD.ACT); await fm.request(CMD.CLICK);
+  show();
+  if (cal && !cal[side].valid){ calResult(false, "The mouse didn't keep the calibration. Try again."); return false; }
+  calResult(true, q.quality === 'weak' ? q.message : `The ${name} click is calibrated.`);
+  return true;
+}
+async function startCal(sides){
+  if (!fm || calOpen) return;
+  if (fm.fam !== 'slx'){ toast('Calibration is for the Starlight X.', 1); return; }
+  calOpen = true;
+  $('#calModal').classList.remove('hidden');
+  window.addEventListener('contextmenu', preventMenu);
+  let all = true;
+  try {
+    for (const side of sides){
+      const okSide = await calibrateSide(side);
+      if (!okSide){ all = false; break; }
+      if (sides.length > 1 && side !== sides[sides.length - 1]) await sleep(900);
+    }
+  } finally { window.removeEventListener('contextmenu', preventMenu); }
+  if (all && sides.length > 1) calResult(true, 'Both clicks are calibrated.');
+  calOpen = false;
+}
+$('#calL').onclick = () => startCal(['L']);
+$('#calR').onclick = () => startCal(['R']);
+$('#calBoth').onclick = () => startCal(['R', 'L']);
+$('#calCancel').onclick = async () => {
+  calRun++;
+  if (fm && calOpen){ for (const side of ['R', 'L']) await fm.calCapture(side, 'clear'); }
+  calOpen = false;
+  $('#calModal').classList.add('hidden');
+};
 function mark2(host, value){ for (const b of host.children) b.setAttribute('aria-pressed', String(value != null && +b.dataset.value === +value)); }
 buildTmr();
 let pawTimer;
@@ -1087,6 +1247,7 @@ function show(){
   $('#clicksTab').classList.toggle('hidden', !slx);
   const cur = document.querySelector('#tabs button[aria-pressed=true]');
   if (cur && cur.classList.contains('hidden')) showTab('dpi');
+  $('#calItem').classList.toggle('hidden', !slx);
   if (slx) showTmr();
 }
 
@@ -1155,7 +1316,7 @@ async function autoConnect(){
 }
 
 function makeDemoMouse(slx){
-  const st = { pawLod: 2, modeL: 1, modeR: 0, relL: 0, relR: 0, thrL: 30, thrR: 40, hystL: 150, hystR: 150, mspL: 120, mspR: 110, dpi: 1600, rate: 1000, motion: true, lod: 1, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
+  const st = { calFail: 0, calStartErr: 0, calSilent: false, calRuns: { R: null, L: null }, calHeld: { R: false, L: false }, calLog: [], calR: { released: 0, pressed: 0, valid: 0 }, calL: { released: 0, pressed: 0, valid: 0 }, pawLod: 2, modeL: 1, modeR: 0, relL: 0, relR: 0, thrL: 30, thrR: 40, hystL: 150, hystR: 150, mspL: 120, mspR: 110, dpi: 1600, rate: 1000, motion: true, lod: 1, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
   const ascii = t => [...t].map(c => c.charCodeAt(0));
   const dev = { vendorId: VID, productId: slx ? 0x310 : 0x100, productName: slx ? 'Starlight X' : 'Ultralight X dongle', opened: false, collections: [{ usagePage: PAGE, usage: 1 }], _l: [],
     addEventListener(t, f){ if (t === 'inputreport') this._l.push(f); }, removeEventListener(t, f){ this._l = this._l.filter(x => x !== f); },
@@ -1186,6 +1347,55 @@ function makeDemoMouse(slx){
           if (n >= 8){ st.hystR = p[4] | (p[5] << 8); st.hystL = p[6] | (p[7] << 8); }
         }
         break;
+      case 27: {
+        const ch = p[0], act = p[1], side = ch === 0 ? 'R' : 'L';
+        st.calLog.push([side, act, p[2]]);
+        if (st.calSilent) break;
+        if (act === 2){ st.calRuns[side] = null; out(27, [ch, act, 0]); }
+        else if (act === 0){
+          if (st.calStartErr) out(27, [ch, act, st.calStartErr]);
+          else { st.calRuns[side] = { target: p[2] || 5, ticks: 0 }; out(27, [ch, act, 0]); }
+        } else if (act === 3){
+          if (st.calFail) out(27, [ch, act, st.calFail]);
+          else {
+            const q = st.calQuality === 'weak' ? [800, 740] : [1300, 700];
+            st['cal' + side] = { released: q[0], pressed: q[1], valid: 1 };
+            if (side === 'R') st.mspR = 118; else st.mspL = 122;
+            out(27, [ch, act, 0]);
+          }
+        } else if (act === 4){
+          const run = st.calRuns[side];
+          const b = new Array(39).fill(0);
+          b[0] = ch; b[1] = 4; b[2] = 0;
+          if (run){
+            run.ticks++;
+            const cycles = Math.min(run.target, Math.floor(run.ticks / 6));
+            const doneNow = cycles >= run.target;
+            const cnt = { released: 0, pressed: 0, msp: 0, mrp: 0 };
+            const full = Math.min(run.ticks, run.target * 6);
+            cnt.pressed = st.calNoSteady ? 1 : Math.floor(full / 2) * 3;
+            cnt.released = st.calNoSteady ? 1 : Math.ceil(full / 2) * 3;
+            cnt.msp = st.calNoEdge ? 0 : Math.min(run.target, Math.ceil(full / 6));
+            cnt.mrp = st.calNoEdge ? 0 : cycles;
+            const val = { released: st.calQuality === 'weak' ? 800 : st.calQuality === 'bad' ? 700 : 1300, pressed: st.calQuality === 'weak' ? 740 : st.calQuality === 'bad' ? 690 : 700, msp: 1000, mrp: 900 };
+            b[3] = cycles & 255; b[4] = cycles >> 8; b[5] = doneNow ? 1 : 0; b[6] = doneNow ? 0 : 1;
+            let o = 7;
+            for (const name of ['released', 'pressed', 'msp', 'mrp']){
+              const c = cnt[name], v = val[name] & 0xffff;
+              b[o] = c & 255; b[o + 1] = c >> 8; b[o + 2] = v & 255; b[o + 3] = v >> 8; b[o + 4] = (v - 5) & 255; b[o + 5] = (v - 5) >> 8; b[o + 6] = (v + 5) & 255; b[o + 7] = (v + 5) >> 8; o += 8;
+            }
+          }
+          out(27, b);
+        }
+        break;
+      }
+      case 28: {
+        const r = st.calR, l = st.calL, b = new Array(18).fill(0), w = (o, v) => { b[o] = v & 255; b[o + 1] = (v >> 8) & 255; };
+        w(0, r.released); w(2, r.pressed); b[4] = r.valid; w(5, l.released); w(7, l.pressed); b[9] = l.valid;
+        w(10, st.mspR); w(12, st.mspR - 20); w(14, st.mspL); w(16, st.mspL - 20);
+        out(28, b);
+        break;
+      }
       case 55: out(55, [st.mspR & 255, st.mspR >> 8, st.mspL & 255, st.mspL >> 8]); break;
       case 18: if (get) out(18, [st.motion ? 1 : 0]); else st.motion = !!p[0]; break;
       case 21: if (get) out(21, [st.lod]); else st.lod = p[0]; break;
