@@ -1069,7 +1069,7 @@ function showTmr(){
     if (old){ t.mode.classList.add('off'); for (const el of [t.act, t.actOut, t.sens]) el.disabled = true; place(k); }
     const late = t.rel.querySelector('[data-value="2"]');
     if (late){ const okLate = verAtLeast(s.fw, '1.1.1'); late.disabled = !okLate; late.title = okLate ? '' : 'Needs mouse firmware 1.1.1 or newer'; }
-    t.note.textContent = old ? 'The mouse firmware is too old for these settings. Update it with Finalmouse's own app.'
+    t.note.textContent = old ? 'The mouse firmware is too old for these settings. Update it with the Finalmouse app.'
       : s['msp' + S] == null ? 'Reading the button sensor...' : cal ? '' : 'Not calibrated. Use Click calibration below to use analog.';
   }
 }
