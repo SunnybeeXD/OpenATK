@@ -28,6 +28,12 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   html[data-theme=orange]{--acc:#fb923c;--acc-hi:#fdba74;--acc-lo:#f97316;--acc-dk:#c2570c;--acc-rgb:251,146,60;--acc2:#facc15;--acc2-rgb:250,204,21}
   html[data-theme=pink]{--acc:#f472b6;--acc-hi:#f9a8d4;--acc-lo:#ec4899;--acc-dk:#be2f7a;--acc-rgb:244,114,182;--acc2:#a78bfa;--acc2-rgb:167,139,250}
   *{box-sizing:border-box}
+  html{color-scheme:dark;scrollbar-width:thin;scrollbar-color:#2f3a47 transparent}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#2a343f;border-radius:10px;border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:#3a4755;background-clip:content-box;border:2px solid transparent}
+  ::-webkit-scrollbar-corner{background:transparent}
   html,body{margin:0;min-height:100%;color:var(--ink);
     font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.55;
     -webkit-font-smoothing:antialiased}
@@ -342,6 +348,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   body.embed header .brand, body.embed header .lead, body.embed header .icon, body.embed header #connect,
   body.embed .demobar a, body.embed a[href^="../keyboard/"], body.embed a[href^="../mouse/"]{display:none !important}
   body.embed .wrap{padding-top:8px}
+  body.embed header{background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:2px 4px 6px}
+  body.embed h1{font-size:22px}
 </style>
 </head>
 <body>
@@ -1170,9 +1178,24 @@ function keyWidth(code, hasKeysAfter){
   return WIDTHS[code] ?? 1;
 }
 
+function baseTravel(){
+  const counts = new Map();
+  let best = null, top = 0;
+  for (let i = 0; i < kb.rows * kb.cols; i++){
+    const t = travelValues[i];
+    if (!keymap[i] || t == null) continue;
+    const key = t.toFixed(2);
+    const n = (counts.get(key) || 0) + 1;
+    counts.set(key, n);
+    if (n > top){ top = n; best = key; }
+  }
+  return best;
+}
+
 function renderGrid(){
   const host = $('#grid');
   host.innerHTML = '';
+  const base = baseTravel();
   for (let r = 0; r < kb.rows; r++){
     const live = [];
     for (let c = 0; c < kb.cols; c++){
@@ -1193,7 +1216,7 @@ function renderGrid(){
       const t = travelValues[k.i];
       const rt = rtValues[k.i];
       b.innerHTML =
-        `<em>${t != null ? t.toFixed(2) : ''}</em>` +
+        `<em>${t != null && t.toFixed(2) !== base ? t.toFixed(2) : ''}</em>` +
         `<span>${label}</span>` +
         `<i>${rt && rt.on ? `${rt.press.toFixed(2)}/${rt.release.toFixed(2)}` : ''}</i>`;
       b.title = `row ${r}, col ${k.c}`;
@@ -1818,7 +1841,7 @@ async function readPerKey(){
     try { rtValues[i] = await kb.getKeyRt(r, c); } catch {}
   }
   $('#gridNote').textContent =
-    `${live.length} keys. Top number is trigger travel, bottom is rapid trigger press / lift.`;
+    `${live.length} keys. A top number marks a key whose trigger travel differs from the rest. Bottom is rapid trigger press / lift.`;
   renderGrid();
   updateSelectionCount();
 }
