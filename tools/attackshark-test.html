@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Attack Shark protocol tester</title>
+<style>
+  :root{--bg:#06080b;--card:#10151b;--card2:#161d25;--line:#232c37;--line2:#2f3a47;--ink:#f1f6fb;--dim:#98a6b4;--acc:#3ddc84;--acc2:#22d3ee;--warn:#f5c451;--bad:#f87171;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:26px 18px 90px}
+  h1{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}
+  h1 span{color:var(--acc)}
+  .sub{color:var(--dim);margin:0 0 22px}
+  h2{margin:0 0 10px;font-size:17px}
+  section{background:var(--card);border-radius:16px;padding:18px;margin:0 0 14px;box-shadow:0 0 0 1px rgba(255,255,255,.07)}
+  p{margin:0 0 10px}
+  .dim{color:var(--dim)}
+  .warn{background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.3);color:#f7dc9a;border-radius:10px;padding:10px 13px;margin:10px 0 0;font-size:14px}
+  .bad{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:#fbb5b5;border-radius:10px;padding:10px 13px;margin:10px 0 0;font-size:14px}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--card2);padding:2px 6px;border-radius:5px}
+  pre{margin:10px 0 0;background:#0a0e13;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono);color:#bfe9d0;overflow:auto;white-space:pre-wrap;word-break:break-all}
+  .good-text{color:#7ff0ab}.bad-text{color:#fbb5b5}
+  .btn{font:600 14px/1 inherit;padding:10px 15px;border-radius:9px;border:0;cursor:pointer;color:#03170b;background:linear-gradient(180deg,#5cf0a2,#2fc774)}
+  .btn.ghost{color:var(--ink);background:var(--card2);box-shadow:0 0 0 1px var(--line2)}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 0}
+  input,select,textarea{background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font:13px var(--mono)}
+  input[type=color]{padding:0;width:38px;height:34px}
+  input[type=checkbox]{accent-color:var(--acc)}
+  textarea{width:100%;min-height:70px}
+  label{font-size:13px;color:var(--dim)}
+  .stages{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin-top:10px}
+  .stage{display:flex;gap:8px;align-items:center}
+  .stage label{width:58px;color:var(--ink)}
+  .stage input[type=number]{width:100px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+  .grid div{display:flex;flex-direction:column;gap:3px}
+  .log{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#0a0e13;margin-top:10px}
+  table{border-collapse:collapse;width:100%;font-size:12px}
+  td{padding:3px 8px;border-bottom:1px solid #151c24;vertical-align:top}
+  td.hx{font-family:var(--mono);word-break:break-all}
+  .k-out td:nth-child(3),.k-fout td:nth-child(3){color:#7fd9ff}
+  .k-in td:nth-child(3),.k-fin td:nth-child(3){color:#ffd27a}
+  .k-err td{color:var(--bad)}
+  .k-info td{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Attack Shark <span>protocol tester</span></h1>
+  <p class="sub">Checks the Attack Shark feature-report protocol from your browser. Nothing leaves your machine. Use Chrome or Edge.</p>
+
+  <div class="bad" id="nohid" hidden>This browser has no WebHID. Open the page in Chrome, Edge or another Chromium browser over https or localhost.</div>
+
+  <section>
+    <h2>1. Connect</h2>
+    <p class="dim">Pick the mouse or its 2.4 GHz receiver. If a mouse shows several entries, try each one: only one exposes the config channel.</p>
+    <div class="row"><button class="btn" id="connect">Connect device</button></div>
+    <div id="devinfo" hidden><pre id="devtxt"></pre></div>
+    <div class="warn">On Windows the browser usually cannot reach the X11 and R1 config channel, so writes fail or the device is not listed. Linux exposes it. Reads and writes that fail are still useful: copy the log.</div>
+    <p class="dim" style="margin-top:10px">Receiver message: <span id="rx">none yet (wireless units push these on their own)</span></p>
+  </section>
+
+  <section>
+    <h2>2. Self-test (no device needed)</h2>
+    <p class="dim">Builds every frame in this page and compares it with the output of the vendor configurator's own functions.</p>
+    <div class="row"><button class="btn ghost" id="selftest">Run self-test</button></div>
+    <pre id="selfout">not run</pre>
+  </section>
+
+  <section>
+    <h2>3. Polling rate (report 0x06)</h2>
+    <div class="row">
+      <select id="rate"></select>
+      <button class="btn needs-dev" id="poll-write" disabled>Write</button>
+      <button class="btn ghost needs-dev" id="poll-read" disabled>Read back (0xA0 request)</button>
+    </div>
+    <pre id="poll-note">idle</pre>
+  </section>
+
+  <section>
+    <h2>4. DPI table and stage colors (report 0x04, X11 style)</h2>
+    <p class="dim">Six stages. Values snap to the nearest step the X11 register map supports.</p>
+    <div class="stages" id="stages"></div>
+    <div class="row">
+      <label>Active stage <select id="active"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+      <label><input type="checkbox" id="angle"> angle snapping</label>
+      <label><input type="checkbox" id="ripple" checked> ripple control</label>
+      <label><input type="checkbox" id="wired52"> wired (52-byte report)</label>
+    </div>
+    <div class="row">
+      <button class="btn needs-dev" id="dpi-write" disabled>Write table</button>
+      <button class="btn ghost needs-dev" id="dpi-read" disabled>Read table</button>
+      <button class="btn ghost" id="dpi-preview">Preview bytes</button>
+    </div>
+    <pre id="dpi-note">idle</pre>
+  </section>
+
+  <section>
+    <h2>5. GearHub style probe (0x25a7, read only plus polling)</h2>
+    <div class="row">
+      <button class="btn ghost needs-dev" id="g-fw" disabled>Firmware</button>
+      <button class="btn ghost needs-dev" id="g-dpi" disabled>DPI slots</button>
+      <label>polling code (hex) <input id="g-code" value="01" size="3"></label>
+      <button class="btn needs-dev" id="g-rate" disabled>Write polling</button>
+    </div>
+    <pre id="g-note">idle</pre>
+  </section>
+
+  <section>
+    <h2>6. Frame lab (lighting, wake-up, buttons, macro)</h2>
+    <p class="dim">These frames match the vendor configurator but are model dependent. A mouse that does not support one may ignore it. Preview is always safe. Send only when you are happy to test.</p>
+    <div class="row"><label>Frame <select id="lab"><option value="lighting">Lighting (0x05)</option><option value="wakeup">Wake-up mode (0x07)</option><option value="buttons">Button table (0x08)</option><option value="macro">Macro (0x09)</option></select></label></div>
+    <div class="lab-panel" data-k="lighting">
+      <div class="grid">
+        <div><label>mode</label><input id="lmode" type="number" value="3"></div>
+        <div><label>speed</label><input id="lspeed" type="number" value="3"></div>
+        <div><label>brightness</label><input id="lbright" type="number" value="168"></div>
+        <div><label>color</label><input id="lcolor" type="color" value="#0c22ff"></div>
+        <div><label>close time</label><input id="lclose" type="number" value="60"></div>
+        <div><label>direction</label><input id="ldir" type="number" value="8"></div>
+        <div><label>variant</label><select id="lvar"><option>raw</option><option>scaled</option><option>packed</option></select></div>
+      </div>
+    </div>
+    <div class="lab-panel" data-k="wakeup"><div class="grid"><div><label>mode</label><input id="wmode" type="number" value="0"></div></div></div>
+    <div class="lab-panel" data-k="buttons">
+      <label>Up to 19 slots. Names from the list below, or raw <code>type:modifier:key</code>.</label>
+      <textarea id="blist">CLICK MENU SCROLLING FORWARD BACK DPI_CYCLE</textarea>
+      <label>Functions: <select id="fn"></select></label>
+    </div>
+    <div class="lab-panel" data-k="macro">
+      <div class="grid">
+        <div><label>macro id</label><input id="mid" type="number" value="1"></div>
+        <div><label>macro type</label><input id="mtype" type="number" value="0"></div>
+        <div><label>loop count</label><input id="mloop" type="number" value="1"></div>
+        <div><label>layout</label><select id="mlayout"><option>long10ms</option><option>long1ms</option><option>short1ms</option></select></div>
+      </div>
+      <label>One action per line: <code>usageId down|up delayMs</code></label>
+      <textarea id="mlist">4 down 10
+4 up 50</textarea>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="lab-build">Preview bytes</button>
+      <button class="btn needs-dev" id="lab-send" disabled>Send as feature report</button>
+    </div>
+    <pre id="lab-hex">idle</pre>
+  </section>
+
+  <section>
+    <h2>7. Raw report</h2>
+    <div class="row">
+      <label>report id (hex) <input id="rid" value="06" size="3"></label>
+      <input id="rdata" style="flex:1;min-width:220px" value="09 01 01 fe 00 00 00 00">
+    </div>
+    <div class="row">
+      <button class="btn needs-dev" id="r-send" disabled>Send feature</button>
+      <button class="btn ghost needs-dev" id="r-get" disabled>Get feature</button>
+      <button class="btn ghost needs-dev" id="r-out" disabled>Send output report</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Log</h2>
+    <div class="row"><button class="btn ghost" id="copylog">Copy log</button><button class="btn ghost" id="clearlog">Clear</button></div>
+    <div class="log"><table><tbody id="log"></tbody></table></div>
+  </section>
+</div>
+<script>
+const AS = (() => {
+  const sum16 = (b, s, e) => { let t = 0; for (let i = s; i < (e === undefined ? b.length : e); i++) t = (t + b[i]) & 0xffff; return t; };
+  const put16 = (b, o, v) => { b[o] = (v >> 8) & 0xff; b[o + 1] = v & 0xff; };
+  const chk = (v, n) => { if (!Number.isInteger(v) || v < 0 || v > 255) throw new RangeError(n + " must be 0-255, got " + v); return v; };
+  const hex = (u) => Array.from(u, (x) => x.toString(16).padStart(2, "0")).join("");
+  const unhex = (s) => {
+    const t = s.replace(/0x/gi, "").replace(/[^0-9a-f]/gi, "");
+    if (t.length % 2) throw new Error("odd number of hex digits");
+    const o = new Uint8Array(t.length / 2);
+    for (let i = 0; i < o.length; i++) o[i] = parseInt(t.substr(i * 2, 2), 16);
+    return o;
+  };
+  const COLORS = [[255,0,0],[0,255,0],[0,0,255],[255,255,0],[0,255,255],[255,0,255],[255,64,0],[255,255,255]];
+  const POLL = [[125, 0x08], [250, 0x04], [500, 0x02], [1000, 0x01]];
+  const STEP = [[50,1],[100,2],[150,3],[200,4],[250,5],[300,6],[350,8],[400,9],[450,10],[500,11],[550,12],[600,14],[650,15],[700,16],[750,17],[800,18],[850,19],[900,21],[950,22],[1000,23],[1050,24],[1100,25],[1150,27],[1200,28],[1250,29],[1300,30],[1350,31],[1400,32],[1450,34],[1500,35],[1550,36],[1600,37],[1650,38],[1700,39],[1750,41],[1800,42],[1850,43],[1900,44],[1950,45],[2000,47],[2050,48],[2100,49],[2150,50],[2200,51],[2250,52],[2300,54],[2350,55],[2400,56],[2450,57],[2500,58],[2550,59],[2600,61],[2650,62],[2700,63],[2750,64],[2800,65],[2850,67],[2900,68],[2950,69],[3000,70],[3050,71],[3100,72],[3150,74],[3200,75],[3250,76],[3300,77],[3350,78],[3400,79],[3450,81],[3500,82],[3550,83],[3600,84],[3650,85],[3700,87],[3750,88],[3800,89],[3850,90],[3900,91],[3950,92],[4000,94],[4050,95],[4100,96],[4150,97],[4200,98],[4250,99],[4300,101],[4350,102],[4400,103],[4450,104],[4500,105],[4550,107],[4600,108],[4650,109],[4700,110],[4750,111],[4800,112],[4850,114],[4900,115],[4950,116],[5000,117],[5050,118],[5100,119],[5150,121],[5200,122],[5250,123],[5300,124],[5350,125],[5400,127],[5450,128],[5500,129],[5550,130],[5600,131],[5650,132],[5700,134],[5750,135],[5800,136],[5850,137],[5900,138],[5950,139],[6000,141],[6050,142],[6100,143],[6150,144],[6200,145],[6250,147],[6300,148],[6350,149],[6400,150],[6450,151],[6500,152],[6550,154],[6600,155],[6650,156],[6700,157],[6750,158],[6800,159],[6850,161],[6900,162],[6950,163],[7000,164],[7050,165],[7100,167],[7150,168],[7200,169],[7250,170],[7300,171],[7350,172],[7400,174],[7450,175],[7500,176],[7550,177],[7600,178],[7650,179],[7700,181],[7750,182],[7800,183],[7850,184],[7900,185],[7950,187],[8000,188],[8050,189],[8100,190],[8150,191],[8200,192],[8250,194],[8300,195],[8350,196],[8400,197],[8450,198],[8500,199],[8550,201],[8600,202],[8650,203],[8700,204],[8750,205],[8800,207],[8850,208],[8900,209],[8950,210],[9000,211],[9050,212],[9100,214],[9150,215],[9200,216],[9250,217],[9300,218],[9350,219],[9400,221],[9450,222],[9500,223],[9550,224],[9600,225],[9650,227],[9700,228],[9750,229],[9800,230],[9850,231],[9900,232],[9950,234],[10000,235],[10100,118],[10200,119],[10300,121],[10400,122],[10500,123],[10600,124],[10700,125],[10800,127],[10900,128],[11000,129],[11100,130],[11200,131],[11300,132],[11400,134],[11500,135],[11600,136],[11700,137],[11800,138],[11900,139],[12000,141],[12100,142],[12200,143],[12300,144],[12400,145],[12500,147],[12600,148],[12700,149],[12800,150],[12900,151],[13000,152],[13100,154],[13200,155],[13300,156],[13400,157],[13500,158],[13600,159],[13700,161],[13800,162],[13900,163],[14000,164],[14100,165],[14200,167],[14300,168],[14400,169],[14500,170],[14600,171],[14700,172],[14800,174],[14900,175],[15000,176],[15100,177],[15200,178],[15300,179],[15400,181],[15500,182],[15600,183],[15700,184],[15800,185],[15900,187],[16000,188],[16100,189],[16200,190],[16300,191],[16400,192],[16500,194],[16600,195],[16700,196],[16800,197],[16900,198],[17000,199],[17100,201],[17200,202],[17300,203],[17400,204],[17500,205],[17600,207],[17700,208],[17800,209],[17900,210],[18000,211],[18100,212],[18200,214],[18300,215],[18400,216],[18500,217],[18600,218],[18700,219],[18800,221],[18900,222],[19000,223],[19100,224],[19200,225],[19300,227],[19400,228],[19500,229],[19600,230],[19700,231],[19800,232],[19900,234],[20000,235],[20100,235],[20200,118],[20300,118],[20400,119],[20500,119],[20600,121],[20700,121],[20800,122],[20900,122],[21000,123],[21100,123],[21200,124],[21300,124],[21400,125],[21500,125],[21600,127],[21700,127],[21800,128],[21900,128],[22000,129]];
+  const STEP_MAP = new Map(STEP);
+  const DPI_VALUES = STEP.map((e) => e[0]);
+  const nearestDpi = (d) => {
+    const t = Math.min(22000, Math.max(50, Math.round(d)));
+    const m = DPI_VALUES.find((v) => v >= t);
+    return m === undefined ? 22000 : m;
+  };
+  const pair = (dpi, enc) => {
+    if (dpi === 0) return [0, 0];
+    const v = enc === "step100" ? Math.floor((dpi - 100) / 100) : enc === "raw" ? dpi : Math.floor((dpi - 50) / 50);
+    return [v & 255, (v >> 8) & 255];
+  };
+  const polling = (code) => {
+    const b = new Uint8Array(15);
+    b[0] = 6; b[1] = 9; b[2] = 1; b[3] = chk(code, "rate"); b[4] = ~b[3] & 255;
+    return b;
+  };
+  const dualPolling = (wired, wireless) => {
+    if (wired > 15 || wireless > 15) throw new RangeError("dual codes are 4-bit");
+    return polling((wireless << 4) | wired);
+  };
+  const wakeup = (mode) => {
+    const b = new Uint8Array(8);
+    b[0] = 7; b[1] = 8; b[2] = chk(mode, "mode"); b[3] = ~mode & 255; b[5] = 255;
+    return b;
+  };
+  const lighting = (c, variant) => {
+    const b = new Uint8Array(20);
+    let mode = c.mode, close = c.closeTime, dir = c.direction;
+    if (variant === "scaled") { close = close / 10; dir = dir / 2; }
+    else if (variant === "packed") { mode = mode << 4; close = close * 2; dir = dir / 2; }
+    b[0] = 5; b[1] = 15; b[2] = chk(c.profile === undefined ? 1 : c.profile, "profile");
+    b[3] = chk(mode, "mode"); b[4] = chk(c.speed, "speed"); b[5] = chk(c.brightness, "brightness");
+    b[6] = chk(c.r, "red"); b[7] = chk(c.g, "green"); b[8] = chk(c.b, "blue");
+    b[9] = chk(Math.trunc(close), "closeTime"); b[10] = chk(Math.trunc(dir), "direction");
+    put16(b, 11, sum16(b, 3, 11));
+    put16(b, 15, 4 + sum16(b, 0, 15));
+    return b;
+  };
+  const buttons = (triples) => {
+    if (triples.length > 19) throw new RangeError("at most 19 button slots");
+    const b = new Uint8Array(63);
+    b[0] = 8; b[1] = 59; b[2] = 1;
+    let o = 3;
+    for (const t of triples) { b[o++] = chk(t[0], "type"); b[o++] = chk(t[1], "modifier"); b[o++] = chk(t[2], "key"); }
+    put16(b, o, sum16(b, 3, o));
+    return b;
+  };
+  const macroBytes = (a, layout) => {
+    const u = chk(a.usage, "usage"), t = a.timeMs, press = a.direction === 0;
+    const enc = (f) => [press ? f | 1 : f | 128, u];
+    if (layout === "long10ms") {
+      if (t > 1270) {
+        const rest = Math.trunc((t % 200) / 10);
+        return [press ? rest | 1 : rest | 129, u, chk(Math.trunc(t / 200), "long delay"), 3];
+      }
+      return enc(Math.trunc(t / 10));
+    }
+    if (t > 127) {
+      const rest = t % 100;
+      return [press ? rest | 1 : rest | 129, u, chk(Math.trunc(t / 100), "long delay"), 3];
+    }
+    return enc(Math.trunc(t));
+  };
+  const macro = (c) => {
+    const layout = c.layout || "long10ms";
+    const long = layout !== "short1ms";
+    const len = long ? 131 : 111, countAt = long ? 28 : 8, actAt = long ? 29 : 9;
+    const b = new Uint8Array(len);
+    const type = c.macroType || 0;
+    b[0] = 9; b[1] = len; b[2] = chk(c.macroId, "macroId"); b[3] = chk(type, "macroType");
+    b[7] = type === 0 ? chk(c.loop, "loop") : 1;
+    let o = actAt, n = 0;
+    for (const a of c.actions) {
+      const bytes = macroBytes(a, layout);
+      if (o + bytes.length > len - 2) throw new RangeError("macro does not fit in one report");
+      for (const v of bytes) b[o++] = v;
+      n += bytes.length === 4 ? 2 : 1;
+    }
+    b[countAt] = chk(n, "action count");
+    put16(b, len - 2, sum16(b, 3, o));
+    return b;
+  };
+  const dpi = (c) => {
+    const b = new Uint8Array(60);
+    const colors = c.colors || COLORS;
+    b[0] = 4; b[1] = 56; b[2] = chk(c.profile === undefined ? 1 : c.profile, "profile");
+    b[3] = chk(c.sensX === undefined ? 0 : c.sensX, "sensX"); b[4] = chk(c.sensY === undefined ? 1 : c.sensY, "sensY");
+    b[5] = chk(c.mask === undefined ? 63 : c.mask, "mask");
+    b[6] = chk(c.xDouble === undefined ? 0 : c.xDouble, "xDouble"); b[7] = chk(c.yDouble === undefined ? 1 : c.yDouble, "yDouble");
+    for (let i = 0; i < 8; i++) {
+      const p = c.pairs ? c.pairs[i] : pair(c.stages[i] || 0, c.encoding);
+      b[8 + i] = p[0]; b[16 + i] = p[1];
+    }
+    b[24] = chk(c.active, "active");
+    for (let i = 0; i < 8; i++) {
+      const col = colors[i] || [0, 0, 0];
+      b[25 + i * 3] = chk(col[0], "red"); b[26 + i * 3] = chk(col[1], "green"); b[27 + i * 3] = chk(col[2], "blue");
+    }
+    b[49] = chk(c.type === undefined ? 2 : c.type, "indicator type");
+    put16(b, 50, sum16(b, 3, 50));
+    return b;
+  };
+  const x11Dpi = (c) => {
+    let mask = 0;
+    const pairs = [];
+    for (let i = 0; i < 6; i++) {
+      const d = nearestDpi(c.stages[i]);
+      if (d > 12000) mask |= 1 << i;
+      const high = (d >= 10100 && d <= 12000) || (d >= 20100 && d <= 22000);
+      pairs.push([STEP_MAP.get(d), high ? 1 : 0]);
+    }
+    pairs.push([0, 0], [0, 0]);
+    const full = dpi({ pairs, active: c.active, sensX: c.angleSnap ? 1 : 0, sensY: c.ripple ? 1 : 0, mask: 63, xDouble: mask, yDouble: mask, colors: c.colors, type: 2 }).subarray(0, 56);
+    return c.wired ? full.subarray(0, 52) : full;
+  };
+  const decodeX11 = (data) => {
+    let b = data;
+    if (b.length >= 2 && b[0] === 0x38 && b[1] === 0x01) { const f = new Uint8Array(b.length + 1); f.set(b, 1); f[0] = 4; b = f; }
+    if (b.length < 52 || b[0] !== 4 || b[1] !== 0x38 || b[2] !== 1) return null;
+    if (sum16(b, 3, 50) !== ((b[50] << 8) | b[51])) return null;
+    return { active: b[24], angleSnap: b[3] === 1, ripple: b[4] === 1, bytes: Array.from(b.subarray(8, 14)) };
+  };
+  const cmd25a7 = (bytes) => {
+    const o = new Uint8Array(64);
+    o.set(bytes.slice(0, 9));
+    let s = 0;
+    for (let i = 0; i < 7; i++) s = (s + o[i]) & 255;
+    o[7] = (255 - s) & 255;
+    return o;
+  };
+  const FUN = {OFF:[1,0,0],CLICK:[2,0,0],MENU:[3,0,0],SCROLLING:[4,0,0],BACK:[5,0,0],FORWARD:[6,0,0],DOUBLE_CLICK:[7,0,0],FIRE:[8,0,0],DPI_CYCLE:[13,0,0],DPI_UP:[14,0,0],DPI_DOWN:[15,0,0],EASY_AIM:[16,0,3],COPY:[17,1,6],PASTE:[17,1,25],PROFILE_CYCLE:[52,0,0],POLL_CYCLE:[40,0,0],LED_CYCLE:[41,0,3],MODE_KEY:[60,0,0],VOL_UP:[27,0,0],VOL_DOWN:[28,0,0],MUTE:[26,0,0],PLAY_PAUSE:[24,0,0]};
+  const MODELS = {1:"X3 Pro",2:"X8 SE",4:"G3",6:"X8 Plus",7:"X11 SE",8:"X8 Pro",14:"G3 Pro",16:"R1",36:"V6",77:"X3",78:"X3 Max",85:"X11",133:"X6",177:"X1",190:"X11 Pro",229:"V3 Pro",234:"V3"};
+  const RECEIVER_MODELS = {0x55:["X11","percent"],0x10:["R1","tenths"],0x85:["X6","tenths"],0x4d:["X3",null],0x4e:["X3 Max",null],0x01:["X3 Pro",null],0x07:["X11 SE",null],0xbe:["X11 Pro",null],0xb1:["X1",null],0x02:["X8 SE",null],0x06:["X8 Plus",null],0x08:["X8 Pro",null],0x04:["G3",null],0x0e:["G3 Pro",null],0x24:["V6",null],0xe5:["V3 Pro",null],0xea:["V3",null]};
+  return { sum16, hex, unhex, COLORS, POLL, DPI_VALUES, nearestDpi, pair, polling, dualPolling, wakeup, lighting, buttons, macro, dpi, x11Dpi, decodeX11, cmd25a7, FUN, MODELS, RECEIVER_MODELS };
+})();
+
+const SELFTEST = () => {
+  const L = { mode: 3, speed: 3, brightness: 168, r: 12, g: 34, b: 255, closeTime: 60, direction: 8 };
+  const acts = [{usage:4,direction:0,timeMs:10},{usage:4,direction:1,timeMs:50},{usage:5,direction:0,timeMs:2000},{usage:5,direction:1,timeMs:10}];
+  const btn = [AS.FUN.CLICK, AS.FUN.MENU, AS.FUN.SCROLLING, AS.FUN.FORWARD, AS.FUN.BACK, AS.FUN.DPI_CYCLE, AS.FUN.COPY, AS.FUN.EASY_AIM];
+  const h = (u) => AS.hex(u);
+  const cases = [
+    ["lighting raw", h(AS.lighting(L, "raw")), "050f010303a80c22ff3c08021f00000259000000"],
+    ["lighting scaled", h(AS.lighting(L, "scaled")), "050f010303a80c22ff060401e5000002e4000000"],
+    ["lighting packed", h(AS.lighting(L, "packed")), "050f013003a80c22ff7804028400000323000000"],
+    ["wake-up 0", h(AS.wakeup(0)), "070800ff00ff0000"],
+    ["wake-up 2", h(AS.wakeup(2)), "070802fd00ff0000"],
+    ["polling 1000 Hz", h(AS.polling(1)), "06090101fe00000000000000000000"],
+    ["polling 125 Hz", h(AS.polling(8)), "06090108f700000000000000000000"],
+    ["polling dual 2/8", h(AS.dualPolling(2, 8)), "060901827d00000000000000000000"],
+    ["buttons", h(AS.buttons(btn)), "083b010200000300000400000600000500000d0000110106100003004c00000000000000000000000000000000000000000000000000000000000000000000"],
+    ["macro long 10 ms", h(AS.macro({macroId:3,loop:7,actions:acts,layout:"long10ms"})), "09830300000000070000000000000000000000000000000000000000050104850401050a0381050000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000133"],
+    ["macro long 1 ms", h(AS.macro({macroId:3,loop:7,actions:acts,layout:"long1ms"})), "09830300000000070000000000000000000000000000000000000000050b04b204010514038a05000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000017d"],
+    ["macro short 1 ms", h(AS.macro({macroId:3,loop:7,actions:acts,layout:"short1ms"})), "096f030000000007050b04b204010514038a05000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000017d"],
+    ["DPI generic", h(AS.dpi({stages:[400,800,1200,1600,3200,5000,0,0],active:3})), "04380100013f0001070f171f3f630000000000000000000003ff000000ff000000ffffff0000ffffff00ffff4000ffffff020e670000000000000000"],
+  ];
+  return cases.map((c) => ({ name: c[0], ok: c[1] === c[2], got: c[1], want: c[2] }));
+};
+
+const $ = (id) => document.getElementById(id);
+let dev = null;
+let family = null;
+const logEl = () => $("log");
+const t0 = performance.now();
+const log = (kind, msg) => {
+  const tr = document.createElement("tr");
+  tr.className = "k-" + kind;
+  const ts = ((performance.now() - t0) / 1000).toFixed(2);
+  tr.innerHTML = "<td>" + ts + "</td><td>" + kind + "</td><td class='hx'></td>";
+  tr.lastChild.textContent = msg;
+  logEl().appendChild(tr);
+  const box = logEl().parentElement;
+  box.scrollTop = box.scrollHeight;
+};
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const view = (v) => new Uint8Array(v.buffer, v.byteOffset, v.byteLength);
+
+const walk = (cols, depth, out) => {
+  for (const c of cols) {
+    const ids = (arr) => arr.map((r) => "0x" + r.reportId.toString(16)).join(",") || "-";
+    out.push("  ".repeat(depth) + "usagePage 0x" + c.usagePage.toString(16) + " usage 0x" + c.usage.toString(16) +
+      "  in[" + ids(c.inputReports) + "] out[" + ids(c.outputReports) + "] feature[" + ids(c.featureReports) + "]");
+    walk(c.children, depth + 1, out);
+  }
+  return out;
+};
+const anyFeature = (cols) => cols.some((c) => c.featureReports.length > 0 || anyFeature(c.children));
+const anyVendor = (cols) => cols.some((c) => (c.usagePage === 0xffff && c.featureReports.length > 0) || anyVendor(c.children));
+const hasFeature = (cols, id) => cols.some((c) => c.featureReports.some((r) => r.reportId === id) || hasFeature(c.children, id));
+
+const detect = (d) => {
+  if (d.vendorId === 0x1d57) {
+    if (d.collections.length === 0) return "1d57-x11";
+    if (anyVendor(d.collections)) return "25a7";
+    if (hasFeature(d.collections, 4) && hasFeature(d.collections, 6)) return "1d57-x11";
+    if (anyFeature(d.collections)) return "1d57";
+    return "1d57-x11-status";
+  }
+  if (d.vendorId === 0x25a7) return "25a7";
+  if (d.vendorId === 0x373e) return "373e";
+  return null;
+};
+const FAMILY_TEXT = {
+  "1d57": "0x1d57 R1 style: feature reports 0x06 (polling) and 0xA0 read request",
+  "1d57-x11": "0x1d57 X11 style: feature reports 0x06 (polling) and 0x04 (DPI table)",
+  "1d57-x11-status": "0x1d57 X11 family, status only: the browser cannot reach the config channel (battery stream only)",
+  "25a7": "0x25a7 GearHub style: 64-byte feature report 0x00 with 9-byte checksummed commands",
+  "373e": "0x373e Lamzu OEM: vendor feature reports on usage page 0xffff",
+};
+
+const setConnected = (d) => {
+  dev = d;
+  family = detect(d);
+  $("devinfo").hidden = false;
+  const lines = [
+    "name        " + (d.productName || "(none)"),
+    "vendor id   0x" + d.vendorId.toString(16).padStart(4, "0"),
+    "product id  0x" + d.productId.toString(16).padStart(4, "0"),
+    "family      " + (family ? FAMILY_TEXT[family] : "not recognised"),
+    "",
+    "collections",
+  ];
+  const cols = walk(d.collections, 1, []);
+  $("devtxt").textContent = lines.concat(cols.length ? cols : ["  (none exposed by the browser)"]).join("\n");
+  document.querySelectorAll(".needs-dev").forEach((e) => { e.disabled = false; });
+  log("info", "connected 0x" + d.vendorId.toString(16) + ":0x" + d.productId.toString(16) + " family=" + family);
+  d.addEventListener("inputreport", onInput);
+};
+
+const onInput = (e) => {
+  const data = view(e.data);
+  const full = new Uint8Array(data.length + 1);
+  full[0] = e.reportId;
+  full.set(data, 1);
+  log("in", AS.hex(full));
+  if (e.reportId === 3 && data.length >= 4) {
+    const m = AS.RECEIVER_MODELS[data[0]];
+    const name = m ? m[0] : "unknown model 0x" + data[0].toString(16);
+    let extra = "";
+    if (data[1] === 0x40 && data[2] === 1) {
+      if (m && m[1] === "percent") extra = " battery " + data[3] + "%";
+      else if (m && m[1] === "tenths") extra = " battery " + data[3] * 10 + "%";
+      else extra = " battery raw " + data[3] + " (scale unknown for this model)";
+    }
+    $("rx").textContent = name + " event 0x" + data[1].toString(16) + " p1 0x" + data[2].toString(16) + " p2 0x" + data[3].toString(16) + extra;
+    log("info", "receiver message: " + $("rx").textContent);
+  }
+};
+
+const need = () => { if (!dev || !dev.opened) throw new Error("connect a device first"); };
+const sendFeature = async (frame, label) => {
+  need();
+  log("fout", (label ? label + " " : "") + "id 0x" + frame[0].toString(16) + " " + AS.hex(frame.subarray(1)));
+  await dev.sendFeatureReport(frame[0], frame.subarray(1));
+};
+const sendFeatureRaw = async (id, data) => {
+  need();
+  log("fout", "id 0x" + id.toString(16) + " " + AS.hex(data));
+  await dev.sendFeatureReport(id, data);
+};
+const getFeature = async (id) => {
+  need();
+  const v = view(await dev.receiveFeatureReport(id));
+  log("fin", "id 0x" + id.toString(16) + " " + AS.hex(v));
+  return v;
+};
+const guard = (fn) => async () => {
+  try { await fn(); } catch (err) { log("err", (err && err.name ? err.name + ": " : "") + (err && err.message ? err.message : String(err))); }
+};
+
+const populate = () => {
+  const rate = $("rate");
+  for (const r of AS.POLL) rate.add(new Option(r[0] + " Hz (code 0x" + r[1].toString(16).padStart(2, "0") + ")", r[1]));
+  rate.value = "1";
+  const rows = $("stages");
+  const defaults = [800, 1600, 2400, 3200, 5000, 22000];
+  for (let i = 0; i < 6; i++) {
+    const hexc = "#" + AS.COLORS[i].map((v) => v.toString(16).padStart(2, "0")).join("");
+    const d = document.createElement("div");
+    d.className = "stage";
+    d.innerHTML = "<label>Stage " + (i + 1) + "</label><input type='number' min='50' max='22000' step='50' id='s" + i + "' value='" + defaults[i] + "'><input type='color' id='c" + i + "' value='" + hexc + "'>";
+    rows.appendChild(d);
+  }
+  const fn = $("fn");
+  for (const k of Object.keys(AS.FUN)) fn.add(new Option(k, k));
+};
+
+const readStages = () => {
+  const stages = [], colors = [];
+  for (let i = 0; i < 6; i++) {
+    stages.push(AS.nearestDpi(parseInt($("s" + i).value, 10) || 800));
+    const h = $("c" + i).value;
+    colors.push([parseInt(h.substr(1, 2), 16), parseInt(h.substr(3, 2), 16), parseInt(h.substr(5, 2), 16)]);
+  }
+  for (let i = 0; i < 6; i++) $("s" + i).value = stages[i];
+  return { stages, colors };
+};
+
+const frameLab = () => {
+  const kind = $("lab").value;
+  const num = (id) => parseInt($(id).value, 10) || 0;
+  if (kind === "lighting") {
+    const h = $("lcolor").value;
+    return AS.lighting({ mode: num("lmode"), speed: num("lspeed"), brightness: num("lbright"), r: parseInt(h.substr(1, 2), 16), g: parseInt(h.substr(3, 2), 16), b: parseInt(h.substr(5, 2), 16), closeTime: num("lclose"), direction: num("ldir") }, $("lvar").value);
+  }
+  if (kind === "wakeup") return AS.wakeup(num("wmode"));
+  if (kind === "buttons") {
+    const names = $("blist").value.split(/[\s,]+/).filter(Boolean);
+    return AS.buttons(names.map((n) => {
+      if (AS.FUN[n]) return AS.FUN[n];
+      const p = n.split(":").map(Number);
+      if (p.length !== 3 || p.some((v) => !Number.isInteger(v))) throw new Error("unknown button function " + n);
+      return p;
+    }));
+  }
+  const acts = $("mlist").value.split(/[\n;]+/).map((s) => s.trim()).filter(Boolean).map((s) => {
+    const p = s.split(/[\s,]+/);
+    return { usage: parseInt(p[0], 10), direction: p[1] === "up" ? 1 : 0, timeMs: parseInt(p[2], 10) };
+  });
+  return AS.macro({ macroId: num("mid"), macroType: num("mtype"), loop: num("mloop"), actions: acts, layout: $("mlayout").value });
+};
+
+const showLabPanels = () => {
+  const k = $("lab").value;
+  document.querySelectorAll(".lab-panel").forEach((e) => { e.hidden = e.dataset.k !== k; });
+};
+
+const init = () => {
+  populate();
+  showLabPanels();
+  if (!("hid" in navigator)) {
+    $("nohid").hidden = false;
+    $("connect").disabled = true;
+  }
+
+  $("connect").onclick = guard(async () => {
+    const picked = await navigator.hid.requestDevice({ filters: [{ vendorId: 0x1d57 }, { vendorId: 0x25a7 }, { vendorId: 0x373e }] });
+    if (!picked.length) { log("info", "no device chosen"); return; }
+    const d = picked[0];
+    if (!d.opened) await d.open();
+    setConnected(d);
+  });
+
+  $("selftest").onclick = guard(async () => {
+    const r = SELFTEST();
+    const bad = r.filter((c) => !c.ok);
+    $("selfout").textContent = r.map((c) => (c.ok ? "PASS  " : "FAIL  ") + c.name + (c.ok ? "" : "\n      got  " + c.got + "\n      want " + c.want)).join("\n");
+    $("selfout").className = bad.length ? "bad-text" : "good-text";
+    log(bad.length ? "err" : "info", "self-test " + (r.length - bad.length) + "/" + r.length + " passed");
+  });
+
+  $("poll-write").onclick = guard(async () => {
+    const code = parseInt($("rate").value, 10);
+    const f = AS.polling(code);
+    await sendFeature(f, "polling");
+    $("poll-note").textContent = "sent 0x06 with code 0x" + code.toString(16);
+  });
+  $("poll-read").onclick = guard(async () => {
+    await sendFeatureRaw(0xa0, Uint8Array.from([6, 0, 1, 0, 0, 0, 0, 0]));
+    await sleep(300);
+    const v = await getFeature(6);
+    const code = v.length > 2 ? v[2] : -1;
+    const m = AS.POLL.find((r) => r[1] === code);
+    $("poll-note").textContent = "read back code 0x" + (code < 0 ? "??" : code.toString(16)) + (m ? " = " + m[0] + " Hz" : " (not in the 125/250/500/1000 table)");
+  });
+
+  $("dpi-write").onclick = guard(async () => {
+    const { stages, colors } = readStages();
+    const f = AS.x11Dpi({ stages, active: parseInt($("active").value, 10), angleSnap: $("angle").checked, ripple: $("ripple").checked, wired: $("wired52").checked, colors });
+    await sendFeature(f, "dpi");
+    $("dpi-note").textContent = "sent " + (f.length - 1) + " payload bytes";
+  });
+  $("dpi-preview").onclick = guard(async () => {
+    const { stages, colors } = readStages();
+    const f = AS.x11Dpi({ stages, active: parseInt($("active").value, 10), angleSnap: $("angle").checked, ripple: $("ripple").checked, wired: $("wired52").checked, colors });
+    $("dpi-note").textContent = AS.hex(f);
+  });
+  $("dpi-read").onclick = guard(async () => {
+    const v = await getFeature(4);
+    const d = AS.decodeX11(v);
+    $("dpi-note").textContent = d ? "decoded: active stage " + d.active + ", angle snap " + d.angleSnap + ", ripple " + d.ripple + ", stage bytes " + d.bytes.map((b) => "0x" + b.toString(16)).join(" ") : "reply did not match the 0x04 signature or checksum";
+  });
+
+  $("g-fw").onclick = guard(async () => {
+    const f = AS.cmd25a7([0x80]);
+    await sendFeatureRaw(0, f);
+    await sleep(100);
+    const v = await getFeature(0);
+    const ver = v[1] | (v[2] << 8);
+    $("g-note").textContent = v[0] === 0x80 ? "firmware revision " + ver : "unexpected reply, first byte 0x" + v[0].toString(16);
+  });
+  $("g-dpi").onclick = guard(async () => {
+    const f = AS.cmd25a7([0xd4, 0]);
+    await sendFeatureRaw(0, f);
+    await sleep(100);
+    const v = await getFeature(0);
+    if (v[0] !== 0xd4) { $("g-note").textContent = "unexpected reply, first byte 0x" + v[0].toString(16); return; }
+    const n = v[3], out = [];
+    for (let i = 0; i < n; i++) out.push(v[8 + i * 2] | (v[9 + i * 2] << 8));
+    $("g-note").textContent = "active slot " + (v[2] > 8 ? 0 : v[2]) + ", " + n + " slots: " + out.join(", ");
+  });
+  $("g-rate").onclick = guard(async () => {
+    const code = parseInt($("g-code").value, 16);
+    await sendFeatureRaw(0, AS.cmd25a7([0x04, 0, code]));
+    $("g-note").textContent = "sent polling code 0x" + code.toString(16);
+  });
+
+  $("lab").onchange = showLabPanels;
+  $("lab-build").onclick = guard(async () => { $("lab-hex").textContent = AS.hex(frameLab()); });
+  $("lab-send").onclick = guard(async () => {
+    const f = frameLab();
+    $("lab-hex").textContent = AS.hex(f);
+    await sendFeature(f, "lab");
+  });
+
+  const rawBytes = () => {
+    const id = parseInt($("rid").value, 16);
+    if (!Number.isInteger(id) || id < 0 || id > 255) throw new Error("report id must be hex 00-ff");
+    return { id, data: AS.unhex($("rdata").value) };
+  };
+  $("r-send").onclick = guard(async () => { const r = rawBytes(); await sendFeatureRaw(r.id, r.data); });
+  $("r-get").onclick = guard(async () => { await getFeature(parseInt($("rid").value, 16)); });
+  $("r-out").onclick = guard(async () => {
+    const r = rawBytes();
+    need();
+    log("out", "id 0x" + r.id.toString(16) + " " + AS.hex(r.data));
+    await dev.sendReport(r.id, r.data);
+  });
+
+  $("copylog").onclick = guard(async () => {
+    const rows = Array.from(logEl().querySelectorAll("tr")).map((tr) => Array.from(tr.children).map((td) => td.textContent).join("\t"));
+    await navigator.clipboard.writeText(rows.join("\n"));
+  });
+  $("clearlog").onclick = () => { logEl().innerHTML = ""; };
+
+  if ("hid" in navigator) {
+    navigator.hid.addEventListener("disconnect", (e) => { if (e.device === dev) log("info", "device disconnected"); });
+  }
+};
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+</body>
+</html>
