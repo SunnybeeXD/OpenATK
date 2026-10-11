@@ -359,9 +359,10 @@ function card(d){
   row.append(el('span', 'kind', kb ? 'Keyboard' : 'Mouse'));
   const pct = safeBatt(info);
   if (!kb && pct !== null){
-    const b = el('span', 'batt', `${pct}%${info.charging ? ' charging' : ''}`);
+    const fresh = Date.now() - info.at < 30 * 60000;
+    const b = el('span', 'batt', `${pct}%${fresh && info.charging ? ' charging' : ''}`);
     b.title = `Battery when last read, ${ago(info.at)}`;
-    b.append(el('span', null, `· ${ago(info.at)}`));
+    b.append(el('span', null, fresh ? `· ${ago(info.at)}` : `· last read ${ago(info.at)}`));
     row.append(b);
   }
   row.append(el('span', 'go', 'Configure →'));
@@ -376,7 +377,11 @@ function chip(key, kind, label, href, opts = {}){
   b.setAttribute('role', 'tab');
   b.dataset.key = key;
   b.append(el('span', 'k', opts.demo ? 'Demo' : kind === 'keyboard' ? 'KB' : 'Mouse'), el('span', 'n', label));
-  if (opts.batt != null) b.append(el('span', 'b', opts.batt + '%'));
+  if (opts.batt != null){
+    const bb = el('span', 'b', opts.batt + '%');
+    if (opts.battAt) bb.title = `Battery when last read, ${ago(opts.battAt)}`;
+    b.append(bb);
+  }
   b.onclick = () => { location.hash = href; };
   if (opts.close){
     const x = el('span', 'x', '×');
@@ -393,7 +398,7 @@ function renderTabs(){
   const list = [];
   for (const d of devices){
     const id = devId(d), kind = kindOf(d), info = saved(id);
-    list.push(chip('d:' + id, kind, safeName(info, d.productName || (kind === 'keyboard' ? 'ATK keyboard' : 'ATK mouse')), hashFor(kind, id), { batt: kind === 'mouse' ? safeBatt(info) : null }));
+    list.push(chip('d:' + id, kind, safeName(info, d.productName || (kind === 'keyboard' ? 'ATK keyboard' : 'ATK mouse')), hashFor(kind, id), { batt: kind === 'mouse' ? safeBatt(info) : null, battAt: info.at }));
   }
   for (const [key, v] of extra){
     if (key.startsWith('d:')) continue;
