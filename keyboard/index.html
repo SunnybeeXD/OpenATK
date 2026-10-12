@@ -1178,24 +1178,9 @@ function keyWidth(code, hasKeysAfter){
   return WIDTHS[code] ?? 1;
 }
 
-function baseTravel(){
-  const counts = new Map();
-  let best = null, top = 0;
-  for (let i = 0; i < kb.rows * kb.cols; i++){
-    const t = travelValues[i];
-    if (!keymap[i] || t == null) continue;
-    const key = t.toFixed(2);
-    const n = (counts.get(key) || 0) + 1;
-    counts.set(key, n);
-    if (n > top){ top = n; best = key; }
-  }
-  return best;
-}
-
 function renderGrid(){
   const host = $('#grid');
   host.innerHTML = '';
-  const base = baseTravel();
   for (let r = 0; r < kb.rows; r++){
     const live = [];
     for (let c = 0; c < kb.cols; c++){
@@ -1216,7 +1201,7 @@ function renderGrid(){
       const t = travelValues[k.i];
       const rt = rtValues[k.i];
       b.innerHTML =
-        `<em>${t != null && t.toFixed(2) !== base ? t.toFixed(2) : ''}</em>` +
+        `<em>${t != null ? t.toFixed(2) : ''}</em>` +
         `<span>${label}</span>` +
         `<i>${rt && rt.on ? `${rt.press.toFixed(2)}/${rt.release.toFixed(2)}` : ''}</i>`;
       b.title = `row ${r}, col ${k.c}`;
@@ -1841,7 +1826,7 @@ async function readPerKey(){
     try { rtValues[i] = await kb.getKeyRt(r, c); } catch {}
   }
   $('#gridNote').textContent =
-    `${live.length} keys. A top number marks a key whose trigger travel differs from the rest. Bottom is rapid trigger press / lift.`;
+    `${live.length} keys. Top number is the actuation point, bottom is rapid trigger press / lift.`;
   renderGrid();
   updateSelectionCount();
 }
