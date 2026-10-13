@@ -492,6 +492,19 @@ async function showCfg(code){
   }));
 }
 
+function ensureFrame(key, src, background){
+  if (frames.has(key)) return;
+  const f = document.createElement('iframe');
+  f.src = src;
+  f.title = key;
+  f.allow = 'hid';
+  f.dataset.key = key;
+  if (background) f.classList.add('hidden');
+  f.addEventListener('load', () => { f.dataset.loaded = '1'; });
+  $('#stage').append(f);
+  frames.set(key, f);
+}
+
 function route(){
   const cfgCode = new URLSearchParams(location.hash.slice(1)).get('cfg');
   if (cfgCode){
@@ -510,16 +523,7 @@ function route(){
   $('#stage').classList.toggle('hidden', !r);
   if (r){
     if (r.extra && !extra.has(r.key)) extra.set(r.key, { kind: r.kind, ...r.extra });
-    if (!frames.has(r.key)){
-      const f = document.createElement('iframe');
-      f.src = r.src;
-      f.title = r.key;
-      f.allow = 'hid';
-      f.dataset.key = r.key;
-      f.addEventListener('load', () => { f.dataset.loaded = '1'; });
-      $('#stage').append(f);
-      frames.set(r.key, f);
-    }
+    ensureFrame(r.key, r.src);
     sendCfg(r.key);
     for (const [k, f] of frames) f.classList.toggle('hidden', k !== r.key);
   }
@@ -553,6 +557,7 @@ async function renderDevices(){
   loaded = true;
   const live = new Set(list.map(d => 'd:' + devId(d)));
   for (const [k, f] of [...frames]) if (k.startsWith('d:') && !live.has(k)){ f.remove(); frames.delete(k); }
+  for (const d of list) if (kindOf(d) === 'mouse') ensureFrame('d:' + devId(d), `mouse/index.html?d=${encodeURIComponent(devId(d))}&embed=1`, true);
   $('#devGrid').replaceChildren(...list.map(card));
   $('#devSection').classList.toggle('hidden', !list.length);
   $('#pickSection').classList.toggle('hidden', !!list.length);
@@ -568,6 +573,7 @@ $('#cfgHome').onclick = e => { e.preventDefault(); location.hash = ''; };
 $('#home').addEventListener('click', e => { e.preventDefault(); if (location.hash) location.hash = ''; else route(); });
 window.addEventListener('hashchange', route);
 window.addEventListener('storage', () => { if (!parseHash()) $('#devGrid').replaceChildren(...devices.map(card)); renderTabs(); });
+setInterval(() => { if (!parseHash()) $('#devGrid').replaceChildren(...devices.map(card)); renderTabs(); }, 30000);
 navigator.hid?.addEventListener('connect', renderDevices);
 navigator.hid?.addEventListener('disconnect', renderDevices);
 
