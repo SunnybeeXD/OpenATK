@@ -101,6 +101,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .hero p{margin:0 auto 26px;max-width:500px;color:var(--dim);font-size:15px}
   .hero .btn{padding:16px 29px;font-size:15px}
   .hero{max-width:860px}
+  #homeView{background:none;border:0;box-shadow:none;overflow:visible;margin-top:44px;padding:28px 0 20px}
+  #homeView h2{font-size:46px;letter-spacing:-.03em;margin:16px 0 14px}
+  #homeView p{max-width:560px;font-size:16px}
   .picks{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:30px 0 26px}
   .pick{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 20px 22px;border-radius:18px;
     text-decoration:none;color:var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0)),#0c1116;
@@ -122,7 +125,10 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:14px;opacity:0;pointer-events:none;
     border:1px solid rgba(248,113,113,.6);transition:opacity .2s ease-out,transform .2s ease-out;z-index:9}
   #toast.show{opacity:1;transform:translate(-50%,0)}
-  .devgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin:30px 0 20px;text-align:left}
+  .devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,300px));justify-content:center;gap:16px;margin:34px 0 16px;text-align:left}
+  .dev.add{align-items:center;justify-content:center;min-height:250px;gap:10px;border:0;cursor:pointer;font:600 14px Inter,sans-serif;color:var(--dim);background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)}
+  .dev.add span{font:300 38px/1 var(--disp);color:var(--acc)}
+  .dev.add:hover{color:var(--ink);box-shadow:inset 0 0 0 1.5px rgba(var(--acc-rgb),.55),0 0 34px -10px var(--glow)}
   .dev{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;text-decoration:none;color:var(--ink);
     background:#0c1116;box-shadow:var(--ring);transition-property:box-shadow,scale;transition-duration:.15s;transition-timing-function:ease-out}
   .dev:hover{box-shadow:0 0 0 1px rgba(var(--acc-rgb),.5),0 0 34px -10px var(--glow)}
@@ -140,7 +146,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .btn.ghost{background:rgba(255,255,255,.03);color:var(--ink);font-weight:500;padding:11px 18px;font-size:13.5px;
     box-shadow:0 0 0 1px oklch(1 0 0 / .12)}
   .btn.ghost:hover{background:rgba(var(--acc-rgb),.08);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.45),0 0 18px -6px var(--glow);filter:none}
-  .demoline{margin:36px auto 0;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--dimmer)}
+  .demoline{margin:44px auto 0;font-size:13px;color:var(--dimmer)}
   .demoline .tag{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#ffd66b;
     padding:4px 7px;border-radius:6px;background:rgba(245,196,81,.1);border:1px solid rgba(245,196,81,.35);margin-right:8px}
   .demoline a{color:var(--dim)}
@@ -228,7 +234,6 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 
   <div class="hidden" id="devSection">
     <div class="devgrid" id="devGrid"></div>
-    <button class="btn ghost" id="addDevice" type="button">+ Add a device</button>
   </div>
 
   <div id="pickSection">
@@ -546,6 +551,15 @@ async function pick(kind){
   if (d) location.hash = hashFor(kind, devId(d));
 }
 
+function addTile(){
+  const b = el('button', 'dev add');
+  b.type = 'button';
+  b.append(el('span', null, '+'), document.createTextNode('Add a device'));
+  b.onclick = addDevices;
+  return b;
+}
+function drawDevices(){ $('#devGrid').replaceChildren(...devices.map(card), addTile()); }
+
 async function renderDevices(){
   if (!HAS_HID){ loaded = true; route(); return; }
   let list = [];
@@ -558,7 +572,7 @@ async function renderDevices(){
   const live = new Set(list.map(d => 'd:' + devId(d)));
   for (const [k, f] of [...frames]) if (k.startsWith('d:') && !live.has(k)){ f.remove(); frames.delete(k); }
   for (const d of list) if (kindOf(d) === 'mouse') ensureFrame('d:' + devId(d), `mouse/index.html?d=${encodeURIComponent(devId(d))}&embed=1`, true);
-  $('#devGrid').replaceChildren(...list.map(card));
+  drawDevices();
   $('#devSection').classList.toggle('hidden', !list.length);
   $('#pickSection').classList.toggle('hidden', !!list.length);
   route();
@@ -566,14 +580,13 @@ async function renderDevices(){
 
 for (const a of document.querySelectorAll('.pick')) a.onclick = e => { e.preventDefault(); pick(a.dataset.kind); };
 $('#connectAny').onclick = addDevices;
-$('#addDevice').onclick = addDevices;
 $('#addTab').onclick = addDevices;
 $('#cfgAdd').onclick = e => { e.preventDefault(); addDevices(); };
 $('#cfgHome').onclick = e => { e.preventDefault(); location.hash = ''; };
 $('#home').addEventListener('click', e => { e.preventDefault(); if (location.hash) location.hash = ''; else route(); });
 window.addEventListener('hashchange', route);
-window.addEventListener('storage', () => { if (!parseHash()) $('#devGrid').replaceChildren(...devices.map(card)); renderTabs(); });
-setInterval(() => { if (!parseHash()) $('#devGrid').replaceChildren(...devices.map(card)); renderTabs(); }, 30000);
+window.addEventListener('storage', () => { if (!parseHash()) drawDevices(); renderTabs(); });
+setInterval(() => { if (!parseHash()) drawDevices(); renderTabs(); }, 30000);
 navigator.hid?.addEventListener('connect', renderDevices);
 navigator.hid?.addEventListener('disconnect', renderDevices);
 
