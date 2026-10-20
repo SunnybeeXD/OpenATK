@@ -1178,6 +1178,7 @@ function show(){
   $('#kv').replaceChildren(...rows.map(([k, v]) => { const tr = document.createElement('tr'); for (const x of [k, v]){ const td = document.createElement('td'); td.textContent = String(x); tr.append(td); } return tr; }));
   $('#devName').textContent = `Finalmouse ${fm.info.name}`;
   const slx = fm.fam === 'slx';
+  $('#devArt').innerHTML = slx ? SLX_ART : MOUSE_ART;
   $('#pawWrap').classList.toggle('hidden', !slx);
   $('#lodDesc').textContent = slx ? 'How far the mouse can be lifted before it stops tracking. Pick 1 or 2 mm, or drag for a custom 1.0 to 1.7 mm (needs mouse firmware 1.1.0 or newer).' : 'How far the mouse can be lifted before it stops tracking.';
   $('#rateTab').classList.toggle('hidden', slx);
@@ -1439,7 +1440,9 @@ $('#shareApply').onclick = async () => {
   await refresh();
 };
 
-$('#heroArt').innerHTML = $('#devArt').innerHTML = '<svg viewBox="0 0 120 170" width="120" height="170" aria-hidden="true" style="filter:drop-shadow(0 18px 28px rgba(var(--acc-rgb),.3))"><path d="M60 8c24 0 36 18 37 44l2 50c1 34-14 60-39 60s-40-26-39-60l2-50C24 26 36 8 60 8Z" fill="#0d1318" stroke="rgba(var(--acc-rgb),.7)" stroke-width="2"/><path d="M60 10v56M22 70c24 7 52 7 76 0" fill="none" stroke="rgba(var(--acc-rgb),.45)" stroke-width="2"/><rect x="55" y="28" width="10" height="22" rx="5" fill="rgba(var(--acc-rgb),.8)"/></svg>';
+const MOUSE_ART = '<svg viewBox="0 0 120 170" width="120" height="170" aria-hidden="true" style="filter:drop-shadow(0 18px 28px rgba(var(--acc-rgb),.3))"><path d="M60 8c24 0 36 18 37 44l2 50c1 34-14 60-39 60s-40-26-39-60l2-50C24 26 36 8 60 8Z" fill="#0d1318" stroke="rgba(var(--acc-rgb),.7)" stroke-width="2"/><path d="M60 10v56M22 70c24 7 52 7 76 0" fill="none" stroke="rgba(var(--acc-rgb),.45)" stroke-width="2"/><rect x="55" y="28" width="10" height="22" rx="5" fill="rgba(var(--acc-rgb),.8)"/></svg>';
+const SLX_ART = '<img src="../assets/slx-nightfall.webp" alt="Finalmouse Starlight X">';
+$('#heroArt').innerHTML = $('#devArt').innerHTML = MOUSE_ART;
 
 async function startDemo(){
   document.title += ' (demo)';
