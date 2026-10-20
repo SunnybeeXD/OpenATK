@@ -511,7 +511,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <div class="hero hidden" id="blocked">
   <h2 id="blockedTitle">This needs a desktop</h2>
   <p id="blockedText"></p>
-  <p style="margin:6px auto 0;font-size:13px;color:var(--dim)">Look around anyway: <a href="?demo=1" style="color:var(--acc)">Ultralight X demo</a> &middot; <a href="?demo=slx" style="color:var(--acc)">Starlight X demo</a></p>
+  <p style="margin:6px auto 0;font-size:13px;color:var(--dim)">Look around anyway: <a href="?demo=1" style="color:var(--acc)">Starlight X demo</a> &middot; <a href="?demo=ulx" style="color:var(--acc)">Ultralight X demo</a></p>
 </div>
 
 <div id="app" class="hidden">
@@ -658,10 +658,10 @@ const EMBED = new URLSearchParams(location.search).get('embed') === '1';
 if (EMBED) document.body.classList.add('embed');
 const DEMO_RAW = new URLSearchParams(location.search).get('demo');
 const DEMO = DEMO_RAW !== null && !['0', 'false', 'off', 'no'].includes(DEMO_RAW.toLowerCase());
-const DEMO_SLX = DEMO && DEMO_RAW.toLowerCase() === 'slx';
+const DEMO_SLX = DEMO && DEMO_RAW.toLowerCase() !== 'ulx';
 if (!DEMO) $('#demoLink').href = '?demo=1';
 else $('#demoLink').classList.add('hidden');
-if (DEMO_SLX) document.title = 'Finalmouse (Starlight X demo)';
+if (DEMO_SLX) document.title = 'Finalmouse Starlight X';
 
 const VID = 0x361D;
 const PAGE = 0xFF00;
@@ -938,14 +938,54 @@ function place(k){
   t.thumb.setAttribute('aria-valuenow', v.toFixed(2));
   t.thumb.disabled = t.act.disabled;
 }
-const MOUSE_SVG = `<svg viewBox="0 0 200 330" class="tmr-mouse" aria-hidden="true">
-  <defs><linearGradient id="tmrBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(var(--acc2-rgb),.16)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.04)"/></linearGradient></defs>
-  <path d="M100 8c48 0 74 34 76 92l4 104c3 74-30 118-80 118S17 278 20 204l4-104C26 42 52 8 100 8Z" fill="url(#tmrBody)" stroke="rgba(var(--acc2-rgb),.75)" stroke-width="2"/>
-  <path class="btn-l" d="M98 12C58 14 30 42 28 98l-1 26c22 8 46 12 71 12Z"/>
-  <path class="btn-r" d="M102 12c40 2 68 30 70 86l1 26c-22 8-46 12-71 12Z"/>
-  <rect x="92" y="40" width="16" height="40" rx="8" fill="none" stroke="rgba(var(--acc2-rgb),.8)" stroke-width="2"/>
-  <path d="M100 136v8M40 170h120M52 210h96M60 250h80" stroke="rgba(var(--acc2-rgb),.22)" stroke-width="1.5" stroke-dasharray="3 5"/>
-  <circle cx="100" cy="290" r="10" fill="none" stroke="rgba(var(--acc2-rgb),.35)" stroke-width="1.5"/>
+const MOUSE_SVG = `<svg viewBox="-6 -6 183 347" class="tmr-mouse" aria-hidden="true">
+  <defs>
+    <radialGradient id="slxShell" cx=".5" cy=".28" r=".8"><stop offset="0" stop-color="rgba(var(--acc2-rgb),.22)"/><stop offset=".55" stop-color="rgba(var(--acc2-rgb),.07)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.02)"/></radialGradient>
+    <linearGradient id="slxRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(var(--acc2-rgb),1)"/><stop offset=".5" stop-color="rgba(var(--acc-rgb),.75)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.9)"/></linearGradient>
+    <linearGradient id="slxGroove" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(var(--acc2-rgb),.55)"/><stop offset=".6" stop-color="rgba(var(--acc2-rgb),.28)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.05)"/></linearGradient>
+    <linearGradient id="slxHole" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#020507"/><stop offset="1" stop-color="#071018"/></linearGradient>
+    <linearGradient id="slxSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(255,255,255,0)"/><stop offset=".5" stop-color="rgba(190,245,255,.16)"/><stop offset="1" stop-color="rgba(255,255,255,0)"/></linearGradient>
+    <clipPath id="slxClip"><path d="M86 2C120 2 150 16 160 34C166 46 166 60 166 80L166 250C166 285 150 318 120 330C108 335 64 335 52 330C22 318 6 285 5 260L5 80C5 58 8 44 14 34C24 16 52 2 86 2Z"/></clipPath>
+    <filter id="slxGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <style>
+    .slx-sheen{animation:slxSweep 6s ease-in-out infinite}
+    @keyframes slxSweep{0%,35%{transform:translate(-190px,0) skewX(-20deg)}75%,100%{transform:translate(230px,0) skewX(-20deg)}}
+    @media (prefers-reduced-motion: reduce){.slx-sheen{animation:none;opacity:0}}
+  </style>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 102C0 104 0 138 5 140ZM5 152C0 154 0 190 5 192Z" fill="rgba(var(--acc2-rgb),.12)" stroke="rgba(var(--acc2-rgb),.7)" stroke-width="1.5"/>
+    <path d="M86 2C120 2 150 16 160 34C166 46 166 60 166 80L166 250C166 285 150 318 120 330C108 335 64 335 52 330C22 318 6 285 5 260L5 80C5 58 8 44 14 34C24 16 52 2 86 2Z" fill="url(#slxShell)"/>
+    <g clip-path="url(#slxClip)">
+      <path d="M48 151C64 160 76 164 85.5 164S107 160 123 151L166 140V340H5V140Z" fill="rgba(2,6,10,.35)"/>
+      <path class="btn-l" d="M84 165C74 150 68 125 68 95L68 4C52 4 24 16 14 34C8 44 5 58 5 80L5 150C30 158 60 163 84 165Z"/>
+      <path class="btn-r" d="M87 165C97 150 103 125 103 95L103 4C119 4 147 16 157 34C163 44 166 58 166 80L166 150C141 158 111 163 87 165Z"/>
+      <path d="M24 24C40 70 52 120 62 160C72 195 100 240 128 300M31 20C45 67 57 119 67 159C77 193 104 236 133 295M147 24C131 70 119 120 109 160C99 195 71 240 43 300M140 20C126 67 114 119 104 159C94 193 67 236 38 295M11 60C10 150 14 230 34 300M160 60C161 150 157 230 137 300" stroke="url(#slxGroove)" stroke-width="1.4"/>
+      <path d="M62 160C72 195 100 240 128 300L133 295C104 236 77 193 67 159ZM109 160C99 195 71 240 43 300L38 295C67 236 94 193 104 159Z" fill="rgba(var(--acc2-rgb),.06)"/>
+      <g fill="url(#slxHole)" stroke="rgba(var(--acc2-rgb),.75)" stroke-width="1.6">
+        <path d="M16 104C26 104 34 112 40 124L48 150C36 150 24 146 18 140Z"/>
+        <path d="M20 166L54 166C50 190 40 215 28 234C22 215 20 190 20 166Z"/>
+        <path d="M155 104C145 104 137 112 131 124L123 150C135 150 147 146 153 140Z"/>
+        <path d="M151 166L117 166C121 190 131 215 143 234C149 215 151 190 151 166Z"/>
+      </g>
+      <path d="M22 118L42 140M24 180L48 172M24 200L44 190M27 220L36 214M149 118L129 140M147 180L123 172M147 200L127 190M144 220L135 214" stroke="rgba(var(--acc2-rgb),.28)" stroke-width="1"/>
+      <path d="M20 106C26 108 31 113 35 120M22 168H50M151 106C145 108 140 113 136 120M149 168H121" stroke="rgba(190,245,255,.35)" stroke-width="1"/>
+      <rect class="slx-sheen" x="0" y="-20" width="46" height="380" fill="url(#slxSheen)"/>
+    </g>
+    <path d="M86 2C120 2 150 16 160 34C166 46 166 60 166 80L166 250C166 285 150 318 120 330C108 335 64 335 52 330C22 318 6 285 5 260L5 80C5 58 8 44 14 34C24 16 52 2 86 2Z" stroke="url(#slxRim)" stroke-width="2.2" filter="url(#slxGlow)"/>
+    <path d="M86 7C117 7 145 20 154 37C160 48 161 62 161 81L161 249C161 281 146 311 118 324C106 329 66 329 54 324C26 311 10 281 10 259L10 81C10 62 11 48 17 37C26 20 55 7 86 7Z" stroke="rgba(190,245,255,.12)" stroke-width="1"/>
+    <path d="M48 151C64 160 76 164 85.5 164S107 160 123 151" stroke="rgba(var(--acc2-rgb),.6)" stroke-width="1.5"/>
+    <path d="M85.5 4V30M85.5 96V100" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="1.2"/>
+    <rect x="70" y="28" width="31" height="68" rx="14" fill="rgba(2,6,10,.55)" stroke="rgba(var(--acc2-rgb),.45)" stroke-width="1.5"/>
+    <rect x="76" y="38" width="19" height="50" rx="9.5" fill="rgba(var(--acc2-rgb),.1)" stroke="rgba(var(--acc2-rgb),.95)" stroke-width="2" filter="url(#slxGlow)"/>
+    <path d="M79 45h13M79 50h13M79 55h13M79 60h13M79 65h13M79 70h13M79 75h13M79 80h13" stroke="rgba(var(--acc2-rgb),.4)" stroke-width="1"/>
+    <path d="M80 40h11" stroke="rgba(220,250,255,.6)" stroke-width="1.2"/>
+    <g filter="url(#slxGlow)">
+      <path d="M85.5 98L89 117L100 126L89 135L85.5 160L82 135L71 126L82 117Z" fill="rgba(var(--acc2-rgb),.2)" stroke="rgba(190,245,255,.95)" stroke-width="1.4"/>
+      <path d="M85.5 112L92 126L85.5 140L79 126Z" fill="rgba(220,250,255,.55)"/>
+      <path d="M77 115L81.5 120M94 115L89.5 120M77 137L81.5 132M94 137L89.5 132" stroke="rgba(190,245,255,.9)" stroke-width="1.4"/>
+    </g>
+  </g>
 </svg>`;
 function buildTmr(){
   const host = $('#tmrHost');
