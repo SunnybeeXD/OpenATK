@@ -511,7 +511,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <div class="hero hidden" id="blocked">
   <h2 id="blockedTitle">This needs a desktop</h2>
   <p id="blockedText"></p>
-  <p style="margin:6px auto 0;font-size:13px;color:var(--dim)">Look around anyway: <a href="?demo=1" style="color:var(--acc)">Ultralight X demo</a> &middot; <a href="?demo=slx" style="color:var(--acc)">Starlight X demo</a></p>
+  <p style="margin:6px auto 0;font-size:13px;color:var(--dim)">Look around anyway: <a href="?demo=1" style="color:var(--acc)">Starlight X demo</a> &middot; <a href="?demo=ulx" style="color:var(--acc)">Ultralight X demo</a></p>
 </div>
 
 <div id="app" class="hidden">
@@ -658,10 +658,10 @@ const EMBED = new URLSearchParams(location.search).get('embed') === '1';
 if (EMBED) document.body.classList.add('embed');
 const DEMO_RAW = new URLSearchParams(location.search).get('demo');
 const DEMO = DEMO_RAW !== null && !['0', 'false', 'off', 'no'].includes(DEMO_RAW.toLowerCase());
-const DEMO_SLX = DEMO && DEMO_RAW.toLowerCase() === 'slx';
+const DEMO_SLX = DEMO && DEMO_RAW.toLowerCase() !== 'ulx';
 if (!DEMO) $('#demoLink').href = '?demo=1';
 else $('#demoLink').classList.add('hidden');
-if (DEMO_SLX) document.title = 'Finalmouse (Starlight X demo)';
+if (DEMO_SLX) document.title = 'Finalmouse Starlight X';
 
 const VID = 0x361D;
 const PAGE = 0xFF00;
