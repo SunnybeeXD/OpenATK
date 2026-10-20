@@ -938,53 +938,83 @@ function place(k){
   t.thumb.setAttribute('aria-valuenow', v.toFixed(2));
   t.thumb.disabled = t.act.disabled;
 }
-const MOUSE_SVG = `<svg viewBox="-6 -6 183 347" class="tmr-mouse" aria-hidden="true">
+const MOUSE_SVG = `<svg viewBox="40 26 500 892" class="tmr-mouse" aria-hidden="true">
   <defs>
-    <radialGradient id="slxShell" cx=".5" cy=".28" r=".8"><stop offset="0" stop-color="rgba(var(--acc2-rgb),.22)"/><stop offset=".55" stop-color="rgba(var(--acc2-rgb),.07)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.02)"/></radialGradient>
+    <path id="slxOut" d="M283 47C344 46 404 70 442 100C474 125 493 146 494 176C495 230 487 290 486 340C485 400 482 430 482 470C482 540 491 600 491 660C491 745 444 822 402 850C364 874 322 882 283 882C244 882 202 874 164 850C122 822 78 745 76 660C74 600 78 540 76 470C74 400 80 330 79 280C78 230 73 205 73 174C73 146 92 128 125 104C164 72 222 48 283 47Z"/>
+    <clipPath id="slxClip"><use href="#slxOut"/></clipPath>
+    <radialGradient id="slxShell" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="rgba(var(--acc2-rgb),.2)"/><stop offset=".6" stop-color="rgba(var(--acc2-rgb),.06)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.02)"/></radialGradient>
     <linearGradient id="slxRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(var(--acc2-rgb),1)"/><stop offset=".5" stop-color="rgba(var(--acc-rgb),.75)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.9)"/></linearGradient>
-    <linearGradient id="slxGroove" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(var(--acc2-rgb),.55)"/><stop offset=".6" stop-color="rgba(var(--acc2-rgb),.28)"/><stop offset="1" stop-color="rgba(var(--acc2-rgb),.05)"/></linearGradient>
-    <linearGradient id="slxHole" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#020507"/><stop offset="1" stop-color="#071018"/></linearGradient>
     <linearGradient id="slxSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(255,255,255,0)"/><stop offset=".5" stop-color="rgba(190,245,255,.16)"/><stop offset="1" stop-color="rgba(255,255,255,0)"/></linearGradient>
-    <clipPath id="slxClip"><path d="M86 2C120 2 150 16 160 34C166 46 166 60 166 80L166 250C166 285 150 318 120 330C108 335 64 335 52 330C22 318 6 285 5 260L5 80C5 58 8 44 14 34C24 16 52 2 86 2Z"/></clipPath>
-    <filter id="slxGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="slxHex" width="60" height="104" patternUnits="userSpaceOnUse" x="13" y="10"><path d="M30 0L60 17V52L30 69L0 52V17ZM0 69V104M60 69V104" fill="none" stroke="rgba(var(--acc2-rgb),.16)" stroke-width="2"/></pattern>
+    <linearGradient id="slxEdge" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(220,250,255,.2)"/><stop offset=".1" stop-color="rgba(220,250,255,.05)"/><stop offset=".45" stop-color="rgba(0,0,0,0)"/><stop offset=".82" stop-color="rgba(0,0,0,.22)"/><stop offset="1" stop-color="rgba(0,0,0,.55)"/></linearGradient>
+    <linearGradient id="slxDepth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(220,250,255,.06)"/><stop offset=".35" stop-color="rgba(0,0,0,0)"/><stop offset=".75" stop-color="rgba(0,0,0,.12)"/><stop offset="1" stop-color="rgba(0,0,0,.45)"/></linearGradient>
+    <linearGradient id="slxSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(220,250,255,.6)"/><stop offset=".4" stop-color="rgba(var(--acc2-rgb),.35)"/><stop offset="1" stop-color="rgba(2,6,10,.7)"/></linearGradient>
+    <linearGradient id="slxWheel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(2,6,10,.85)"/><stop offset=".45" stop-color="rgba(var(--acc2-rgb),.4)"/><stop offset=".55" stop-color="rgba(220,250,255,.35)"/><stop offset="1" stop-color="rgba(2,6,10,.85)"/></linearGradient>
+    <linearGradient id="slxWell" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(0,0,0,.85)"/><stop offset="1" stop-color="rgba(2,6,10,.45)"/></linearGradient>
+    <filter id="slxSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="slxBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="slxGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
   <style>
     .slx-sheen{animation:slxSweep 6s ease-in-out infinite}
-    @keyframes slxSweep{0%,35%{transform:translate(-190px,0) skewX(-20deg)}75%,100%{transform:translate(230px,0) skewX(-20deg)}}
+    @keyframes slxSweep{0%,35%{transform:translate(-200px,0) skewX(-20deg)}75%,100%{transform:translate(620px,0) skewX(-20deg)}}
     @media (prefers-reduced-motion: reduce){.slx-sheen{animation:none;opacity:0}}
   </style>
   <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M5 102C0 104 0 138 5 140ZM5 152C0 154 0 190 5 192Z" fill="rgba(var(--acc2-rgb),.12)" stroke="rgba(var(--acc2-rgb),.7)" stroke-width="1.5"/>
-    <path d="M86 2C120 2 150 16 160 34C166 46 166 60 166 80L166 250C166 285 150 318 120 330C108 335 64 335 52 330C22 318 6 285 5 260L5 80C5 58 8 44 14 34C24 16 52 2 86 2Z" fill="url(#slxShell)"/>
+    <use href="#slxOut" transform="translate(18 24)" fill="rgba(0,0,0,.7)" filter="url(#slxSoft)"/>
+    <path d="M84 304C78 305 74 310 74 318V394C74 402 78 407 84 408ZM84 440C79 441 76 446 76 454V536C76 544 79 549 84 550Z" fill="rgba(0,0,0,.6)" filter="url(#slxBlur)"/>
+    <path d="M80 300C74 301 70 306 70 314V390C70 398 74 403 80 404ZM80 436C75 437 72 442 72 450V532C72 540 75 545 80 546Z" fill="url(#slxSide)" stroke="rgba(var(--acc2-rgb),.7)" stroke-width="3"/>
+    <path d="M72.5 316V388M74.5 452V530" stroke="rgba(230,252,255,.75)" stroke-width="2"/>
+    <use href="#slxOut" fill="url(#slxShell)"/>
     <g clip-path="url(#slxClip)">
-      <path d="M48 151C64 160 76 164 85.5 164S107 160 123 151L166 140V340H5V140Z" fill="rgba(2,6,10,.35)"/>
-      <path class="btn-l" d="M84 165C74 150 68 125 68 95L68 4C52 4 24 16 14 34C8 44 5 58 5 80L5 150C30 158 60 163 84 165Z"/>
-      <path class="btn-r" d="M87 165C97 150 103 125 103 95L103 4C119 4 147 16 157 34C163 44 166 58 166 80L166 150C141 158 111 163 87 165Z"/>
-      <path d="M24 24C40 70 52 120 62 160C72 195 100 240 128 300M31 20C45 67 57 119 67 159C77 193 104 236 133 295M147 24C131 70 119 120 109 160C99 195 71 240 43 300M140 20C126 67 114 119 104 159C94 193 67 236 38 295M11 60C10 150 14 230 34 300M160 60C161 150 157 230 137 300" stroke="url(#slxGroove)" stroke-width="1.4"/>
-      <path d="M62 160C72 195 100 240 128 300L133 295C104 236 77 193 67 159ZM109 160C99 195 71 240 43 300L38 295C67 236 94 193 104 159Z" fill="rgba(var(--acc2-rgb),.06)"/>
-      <g fill="url(#slxHole)" stroke="rgba(var(--acc2-rgb),.75)" stroke-width="1.6">
-        <path d="M16 104C26 104 34 112 40 124L48 150C36 150 24 146 18 140Z"/>
-        <path d="M20 166L54 166C50 190 40 215 28 234C22 215 20 190 20 166Z"/>
-        <path d="M155 104C145 104 137 112 131 124L123 150C135 150 147 146 153 140Z"/>
-        <path d="M151 166L117 166C121 190 131 215 143 234C149 215 151 190 151 166Z"/>
+      <rect x="52" y="30" width="462" height="868" fill="url(#slxHex)"/>
+      <path class="btn-l" d="M283 47C222 48 164 72 125 104C92 128 73 146 73 174C73 205 78 230 79 280C80 330 77 370 77 402C150 444 225 466 283 468Z"/>
+      <path class="btn-r" d="M287 47C344 46 404 70 442 100C474 125 493 146 494 176C495 230 487 290 486 340C485 370 484 388 483 402C410 444 342 466 287 468Z"/>
+      <path d="M77 410C150 452 225 474 285 476S420 452 483 410" stroke="rgba(0,0,0,.6)" stroke-width="10" filter="url(#slxBlur)"/>
+      <path d="M77 404C150 446 225 468 285 470S420 446 483 404" stroke="rgba(220,250,255,.35)" stroke-width="2"/>
+      <path d="M77 418C150 460 225 482 285 484S420 460 483 418" stroke="rgba(var(--acc2-rgb),.35)" stroke-width="3"/>
+      <path d="M285 484V880M110 600H460M100 640H470M120 760H446" stroke="rgba(var(--acc2-rgb),.14)" stroke-width="2"/>
+      <rect x="168" y="640" width="232" height="96" rx="10" fill="rgba(2,6,10,.35)" stroke="rgba(var(--acc2-rgb),.3)" stroke-width="2.5"/>
+      <g stroke="rgba(var(--acc2-rgb),.55)" stroke-width="2.5">
+        <circle cx="137" cy="236" r="14"/><circle cx="432" cy="236" r="14"/><circle cx="128" cy="492" r="14"/><circle cx="440" cy="492" r="14"/><circle cx="150" cy="734" r="14"/><circle cx="416" cy="734" r="14"/>
       </g>
-      <path d="M22 118L42 140M24 180L48 172M24 200L44 190M27 220L36 214M149 118L129 140M147 180L123 172M147 200L127 190M144 220L135 214" stroke="rgba(var(--acc2-rgb),.28)" stroke-width="1"/>
-      <path d="M20 106C26 108 31 113 35 120M22 168H50M151 106C145 108 140 113 136 120M149 168H121" stroke="rgba(190,245,255,.35)" stroke-width="1"/>
-      <rect class="slx-sheen" x="0" y="-20" width="46" height="380" fill="url(#slxSheen)"/>
+      <g fill="rgba(var(--acc2-rgb),.5)"><circle cx="137" cy="236" r="5"/><circle cx="432" cy="236" r="5"/><circle cx="128" cy="492" r="5"/><circle cx="440" cy="492" r="5"/><circle cx="150" cy="734" r="5"/><circle cx="416" cy="734" r="5"/></g>
+      <g stroke="rgba(var(--acc2-rgb),.35)" stroke-width="2">
+        <circle cx="178" cy="496" r="16"/><circle cx="357" cy="496" r="16"/><circle cx="214" cy="580" r="16"/><circle cx="352" cy="580" r="16"/>
+        <path d="M178 474V518M156 496H200M357 474V518M335 496H379M214 558V602M192 580H236M352 558V602M330 580H374"/>
+      </g>
+      <g fill="rgba(2,6,10,.4)" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="2.5">
+        <path d="M150 190H210V214H186V236H150Z"/><path d="M420 190H360V214H384V236H420Z"/>
+        <rect x="160" y="548" width="108" height="10" rx="3"/><rect x="300" y="548" width="108" height="10" rx="3"/>
+      </g>
+      <g stroke="rgba(var(--acc2-rgb),.3)" stroke-width="3.5">
+        <path d="M123 102C165 218 196 344 222 444C248 532 321 646 395 796M141 92C178 210 209 341 235 442C261 527 332 636 408 784M444 102C402 218 371 344 345 444C319 532 246 646 172 796M426 92C389 210 358 341 332 442C306 527 235 636 159 784M89 193C86 419 97 620 149 796M478 193C481 419 470 620 418 796"/>
+      </g>
+      <path d="M222 444C248 532 321 646 395 796L408 784C332 636 261 527 235 442ZM345 444C319 532 246 646 172 796L159 784C235 636 306 527 332 442Z" fill="rgba(var(--acc2-rgb),.08)"/>
+      <path d="M102 304C128 304 149 324 165 354L185 419C154 419 123 409 107 394ZM112 459L201 459C191 520 165 583 133 630C117 583 112 520 112 459ZM465 304C439 304 418 324 402 354L382 419C413 419 444 409 460 394ZM455 459L366 459C376 520 402 583 434 630C450 583 455 520 455 459Z" stroke="rgba(var(--acc2-rgb),.35)" stroke-width="12"/>
+      <path d="M102 304C128 304 149 324 165 354L185 419C154 419 123 409 107 394ZM112 459L201 459C191 520 165 583 133 630C117 583 112 520 112 459ZM465 304C439 304 418 324 402 354L382 419C413 419 444 409 460 394ZM455 459L366 459C376 520 402 583 434 630C450 583 455 520 455 459Z" fill="rgba(0,0,0,.55)" stroke="rgba(var(--acc2-rgb),.85)" stroke-width="3"/>
+      <path d="M117 339L170 394M123 495L185 475M123 545L175 520M131 595L154 580M450 339L397 394M444 495L382 475M444 545L392 520M436 595L413 580" stroke="rgba(var(--acc2-rgb),.3)" stroke-width="2.5"/>
+      <path d="M106 309C126 312 142 326 154 344M117 465H195M461 309C441 312 425 326 413 344M450 465H372" stroke="rgba(230,252,255,.45)" stroke-width="2.5"/>
+      <rect x="40" y="26" width="500" height="892" fill="url(#slxEdge)"/>
+      <rect x="40" y="26" width="500" height="892" fill="url(#slxDepth)"/>
+      <path d="M96 168C104 136 146 98 212 70M88 200C90 260 87 330 86 392" stroke="rgba(230,252,255,.4)" stroke-width="5" filter="url(#slxBlur)"/>
+      <rect class="slx-sheen" x="52" y="0" width="110" height="920" fill="url(#slxSheen)"/>
     </g>
-    <path d="M86 2C120 2 150 16 160 34C166 46 166 60 166 80L166 250C166 285 150 318 120 330C108 335 64 335 52 330C22 318 6 285 5 260L5 80C5 58 8 44 14 34C24 16 52 2 86 2Z" stroke="url(#slxRim)" stroke-width="2.2" filter="url(#slxGlow)"/>
-    <path d="M86 7C117 7 145 20 154 37C160 48 161 62 161 81L161 249C161 281 146 311 118 324C106 329 66 329 54 324C26 311 10 281 10 259L10 81C10 62 11 48 17 37C26 20 55 7 86 7Z" stroke="rgba(190,245,255,.12)" stroke-width="1"/>
-    <path d="M48 151C64 160 76 164 85.5 164S107 160 123 151" stroke="rgba(var(--acc2-rgb),.6)" stroke-width="1.5"/>
-    <path d="M85.5 4V30M85.5 96V100" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="1.2"/>
-    <rect x="70" y="28" width="31" height="68" rx="14" fill="rgba(2,6,10,.55)" stroke="rgba(var(--acc2-rgb),.45)" stroke-width="1.5"/>
-    <rect x="76" y="38" width="19" height="50" rx="9.5" fill="rgba(var(--acc2-rgb),.1)" stroke="rgba(var(--acc2-rgb),.95)" stroke-width="2" filter="url(#slxGlow)"/>
-    <path d="M79 45h13M79 50h13M79 55h13M79 60h13M79 65h13M79 70h13M79 75h13M79 80h13" stroke="rgba(var(--acc2-rgb),.4)" stroke-width="1"/>
-    <path d="M80 40h11" stroke="rgba(220,250,255,.6)" stroke-width="1.2"/>
+    <use href="#slxOut" transform="translate(283 465) scale(.955) translate(-283 -465)" stroke="rgba(190,245,255,.16)" stroke-width="2.5"/>
+    <use href="#slxOut" stroke="url(#slxRim)" stroke-width="5" filter="url(#slxGlow)"/>
+    <path d="M230 64H340V108H230Z" fill="rgba(2,6,10,.5)" stroke="rgba(var(--acc2-rgb),.45)" stroke-width="2.5"/>
+    <circle cx="285" cy="96" r="8" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="2"/>
+    <rect x="248" y="140" width="74" height="186" rx="14" fill="url(#slxWell)" stroke="rgba(var(--acc2-rgb),.45)" stroke-width="3"/>
+    <path d="M252 152V314" stroke="rgba(0,0,0,.6)" stroke-width="6" filter="url(#slxBlur)"/>
+    <rect x="260" y="176" width="50" height="138" rx="20" fill="url(#slxWheel)" stroke="rgba(var(--acc2-rgb),.95)" stroke-width="4.5" filter="url(#slxGlow)"/>
+    <path d="M268 196h34M268 210h34M268 224h34M268 238h34M268 252h34M268 266h34M268 280h34M268 294h34" stroke="rgba(var(--acc2-rgb),.4)" stroke-width="2.5"/>
+    <path d="M270 184h30" stroke="rgba(220,250,255,.6)" stroke-width="3"/>
     <g filter="url(#slxGlow)">
-      <path d="M85.5 98L89 117L100 126L89 135L85.5 160L82 135L71 126L82 117Z" fill="rgba(var(--acc2-rgb),.2)" stroke="rgba(190,245,255,.95)" stroke-width="1.4"/>
-      <path d="M85.5 112L92 126L85.5 140L79 126Z" fill="rgba(220,250,255,.55)"/>
-      <path d="M77 115L81.5 120M94 115L89.5 120M77 137L81.5 132M94 137L89.5 132" stroke="rgba(190,245,255,.9)" stroke-width="1.4"/>
+      <path d="M285 338L292 377L313 392L292 407L285 452L278 407L257 392L278 377Z" fill="rgba(var(--acc2-rgb),.22)" stroke="rgba(190,245,255,.95)" stroke-width="3"/>
+      <path d="M285 365L297 392L285 419L273 392Z" fill="rgba(220,250,255,.6)"/>
+      <path d="M264 370L273 380M306 370L297 380M264 414L273 404M306 414L297 404" stroke="rgba(190,245,255,.9)" stroke-width="3"/>
     </g>
+    <path d="M285 47V64M285 108V140M285 326V336" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="3"/>
   </g>
 </svg>`;
 function buildTmr(){
