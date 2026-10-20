@@ -382,7 +382,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .tmr-mouse .btn-l,.tmr-mouse .btn-r{fill:rgba(var(--acc2-rgb),.06);stroke:rgba(var(--acc2-rgb),.55);stroke-width:1.5;transition:fill .1s}
   .tmr-mouse .down{fill:rgba(var(--acc2-rgb),.45)}
   .tmr-extra{margin-top:14px}
-  @media (max-width: 900px){ .tmr-stage{grid-template-columns:1fr 1fr} .tmr-mid{display:none} }
+  @media (max-width: 1000px){ .tmr-extra{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width: 1100px){ .tmr-stage{grid-template-columns:1fr 1fr} .tmr-mid{display:none} }
+  @media (max-width: 520px){ .tmr-stage{grid-template-columns:minmax(0,1fr)} }
 </style>
 </head>
 <body>
