@@ -355,6 +355,99 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   body.embed .wrap{padding-top:8px}
   body.embed header{background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:2px 4px 6px}
   body.embed h1{font-size:22px}
+
+  body{background:var(--bg)}
+  body::before{display:none}
+  .wrap{max-width:1120px}
+  header{background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:0;
+    padding:4px 0 16px;border-bottom:1px solid var(--line)}
+  .brand{border-right-color:var(--line)}
+  .brand .mark{background:var(--card);border-color:var(--line2);box-shadow:none}
+  .status::before{box-shadow:none;animation:none}
+  .btn{background:var(--acc);box-shadow:none}
+  .btn:hover{filter:brightness(1.08);box-shadow:none}
+  .btn.ghost{background:transparent;box-shadow:0 0 0 1px var(--line2)}
+  .btn.ghost:hover:not(:disabled){background:rgba(255,255,255,.04);box-shadow:0 0 0 1px #3d4a58}
+  .hero{background:var(--card);border:1px solid var(--line);box-shadow:none}
+  .hero .art{filter:none}
+
+  #app{grid-template-columns:minmax(0,1fr);gap:0;margin-top:20px}
+  aside{display:contents}
+  main{order:1;padding-top:22px}
+  aside .foot{order:2;margin:28px 2px 0}
+  .devcard{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:14px 18px;border-radius:14px;
+    background:var(--card);border:1px solid var(--line);overflow:visible}
+  .devcard::before,.devcard::after{display:none}
+  .devcard .art,.devcard .art.photo,.devcard .art.wait{flex:0 0 auto;width:auto;max-width:132px;height:64px;margin:0;filter:none;
+    display:grid;place-items:center}
+  .devcard .art img,.devcard .art.photo img{max-height:64px;max-width:132px;width:auto;height:auto}
+  .devcard .art svg{max-height:64px;width:auto;height:64px}
+  .skins{margin:0;flex:0 0 auto}
+  .gauges{display:flex;align-items:center;gap:22px;margin:0;flex:1 1 auto;min-width:0;flex-wrap:wrap}
+  .ring{display:flex;align-items:center;gap:10px;width:auto;height:auto}
+  .ring>svg{width:38px;height:38px;flex:0 0 auto}
+  .ring .mid{position:static;display:block;text-align:left}
+  .ring .mid>div{display:flex;flex-direction:column-reverse}
+  .ring .mid .v{font:700 16px/1.25 var(--disp);justify-content:flex-start}
+  .ring .mid .k{font:500 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);margin:0 0 4px}
+  .devcard .art svg,.devcard .art img{filter:none !important}
+  #sBattBar{filter:none}
+  .minis{display:flex;flex-direction:row;flex-wrap:wrap;gap:10px 28px;flex:1 1 auto}
+  .mini{padding:0;background:none;box-shadow:none;border:0;min-width:0}
+  .mini .v{font-size:16px;text-shadow:none !important}
+  #sDpi,#sRate{color:var(--ink) !important;text-shadow:none !important}
+
+  .tabs{position:sticky;top:0;z-index:5;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    gap:2px;margin-top:14px;padding:0;border-radius:0;background:var(--bg);box-shadow:none;border-bottom:1px solid var(--line)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{flex:0 0 auto;white-space:nowrap;gap:8px;padding:13px 14px;border-radius:0;font-size:13.5px}
+  .tabs button:hover{background:none}
+  .tabs button[aria-pressed=true]{background:none}
+  .tabs button[aria-pressed=true]::before{display:block;left:10px;right:10px;top:auto;bottom:-1px;width:auto;height:2px;
+    border-radius:2px;box-shadow:none}
+  .tabs button svg{width:16px;height:16px}
+
+  .phead{margin:0 2px 16px}
+  .phead h2{font-size:24px}
+  .item{background:var(--card);box-shadow:0 0 0 1px var(--line);margin-bottom:10px}
+  .item:hover{box-shadow:0 0 0 1px var(--line)}
+  .item .item,.item.inner{background:none;box-shadow:none;padding-left:0;padding-right:0}
+  .item .d{max-width:68ch;line-height:1.5}
+  .sect{margin:26px 2px 10px;font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
+  .phead + .sect{margin-top:4px}
+  .seg{background:#0b0f14;box-shadow:inset 0 0 0 1px var(--line)}
+  .seg button[aria-pressed=true]{background:var(--acc);box-shadow:none}
+  .slider input[type=range]{background:var(--line2)}
+  .slider input[type=range]::-webkit-slider-thumb{background:#fff;border:0;box-shadow:0 0 0 4px var(--acc)}
+  .slider input[type=range]::-moz-range-thumb{background:#fff;border:0;box-shadow:0 0 0 4px var(--acc)}
+  .slider output{color:var(--ink);text-shadow:none;border-color:var(--line);background:#0b0f14}
+  .sw:checked{background:var(--acc);border-color:var(--acc);box-shadow:none}
+  select:hover,select:focus,input[type=number]:hover,input[type=number]:focus{box-shadow:none}
+  .tachyon{background:var(--card);box-shadow:0 0 0 1px rgba(168,85,247,.45)}
+
+  .demobar{margin:16px 0 0;border-radius:12px;padding:12px 16px;background:rgba(245,196,81,.1);
+    box-shadow:inset 0 0 0 1px rgba(245,196,81,.5);color:#ffe9b3}
+  body:has(#demoBar:not(.hidden)) header #connect{display:none}
+  body.embed .demobar a{display:inline-block !important}
+  .demobar code{font:12px var(--mono)}
+
+  body.embed .wrap{padding-top:8px}
+  @media (max-width: 760px){
+    body.embed header .devhead{display:block}
+    #app{margin-top:14px}
+    header{padding:2px 0 12px}
+    .devcard{padding:12px 14px;gap:10px 16px}
+    .devcard .art,.devcard .art.photo,.devcard .art.wait{height:52px;max-width:96px}
+    .devcard .art img,.devcard .art.photo img{max-height:52px;max-width:96px}
+    .devcard .art svg{height:52px}
+    .gauges{gap:14px}
+    .minis{gap:8px 20px}
+    .tabs button{padding:12px 11px}
+    .demobar{flex-wrap:wrap;gap:10px}
+  }
+  @media (max-width: 480px){
+    .devcard .art,.devcard .skins{display:none}
+  }
 </style>
 </head>
 <body>
@@ -378,8 +471,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 </header>
 
 <div class="demobar hidden" id="demoBar" role="status">
-  <span><b>Demo mode.</b> This is a simulated Edge 60HE keyboard, not a real device. Nothing here is sent to any hardware, and nothing is saved.</span>
-  <a href="../index.html">Exit demo</a>
+  <span><b>Demo mode.</b> This is a simulated keyboard, not a real device. Nothing is sent to hardware and nothing is saved.</span>
+  <a href="../index.html" target="_top">Exit demo</a>
 </div>
 
 <div class="hero" id="hero">
@@ -446,7 +539,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     <div class="cols two">
       <div class="item">
         <div class="t">Trigger travel</div>
-        <div class="d">Shorter travel responds faster but triggers accidentally more easily.</div>
+        <div class="d">How far a key goes down before it registers. Shorter reacts sooner but misfires more easily, for example when a finger rests on a key.</div>
         <div class="slider">
           <span class="lbl">Travel</span>
           <input type="range" id="travel" min="0.1" max="3.4" step="0.01" value="1.5">
@@ -459,7 +552,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 
       <div class="item">
         <div class="t">Rapid trigger</div>
-        <div class="d">Re-triggers from the current position instead of the full reset point.</div>
+        <div class="d">Releases a key as soon as it starts to rise and presses it again as soon as it goes back down, instead of waiting for it to cross the fixed trigger point. Great for fast taps and strafing. Smaller values react faster but are twitchier.</div>
         <label class="inline" style="margin-top:12px">
           <input type="checkbox" class="sw" id="rtOn"> Enable on selected keys
         </label>
@@ -483,7 +576,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     <div class="cols two">
       <div class="item">
         <div class="t">Dead zone</div>
-        <div class="d">Top reduces false triggers, bottom reduces trigger breakage.</div>
+        <div class="d">Press down ignores the very top of the travel, so a resting finger or a knock on the desk can&rsquo;t trigger a key. Lift up ignores small rises near the bottom, so a held key doesn&rsquo;t drop out when your finger wobbles. Bigger values are safer but react later.</div>
         <div class="gridbar" style="margin-top:12px">
           <label class="inline">Press down
             <input type="number" id="dzTop" min="0" max="1" step="0.01" value="0.3"></label>
@@ -496,7 +589,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         <div class="item row">
           <div>
             <div class="t">Extreme mode</div>
-            <div class="d">Raises rapid trigger and step accuracy to 0.001 mm.</div>
+            <div class="d">Lets rapid trigger and travel use 0.001 mm steps instead of the keyboard&rsquo;s normal step size.</div>
           </div>
           <input type="checkbox" class="sw" id="gameMode">
         </div>
@@ -550,7 +643,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         </div>
         <div class="item">
           <div class="t">Polling rate</div>
-          <div class="d">Higher means lower latency and more power draw.</div>
+          <div class="d">How many times a second the keyboard reports to your PC. Higher cuts delay but uses more power and CPU.</div>
           <div class="seg" id="segRate"></div>
         </div>
         <div class="item">

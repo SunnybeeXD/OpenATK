@@ -210,6 +210,43 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   #pal li small{margin-left:auto;color:var(--dimmer);font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
   #pal li[aria-selected=true]{background:rgba(var(--acc-rgb),.14);box-shadow:inset 0 0 0 1px rgba(var(--acc-rgb),.4)}
   #pal .none{padding:18px;color:var(--dimmer);text-align:center;font-size:14px}
+  body{background:var(--bg)}
+  body::before{display:none}
+  header{background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:0;
+    padding:4px 0 14px;border-bottom:1px solid var(--line)}
+  .brand .mark{background:var(--card);border-color:var(--line2);box-shadow:none}
+  .btn{background:var(--acc);box-shadow:none}
+  .btn:hover{filter:brightness(1.08);box-shadow:none}
+  .btn.ghost{background:transparent;box-shadow:0 0 0 1px var(--line2)}
+  .btn.ghost:hover{background:rgba(255,255,255,.04);box-shadow:0 0 0 1px #3d4a58}
+  .chip:hover{background:rgba(255,255,255,.04);box-shadow:0 0 0 1px #3d4a58}
+  .chip[aria-current=true]{background:rgba(var(--acc-rgb),.1);box-shadow:0 0 0 1px rgba(var(--acc-rgb),.6)}
+  .themes button[aria-pressed=true]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--c)}
+  .pick,.dev{background:var(--card);box-shadow:0 0 0 1px var(--line)}
+  .pick:hover,.dev:hover{box-shadow:0 0 0 1px #3d4a58}
+  .pick img{filter:none}
+  .dev .shot{background:none}
+  .dev.add{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)}
+  .dev.add:hover{box-shadow:inset 0 0 0 1.5px #3d4a58}
+  #stage iframe{border-radius:0}
+  body.app header{padding-bottom:10px}
+  @media (max-width: 760px){
+    header{padding:2px 0 12px}
+    #homeView{margin-top:14px;padding-top:10px}
+    #homeView h2{font-size:27px;letter-spacing:-.02em;margin:10px 0 8px}
+    #homeView p{font-size:14px;margin-bottom:0}
+    .picks{margin:20px 0 18px}
+    .pick{padding:18px 16px 16px}
+    .pick .img{height:84px;margin-bottom:2px}
+    .pick img{max-height:84px}
+    .devgrid{margin-top:20px}
+    .dev .shot{height:120px}
+    .dev .shot img{max-height:92px}
+    .dev.add{min-height:110px}
+    .demoline{margin-top:26px}
+    body.app #themes,body.app #palBtn,body.app header a.icon{display:none}
+    body.app #addTab{margin-left:auto}
+  }
 </style>
 </head>
 <body>
