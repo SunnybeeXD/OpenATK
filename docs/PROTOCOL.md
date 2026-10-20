@@ -309,8 +309,43 @@ doesn't actually sleep on it. BITMOUSE has no equivalent split — its
 
 ### Sensor performance mode
 
-`sensorModel` at `0xB9`, inside the `0xB5` row. Same enum and same three-value
-vendor UI as BITMOUSE — see above.
+`sensorModel` at `0xB9`, offset 4 inside the six-byte `0xB5` row, followed by
+its `85 - value` inverse at offset 5:
+
+| Mode | COMPX stored byte | BITMOUSE stored byte |
+|---|---|---|
+| Basic | `0` | `0` |
+| Competitive | `1` | `4` |
+| Competitive Max | `2` | `5` |
+
+The vendor UI uses `Base=0`, `Athletics=1`, `AthleticsMax=2`. The COMPX driver
+writes these values unchanged; only BITMOUSE maps them to Auth/Game/
+GameHighPerformance (`0/4/5`). Confirmed in ATK HUB 3.2.21 and 3.2.28.
+Do not write BITMOUSE's `4/5` values to COMPX or label COMPX's `1/2` as
+BITMOUSE's LowPerformance/HighPerformance. Firmware behavior for COMPX
+values outside `0/1/2` has not been established.
+
+Competitive Max is not offered on every COMPX mouse. The vendor enables it
+for CID 1, otherwise only when the CID/MID has a `cordedMode` threshold in
+the COMPX (`"3"`) section of
+[mouse-upgrade.json](https://bpcdn.atkgear.com/device/constant/mouse-upgrade.json)
+and the mouse firmware meets that threshold. For example, `2,49` needs
+firmware `3.00` or newer. OpenATK embeds a snapshot of these thresholds so
+device configuration remains offline.
+
+OpenATK retains `0/4/5` as its **UI and v1 share-file values** for compatibility
+with existing files, translating COMPX reads and writes at the driver boundary.
+An existing share file selecting Competitive (`4`) therefore writes `1` to
+COMPX and `4` to BITMOUSE. Unsupported Max imports are skipped. Unknown COMPX
+stored values are displayed explicitly and are neither selected nor exported
+as a recognized mode; reading them does not rewrite the device.
+
+Vendor sources: [3.2.21 bundle](https://bpcdn.atkgear.com/hub-v3/production/3.2.21/static/index-DCqGa4MS.js),
+[3.2.28 COMPX driver](https://bpcdn.atkgear.com/hub-v3/production/3.2.28/static/filter-8vgh_F2N.js),
+[3.2.28 BITMOUSE driver](https://bpcdn.atkgear.com/hub-v3/production/3.2.28/static/filter-CO7zKClF.js).
+
+Run `node --test tests/sensor-mode.cjs` from the repository root for regression
+checks of mode reads/writes, sleep-byte preservation, eligibility and v1 shares.
 
 ### Sensor angle
 
