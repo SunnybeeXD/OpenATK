@@ -184,7 +184,11 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   body.app .wrap{max-width:1360px;padding:14px 16px 16px}
   @media (max-width: 760px){
     body.app .wrap{padding:10px}
+    header{flex-wrap:wrap;gap:12px}
     header .brand{margin-right:0}
+    header #spacer{display:none}
+    header .themes{margin-left:auto}
+    header .tabs{order:1;flex-basis:100%}
     .chip{max-width:190px}
   }
 

@@ -169,7 +169,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .phead{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:4px 2px 14px}
   .phead h2{margin:0;font:700 28px/1.1 var(--disp);letter-spacing:-.02em}
   .phead p{margin:6px 0 0;color:var(--dim);font-size:14px}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .grid2 .item{margin-bottom:0}
   .grid2 + .item, .grid2 + .grid2{margin-top:12px}
 
@@ -321,6 +321,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .foot a{color:var(--dim)}
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation:none !important;transition:none !important}
+  }
+  @media (max-width: 1000px){
+    .grid2{grid-template-columns:minmax(0,1fr)}
   }
   @media (max-width: 760px){
     .wrap{padding:14px 14px 40px}
