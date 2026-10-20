@@ -836,11 +836,31 @@ const DEBOUNCE = [[0, 'Off'], [1, '1 ms'], [2, '2 ms'], [4, '4 ms'],
 const SLEEP = [[30, '30 sec'], [60, '1 min'], [120, '2 min'], [180, '3 min'],
                [300, '5 min'], [1200, '20 min'], [1500, '25 min'], [1800, '30 min']];
 
-/* Sensor performance ("how hard the sensor samples"). The stored byte carries
-   the firmware's full enum — see SENSORMODE — but the vendor UI only ever
-   writes three of its values: Auth as the low-power default, then Game and
-   GameHighPerformance as the two competitive tiers. Offer exactly those. */
+/* Stable UI/share values, retained for compatibility with existing v1 files.
+   These match BITMOUSE's wire enum. COMPX translates them at the driver boundary:
+   Basic / Competitive / Competitive Max are stored as 0 / 1 / 2 there. */
 const SENSOR_MODES = [[0, 'Basic'], [4, 'Competitive'], [5, 'Competitive Max']];
+const COMPX_MODE_FROM_WIRE = [0, 4, 5];
+
+/* ATK's mouse-upgrade.json, COMPX (key 3), cordedMode thresholds; snapshot
+   2026-10-20. CID 1 is always eligible. Unknown devices/firmware omit Max.
+   https://bpcdn.atkgear.com/device/constant/mouse-upgrade.json */
+const COMPX_MAX_FW = Object.freeze(Object.fromEntries([
+  ...[36,37,38,39,40,41,42,43,46,47,49,50,53,54,55,56,64,65,66,74,75,86,87,88,89,108]
+    .map(mid => [`2,${mid}`, '3.00']),
+  ...[85,100,110].map(mid => [`2,${mid}`, '1.77']),
+  ...[114,115,124,125,126,127,128,131,133,134,135,137].map(mid => [`2,${mid}`, '1.00']),
+]));
+function compxSupportsMax(cidMid, firmware){
+  if (typeof cidMid !== 'string' || !/^\d+,\d+$/.test(cidMid)) return false;
+  if (cidMid.split(',')[0] === '1') return true;
+  const min = COMPX_MAX_FW[cidMid];
+  return !!min && typeof firmware === 'string' && /^\d+\.\d{2}$/.test(firmware)
+    && Number(firmware) >= Number(min);
+}
+function sensorModesFor(driver){
+  return driver instanceof CompxDriver ? driver.sensorModes : SENSOR_MODES;
+}
 
 /* Sensor rotation is a signed degree count in a single byte, two's complement,
    and the vendor UI clamps it to ±30°. */
@@ -1342,6 +1362,9 @@ const CX_CODEC = {
 
 class CompxDriver {
   static family = 'cx';
+  get sensorModes(){
+    return compxSupportsMax(this.cidMid, this.mouseFirmware) ? SENSOR_MODES : SENSOR_MODES.slice(0, 2);
+  }
   constructor(device, group){
     this.device = device;
     this.t = new Transport(device, 8, 0);
@@ -1387,7 +1410,8 @@ class CompxDriver {
     const add = (k,v) => s.info.push([k,v]);
 
     try { const v = await this.xfer(CX_CMD.GetMouseVersion);
-          add('Mouse firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
+          s.mouseFirmware = `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`;
+          add('Mouse firmware', s.mouseFirmware); } catch{}
     try { const v = await this.xfer(CX_CMD.GetDongleVersion);
           add('Dongle firmware', `${v.u8(0).toString(16)}.${v.u8(1).toString(16).padStart(2,'0')}`); } catch{}
     Object.assign(s, await this.readBattery());
@@ -1397,6 +1421,8 @@ class CompxDriver {
     }
     try { const v = await this.xfer(CX_CMD.GetMouseCIDMID);
           s.cidMid = `${v.u8(0)},${v.u8(1)}`; } catch{}
+    this.cidMid = s.cidMid;
+    this.mouseFirmware = s.mouseFirmware;
 
     try {
       const v = await this.read(CX_ADDR.reportRate, 10);
@@ -1428,7 +1454,8 @@ class CompxDriver {
       this.sensorBlock = Array.from({length:6}, (_,i) => v.u8(i));
       s.sensorSleepOn  = !!v.u8(0);
       s.sensorSleepSec = v.u8(2) * 10;
-      s.sensorMode     = v.u8(4);
+      s.sensorModeRaw  = v.u8(4);
+      s.sensorMode     = COMPX_MODE_FROM_WIRE[s.sensorModeRaw] ?? null;
     } catch{}
 
     /* 0xBD: [degrees, ~, enabled, ~] — note the opposite order to BITMOUSE */
@@ -1692,7 +1719,8 @@ class CompxDriver {
     this.funcBlock = b;
   }
   async patchSensor(index, value){
-    const b = this.sensorBlock ? [...this.sensorBlock] : new Array(6).fill(0);
+    const current = this.sensorBlock ? null : await this.read(CX_ADDR.sensorEnable, 6);
+    const b = this.sensorBlock ? [...this.sensorBlock] : Array.from({length:6}, (_,i) => current.u8(i));
     const [v, inv] = CompxDriver.pair(value);
     b[index] = v; b[index+1] = inv;
     await this.write(CX_ADDR.sensorEnable, b);
@@ -1713,7 +1741,13 @@ class CompxDriver {
     await this.write(CX_ADDR.sensorEnable, b);
     this.sensorBlock = b;
   }
-  setSensorMode(mode){ return this.patchSensor(4, mode); }
+  setSensorMode(mode){
+    const raw = COMPX_MODE_FROM_WIRE.indexOf(mode);
+    if (raw < 0) throw new Error('Unknown sensor performance mode');
+    if (!this.sensorModes.some(([value]) => value === mode))
+      throw new Error('Competitive Max is not available on this mouse/firmware');
+    return this.patchSensor(4, raw);
+  }
   setAngle(on, deg){ return this.write(CX_ADDR.angle,
     [...CompxDriver.pair(angleToByte(deg)), ...CompxDriver.pair(on ? 1 : 0)]); }
   async setToggle(key, on){
@@ -1787,7 +1821,7 @@ function buildSeg(host, opts, onPick){
       const prev = [...el.children].find(c => c.getAttribute('aria-pressed') === 'true');
       mark(host, value); el.classList.add('busy');
       try { await onPick(value, label); }
-      catch { if (prev) mark(host, prev.dataset.value); toast('Could not save — try again', 1); }
+      catch { mark(host, prev ? prev.dataset.value : NaN); toast('Could not save — try again', 1); }
       finally { el.classList.remove('busy'); }
     };
     el.appendChild(b);
@@ -1806,8 +1840,13 @@ buildSeg('#segDebounce', DEBOUNCE, async (v,l) => {
   await drv.setDebounce(v); toast(`Click debounce set to ${l}`); });
 buildSeg('#segSleep', SLEEP, async (v,l) => {
   await drv.setSleep(v); toast(`Sleeps after ${l}`); });
-buildSeg('#segSensorMode', SENSOR_MODES, async (v,l) => {
-  await drv.setSensorMode(v); toast(`Sensor performance: ${l}`); });
+function syncSensorModes(){
+  const opts = sensorModesFor(drv);
+  const shown = [...$('#segSensorMode').children].map(b => +b.dataset.value).join(',');
+  if (shown !== opts.map(([v]) => v).join(','))
+    buildSeg('#segSensorMode', opts, async (v,l) => {
+      await drv.setSensorMode(v); toast(`Sensor performance: ${l}`); });
+}
 
 /* The light is one frame carrying mode, brightness and speed, so every
    control resends all three. */
@@ -3003,7 +3042,12 @@ function planShare(cfg){
   if (c.rate != null){ if (inVals(c.rate, RATE_HZ)) add(`Polling rate ${c.rate} Hz`, () => drv.setRate(c.rate)); else bad('Polling rate'); }
   if (c.debounce != null){ if (DEBOUNCE.some(d => d[0] === c.debounce)) add(`Click debounce ${label(DEBOUNCE, c.debounce)}`, () => drv.setDebounce(c.debounce)); else bad('Debounce'); }
   if (c.sleep != null){ if (SLEEP.some(d => d[0] === c.sleep)) add(`Sleep after ${label(SLEEP, c.sleep)}`, () => drv.setSleep(c.sleep)); else bad('Sleep time'); }
-  if (c.sensorMode != null){ if (SENSOR_MODES.some(d => d[0] === c.sensorMode)) add(`Sensor performance: ${label(SENSOR_MODES, c.sensorMode)}`, () => drv.setSensorMode(c.sensorMode)); else bad('Sensor performance'); }
+  if (c.sensorMode != null){
+    if (!SENSOR_MODES.some(d => d[0] === c.sensorMode)) bad('Sensor performance');
+    else if (!sensorModesFor(drv).some(d => d[0] === c.sensorMode))
+      notes.push('Competitive Max is not available on this mouse/firmware and was skipped');
+    else add(`Sensor performance: ${label(SENSOR_MODES, c.sensorMode)}`, () => drv.setSensorMode(c.sensorMode));
+  }
   const slider = !$('#lodSlider').classList.contains('hidden');
   if (c.lodMm != null){
     const mm = Math.round(Number(c.lodMm) * 10) / 10;
@@ -3201,10 +3245,13 @@ async function readAll(){
   }
   if (s.debounceMs != null) mark('#segDebounce', s.debounceMs);
   if (s.sleepSec) mark('#segSleep', s.sleepSec);
-  if (s.sensorMode != null){
-    mark('#segSensorMode', s.sensorMode);
-    info.push(['Sensor performance', SENSORMODE[s.sensorMode] ?? `unknown (${s.sensorMode})`]);
-  }
+  syncSensorModes();
+  mark('#segSensorMode', s.sensorMode ?? NaN);
+  if (s.sensorMode != null)
+    info.push(['Sensor performance', SENSOR_MODES.find(([v]) => v === s.sensorMode)?.[1]
+      ?? SENSORMODE[s.sensorMode] ?? `unknown (${s.sensorMode})`]);
+  else if (s.sensorModeRaw != null)
+    info.push(['Sensor performance', `unknown COMPX value (${s.sensorModeRaw})`]);
   if (s.sensorSleepSec != null)
     info.push(['Sensor sleep', s.sensorSleepOn ? s.sensorSleepSec + ' s' : 'off']);
   if (s.angleDeg != null){
