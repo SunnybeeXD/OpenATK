@@ -985,10 +985,16 @@ const MOUSE_SVG = `<svg viewBox="40 26 500 892" class="tmr-mouse" aria-hidden="t
       </g>
       <g fill="rgba(2,6,10,.4)" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="2.5">
         <path d="M150 190H210V214H186V236H150Z"/><path d="M420 190H360V214H384V236H420Z"/>
-        <rect x="134" y="340" width="52" height="16" rx="3"/>
         <rect x="160" y="548" width="108" height="10" rx="3"/><rect x="300" y="548" width="108" height="10" rx="3"/>
       </g>
-      <path d="M255 410V440M313 410V440" stroke="rgba(220,250,255,.75)" stroke-width="5"/>
+      <g stroke="rgba(var(--acc2-rgb),.3)" stroke-width="3.5">
+        <path d="M123 102C165 218 196 344 222 444C248 532 321 646 395 796M141 92C178 210 209 341 235 442C261 527 332 636 408 784M444 102C402 218 371 344 345 444C319 532 246 646 172 796M426 92C389 210 358 341 332 442C306 527 235 636 159 784M89 193C86 419 97 620 149 796M478 193C481 419 470 620 418 796"/>
+      </g>
+      <path d="M222 444C248 532 321 646 395 796L408 784C332 636 261 527 235 442ZM345 444C319 532 246 646 172 796L159 784C235 636 306 527 332 442Z" fill="rgba(var(--acc2-rgb),.08)"/>
+      <path d="M102 304C128 304 149 324 165 354L185 419C154 419 123 409 107 394ZM112 459L201 459C191 520 165 583 133 630C117 583 112 520 112 459ZM465 304C439 304 418 324 402 354L382 419C413 419 444 409 460 394ZM455 459L366 459C376 520 402 583 434 630C450 583 455 520 455 459Z" stroke="rgba(var(--acc2-rgb),.35)" stroke-width="12"/>
+      <path d="M102 304C128 304 149 324 165 354L185 419C154 419 123 409 107 394ZM112 459L201 459C191 520 165 583 133 630C117 583 112 520 112 459ZM465 304C439 304 418 324 402 354L382 419C413 419 444 409 460 394ZM455 459L366 459C376 520 402 583 434 630C450 583 455 520 455 459Z" fill="rgba(0,0,0,.55)" stroke="rgba(var(--acc2-rgb),.85)" stroke-width="3"/>
+      <path d="M117 339L170 394M123 495L185 475M123 545L175 520M131 595L154 580M450 339L397 394M444 495L382 475M444 545L392 520M436 595L413 580" stroke="rgba(var(--acc2-rgb),.3)" stroke-width="2.5"/>
+      <path d="M106 309C126 312 142 326 154 344M117 465H195M461 309C441 312 425 326 413 344M450 465H372" stroke="rgba(230,252,255,.45)" stroke-width="2.5"/>
       <rect x="40" y="26" width="500" height="892" fill="url(#slxEdge)"/>
       <rect x="40" y="26" width="500" height="892" fill="url(#slxDepth)"/>
       <path d="M96 168C104 136 146 98 212 70M88 200C90 260 87 330 86 392" stroke="rgba(230,252,255,.4)" stroke-width="5" filter="url(#slxBlur)"/>
@@ -1003,7 +1009,12 @@ const MOUSE_SVG = `<svg viewBox="40 26 500 892" class="tmr-mouse" aria-hidden="t
     <rect x="260" y="176" width="50" height="138" rx="20" fill="url(#slxWheel)" stroke="rgba(var(--acc2-rgb),.95)" stroke-width="4.5" filter="url(#slxGlow)"/>
     <path d="M268 196h34M268 210h34M268 224h34M268 238h34M268 252h34M268 266h34M268 280h34M268 294h34" stroke="rgba(var(--acc2-rgb),.4)" stroke-width="2.5"/>
     <path d="M270 184h30" stroke="rgba(220,250,255,.6)" stroke-width="3"/>
-    <path d="M285 47V64M285 108V140M285 326V468" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="3"/>
+    <g filter="url(#slxGlow)">
+      <path d="M285 338L292 377L313 392L292 407L285 452L278 407L257 392L278 377Z" fill="rgba(var(--acc2-rgb),.22)" stroke="rgba(190,245,255,.95)" stroke-width="3"/>
+      <path d="M285 365L297 392L285 419L273 392Z" fill="rgba(220,250,255,.6)"/>
+      <path d="M264 370L273 380M306 370L297 380M264 414L273 404M306 414L297 404" stroke="rgba(190,245,255,.9)" stroke-width="3"/>
+    </g>
+    <path d="M285 47V64M285 108V140M285 326V336" stroke="rgba(var(--acc2-rgb),.5)" stroke-width="3"/>
   </g>
 </svg>`;
 function buildTmr(){
