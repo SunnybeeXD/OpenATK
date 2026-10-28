@@ -1,6 +1,7 @@
 # OpenATK
 
 A browser-based control panel for ATK gaming mice and keyboards. Plain HTML, no install, no driver, no background service.
+Do note that the original domain I hosted this on (Sunnybee.lol) got taken down by the domain registar. All future projects would be on sunnybee.fun
 
 Set sensitivity, polling rate, lift-off distance, tracking corrections, click debounce and sleep timeout — from a tab.
 
@@ -11,7 +12,7 @@ Set sensitivity, polling rate, lift-off distance, tracking corrections, click de
 
 ## Try it
 
-Use https://sunnybee.lol/openatk, or download the repository and open [`index.html`](index.html).
+Use https://sunnybee.fun/openatk, or download the repository and open [`index.html`](index.html).
 
 The start page is the whole app. Press **Connect any ATK device** (or **+ Add device**) to pick several mice and keyboards at once. Each one gets a tab at the top, and you switch between them without leaving the page. Tabs stay loaded, so switching is instant.
 
