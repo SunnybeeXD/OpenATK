@@ -121,24 +121,26 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   header .brand{border-right:0}
   .foot{margin:22px auto 0;text-align:center;color:var(--dimmer);font-size:12.5px}
   .foot a{color:var(--dim)}
+  .foot .made{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
+  .foot .made svg{width:36px;height:auto;flex:none;shape-rendering:crispEdges}
   #toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,18px);background:rgba(40,14,14,.92);color:#ffe1e1;
     font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:14px;opacity:0;pointer-events:none;
     border:1px solid rgba(248,113,113,.6);transition:opacity .2s ease-out,transform .2s ease-out;z-index:9}
   #toast.show{opacity:1;transform:translate(-50%,0)}
-  .devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,300px));justify-content:center;gap:16px;margin:34px 0 16px;text-align:left}
-  .dev.add{align-items:center;justify-content:center;min-height:250px;gap:10px;border:0;cursor:pointer;font:600 14px Inter,sans-serif;color:var(--dim);background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)}
-  .dev.add span{font:300 38px/1 var(--disp);color:var(--acc)}
+  .devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,380px));justify-content:center;gap:20px;margin:34px 0 18px;text-align:left}
+  .dev.add{grid-column:1/-1;justify-self:center;flex-direction:row;align-items:center;justify-content:center;min-height:0;padding:11px 22px;gap:9px;border:0;cursor:pointer;font:600 14px Inter,sans-serif;color:var(--dim);background:transparent;box-shadow:inset 0 0 0 1.5px var(--line2)}
+  .dev.add span{font:300 22px/1 var(--disp);color:var(--acc)}
   .dev.add:hover{color:var(--ink);box-shadow:inset 0 0 0 1.5px rgba(var(--acc-rgb),.55),0 0 34px -10px var(--glow)}
   .dev{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;text-decoration:none;color:var(--ink);
     background:#0c1116;box-shadow:var(--ring);transition-property:box-shadow,scale;transition-duration:.15s;transition-timing-function:ease-out}
   .dev:hover{box-shadow:0 0 0 1px rgba(var(--acc-rgb),.5),0 0 34px -10px var(--glow)}
   .dev:active{scale:.98}
-  .dev .shot{height:170px;display:grid;place-items:center;padding:18px;
+  .dev .shot{height:250px;display:grid;place-items:center;padding:22px;
     background:radial-gradient(220px 140px at 50% 55%,rgba(var(--acc-rgb),.12),transparent 70%)}
-  .dev .shot img{max-width:100%;max-height:134px;object-fit:contain;filter:drop-shadow(0 16px 26px rgba(0,0,0,.6))}
-  .dev .meta{padding:14px 18px 16px;border-top:1px solid var(--line)}
-  .dev b{display:block;font:700 18px/1.25 var(--disp);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .dev .row{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12.5px;color:var(--dim)}
+  .dev .shot img{max-width:100%;max-height:206px;object-fit:contain;filter:drop-shadow(0 16px 26px rgba(0,0,0,.6))}
+  .dev .meta{padding:18px 22px 20px;border-top:1px solid var(--line)}
+  .dev b{display:block;font:700 21px/1.25 var(--disp);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dev .row{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13.5px;color:var(--dim)}
   .dev .row .kind{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--acc);
     padding:4px 7px;border-radius:6px;background:rgba(var(--acc-rgb),.1);border:1px solid rgba(var(--acc-rgb),.3)}
   .dev .row .batt{display:inline-flex;align-items:center;gap:5px}
@@ -240,9 +242,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     .pick .img{height:84px;margin-bottom:2px}
     .pick img{max-height:84px}
     .devgrid{margin-top:20px}
-    .dev .shot{height:120px}
-    .dev .shot img{max-height:92px}
-    .dev.add{min-height:110px}
+    .dev .shot{height:150px}
+    .dev .shot img{max-height:118px}
+    .dev.add{min-height:0}
     .demoline{margin-top:26px}
     body.app #themes,body.app #palBtn,body.app header a.icon{display:none}
     body.app #addTab{margin-left:auto}
@@ -316,7 +318,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 
 <div id="stage" class="hidden"></div>
 
-<p class="foot" id="foot"><a href="tested.html">Tested hardware</a> &middot; <a href="fm/index.html">Finalmouse (Ultralight X, Starlight X)</a> &middot; <a href="rawm/index.html">RAWM (Leviathan V4 GT)</a> &middot; <a href="gwolves/index.html">G-Wolves (HTS Plus Pro and JM models)</a> &middot; not affiliated with ATK</p>
+<p class="foot" id="foot"><a href="tested.html">Tested hardware</a> &middot; <a href="fm/index.html">Finalmouse (Ultralight X, Starlight X)</a> &middot; <a href="rawm/index.html">RAWM (Leviathan V4 GT)</a> &middot; <a href="gwolves/index.html">G-Wolves (HTS Plus Pro and JM models)</a> &middot; not affiliated with ATK<span class="made"><svg viewBox="0 0 28 20" aria-hidden="true" focusable="false"><g fill="#d97757"><rect x="8" y="5" width="16" height="1"/><rect x="8" y="6" width="16" height="1"/><rect x="4" y="7" width="6" height="1"/><rect x="12" y="7" width="8" height="1"/><rect x="22" y="7" width="2" height="1"/><rect x="4" y="8" width="6" height="1"/><rect x="12" y="8" width="8" height="1"/><rect x="22" y="8" width="2" height="1"/><rect x="4" y="9" width="24" height="1"/><rect x="4" y="10" width="24" height="1"/><rect x="8" y="11" width="20" height="1"/><rect x="8" y="12" width="16" height="1"/><rect x="8" y="13" width="16" height="1"/><rect x="8" y="14" width="16" height="1"/><rect x="8" y="15" width="16" height="1"/><rect x="8" y="16" width="2" height="1"/><rect x="12" y="16" width="2" height="1"/><rect x="18" y="16" width="2" height="1"/><rect x="22" y="16" width="2" height="1"/><rect x="8" y="17" width="2" height="1"/><rect x="12" y="17" width="2" height="1"/><rect x="18" y="17" width="2" height="1"/><rect x="22" y="17" width="2" height="1"/><rect x="8" y="18" width="2" height="1"/><rect x="12" y="18" width="2" height="1"/><rect x="18" y="18" width="2" height="1"/><rect x="22" y="18" width="2" height="1"/><rect x="8" y="19" width="2" height="1"/><rect x="12" y="19" width="2" height="1"/><rect x="18" y="19" width="2" height="1"/><rect x="22" y="19" width="2" height="1"/></g><g fill="#ea4646"><rect x="1" y="0" width="2" height="1"/><rect x="6" y="0" width="2" height="1"/><rect x="0" y="1" width="4" height="1"/><rect x="5" y="1" width="4" height="1"/><rect x="0" y="2" width="9" height="1"/><rect x="1" y="3" width="7" height="1"/><rect x="2" y="4" width="5" height="1"/><rect x="3" y="5" width="3" height="1"/><rect x="4" y="6" width="1" height="1"/></g><g fill="#0b0d10"><rect x="10" y="7" width="2" height="1"/><rect x="20" y="7" width="2" height="1"/><rect x="10" y="8" width="2" height="1"/><rect x="20" y="8" width="2" height="1"/></g></svg>Built with help of Claude</span></p>
 </div>
 
 <div id="pal" class="hidden" role="dialog" aria-label="Jump to"><div class="box"><input id="palIn" placeholder="Jump to a device, theme or action" autocomplete="off" spellcheck="false" aria-label="Jump to"><ul id="palList" role="listbox"></ul></div></div>
