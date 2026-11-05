@@ -121,6 +121,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   header .brand{border-right:0}
   .foot{margin:22px auto 0;text-align:center;color:var(--dimmer);font-size:12.5px}
   .foot a{color:var(--dim)}
+  .foot .made{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px}
+  .foot .made svg{width:30px;height:auto;flex:none;shape-rendering:crispEdges}
   #toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,18px);background:rgba(40,14,14,.92);color:#ffe1e1;
     font-size:13.5px;font-weight:600;padding:12px 20px;border-radius:14px;opacity:0;pointer-events:none;
     border:1px solid rgba(248,113,113,.6);transition:opacity .2s ease-out,transform .2s ease-out;z-index:9}
@@ -316,7 +318,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 
 <div id="stage" class="hidden"></div>
 
-<p class="foot" id="foot"><a href="tested.html">Tested hardware</a> &middot; <a href="fm/index.html">Finalmouse (Ultralight X, Starlight X)</a> &middot; <a href="rawm/index.html">RAWM (Leviathan V4 GT)</a> &middot; <a href="gwolves/index.html">G-Wolves (HTS Plus Pro and JM models)</a> &middot; not affiliated with ATK</p>
+<p class="foot" id="foot"><a href="tested.html">Tested hardware</a> &middot; <a href="fm/index.html">Finalmouse (Ultralight X, Starlight X)</a> &middot; <a href="rawm/index.html">RAWM (Leviathan V4 GT)</a> &middot; <a href="gwolves/index.html">G-Wolves (HTS Plus Pro and JM models)</a> &middot; not affiliated with ATK<span class="made"><svg viewBox="0 0 15 7" aria-hidden="true" focusable="false"><g fill="#d97757"><rect x="2" y="0" width="11" height="5"/><rect x="0" y="1" width="2" height="2"/><rect x="13" y="1" width="2" height="2"/><rect x="3" y="5" width="1" height="2"/><rect x="5" y="5" width="1" height="2"/><rect x="9" y="5" width="1" height="2"/><rect x="11" y="5" width="1" height="2"/></g><g fill="#0b0d10"><rect x="4" y="1" width="1" height="2"/><rect x="10" y="1" width="1" height="2"/></g></svg>Built with help of Claude</span></p>
 </div>
 
 <div id="pal" class="hidden" role="dialog" aria-label="Jump to"><div class="box"><input id="palIn" placeholder="Jump to a device, theme or action" autocomplete="off" spellcheck="false" aria-label="Jump to"><ul id="palList" role="listbox"></ul></div></div>
