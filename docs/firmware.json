@@ -720,24 +720,6 @@
   "notes": "Initial firmware"
  },
  {
-  "name": "ATK P9",
-  "vid": "373b",
-  "pid": "12ba",
-  "mark": "dongle",
-  "version": "0.0.1.3",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/7908a295e4b500e8f8d90d87d44259c5.bin",
-  "notes": "Initial firmware"
- },
- {
-  "name": "ATK P9 Pro",
-  "vid": "373b",
-  "pid": "12bb",
-  "mark": "dongle",
-  "version": "0.0.3.4",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/96dd9237595b3417b159b0b5814c6e29.bin",
-  "notes": "Initial firmware"
- },
- {
   "name": "ATK PHANTOM ULTIMATE",
   "vid": "373b",
   "pid": "1312",
@@ -1442,10 +1424,10 @@
  {
   "name": "Mouse",
   "vid": "373b",
-  "pid": "1366",
+  "pid": "135e",
   "mark": "v3",
   "version": "1.0.22",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b98a1172f489bcfd88f6912496524e14.bin",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/00731ad030a01e4d0e4213f61c264e08.bin",
   "notes": "Initial Firmware"
  },
  {
@@ -1773,6 +1755,15 @@
   "notes": "Initial Firmware"
  },
  {
+  "name": "VXE V3 NK",
+  "vid": "373b",
+  "pid": "135d",
+  "mark": "v3",
+  "version": "1.0.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/53b7260bb11db71c16b267f338c19e3a.bin",
+  "notes": "Initial Firmware"
+ },
+ {
   "name": "VXE V3 PRO Max",
   "vid": "373b",
   "pid": "127b",
@@ -1815,6 +1806,15 @@
   "mark": "v3",
   "version": "1.0.20",
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/090728d1201ddbc2260092bc37753219.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "VXE V3 Silent NK",
+  "vid": "373b",
+  "pid": "1366",
+  "mark": "v3",
+  "version": "1.0.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b98a1172f489bcfd88f6912496524e14.bin",
   "notes": "Initial Firmware"
  },
  {
