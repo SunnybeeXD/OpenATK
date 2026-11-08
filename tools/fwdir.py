@@ -50,16 +50,11 @@ def main(argv):
         rows = [r for out in ex.map(lookup, jobs) for r in out]
     rows = sorted({(r['file'], r['mark']): r for r in rows}.values(), key=lambda r: (r['name'].lower(), r['mark'], r['vid'], r['pid']))
     json.dump(rows, open(os.path.join(ROOT, 'docs', 'firmware.json'), 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
-    md = ['# ATK firmware directory', '',
-          'Official firmware files served by ATK\'s hub API (`%s{vid}/{pid}/{mark}`), collected from hub %s. '
-          'Regenerate with `python3 tools/fwdir.py <hub version>`. %d files.' % (API, argv[1], len({r['file'] for r in rows})), '',
-          'These are the vendor\'s files, unmodified and encrypted. Flash only the one for your exact VID:PID.', '',
-          'Older files also exist under `https://cdn.atk.pro/device/download/` (e.g. `mouse/f1v2/ATK-F1-ULTIMATE-IR-3950Ultra-V3.00.bin`), but that tree has no index and the hub never links it, so it is not listed here.', '',
-          '| Device | VID:PID | Mark | Version | File | Notes |', '|---|---|---|---|---|---|']
-    for r in rows:
-        note = ' '.join(r['notes'].split())[:120].replace('|', '/')
-        md.append('| %s | `%s:%s` | %s | %s | [download](%s) | %s |' % (r['name'].replace('|', '/'), r['vid'], r['pid'], r['mark'], r['version'], r['file'], note))
-    open(os.path.join(ROOT, 'docs', 'firmware.md'), 'w', encoding='utf-8').write('\n'.join(md) + '\n')
+    page = os.path.join(ROOT, 'firmware', 'index.html')
+    html = open(page, encoding='utf-8').read()
+    blob = json.dumps({'hub': argv[1], 'rows': rows}, ensure_ascii=False).replace('</', '<\\/')
+    html = re.sub(r'(<script id="fw" type="application/json">).*?(</script>)', lambda m: m.group(1) + blob + m.group(2), html, count=1, flags=re.S)
+    open(page, 'w', encoding='utf-8').write(html)
     print('%d rows' % len(rows))
 
 
