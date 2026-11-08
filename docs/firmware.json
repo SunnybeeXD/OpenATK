@@ -1,0 +1,2144 @@
+[
+ {
+  "name": "ATK 8K Nano Dongle",
+  "vid": "373b",
+  "pid": "1178",
+  "mark": "dongle",
+  "version": "1.05",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/6d37c5a793b597dd5ed7aeb981f3dd7c.bin",
+  "notes": "修复已知问题"
+ },
+ {
+  "name": "ATK A9 3.0 NK",
+  "vid": "373b",
+  "pid": "1305",
+  "mark": "a9",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4e09f88d09da1732068cfc5bc075131e.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 3.0 NK",
+  "vid": "373b",
+  "pid": "134e",
+  "mark": "a9",
+  "version": "1.0.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b7e03161109fbc6930badf37ad80b1d4.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Air",
+  "vid": "373b",
+  "pid": "120a",
+  "mark": "a9",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/faee293f0867e6547bc4eec74ca710ae.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK A9 Air",
+  "vid": "373b",
+  "pid": "120a",
+  "mark": "a9",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e464d49c59ca0cb1a3d35c83cc2dab8d.bin",
+  "notes": "注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK A9 Air +",
+  "vid": "373b",
+  "pid": "1288",
+  "mark": "a9",
+  "version": "1.0.19",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4f142b19d1f710eb143fb7ac4632e687.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Air +",
+  "vid": "373b",
+  "pid": "1293",
+  "mark": "a9",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/6bd0c61f52f98a09ce32c2fe7f323b14.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK A9 Air +",
+  "vid": "373b",
+  "pid": "1293",
+  "mark": "a9",
+  "version": "5.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8b24be4417f4a713a25568e68656b2a1.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK A9 Mini",
+  "vid": "373b",
+  "pid": "125a",
+  "mark": "a9",
+  "version": "5.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/932b54b8eeba14698cb49850f0e4f3c6.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK A9 Mini +",
+  "vid": "373b",
+  "pid": "128e",
+  "mark": "a9",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/6c7b50126c4ce426408aed5e5f7eba07.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK A9 Mini +",
+  "vid": "373b",
+  "pid": "128e",
+  "mark": "a9",
+  "version": "5.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/348f64449ba9c3f9a89054f04ed96353.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK A9 NB ULTRA",
+  "vid": "373b",
+  "pid": "11f3",
+  "mark": "a9",
+  "version": "2.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/7ae2fa7339715de3cae78f01e854be1a.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK A9 NB ULTRA",
+  "vid": "373b",
+  "pid": "11f3",
+  "mark": "a9",
+  "version": "2.09",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8ba18da1b8e242c1cbe7b74c022d8d64.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK A9 NB ULTRA",
+  "vid": "373b",
+  "pid": "11f3",
+  "mark": "a9",
+  "version": "2.08",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ff8d50b7456488e332bc690697578fbc.bin",
+  "notes": "1、日常更新"
+ },
+ {
+  "name": "ATK A9 NB ULTRA",
+  "vid": "373b",
+  "pid": "11f3",
+  "mark": "a9",
+  "version": "2.07",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/645623127409787b0a97d939815d1536.bin",
+  "notes": "1、默认固件"
+ },
+ {
+  "name": "ATK A9 NK",
+  "vid": "373b",
+  "pid": "1116",
+  "mark": "a9",
+  "version": "1.25",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3c6e0128e537398048a706b9b43b9c65.bin",
+  "notes": "1、修复部分情况下，重启电脑后需拔插接收器问题"
+ },
+ {
+  "name": "ATK A9 NK",
+  "vid": "373b",
+  "pid": "1116",
+  "mark": "a9",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ca7f6f600b0d638ca64ce24325a806d8.bin",
+  "notes": "6月第1次 固件更新：\n\n\n1、解决鼠标休眠唤醒，概率性按键会漏键\n2、解决鼠标休眠唤醒，鼠标回报率变低"
+ },
+ {
+  "name": "ATK A9 NK",
+  "vid": "373b",
+  "pid": "1116",
+  "mark": "a9",
+  "version": "1.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e0f34399a0668494a43bd4e00f7310c5.bin",
+  "notes": "4月第3次 固件更新：\n\n1、修复已知问题"
+ },
+ {
+  "name": "ATK A9 NK",
+  "vid": "373b",
+  "pid": "1116",
+  "mark": "a9",
+  "version": "1.08",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ed3b938157accf96a4f4b28b04443d53.bin",
+  "notes": "4月第1次 固件更新：\n1、出厂固件"
+ },
+ {
+  "name": "ATK A9 NK",
+  "vid": "373b",
+  "pid": "1223",
+  "mark": "a9",
+  "version": "1.0.11",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f02eb9a50400c7c348dc03ebdc33a70c.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK A9 Plus 3.0 NK",
+  "vid": "373b",
+  "pid": "1337",
+  "mark": "a9",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/bb07dd1647bb78315db6bf9deeb04555.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1115",
+  "mark": "a9",
+  "version": "1.30",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0dc84a90ab04b1ccf7b8188348f2de8c.bin",
+  "notes": "修复已知问题"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1115",
+  "mark": "a9",
+  "version": "1.27",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/30d799044167b52517bd6bbed7d26a59.bin",
+  "notes": "修复部分情况下接收器无法识别问题"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1115",
+  "mark": "a9",
+  "version": "1.26",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/af9beb116b4acd764e9bba1c460b6ad1.bin",
+  "notes": "1、优化鼠标宏功能"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1115",
+  "mark": "a9",
+  "version": "1.25",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0287c93c4fe91855c8b6e3ef1efa845a.bin",
+  "notes": "1、修复部分情况下，重启电脑后需拔插接收器问题"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1115",
+  "mark": "a9",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/662eaca0ef4f179e538941fac37268ce.bin",
+  "notes": "6月第1次 固件更新：\n\n\n1、解决鼠标休眠唤醒，概率性按键会漏键\n2、解决鼠标休眠唤醒，鼠标回报率变低"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1115",
+  "mark": "a9",
+  "version": "1.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3ebc0808407230da36aa483f3f7a96ca.bin",
+  "notes": "4月第3次 固件更新：\n\n1、修复已知问题"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1115",
+  "mark": "a9",
+  "version": "1.08",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f7b7c03709a30df938c0d24ff28b54b9.bin",
+  "notes": "4月第1次 固件更新：\n1、出厂固件"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1224",
+  "mark": "a9",
+  "version": "1.0.12",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/571e307aca3dd97a9bf94782111fd285.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK A9 Plus NK",
+  "vid": "373b",
+  "pid": "1300",
+  "mark": "a9",
+  "version": "1.0.17",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/5dc561261b643d1df403374345311d71.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Pro",
+  "vid": "373b",
+  "pid": "112d",
+  "mark": "a9",
+  "version": "1.24",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/27f49b091753cfdb07347324e46ae8ae.zip",
+  "notes": "1、支持切换指定板载配置"
+ },
+ {
+  "name": "ATK A9 Pro",
+  "vid": "373b",
+  "pid": "112d",
+  "mark": "a9",
+  "version": "1.23",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/df6506b0c40c2c9245e6afd9dead23a0.zip",
+  "notes": "1.修复板载切换无效的问题\n2.修复8k接收器下新增DPI档位时，修改DPI值无效的问题"
+ },
+ {
+  "name": "ATK A9 Pro Max",
+  "vid": "373b",
+  "pid": "1117",
+  "mark": "a9",
+  "version": "2.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/169a4a3d348ba75aae53bc462708a7ce.bin",
+  "notes": "9月第1次 固件更新：\n\n1、修复已知问题"
+ },
+ {
+  "name": "ATK A9 Pro Max 2.0 NK",
+  "vid": "373b",
+  "pid": "11db",
+  "mark": "a9",
+  "version": "1.0.12",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c74c0a5b2a035d8a7cd12a5ce4e6468c.bin",
+  "notes": "优化充满后偶尔闪黄灯的问题"
+ },
+ {
+  "name": "ATK A9 Pro Max 2.0 NK",
+  "vid": "373b",
+  "pid": "1264",
+  "mark": "a9",
+  "version": "1.0.13",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2c7c36031a77fb745700db69668e2d98.bin",
+  "notes": "修复已知问题"
+ },
+ {
+  "name": "ATK A9 Pro Max 2.0 NK",
+  "vid": "373b",
+  "pid": "1301",
+  "mark": "a9",
+  "version": "1.0.17",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/aac290b4b864e1fe7c62dde15a47b6d4.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "ATK A9 Pro Max 3.0 NK",
+  "vid": "373b",
+  "pid": "1338",
+  "mark": "a9",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/cdc99e6cd3e3fc78ed89304d8e6c125e.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 SE 3.0 NK",
+  "vid": "373b",
+  "pid": "130f",
+  "mark": "a9",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/84ec1e5728649b4866615588cb3441f3.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 SE NK",
+  "vid": "373b",
+  "pid": "1135",
+  "mark": "a9",
+  "version": "1.25",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/5b4f8267c584f232ed050db0a870d350.bin",
+  "notes": "1、修复部分情况下，重启电脑后需拔插接收器问题"
+ },
+ {
+  "name": "ATK A9 SE NK",
+  "vid": "373b",
+  "pid": "1135",
+  "mark": "a9",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/950cfa14d7522794dfb70beaaad2ef03.bin",
+  "notes": "6月第1次 固件更新：\n\n\n1、解决鼠标休眠唤醒，概率性按键会漏键\n2、解决鼠标休眠唤醒，鼠标回报率变低"
+ },
+ {
+  "name": "ATK A9 SE NK",
+  "vid": "373b",
+  "pid": "1135",
+  "mark": "a9",
+  "version": "1.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/12dbd46f6792018ced4a2d1076a37739.bin",
+  "notes": "4月第3次 固件更新：\n\n1、修复已知问题"
+ },
+ {
+  "name": "ATK A9 SE NK",
+  "vid": "373b",
+  "pid": "1135",
+  "mark": "a9",
+  "version": "1.08",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0daa6c6b7c9d159f2ea7221c3f38bea6.bin",
+  "notes": "4月第1次 固件更新：\n1、出厂固件"
+ },
+ {
+  "name": "ATK A9 SE NK",
+  "vid": "373b",
+  "pid": "1222",
+  "mark": "a9",
+  "version": "1.0.11",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f933237dde6ba414fda9edfe52fd29d5.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Ultimate",
+  "vid": "373b",
+  "pid": "11b6",
+  "mark": "a9",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/cc058e6d3e7c4504813294561bf27f4d.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK A9 Ultimate",
+  "vid": "373b",
+  "pid": "11b6",
+  "mark": "a9",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/1e683015504d233a39875460021f34fe.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK A9 Ultimate",
+  "vid": "373b",
+  "pid": "1314",
+  "mark": "a9",
+  "version": "1.1.4",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/60cf9cd32c98d8b9af7d8570e2495f1f.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Ultimate +",
+  "vid": "373b",
+  "pid": "1292",
+  "mark": "a9",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0adc896090a806bd305093acb3eb15b8.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK A9 Ultimate +",
+  "vid": "373b",
+  "pid": "1292",
+  "mark": "a9",
+  "version": "5.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2be4805ebad6a255c8f5bcfef5c2e661.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK A9 Ultra",
+  "vid": "373b",
+  "pid": "1119",
+  "mark": "a9",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/73e70a4ef1502fb5976f3a261311f91e.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK A9 Ultra Max 2.0",
+  "vid": "373b",
+  "pid": "11dd",
+  "mark": "a9",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0c145dc7afdbeec03ec3ae0dd1d056b9.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK A9 Ultra Max 2.0 Tri-Mode",
+  "vid": "373b",
+  "pid": "11f2",
+  "mark": "a9",
+  "version": "3.02",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3d8e2b268e8cfd82b7de1cff4e7f23c9.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK A9 Ultra Max 2.0 Tri-Mode",
+  "vid": "373b",
+  "pid": "1270",
+  "mark": "a9",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/134daac77aab9adb4c9f610ea2d6328c.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK Duckbill Ultra",
+  "vid": "373b",
+  "pid": "11a6",
+  "mark": "duckbill",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4c32d77765d73cff81dfca1f43b166de.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK Duckbill Ultra",
+  "vid": "373b",
+  "pid": "11a6",
+  "mark": "duckbill",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/d53c0d459ffc85e89b53fa78912bed38.bin",
+  "notes": "9月第1次1.20固件更新：\n\n1、适配新版54H20接收器"
+ },
+ {
+  "name": "ATK F1 EXTREME",
+  "vid": "373b",
+  "pid": "1045",
+  "mark": "f1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/fab7098a70c5ab63f104eecd48f50845.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK F1 EXTREME 2.0",
+  "vid": "373b",
+  "pid": "11e3",
+  "mark": "f1",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ecfcd845e2df9027b1216eb728df707b.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK F1 LEVIATAN",
+  "vid": "373b",
+  "pid": "105b",
+  "mark": "f1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/1194422426b1e68f2779f5b60f413f01.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK F1 LEVIATAN 2.0",
+  "vid": "373b",
+  "pid": "11f0",
+  "mark": "f1",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9a5ebab214470a281f01ecce0f927cb1.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK F1 PRO",
+  "vid": "373b",
+  "pid": "1014",
+  "mark": "f1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/37ba637428aa57a6e98ae37ae9fcc34b.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK F1 PRO MAX",
+  "vid": "373b",
+  "pid": "1015",
+  "mark": "f1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ae4aef4c78ca3d87f999bf2703397eaf.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK F1 Ultimate",
+  "vid": "373b",
+  "pid": "102e",
+  "mark": "f1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2d4b7756bc145fdb4dfc47e536c0cfe4.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK F1 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "11e4",
+  "mark": "f1",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/13b413bc3f8cafe8cf73e542c5433526.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK F1 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "11e4",
+  "mark": "f1",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0730a5f64ca17bba9070110f82dd49e1.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK F1 Ultra Max 2.0",
+  "vid": "373b",
+  "pid": "11ed",
+  "mark": "f1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0413c2af279f702963e683c183d1c4ab.bin",
+  "notes": "10月第1次3.01固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK F1 Ultra Max 2.0",
+  "vid": "373b",
+  "pid": "126e",
+  "mark": "f1",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4dbf1408a4c307b8730ed40d2d61f503.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK F1 V3 ULTIMATE +",
+  "vid": "373b",
+  "pid": "12a7",
+  "mark": "f1",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8741b2e9bf387b3ea614b1786a2fbcfa.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "ATK Ghost EXTREME",
+  "vid": "373b",
+  "pid": "120d",
+  "mark": "ghost",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/257f9b110d47923f259d60e7cdb20a4b.bin",
+  "notes": "修复已知问题，优化使用体验"
+ },
+ {
+  "name": "ATK Ghost EXTREME",
+  "vid": "373b",
+  "pid": "120d",
+  "mark": "ghost",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/48328738203cdbbf4b80bfec6d73f6e1.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK Ghost EXTREME +",
+  "vid": "373b",
+  "pid": "128a",
+  "mark": "ghost",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f86a876e7559daab6e03a358cf04739f.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK Ghost Ultimate",
+  "vid": "373b",
+  "pid": "120e",
+  "mark": "ghost",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/d515775d9d728bd87532f171d32dea77.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK Ghost Ultimate +",
+  "vid": "373b",
+  "pid": "128b",
+  "mark": "ghost",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/a09d3ee969242486b73e7617b3e2ca6a.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK Horizon",
+  "vid": "373b",
+  "pid": "120c",
+  "mark": "ttgk",
+  "version": "0.9",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/536886e273278e8aee2adb19952682ac.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK Horizon",
+  "vid": "373b",
+  "pid": "120c",
+  "mark": "ttgk",
+  "version": "0.8",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2a3052233013ad473a096a2dc2a2f968.bin",
+  "notes": "1、出厂固件"
+ },
+ {
+  "name": "ATK Mercury Ⅰ",
+  "vid": "373b",
+  "pid": "107c",
+  "mark": "device",
+  "version": "1.2.2",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b9f437bb5299483d9346bc2774857458.zip",
+  "notes": "处理耳机驱动程序"
+ },
+ {
+  "name": "ATK N9 V2 PRO",
+  "vid": "373b",
+  "pid": "12d4",
+  "mark": "dongle",
+  "version": "0.0.1.8",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b75fb64ae97207bf3f2681add13fbe0f.bin",
+  "notes": "更新内容：\n增加Dongle和耳机无连接5分钟时Dongle指示灯熄灭的操作"
+ },
+ {
+  "name": "ATK N9 V2 PRO",
+  "vid": "373b",
+  "pid": "12d4",
+  "mark": "dongle",
+  "version": "0.0.1.7",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/bbf71d84501b3222aef65da137731dfb.bin",
+  "notes": "[English tone] \nInitial firmware\n【英文提示音】\n初始固件"
+ },
+ {
+  "name": "ATK N9 V2 Ultimate",
+  "vid": "373b",
+  "pid": "1262",
+  "mark": "dongle",
+  "version": "0.0.1.3",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c68ec0840a3db22543627e0677c2fb00.bin",
+  "notes": "Update content:\nAdded the operation where the Dongle indicator light goes out after 5 minutes of no connection when using the dongle and headphones."
+ },
+ {
+  "name": "ATK N9 V2 Ultimate",
+  "vid": "373b",
+  "pid": "1262",
+  "mark": "dongle",
+  "version": "0.0.1.2",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2abde9c64da7f34f0d22ed9d0e708db8.bin",
+  "notes": "[English tone] \nInitial firmware\n【英文提示音】\n初始固件"
+ },
+ {
+  "name": "ATK N9 V2 ULTRA",
+  "vid": "373b",
+  "pid": "12d6",
+  "mark": "dongle",
+  "version": "0.0.1.8",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/57f07bab45fd3ab2f067d28100db366b.bin",
+  "notes": "Update content:\nAdded the operation where the Dongle indicator light goes out after 5 minutes of no connection when using the dongle and headphones."
+ },
+ {
+  "name": "ATK N9 V2 ULTRA",
+  "vid": "373b",
+  "pid": "12d6",
+  "mark": "dongle",
+  "version": "0.0.1.7",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c064cf8594c8563dec456ddba4657714.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "ATK P9",
+  "vid": "373b",
+  "pid": "12ba",
+  "mark": "dongle",
+  "version": "0.0.1.3",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/7908a295e4b500e8f8d90d87d44259c5.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "ATK P9 Pro",
+  "vid": "373b",
+  "pid": "12bb",
+  "mark": "dongle",
+  "version": "0.0.3.4",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/96dd9237595b3417b159b0b5814c6e29.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "ATK PHANTOM ULTIMATE",
+  "vid": "373b",
+  "pid": "1312",
+  "mark": "phantom",
+  "version": "1.1.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/244206a850b9fe2c91234ac8302b74e6.bin",
+  "notes": "Signal stability upgrade: Enhance anti-interference ability and optimize signal performance in complex electromagnetic environments\nKey response optimization: further reduce key delay, click feedback more crisp, and operation more responsive\nImproved battery life performance: optimized power consumption strategy, effectively extending the duration of a single charge, and providing more enjoyable gaming experience\nFix known issues\nAttention: The firmware receiver firmware version needs to be upgraded to v3.1.5 or above for use!!!"
+ },
+ {
+  "name": "ATK PHANTOM ULTIMATE",
+  "vid": "373b",
+  "pid": "1312",
+  "mark": "phantom",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c1787016de0ce0b6b30248c80283aac7.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "2.02",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/61212ffff681f9a0d1f8b8de06172603.bin",
+  "notes": "修复部分情况下校准异常问题"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "2.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/fd487624e2bb8437d10b5272b50957cf.bin",
+  "notes": "1. 新增手柄模拟功能\n2. 新增全键无冲/6键无冲自动切换功能\n3. 新增FN按键改键功能\n4. 快捷键指令支持启动方式\n5. CAPS、WIN键指示灯支持自定义颜色\n6. 优化指尖涟漪、指尖彩虹灯效，新增全彩、单色切换功能\n7.修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.80",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/98c2f3766b47d01b37a7f32855fc476b.bin",
+  "notes": "1. 新增USB轮询率切换功能\n2. 新增轴体校准灯效\n3. 新增自动校准功能\n4. 新增[星岚轴]轴体支持\n3. 优化轴体校准算法\n4. 优化指尖彩虹灯效效果\n5. 优化板载、灯效切换按键稳定性\n6. 修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.72",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/71a01545474ea6a508dc1da3eabf7dca.bin",
+  "notes": "9月第1次1.72固件更新：\n\n1. 修复部分情况下按键断触、卡键的问题\n2. 修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.70",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/d6d180f02cf93db45bc7c1b55ea51c8f.bin",
+  "notes": "9月第1次1.70固件更新：\n\n1. 升级烈风三代Ultra固件\n2. 修改切换板载快捷键为长按 FN+Z/X/C/V 3秒\n3. 修复部分情况下灯光亮度设置无效的问题\n4. 修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.62",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2f9f6a9442ff8ea49711458c2dbc330b.bin",
+  "notes": "8月第1次1.62固件更新：\n\n1.修复部分情况下，混轴后导致校准丢失的问题\n2.修复“圣诞”灯效下大写锁定灯光异常的问题\n3.添加设备开机/唤醒灯光缓亮效果\n4.新增切换板载快捷键（FN+ALT+1/2/3/4）\n5.新增唤醒网页驱动快捷键（FN+H）\n6.修复已知Bug，提高系统稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.50",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/04c71a7cfbcc19caab83eb05c0f6e72c.bin",
+  "notes": "7月第1次1.50固件更新：\n\n更新内容：\n1.添加灯光秀功能【ATK HUB 3.0 Beta 客户端支持】\n2.修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.41",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b8d1dc7189aa7e1c124ccd4937ab66a9.bin",
+  "notes": "6月第2次1.41固件更新：\n\n更新内容：\n1. 修复部分情况下更换轴体后导致底部死区增大的问题\n2. 修复使用组合键时恢复出厂设置时灯光闪烁异常的问题\n3. 修复已知Bug，提高设备性能与稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.40",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/787c8d3acd99e9a7ad097669137c6a5d.bin",
+  "notes": "6月第1次1.40固件更新：\n\n更新内容：\n1.新增混轴功能\n2.修复其他已知Bug，提高性能与稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.30",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4c7d8ae9c7edd4ee9ab53a57d12819dd.bin",
+  "notes": "4月第2次1.30固件更新：\n\n更新内容：\n1.升级极限模式下0.001mm最小RT\n2.修复其他已知Bug，提高性能与稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/10bc3521adfce222fa4f70364ff455ad.bin",
+  "notes": "4月第1次1.22固件更新：\n\n更新内容：\n1.新增灯光定时休眠功能\n2.修复其他已知Bug，提高性能与稳定性"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/cb3a86cfd9f211f8c9c44a84e9d33c88.bin",
+  "notes": "3月第1次1.20固件更新：\n\n更新内容：\n1.增加AI MATCH 动态自适应功能 ，用户可自行开启。\n（解决因不同轴体公差造成的极限模式下偶发断触问题，）\n2.修复部分情况下灯光亮度降低的问题 \n3.修复部分情况下底部死区失效的问题 \n4.修复部分情况下按键无法触底的问题 \n5.优化音乐律动效果 \n6.修复其他已知Bug，提高稳定性\n\n注意：为了保证最好的使用体验与键盘性能，更新固件后键盘需要恢复出厂设置后才可使用"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.12",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/1508b571746a05e0ecc6340ca1c5010a.bin",
+  "notes": "2月第2次1.12固件更新：\n1.添加音乐律动功能\n2.修复已知Bug，提高稳定性\n\n注意：为了保证最好的使用体验与键盘性能，更新固件后键盘需要恢复出厂设置后才可使用"
+ },
+ {
+  "name": "ATK RS6",
+  "vid": "373b",
+  "pid": "109c",
+  "mark": "rs6",
+  "version": "1.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f5bfc16b6a7c70b9e39b64d8e593fe9a.bin",
+  "notes": "2月第1次1.10固件更新：\n1.优化音乐律动性能\n2.解决因异常资源占用导致延迟过高的问题\n3.修复已知Bug，提高稳定性\n\n注意：为了保证最好的使用体验与键盘性能，更新固件后键盘需要恢复出厂设置后才可使用"
+ },
+ {
+  "name": "ATK U2 Mini 2.0",
+  "vid": "373b",
+  "pid": "11f6",
+  "mark": "u2",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e5e788103d80033c2f1a54e059bb7c4a.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK U2 Mini 2.0",
+  "vid": "373b",
+  "pid": "11f6",
+  "mark": "u2",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/181fc6c72cfe0f120be288a76a27e989.bin",
+  "notes": "12月第1次3.01固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK U2 NK",
+  "vid": "373b",
+  "pid": "110e",
+  "mark": "u2",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c11d8d817088b29b6a1d91779fe74bdf.bin",
+  "notes": "8月第1次 固件更新：\n\n\n1、按键功能修改后马上切换配置，有概率按键修改失败"
+ },
+ {
+  "name": "ATK U2 NK",
+  "vid": "373b",
+  "pid": "110e",
+  "mark": "u2",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/68c28e09e2cd81f9b609013e6842fa6b.bin",
+  "notes": "6月第1次 固件更新：\n\n\n1、解决鼠标休眠唤醒，概率性按键会漏键\n2、解决鼠标休眠唤醒，鼠标回报率变低"
+ },
+ {
+  "name": "ATK U2 Plus NK",
+  "vid": "373b",
+  "pid": "110d",
+  "mark": "u2",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c1687bea95e3902390813ef96dd9268e.bin",
+  "notes": "8月第1次 固件更新：\n\n\n1、按键功能修改后马上切换配置，有概率按键修改失败"
+ },
+ {
+  "name": "ATK U2 Plus NK",
+  "vid": "373b",
+  "pid": "110d",
+  "mark": "u2",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/6394ed0a818a860af0dd08dbc5bb58a1.bin",
+  "notes": "6月第1次 固件更新：\n\n\n1、解决鼠标休眠唤醒，概率性按键会漏键\n2、解决鼠标休眠唤醒，鼠标回报率变低"
+ },
+ {
+  "name": "ATK U2 Pro",
+  "vid": "373b",
+  "pid": "10ec",
+  "mark": "u2",
+  "version": "1.23",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ce4da45add7836af9648be50dccddd82.zip",
+  "notes": "1.修复板载切换无效的问题\n2.修复8k接收器下新增DPI档位时，修改DPI值无效的问题"
+ },
+ {
+  "name": "ATK U2 Pro",
+  "vid": "373b",
+  "pid": "10ec",
+  "mark": "u2",
+  "version": "1.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f16582ccc1c4ab02165946a25e282a28.zip",
+  "notes": "7月第1次1.10固件更新：\n\n更新内容：\n1、PRO适配corded、传感器角度旋转"
+ },
+ {
+  "name": "ATK U2 Pro",
+  "vid": "373b",
+  "pid": "10ec",
+  "mark": "u2",
+  "version": "1.09",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/68ea3db24c3241377c799ca83d469a63.zip",
+  "notes": "6月第1次1.09固件更新：\n\n更新内容：\n1、修复2.4G模式下部分鼠标休眠问题"
+ },
+ {
+  "name": "ATK U2 Pro Max",
+  "vid": "373b",
+  "pid": "1158",
+  "mark": "u2",
+  "version": "1.82",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3766f9fc9b8790472631d03cbd332f9d.bin",
+  "notes": "5月第1次1.82固件更新：\n\n更新内容：\n1.更新了绝鲨竞技固件MAX\n2.更新了传感器的“旋转”功能"
+ },
+ {
+  "name": "ATK U2 SE NK",
+  "vid": "373b",
+  "pid": "1149",
+  "mark": "u2",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/09ddecb3f10cda7567459a01ebcb2588.bin",
+  "notes": "8月第1次 固件更新：\n\n\n1、按键功能修改后马上切换配置，有概率按键修改失败"
+ },
+ {
+  "name": "ATK U2 SE NK",
+  "vid": "373b",
+  "pid": "1149",
+  "mark": "u2",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8524e4be651226e21611f59c813c3702.bin",
+  "notes": "6月第1次 固件更新：\n\n\n1、解决鼠标休眠唤醒，概率性按键会漏键\n2、解决鼠标休眠唤醒，鼠标回报率变低"
+ },
+ {
+  "name": "ATK U2 Ultimate",
+  "vid": "373b",
+  "pid": "1087",
+  "mark": "u2",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/50192411c56b67903fdcac2e03dfd81e.bin",
+  "notes": "5月第1次3.01固件更新：\n\n更新内容：\n1.更新了绝鲨竞技固件MAX\n2.更新了传感器的“旋转”功能"
+ },
+ {
+  "name": "ATK U2 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "11f5",
+  "mark": "u2",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4cf692b5aae36db37e9e889e93d202dd.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK U2 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "11f5",
+  "mark": "u2",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b4c08a88bfe756ca610a0f65c7492c54.bin",
+  "notes": "12月第1次3.01固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK U2 Ultra",
+  "vid": "373b",
+  "pid": "10ac",
+  "mark": "u2",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ab1ddeef1a321677c47732e479d722f8.bin",
+  "notes": "5月第1次3.01固件更新：\n\n更新内容：\n1.更新了绝鲨竞技固件MAX\n2.更新了传感器的“旋转”功能"
+ },
+ {
+  "name": "ATK x QK Hex80",
+  "vid": "373b",
+  "pid": "1177",
+  "mark": "hex80",
+  "version": "2.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9fbf14866c07600c73d6cf901e987174.bin",
+  "notes": "1. 新增手柄模拟功能\n2. 新增全键无冲/6键无冲自动切换功能\n3. 新增FN按键改键功能\n4. 快捷键指令支持启动方式\n5. CAPS、WIN键指示灯支持自定义颜色\n6. 优化指尖涟漪、指尖彩虹灯效，新增全彩、单色切换功能\n7.修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK x QK Hex80",
+  "vid": "373b",
+  "pid": "1177",
+  "mark": "hex80",
+  "version": "1.40",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8b0c7e7b6eaf7710365657aec4c075ad.bin",
+  "notes": "1. 新增USB轮询率切换功能\n2. 新增轴体校准灯效\n3. 新增自动校准功能\n4. 新增[星岚轴]轴体支持\n5. 优化轴体校准算法\n6. 修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK x QK Hex80",
+  "vid": "373b",
+  "pid": "1177",
+  "mark": "hex80",
+  "version": "1.32",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/39d2abf5966708c154ac2b7ea1c35ac8.bin",
+  "notes": "9月第1次1.32固件更新：\n\n更新内容：\n1. 修复部分情况下按键断触、卡键的问题\n2. 修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK x QK Hex80",
+  "vid": "373b",
+  "pid": "1177",
+  "mark": "hex80",
+  "version": "1.31",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/280f8af923e6e419027c4debb2581506.bin",
+  "notes": "9月第1次1.31固件更新：\n\n更新内容：\n1. 升级烈风三代Ultra固件\n2. 修复部分情况下灯光亮度设置无效的问题\n3. 修复部分情况下设备重启后异常进入升级模式的问题\n4. 修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK x QK Hex80",
+  "vid": "373b",
+  "pid": "1177",
+  "mark": "hex80",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e56634396638c597c22843240925822f.bin",
+  "notes": "8月第1次1.20固件更新：\n\n更新内容：\n1.修复部分情况下，混轴后导致校准丢失的问题\n2.添加设备开机/唤醒灯光缓亮效果\n3.修复已知Bug，提高系统稳定性\n4.修复了部分型号精度测试异常的问题"
+ },
+ {
+  "name": "ATK x QK Hex80",
+  "vid": "373b",
+  "pid": "1177",
+  "mark": "hex80",
+  "version": "1.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9b91a16841443400d0e5d8b0bf1fd58f.bin",
+  "notes": "7月第1次1.10固件更新：\n\n更新内容：\n1.添加灯光秀功能【ATK HUB 3.0 Beta 客户端支持】\n2.修复已知Bug，提高键盘稳定性"
+ },
+ {
+  "name": "ATK x QK Hex80",
+  "vid": "373b",
+  "pid": "1177",
+  "mark": "hex80",
+  "version": "1.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/838a37daca731175890d8e0cc6965055.bin",
+  "notes": "6月第1次1.00固件更新：\n\n1、初始版本固件"
+ },
+ {
+  "name": "ATK X1",
+  "vid": "373b",
+  "pid": "10d8",
+  "mark": "x1",
+  "version": "1.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/d53d0b765157a6a9d2c59eb79e49b3d8.zip",
+  "notes": "9月第1次1.22固件更新：\n\n更新内容：\n1、新增单独调整X/Y轴DPI功能\n2、修复无法切换板载配置问题"
+ },
+ {
+  "name": "ATK X1",
+  "vid": "373b",
+  "pid": "10d8",
+  "mark": "x1",
+  "version": "1.07",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/d5df2674ad9bffe050bde74fbf65c16a.zip",
+  "notes": "7月第1次1.07固件更新：\n\n更新内容：\n1、PRO适配corded、传感器角度旋转"
+ },
+ {
+  "name": "ATK X1 Air +",
+  "vid": "373b",
+  "pid": "12a2",
+  "mark": "x1",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/5f4128cd7765bc6b6a43ccde91f3512c.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK X1 EXTREME 2.0",
+  "vid": "373b",
+  "pid": "11e5",
+  "mark": "x1",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/fe8711bfedc4160a8ec639052f0f47db.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK X1 EXTREME 2.0 +",
+  "vid": "373b",
+  "pid": "1285",
+  "mark": "x1",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/26ed59eaba7ec683997083d33b156d11.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK X1 PRO",
+  "vid": "373b",
+  "pid": "1016",
+  "mark": "x1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/a98e677abff4d018d8f62ea33aa68f8e.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK X1 PRO MAX",
+  "vid": "373b",
+  "pid": "1017",
+  "mark": "x1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b7ac93af6b13265a9b1abeef44960e00.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK X1 S NK",
+  "vid": "373b",
+  "pid": "1106",
+  "mark": "x1",
+  "version": "1.26",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/91ba5fbbe486140288f721694ae62973.bin",
+  "notes": "1、修复部分情况下电脑关机开机后需重新拔插接收器问题"
+ },
+ {
+  "name": "ATK X1 S NK",
+  "vid": "373b",
+  "pid": "1106",
+  "mark": "x1",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9403ff66353b3d6d34657b31879f02f9.bin",
+  "notes": "8月第1次 固件更新：\n\n\n1、按键功能修改后马上切换配置，有概率按键修改失败"
+ },
+ {
+  "name": "ATK X1 S NK",
+  "vid": "373b",
+  "pid": "1106",
+  "mark": "x1",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/492c4baba0e8873e8e2c3efd3c554120.bin",
+  "notes": "6月第1次固件更新：\n\n1、解bug：鼠标使用过程中按键会漏键；\n2、解bug：鼠标休眠起来一地个按键会漏键；\n3、解bug：鼠标休眠起来回报率低，导致光标飘；"
+ },
+ {
+  "name": "ATK X1 S NK",
+  "vid": "373b",
+  "pid": "1106",
+  "mark": "x1",
+  "version": "1.11",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/bf0c0f8576e6e64a6d156b06084a3241.bin",
+  "notes": "4月第1次 固件更新：\n\n1.增强鼠标抗干扰能力\n2.优化鼠标回连速度\n3.修复了一些已知问题"
+ },
+ {
+  "name": "ATK X1 SE Nearlink",
+  "vid": "373b",
+  "pid": "1299",
+  "mark": "x1",
+  "version": "1.0.18",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ebe8273a50680a996b4e0e8ef411290c.bin",
+  "notes": "Daily update"
+ },
+ {
+  "name": "ATK X1 SE Nearlink",
+  "vid": "373b",
+  "pid": "1299",
+  "mark": "x1",
+  "version": "1.0.16",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/26db1095faac9e222a41e2af5cadec45.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "ATK X1 SE NK",
+  "vid": "373b",
+  "pid": "1107",
+  "mark": "x1",
+  "version": "1.26",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3469340b5f5667922aaffb07e50df671.bin",
+  "notes": "修复部分情况下电脑关机开机后需重新拔插接收器问题"
+ },
+ {
+  "name": "ATK X1 SE NK",
+  "vid": "373b",
+  "pid": "1107",
+  "mark": "x1",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ce7b7ea1596330d0f5482340651d8c22.bin",
+  "notes": "8月第1次 固件更新：\n\n\n1、按键功能修改后马上切换配置，有概率按键修改失败"
+ },
+ {
+  "name": "ATK X1 SE NK",
+  "vid": "373b",
+  "pid": "1107",
+  "mark": "x1",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/fbb46379bc4f073b9ddbb04c426d9dbc.bin",
+  "notes": "6月第1次固件更新：\n\n1、解bug：鼠标使用过程中按键会漏键；\n2、解bug：鼠标休眠起来一地个按键会漏键；\n3、解bug：鼠标休眠起来回报率低，导致光标飘；"
+ },
+ {
+  "name": "ATK X1 SE NK",
+  "vid": "373b",
+  "pid": "1107",
+  "mark": "x1",
+  "version": "1.11",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/722d21a0a36a53cb54fb1baa28403a77.bin",
+  "notes": "4月第1次 固件更新：\n\n1.增强鼠标抗干扰能力\n2.优化鼠标回连速度\n3.修复了一些已知问题"
+ },
+ {
+  "name": "ATK X1 SE NK",
+  "vid": "373b",
+  "pid": "130e",
+  "mark": "x1",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f858b4f4896555f584f6f34620e95ca9.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK X1 Ultimate",
+  "vid": "373b",
+  "pid": "103d",
+  "mark": "x1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3819fca8dcfb28b127b998b7291dfc3a.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK X1 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "11e7",
+  "mark": "x1",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/48a6ce24f51bb3f8b97c7d4257682ff3.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK X1 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "11e7",
+  "mark": "x1",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f0a71d2ec22ceb0754f20409e720963a.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK X1 Ultimate 2.0 +",
+  "vid": "373b",
+  "pid": "1286",
+  "mark": "x1",
+  "version": "5.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8a172bb44d2fb1751753f8ab09f6ff74.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK X1 Ultra",
+  "vid": "373b",
+  "pid": "102f",
+  "mark": "x1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f9f6e402ca330504f0b8fc6cfc4215ee.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK X1 Ultra Max 2.0",
+  "vid": "373b",
+  "pid": "11ec",
+  "mark": "x1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/21698bf239a9c11bf20a9602122c6304.bin",
+  "notes": "10月第1次3.01固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK X1 Ultra Max 2.0",
+  "vid": "373b",
+  "pid": "1274",
+  "mark": "x1",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3ea1c943fc9a9a4be3133bfe7c18b226.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK Y9 Ultimate",
+  "vid": "373b",
+  "pid": "11cf",
+  "mark": "y9",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2268c9ce8269a9817cb016e53e4a332d.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK Y9 Ultimate",
+  "vid": "373b",
+  "pid": "11cf",
+  "mark": "y9",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0ebf1977fabaf60154b40608520f7b20.bin",
+  "notes": "1、优化了抗干扰能力\n\n注意：由于优化了设备底层，对应接收器鼠标固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK Z1 PRO MAX",
+  "vid": "373b",
+  "pid": "1019",
+  "mark": "z1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2fd433c532314bafd5ddf810c4365b5f.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK Z1 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "1201",
+  "mark": "z1",
+  "version": "3.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3fcd2a0820ae534e18e1c18b4f0de908.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "ATK Z1 Ultimate 2.0",
+  "vid": "373b",
+  "pid": "1201",
+  "mark": "z1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4d18f972b2b6a9c760f8cc9a45758483.bin",
+  "notes": "12月第1次3.01固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "ATK Z1 Ultra",
+  "vid": "373b",
+  "pid": "104a",
+  "mark": "z1",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f14a586f0a4dc6995681d0b5446afde4.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "ATK ZERO",
+  "vid": "373b",
+  "pid": "1154",
+  "mark": "zero",
+  "version": "3.0.3",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/13118c656e6d483e1416c8a9f3d57752.bin",
+  "notes": "修复已知问题"
+ },
+ {
+  "name": "ATK ZERO",
+  "vid": "373b",
+  "pid": "1154",
+  "mark": "zero",
+  "version": "3.0.0",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/bb961fbeb9002f9cfe744e6329ead123.bin",
+  "notes": "1、优化鼠标无线唤醒延迟\n2、修复一些已知问题"
+ },
+ {
+  "name": "ATK ZERO EX",
+  "vid": "373b",
+  "pid": "11cc",
+  "mark": "duckbill",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/bfae3ff20584a21ae09ebab4f62880f6.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "ATK ZERO EX +",
+  "vid": "373b",
+  "pid": "1289",
+  "mark": "zero",
+  "version": "5.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8e3f69ec55e36cc9e021deb437bf334a.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "MAD R",
+  "vid": "373b",
+  "pid": "132b",
+  "mark": "mad-r",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ed488e313ecd163c7bccd9a624af091a.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "MAD R +",
+  "vid": "373b",
+  "pid": "104b",
+  "mark": "mad-r",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8864c409deec6adc57553385e680a9ce.bin",
+  "notes": "9月第1次 固件更新：\n\n1、更新绝鲨固件MAX 2、新增传感器旋转功能"
+ },
+ {
+  "name": "MAD R MAJOR",
+  "vid": "373b",
+  "pid": "103e",
+  "mark": "mad-r",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/907471b05a3ad1caacd5f7507181fe21.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "MAD R MAJOR+",
+  "vid": "373b",
+  "pid": "104c",
+  "mark": "mad-r",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/daf071e91d8e8abae38af86d723b1cdd.bin",
+  "notes": "6月第1次 固件更新：\n\n1、更新绝鲨竞技固件MAX≥20000fps"
+ },
+ {
+  "name": "Mouse",
+  "vid": "373b",
+  "pid": "1366",
+  "mark": "v3",
+  "version": "1.0.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b98a1172f489bcfd88f6912496524e14.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "Mouse",
+  "vid": "373b",
+  "pid": "1367",
+  "mark": "v3",
+  "version": "1.0.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9a615d0587ccadced081e1fa0a498c5a.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "NK mouse 8K NANO dongle",
+  "vid": "373b",
+  "pid": "11dc",
+  "mark": "dongle",
+  "version": "1.0.19",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/11ebd42274ac259dad22bb570677c27a.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "NK mouse 8K NANO dongle",
+  "vid": "373b",
+  "pid": "11dc",
+  "mark": "dongle",
+  "version": "1.0.17",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/11429343fec85601308fc7267a478b33.bin",
+  "notes": "修复部分情况下电脑休眠唤醒问题"
+ },
+ {
+  "name": "NK mouse 8K NANO dongle",
+  "vid": "373b",
+  "pid": "11dc",
+  "mark": "dongle",
+  "version": "1.0.13",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2f8c8ef48fd3b55ecd7e57110942f00c.bin",
+  "notes": "修复已知问题"
+ },
+ {
+  "name": "NK mouse 8K NANO dongle",
+  "vid": "373b",
+  "pid": "11dc",
+  "mark": "dongle",
+  "version": "1.0.12",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/fe1ffb4b29f4cc3fa1b39cc60f727ebc.bin",
+  "notes": "优化充满后偶尔闪黄灯的问题"
+ },
+ {
+  "name": "NK Mouse Dongle",
+  "vid": "373b",
+  "pid": "10c9",
+  "mark": "dongle",
+  "version": "1.23",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/85d18f56d02b27393f55fee41ec914f6.bin",
+  "notes": "修复部分情况下接收器无法识别问题"
+ },
+ {
+  "name": "NK Mouse Dongle",
+  "vid": "373b",
+  "pid": "10c9",
+  "mark": "dongle",
+  "version": "1.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/24a9af9309e9646751966598f0b3a09d.bin",
+  "notes": "1、日常更新"
+ },
+ {
+  "name": "NK Mouse Dongle",
+  "vid": "373b",
+  "pid": "10c9",
+  "mark": "dongle",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/df42a71acc31f6d2c8365c4a9dffea41.bin",
+  "notes": "8月第1次 固件更新：\n\n\n1、按键功能修改后马上切换配置，有概率按键修改失败"
+ },
+ {
+  "name": "NK Mouse Dongle",
+  "vid": "373b",
+  "pid": "10c9",
+  "mark": "dongle",
+  "version": "1.19",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2747132b4124673f52879475812c85de.bin",
+  "notes": "4月第3次 固件更新：\n\n1、修复已知问题"
+ },
+ {
+  "name": "NK Mouse Dongle",
+  "vid": "373b",
+  "pid": "10c9",
+  "mark": "dongle",
+  "version": "1.17",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/25152eb17e7b800315fb875d75f3c280.bin",
+  "notes": "4月第3次 固件更新：\n\n1.增强鼠标抗干扰能力\n2.优化鼠标回连速度\n3.修复了一些已知问题"
+ },
+ {
+  "name": "NK Mouse Dongle",
+  "vid": "373b",
+  "pid": "10c9",
+  "mark": "dongle",
+  "version": "1.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4e102b1025b37ee27bafc4b1335b82d4.bin",
+  "notes": "4月第2次 固件更新：\n\n1.增强鼠标抗干扰能力\n2.优化鼠标回连速度\n3.修复了一些已知问题"
+ },
+ {
+  "name": "NK Mouse Dongle",
+  "vid": "373b",
+  "pid": "10c9",
+  "mark": "dongle",
+  "version": "1.13",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/79008453958f656aa701911a83e638d8.bin",
+  "notes": "4月第1次 固件更新：\n1、出厂固件"
+ },
+ {
+  "name": "NK mouse NANO dongle",
+  "vid": "373b",
+  "pid": "1216",
+  "mark": "dongle",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ff1a3c3c484752f714379be3b58a6dba.bin",
+  "notes": "Daily update"
+ },
+ {
+  "name": "NK mouse NANO dongle",
+  "vid": "373b",
+  "pid": "1216",
+  "mark": "dongle",
+  "version": "1.0.19",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/45799af47e1d79723db1d52a8abed973.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "NK mouse NANO dongle",
+  "vid": "373b",
+  "pid": "1216",
+  "mark": "dongle",
+  "version": "1.0.17",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/98089357a86561de5bc8fb6b2f47b46d.bin",
+  "notes": "修复部分情况下异常唤醒电脑问题"
+ },
+ {
+  "name": "NK mouse NANO dongle",
+  "vid": "373b",
+  "pid": "1216",
+  "mark": "dongle",
+  "version": "1.0.12",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/d106da8eb0510dd032d15360cc62a27a.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "NK mouse NANO dongle",
+  "vid": "373b",
+  "pid": "133f",
+  "mark": "dongle",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8e5ea9fb4af12e991c51e7033ac4dbf4.bin",
+  "notes": "Daily update"
+ },
+ {
+  "name": "NK mouse NANO dongle",
+  "vid": "373b",
+  "pid": "133f",
+  "mark": "dongle",
+  "version": "1.0.19",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/234b07240b49468d2e40389bb6318dc7.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "VXE R1 / VXE R1SE / VXE R1SE+",
+  "vid": "3554",
+  "pid": "f58f",
+  "mark": "r1",
+  "version": "3.13",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/64ff9cd523604194782b5756b0f6ea89.bin",
+  "notes": "9月第1次3.13固件更新：\n\n更新内容：\n1.修复无法指定切换配置文件问题"
+ },
+ {
+  "name": "VXE R1 / VXE R1SE / VXE R1SE+",
+  "vid": "3554",
+  "pid": "f58f",
+  "mark": "r1-se+",
+  "version": "3.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/51dd6a83ff06a3742a88d5822a60e6e9.bin",
+  "notes": "1月第1次3.15固件更新：\n\n更新内容：\n1.日常更新"
+ },
+ {
+  "name": "VXE R1 / VXE R1SE / VXE R1SE+",
+  "vid": "3554",
+  "pid": "f58f",
+  "mark": "r1-se+",
+  "version": "3.14",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4aa1714a1c2fcd77360859e35bb1edbd.bin",
+  "notes": "8月第1次3.14固件更新：\n\n更新内容：\n1.修复无法指定切换配置文件问题"
+ },
+ {
+  "name": "VXE R1 NK",
+  "vid": "373b",
+  "pid": "10c7",
+  "mark": "r1",
+  "version": "1.27",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/663d8b9715070c73e5996d623675584d.bin",
+  "notes": "修复部分情况下电脑开机后接收器无响应问题"
+ },
+ {
+  "name": "VXE R1 NK",
+  "vid": "373b",
+  "pid": "10c7",
+  "mark": "r1",
+  "version": "1.25",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b1c2d22569323c5c4239f301681c5b8e.bin",
+  "notes": "1、解决部分情况下，电脑开关机需要重新拔插接收器问题"
+ },
+ {
+  "name": "VXE R1 NK",
+  "vid": "373b",
+  "pid": "10c7",
+  "mark": "r1",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/6502d8e89b91377e0dd250494e53d81f.bin",
+  "notes": "8月第1次 固件更新：\n\n\n1、按键功能修改后马上切换配置，有概率按键修改失败"
+ },
+ {
+  "name": "VXE R1 NK",
+  "vid": "373b",
+  "pid": "10c7",
+  "mark": "r1",
+  "version": "1.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9aa343cb331470767954ddffb0d1f560.bin",
+  "notes": "6月第1次固件更新：\n\n1、解bug：鼠标使用过程中按键会漏键；\n2、解bug：鼠标休眠起来一地个按键会漏键；\n3、解bug：鼠标休眠起来回报率低，导致光标飘；"
+ },
+ {
+  "name": "VXE R1 NK",
+  "vid": "373b",
+  "pid": "10c7",
+  "mark": "r1",
+  "version": "1.13",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/53ec643461d8a37033746cff2e5b819d.bin",
+  "notes": "4月第1次 固件更新：\n\n1.增强鼠标抗干扰能力\n2.优化鼠标回连速度\n3.修复了一些已知问题"
+ },
+ {
+  "name": "VXE R1 PRO / VXE R1 PRO MAX",
+  "vid": "3554",
+  "pid": "f58c",
+  "mark": "r1-pro",
+  "version": "1.23",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/029e6ddf1a0d2669ae1d908024162307.bin",
+  "notes": "更新内容：\n1、修复已知问题，优化使用体验"
+ },
+ {
+  "name": "VXE R1 PRO / VXE R1 PRO MAX",
+  "vid": "3554",
+  "pid": "f58c",
+  "mark": "r1-pro-max",
+  "version": "1.21",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/cea5d2bd9cb3b864b4cbdae7cf706c08.bin",
+  "notes": "9月第1次1.21固件更新：\n\n更新内容：\n1.修复无法指定切换配置文件问题"
+ },
+ {
+  "name": "VXE R1 S NK",
+  "vid": "373b",
+  "pid": "121f",
+  "mark": "r1s",
+  "version": "1.25",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ef1743fa5c11e6961fa869bcfc541da1.bin",
+  "notes": "1、解决部分情况下，电脑开关机需要重新拔插接收器问题"
+ },
+ {
+  "name": "VXE R1 S NK",
+  "vid": "373b",
+  "pid": "1310",
+  "mark": "r1s",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8160eec22fd3e7efaca9b9fcab72731d.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "VXE R1 SE+",
+  "vid": "373b",
+  "pid": "12dc",
+  "mark": "r1",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2594548c4dbec6766be71ccb55e5849d.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "VXE R2 SE NK",
+  "vid": "373b",
+  "pid": "12b1",
+  "mark": "r2",
+  "version": "1.0.18",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c1668b5e70b22aa6eacbce223abed595.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "VXE V3 NK",
+  "vid": "373b",
+  "pid": "10e7",
+  "mark": "v3",
+  "version": "1.30",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8c12e31b860cc24828ebb7a3fa869d00.bin",
+  "notes": "修复部分情况下重启电脑接收器无响应问题"
+ },
+ {
+  "name": "VXE V3 NK",
+  "vid": "373b",
+  "pid": "10e7",
+  "mark": "v3",
+  "version": "1.24",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/acc20e613cd086e35bf33d724bc81b13.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "VXE V3 NK",
+  "vid": "373b",
+  "pid": "1213",
+  "mark": "v3",
+  "version": "1.0.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3a32d2f1ba49f9f296123636635fba2a.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "VXE V3 NK",
+  "vid": "373b",
+  "pid": "12d2",
+  "mark": "v3",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/51c7c6dce8687f78ad6eed399e38f25a.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "VXE V3 PRO Max",
+  "vid": "373b",
+  "pid": "127b",
+  "mark": "v3",
+  "version": "1.0.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e41119ae698bcc43ebc0867001ef50e3.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "VXE V3 PRO NK",
+  "vid": "373b",
+  "pid": "10e8",
+  "mark": "v3",
+  "version": "1.30",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/51e864e1d4f8b820f899d162536c6c24.bin",
+  "notes": "修复部分情况下重启电脑接收器无响应问题"
+ },
+ {
+  "name": "VXE V3 PRO NK",
+  "vid": "373b",
+  "pid": "10e8",
+  "mark": "v3",
+  "version": "1.23",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/203d1a12c5477fbed5de6d5f720ad57a.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "VXE V3 PRO NK",
+  "vid": "373b",
+  "pid": "1214",
+  "mark": "v3",
+  "version": "1.0.15",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0519e0b7b5de907f9cc46e2449b4170f.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "VXE V3 PRO NK",
+  "vid": "373b",
+  "pid": "1306",
+  "mark": "v3",
+  "version": "1.0.20",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/090728d1201ddbc2260092bc37753219.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "Wireless mouse -8K NANO dongle",
+  "vid": "373b",
+  "pid": "111b",
+  "mark": "dongle",
+  "version": "2.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/b25fa6ebd458ebac9d9bda7533405c1a.bin",
+  "notes": "9月第1次 固件更新：\n\n1、修复已知问题"
+ },
+ {
+  "name": "Wireless mouse -8K TOWER dongle",
+  "vid": "373b",
+  "pid": "11f4",
+  "mark": "dongle",
+  "version": "2.10",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/822717fcb8880ae14949165da1bc4462.bin",
+  "notes": "1、日常更新"
+ },
+ {
+  "name": "Wireless mouse -8K TOWER dongle",
+  "vid": "373b",
+  "pid": "11f4",
+  "mark": "dongle",
+  "version": "2.09",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/403dbec2df564d66d62a0b954792d255.bin",
+  "notes": "1、日常更新"
+ },
+ {
+  "name": "Wireless mouse -8K TOWER dongle",
+  "vid": "373b",
+  "pid": "11f4",
+  "mark": "dongle",
+  "version": "2.06",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/92097e7c1137b82ea6f059408455d2ad.bin",
+  "notes": "1、默认固件"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-G",
+  "vid": "373b",
+  "pid": "12ea",
+  "mark": "dongle",
+  "version": "3.1.5",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/71adde436042e08bade4e6c848545beb.bin",
+  "notes": "初始固件"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-H",
+  "vid": "373b",
+  "pid": "11d8",
+  "mark": "dongle",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/151c22084d88c736755dc954496e37b0.bin",
+  "notes": "修复已知问题，优化使用体验"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-H",
+  "vid": "373b",
+  "pid": "11d8",
+  "mark": "dongle",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/486f28c69b499a5b2f8c5432e0298364.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应鼠标固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-H",
+  "vid": "373b",
+  "pid": "11d8",
+  "mark": "dongle",
+  "version": "2.02",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/28f68c157518b6f5b8fe78629c57acd4.bin",
+  "notes": "9月第1次2.02固件更新：\n\n1、出厂固件"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-H",
+  "vid": "373b",
+  "pid": "12cc",
+  "mark": "dongle",
+  "version": "5.02",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/1209c1cfe613f2219349d1cddae7fb6d.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L",
+  "vid": "373b",
+  "pid": "11d9",
+  "mark": "dongle",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/954a5d0f41b791fb61129de7c5da82f1.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L",
+  "vid": "373b",
+  "pid": "11d9",
+  "mark": "dongle",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ff531ccf0afe34adfee291e1b9d2fef6.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应鼠标固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L",
+  "vid": "373b",
+  "pid": "11d9",
+  "mark": "dongle",
+  "version": "2.08",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/d41f7348e39bc2d2d2804c78b7de139d.bin",
+  "notes": "9月第1次2.08固件更新：\n\n\n1、修改轮询率灯效顺序"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L",
+  "vid": "373b",
+  "pid": "1278",
+  "mark": "dongle",
+  "version": "5.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/6dcaa6778f8c3e6b2746af19da0c759f.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L0",
+  "vid": "373b",
+  "pid": "124f",
+  "mark": "dongle",
+  "version": "3.0.4",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/80752a183b6146c76aa2130d66ed0ee1.bin",
+  "notes": "出厂固件"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L1",
+  "vid": "373b",
+  "pid": "1155",
+  "mark": "dongle",
+  "version": "3.0.2",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/252a4cc459d8ac5c85e612301be355cd.bin",
+  "notes": "修复已知问题"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L1",
+  "vid": "373b",
+  "pid": "1155",
+  "mark": "dongle",
+  "version": "3.0.0",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/16231c658b2a4050993295c1e79b717f.bin",
+  "notes": "1、优化鼠标无线唤醒延迟\n2、修复一些已知问题"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-M1",
+  "vid": "373b",
+  "pid": "12f5",
+  "mark": "dongle",
+  "version": "3.1.5",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/1f431f899e0f7ffc3bceab47dd7013f9.bin",
+  "notes": "1. Optimize the receiver light effects\n2. Improve connection stability\nNote: Use the current version. The mouse firmware must be upgraded to version 1.1.5 or higher for compatibility"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-M1",
+  "vid": "373b",
+  "pid": "12f5",
+  "mark": "dongle",
+  "version": "3.0.8",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/fd5dc76bb8af988e7efb8ced27907eca.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-M1",
+  "vid": "373b",
+  "pid": "12f5",
+  "mark": "dongle",
+  "version": "3.0.7",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/28b7b1c5d15f45b4d2d020087e289b38.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "Wireless mouse 8k NANO dongle-L",
+  "vid": "373b",
+  "pid": "11fd",
+  "mark": "dongle",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e5daaf63417e8aee17625a6216ebc0da.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "Wireless mouse 8k NANO dongle-L",
+  "vid": "373b",
+  "pid": "11fd",
+  "mark": "dongle",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/a5f2083f5a3172c1b607b994eb26178c.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应鼠标固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "Wireless mouse 8k NANO dongle-L",
+  "vid": "373b",
+  "pid": "11fe",
+  "mark": "dongle",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ed81ea09bd26108a75b7f3aace2af279.bin",
+  "notes": "1、更新宏录制按键不释放问题"
+ },
+ {
+  "name": "Wireless mouse 8k NANO dongle-L",
+  "vid": "373b",
+  "pid": "11fe",
+  "mark": "dongle",
+  "version": "3.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e1ddf2bd743f0f211f26f3297b92a01d.bin",
+  "notes": "10月第1次3.00固件更新：\n\n1、优化抗干扰能力\n\n注意：由于优化了设备底层，对应鼠标固件版本需要同步升级到V3.00以上"
+ },
+ {
+  "name": "Wireless mouse 8k NANO dongle-M1",
+  "vid": "373b",
+  "pid": "12cd",
+  "mark": "dongle",
+  "version": "3.1.5",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c671d352ab4689437d643368de70875b.bin",
+  "notes": "1. Optimized receiver lighting effects\n2. Improved mouse response speed"
+ },
+ {
+  "name": "Wireless mouse 8k NANO dongle-M1",
+  "vid": "373b",
+  "pid": "12cd",
+  "mark": "dongle",
+  "version": "3.0.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3e98408baca6d699fabf81e41ea8eb82.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "YOGO 75",
+  "vid": "373b",
+  "pid": "119c",
+  "mark": "device",
+  "version": "0116",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/95d860609bad1469ba72536993f528da.bin",
+  "notes": "Fix the issue of Bluetooth failing to reconnect in some cases"
+ },
+ {
+  "name": "YOGO 75",
+  "vid": "373b",
+  "pid": "119c",
+  "mark": "device",
+  "version": "0115",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e33ff12ff5defdf3f119619b7c94e7eb.bin",
+  "notes": "1.修复MAC模式下，右Alt键不触发win键问题"
+ },
+ {
+  "name": "YOGO 75",
+  "vid": "373b",
+  "pid": "119c",
+  "mark": "device",
+  "version": "0104",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/7eb9f1ebcbee7b673e89d7dc0a182c2b.bin",
+  "notes": "via固件"
+ },
+ {
+  "name": "YOGO 75",
+  "vid": "373b",
+  "pid": "119c",
+  "mark": "device",
+  "version": "0105",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/378445ee16953e433230db76f92b682e.bin",
+  "notes": "via固件\n1、修复录制宏输出逻辑错误问题"
+ },
+ {
+  "name": "YOGO 75",
+  "vid": "373b",
+  "pid": "1200",
+  "mark": "device",
+  "version": "1.13",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/0407c21843f23788afbc38c2b21c1a3b.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "YOGO 75",
+  "vid": "373b",
+  "pid": "1200",
+  "mark": "device",
+  "version": "1.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/8b4401714ff519aa8715615a2f4b86a9.bin",
+  "notes": "via固件"
+ },
+ {
+  "name": "YOGO 75 PRO",
+  "vid": "373b",
+  "pid": "119b",
+  "mark": "device",
+  "version": "1.26",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2cd76d136a4d6d881dbecb086e993dda.bin",
+  "notes": "Fix the issue of Bluetooth not reconnecting in some cases"
+ },
+ {
+  "name": "YOGO 75 PRO",
+  "vid": "373b",
+  "pid": "119b",
+  "mark": "device",
+  "version": "1.24",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/dcda9d458b7e9059c948e5e224480fc0.bin",
+  "notes": "日常更新"
+ },
+ {
+  "name": "YOGO 75 PRO",
+  "vid": "373b",
+  "pid": "119b",
+  "mark": "device",
+  "version": "1.06",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/6cc64767483b97c53f80139332ed941f.bin",
+  "notes": "via固件"
+ },
+ {
+  "name": "YOGO 75 PRO",
+  "vid": "373b",
+  "pid": "119b",
+  "mark": "device",
+  "version": "1.03",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2245f66944d6255b9b724991f4c6c362.bin",
+  "notes": "via固件"
+ },
+ {
+  "name": "YOGO 75 PRO",
+  "vid": "373b",
+  "pid": "11ff",
+  "mark": "device",
+  "version": "1.00",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c02e676e220c798a5ed72e4e30e14405.bin",
+  "notes": "via固件"
+ }
+]
