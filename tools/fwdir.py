@@ -48,6 +48,13 @@ def main(argv):
             for m in marks | {'dongle'} | (set() if marks else {'device', 'mouse'})]
     with cf.ThreadPoolExecutor(4) as ex:
         rows = [r for out in ex.map(lookup, jobs) for r in out]
+    notes = json.load(open(os.path.join(ROOT, 'tools', 'fwnotes.json'), encoding='utf-8'))
+    for r in rows:
+        r['notes'] = notes.get(r['notes'], r['notes'])
+    todo = {r['notes'] for r in rows if re.search(r'[\u3000-\u9fff\uff00-\uffef]', r['notes'])}
+    if todo:
+        print('%d notes need a translation in tools/fwnotes.json:' % len(todo))
+        print(json.dumps(sorted(todo), ensure_ascii=False, indent=1))
     rows = sorted({(r['file'], r['mark']): r for r in rows}.values(), key=lambda r: (r['name'].lower(), r['mark'], r['vid'], r['pid']))
     json.dump(rows, open(os.path.join(ROOT, 'docs', 'firmware.json'), 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
     page = os.path.join(ROOT, 'firmware', 'index.html')
