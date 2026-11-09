@@ -78,5 +78,6 @@
  "日常更新": "Routine update",
  "更新内容：\n1、修复已知问题，优化使用体验": "Changes:\n1. Fixed known issues, improved the experience",
  "更新内容：\n增加Dongle和耳机无连接5分钟时Dongle指示灯熄灭的操作": "Changes:\nThe dongle's indicator light now turns off after the dongle and headset have been disconnected for 5 minutes",
- "注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上": "Note: because the device's low-level firmware was optimized, the matching receiver firmware must also be updated to V3.00 or later."
+ "注意：由于优化了设备底层，对应接收器固件版本需要同步升级到V3.00以上": "Note: because the device's low-level firmware was optimized, the matching receiver firmware must also be updated to V3.00 or later.",
+ "1. 修复部分电脑出现接收器异常唤醒电脑的问题": "1. Fixed the receiver unexpectedly waking some PCs"
 }
