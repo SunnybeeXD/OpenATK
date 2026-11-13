@@ -197,3 +197,9 @@ test('communication protocol is unavailable on models that do not expose it',asy
   assert.equal(api.MODELS.find(m=>m.name==='VT3S MAX V2').rfProtocol,1);
   driver.model=wirelessOnly;await assert.rejects(driver.setRfPacket(0),/not supported/);
 });
+test('incoming status reports are logged for diagnostics',async()=>{
+  const lines=[];const {driver,listeners}=fixture({options:{log:(l,b)=>lines.push([l,[...b]])}});
+  const report=new Uint8Array(8);report[7]=40;for(const f of listeners)f({reportId:7,data:new DataView(report.buffer)});
+  for(const f of listeners)f({reportId:9,data:new DataView(new Uint8Array(3).buffer)});
+  assert.deepEqual(lines.map(l=>l[0]),['IN 7','IN 9']);assert.equal(driver.battery.percent,40);
+});

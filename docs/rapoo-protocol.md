@@ -95,7 +95,7 @@ Input report ID 7 contains a compact status payload, without a report-ID byte pr
 | 11 | Current profile, if present |
 | 16 | Sensor mode for the current polling rate, if present |
 
-Battery status 2 means charging and shows the bolt. Battery is shown only after a valid status report arrives. A profile notification invalidates editing and queues a refresh.
+The activity log records the first 40 incoming reports of any ID, for diagnosing receivers that do not report battery. Battery status 2 means charging and shows the bolt. Battery is shown only after a valid status report arrives. A profile notification invalidates editing and queues a refresh.
 
 ## Supported device IDs
 
