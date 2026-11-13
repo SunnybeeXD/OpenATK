@@ -11,7 +11,9 @@ This is an independent implementation of the wire format. No Rapoo source is shi
 
 ## Scope and device selection
 
-Only manifests selecting the VT_nrf54L driver are supported. Vendor ID is 0x24AE, configuration usage page 0xFF00, usage 2. Both output report 6 and feature report 8 must be present. Firmware interfaces (usage 14 and usage 1) are excluded. The first product ID in each manifest is wired; the second is the receiver, as used by the vendor driver’s detectConnectionType.
+Only manifests selecting the VT_nrf54L driver are supported. Vendor ID is 0x24AE, configuration usage page 0xFF00, usage 2. Interface selection matches those IDs and the configuration usage, as AHUB does. Do not require output report 6 and feature report 8 to be described in the same collection: browsers can expose report descriptors in sibling or child collections, or omit that metadata before opening. The initial read-only configuration exchange establishes whether the commands actually work; editing stays disabled until it succeeds. Firmware-only interfaces (usage 14 or usage 1, without configuration usage 2) are excluded. The first product ID in each manifest is wired; the second is the receiver, as used by the vendor driver’s detectConnectionType.
+
+If the picker returns a sibling interface, the page also checks already-authorized configuration interfaces with the same VID/PID as the selected device. It refuses to guess between multiple candidates. Connection details are available before a successful connection and include selected device IDs, collection usages, advertised report IDs and errors. Copying them uses the clipboard when available and otherwise selects the text for manual copying.
 
 Other protocols are deliberately excluded: VT_CH584 (SE models), LM20RT (RT models), Telink3228C_Mouse (ULTRA), keyboards, bases and earlier unlisted mice. A similar product name does not establish compatibility.
 
