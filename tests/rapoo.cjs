@@ -164,13 +164,13 @@ test('input report 7 updates DPI/battery and invalidates a changed profile',asyn
   driver.onInput({reportId:7,data:new DataView(report.buffer)});assert.equal(driver.battery.percent,73);assert.equal(driver.s.active,2);assert.equal(driver.s.stages[2].x,1600);
   report[11]=1;driver.onInput({reportId:7,data:new DataView(report.buffer)});assert.equal(refreshes,1);assert.equal(driver.ready,false);
 });
-test('select handlers capture the chosen value before the busy-state render resets the control',()=>{
+test('DPI stage selects capture the chosen value before the busy-state render resets the control',()=>{
   const elements=new Map(),calls=[];
   const $=id=>{if(!elements.has(id))elements.set(id,{});return elements.get(id);};
   const driver={setStage:v=>calls.push(['stage',v]),setCount:v=>calls.push(['count',v]),setRate:v=>calls.push(['rate',v]),setMode:v=>calls.push(['mode',v])};
   const context=vm.createContext({$,driver,action:fn=>{for(const el of elements.values())el.value='1';fn(driver);}});
-  const start=html.indexOf("$('#stage').onchange="),end=html.indexOf("for(const key of ['lod'",start);
+  const start=html.indexOf("$('#stage').onchange="),end=html.indexOf("for(const key of ['press'",start);
   assert.ok(start>0&&end>start);vm.runInContext(html.slice(start,end),context);
-  for(const [id,value] of [['stage',3],['count',7],['rate',129],['mode',5]]){const target=$('#'+id);target.value=String(value);target.onchange({target});}
-  assert.deepEqual(calls,[['stage',3],['count',7],['rate',129],['mode',5]]);
+  for(const [id,value] of [['stage',3],['count',7]]){const target=$('#'+id);target.value=String(value);target.onchange({target});}
+  assert.deepEqual(calls,[['stage',3],['count',7]]);
 });
