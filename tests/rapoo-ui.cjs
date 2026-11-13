@@ -36,7 +36,7 @@ for(const match of html.slice(html.indexOf('<body>'),html.indexOf('// Protocol s
 }
 const document={body,title:'',hidden:false,activeElement:null,createElement:tag=>new Element(tag),
   querySelector(selector){return selector.startsWith('#')?elements.get(selector.slice(1)):null;},
-  querySelectorAll(selector){if(selector==='[data-tab]')return all.filter(el=>el.dataset.tab);if(selector==='[data-panel]')return all.filter(el=>el.dataset.panel);return[];}};
+  querySelectorAll(selector){if(selector==='[data-tab]')return all.filter(el=>el.dataset.tab);if(selector==='[data-panel]')return all.filter(el=>el.dataset.panel);if(selector==='[data-mouse-key]')return all.filter(el=>el.getAttribute('data-mouse-key')!==null);return[];}};
 const location={search:query,href:'',origin:'https://openatk.test'};
 const navigator={userAgent:'Test',userAgentData:{mobile:false}};
 const sandbox={document,location,navigator,URLSearchParams:Params,Uint8Array,DataView,TextEncoder:Encoder,TextDecoder:Decoder,setTimeout,clearTimeout,
@@ -62,6 +62,18 @@ const press=async(page,id,text)=>{const button=$(page,id).children.find(b=>b.tex
 const p=create(html,'?demo=1',setTimeout,clearTimeout);await wait(p);
 ok(p.all.filter(e=>e.dataset.tab).map(e=>e.dataset.tab).join(',')==='basics,tracking,light,buttons,macros,device','All OpenATK and macro tabs');
 for(const tab of p.all.filter(e=>e.dataset.tab)){tab.click();await wait(p);ok(p.all.filter(e=>e.dataset.panel&&!e.classList.contains('hidden')).map(e=>e.dataset.panel).join('')===tab.dataset.tab,'Tab switches to '+tab.dataset.tab);}
+const mapControls=p.document.querySelectorAll('[data-mouse-key]');
+const beforeMap=JSON.stringify(p.app.driver.s.buttons.rows);
+mapControls.find(el=>el.tagName==='BUTTON'&&el.getAttribute('data-mouse-key')==='5').click();
+ok($(p,'buttonControl').value==='5'&&$(p,'buttonSelectionTitle').textContent==='Editing: Forward','Mouse callout selects the editor control');
+ok(mapControls.filter(el=>el.getAttribute('data-mouse-key')==='5').every(el=>el.getAttribute('aria-pressed')==='true'),'Mouse region and callout highlight together');
+const rightRegion=mapControls.find(el=>el.getAttribute('role')==='button'&&el.getAttribute('data-mouse-key')==='2');
+rightRegion.onkeydown({key:'Enter',preventDefault(){}});
+ok($(p,'buttonControl').value==='2','Diagram regions support keyboard selection');
+$(p,'buttonControl').value='13';$(p,'buttonControl').onchange({target:$(p,'buttonControl')});
+ok(mapControls.filter(el=>el.getAttribute('data-mouse-key')==='13').every(el=>el.classList.contains('selected')),'Dropdown selection highlights the underside DIY button');
+ok(mapControls.filter(el=>['3','4'].includes(el.getAttribute('data-mouse-key'))).every(el=>el.classList.contains('hidden')),'Absent DPI buttons are hidden for the current model');
+ok(JSON.stringify(p.app.driver.s.buttons.rows)===beforeMap&&!p.app.busy,'Diagram selection does not write or alter assignments');
 await press(p,'segDpi','1,600 DPI');ok(p.app.driver.s.stages[p.app.driver.s.active].x===1600,'Sensitivity preset writes DPI');
 $(p,'dpiX').value=1701;$(p,'dpiY').value=1902;$(p,'saveDpi').click();await wait(p);ok($(p,'sDpi').textContent==='1701/1902','Custom X/Y DPI retained');
 $(p,'stage').value=2;$(p,'stage').onchange({target:$(p,'stage')});await wait(p);ok(p.app.driver.s.active===2,'Stage select captures value');
