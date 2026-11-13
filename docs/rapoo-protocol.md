@@ -90,12 +90,13 @@ Input report ID 7 contains a compact status payload, without a report-ID byte pr
 | 6 / 7 | Battery status / percentage |
 | 9 / 10 | Key scan / polling key, if present |
 | 11 | Current profile, if present |
+| 16 | Sensor mode for the current polling rate, if present |
 
-Battery is shown only after a valid status report arrives. A profile notification invalidates editing and queues a refresh.
+Battery status 2 means charging and shows the bolt. Battery is shown only after a valid status report arrives. A profile notification invalidates editing and queues a refresh.
 
 ## Supported device IDs
 
-These are the 69 VT_nrf54L manifests in the inspected bundle. All use VID 0x24AE. This table records protocol evidence, **not hardware confirmation**.
+These are 69 of the 77 VT_nrf54L manifests in the inspected bundle. The other 8 (ESM612ACE, ESM612MAX, ESM612PRO, ESM622MAX, ESM622PRO, ESM652PRO, ESM672MAX, ESM672PRO) are wired-only, have one PID each and use the cybercafe status report with a prefix byte this page does not parse, so they are not supported. All use VID 0x24AE. This table records protocol evidence, **not hardware confirmation**.
 
 | Model | Wired PID | Receiver PID | DPI family | Key scan control |
 |---|---|---|---|---|
