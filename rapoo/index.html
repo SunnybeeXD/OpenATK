@@ -604,6 +604,18 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
         <div class="seg" id="segRelease" aria-label="Release debounce"></div>
         <details class="advanced"><summary>More values</summary><div class="erow"><label for="release">Release debounce</label><select class="sel" id="release"></select></div></details>
       </div>
+      <div class="sect">Wireless</div>
+      <div class="item">
+        <div class="t">Wireless RF strategy</div>
+        <div class="d">Adaptive lowers RF power when the signal is strong, which saves battery. Maximum RF keeps full power for better resistance to interference.</div>
+        <div class="seg" id="segRf" aria-label="Wireless RF strategy"></div>
+      </div>
+      <div class="item" id="rfProtoItem">
+        <div class="t">Communication protocol</div>
+        <div class="d">Turbo or Initial wireless protocol. This setting is shared by all profiles.</div>
+        <div class="seg" id="segRfProto" aria-label="Communication protocol"></div>
+      </div>
+      <div class="sect">Power</div>
       <div class="item">
         <div class="t">Sleep after</div>
         <div class="d">Idle time before the mouse naps to save battery. It wakes the moment you move it.</div>
@@ -644,84 +656,84 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <script>
 // Protocol start. Independently implemented from Rapoo AHUB's public VT_nrf54L driver.
 const VID = 0x24ae;
-// name, wired PID, receiver PID, DPI family, key scan. See docs/rapoo-protocol.md.
+// name, wired PID, receiver PID, DPI family, key scan, RF protocol. See docs/rapoo-protocol.md.
 const MODEL_ROWS = [
-  ["VT0 MAX MASTER",17994,5194,"ultra",1],
-  ["VT0 MAX",17952,5152,"ultra",1],
-  ["VT0",17936,5136,"standard",0],
-  ["VT0 Air MAX",18081,5281,"ultra",1],
-  ["VT1 MAX",17988,5188,"ultra",1],
-  ["VT1",17941,5141,"standard",0],
-  ["VT1S MAX V2",19210,6922,"v2",1],
-  ["VT1S V2",18026,5226,"ultra",0],
-  ["VT2 MAX MASTER V2",18037,5237,"v2",1],
-  ["VT2 MAX V2",19209,6921,"v2",1],
-  ["VT2 MAX",17955,5155,"ultra",1],
-  ["VT2 V2",18024,5224,"ultra",0],
-  ["VT2",17954,5154,"standard",0],
-  ["VT2 Air MAX V2",19218,6930,"v2",1],
-  ["VT2K MAX",18084,5284,"ultra",1],
-  ["VT2S MAX MASTER V2",18038,5238,"v2",1],
-  ["VT2S MAX V2",19204,6916,"v2",1],
-  ["VT2S V2",18013,5213,"ultra",0],
-  ["VT2S Air MAX V2",19219,6931,"v2",1],
-  ["VT3 MAX MASTER V2",18029,5229,"v2",1],
-  ["VT3 MAX V2",19206,6918,"v2",1],
-  ["VT3 MAX",17943,5143,"ultra",1],
-  ["VT3 PRO V2",18085,5285,"v2",1],
-  ["VT3 V2",18018,5218,"ultra",0],
-  ["VT3",17938,5138,"standard",0],
-  ["VT3 Air MAX V2",19212,6924,"v2",1],
-  ["VT3S MAX MASTER V2",18030,5230,"v2",1],
-  ["VT3S MAX MASTER",17995,5195,"v2",1],
-  ["VT3S MAX V2",19207,6919,"v2",1],
-  ["VT3S MAX",17953,5153,"ultra",1],
-  ["VT3S PRO V2",18086,5286,"v2",1],
-  ["VT3S V2",18020,5220,"ultra",0],
-  ["VT3S",17937,5137,"standard",0],
-  ["VT3S Air MAX V2",19213,6925,"v2",1],
-  ["VT3S Air Max",18082,5282,"v2",1],
-  ["VT4 MAX MASTER V2",18039,5239,"v2",1],
-  ["VT4 MAX V2",19203,6915,"v2",1],
-  ["VT4 V2",18011,5211,"ultra",0],
-  ["VT4 Air MAX V2",19220,6932,"v2",1],
-  ["VT6 MAX",18002,5202,"ultra",1],
-  ["VT6",18001,5201,"standard",0],
-  ["VT7 MAX MASTER V2",18032,5232,"v2",1],
-  ["VT7 MAX V2",19205,6917,"v2",1],
-  ["VT7 MAX",17942,5142,"ultra",1],
-  ["VT7 PRO V2",18087,5287,"v2",1],
-  ["VT7 V2",18016,5216,"ultra",0],
-  ["VT7",17939,5139,"standard",0],
-  ["VT7 Air MAX V2",19214,6926,"v2",1],
-  ["VT7S MAX MASTER V2",18033,5233,"v2",1],
-  ["VT7S MAX V2",19202,6914,"v2",1],
-  ["VT7S PRO V2",18088,5288,"v2",1],
-  ["VT7S V2",18009,5209,"ultra",0],
-  ["VT7S Air MAX V2",19215,6927,"v2",1],
-  ["VT8 MAX MASTER V2",18040,5240,"v2",1],
-  ["VT8 MAX V2",19211,6923,"v2",1],
-  ["VT8 V2",18028,5228,"ultra",0],
-  ["VT8 Air MAX V2",19221,6933,"v2",1],
-  ["VT9 MAX MASTER V2",18035,5235,"v2",1],
-  ["VT9 MAX V2",19208,6920,"v2",1],
-  ["VT9 MAX",17944,5144,"ultra",1],
-  ["VT9 PRO V2",18089,5289,"v2",1],
-  ["VT9 V2",18022,5222,"ultra",0],
-  ["VT9",17940,5140,"standard",0],
-  ["VT9 Air MAX V2",19216,6928,"v2",1],
-  ["VT9S MAX MASTER V2",18036,5236,"v2",1],
-  ["VT9S MAX V2",19201,6913,"v2",1],
-  ["VT9S PRO V2",18090,5290,"v2",1],
-  ["VT9S V2",18003,5203,"ultra",0],
-  ["VT9S Air MAX V2",19217,6929,"v2",1],
+  ["VT0 MAX MASTER",17994,5194,"ultra",1,1],
+  ["VT0 MAX",17952,5152,"ultra",1,0],
+  ["VT0",17936,5136,"standard",0,0],
+  ["VT0 Air MAX",18081,5281,"ultra",1,0],
+  ["VT1 MAX",17988,5188,"ultra",1,0],
+  ["VT1",17941,5141,"standard",0,0],
+  ["VT1S MAX V2",19210,6922,"v2",1,1],
+  ["VT1S V2",18026,5226,"ultra",0,0],
+  ["VT2 MAX MASTER V2",18037,5237,"v2",1,1],
+  ["VT2 MAX V2",19209,6921,"v2",1,1],
+  ["VT2 MAX",17955,5155,"ultra",1,0],
+  ["VT2 V2",18024,5224,"ultra",0,0],
+  ["VT2",17954,5154,"standard",0,0],
+  ["VT2 Air MAX V2",19218,6930,"v2",1,1],
+  ["VT2K MAX",18084,5284,"ultra",1,0],
+  ["VT2S MAX MASTER V2",18038,5238,"v2",1,1],
+  ["VT2S MAX V2",19204,6916,"v2",1,1],
+  ["VT2S V2",18013,5213,"ultra",0,0],
+  ["VT2S Air MAX V2",19219,6931,"v2",1,1],
+  ["VT3 MAX MASTER V2",18029,5229,"v2",1,1],
+  ["VT3 MAX V2",19206,6918,"v2",1,1],
+  ["VT3 MAX",17943,5143,"ultra",1,0],
+  ["VT3 PRO V2",18085,5285,"v2",1,1],
+  ["VT3 V2",18018,5218,"ultra",0,0],
+  ["VT3",17938,5138,"standard",0,0],
+  ["VT3 Air MAX V2",19212,6924,"v2",1,1],
+  ["VT3S MAX MASTER V2",18030,5230,"v2",1,1],
+  ["VT3S MAX MASTER",17995,5195,"v2",1,1],
+  ["VT3S MAX V2",19207,6919,"v2",1,1],
+  ["VT3S MAX",17953,5153,"ultra",1,0],
+  ["VT3S PRO V2",18086,5286,"v2",1,1],
+  ["VT3S V2",18020,5220,"ultra",0,0],
+  ["VT3S",17937,5137,"standard",0,0],
+  ["VT3S Air MAX V2",19213,6925,"v2",1,1],
+  ["VT3S Air Max",18082,5282,"v2",1,0],
+  ["VT4 MAX MASTER V2",18039,5239,"v2",1,1],
+  ["VT4 MAX V2",19203,6915,"v2",1,1],
+  ["VT4 V2",18011,5211,"ultra",0,0],
+  ["VT4 Air MAX V2",19220,6932,"v2",1,1],
+  ["VT6 MAX",18002,5202,"ultra",1,0],
+  ["VT6",18001,5201,"standard",0,0],
+  ["VT7 MAX MASTER V2",18032,5232,"v2",1,1],
+  ["VT7 MAX V2",19205,6917,"v2",1,1],
+  ["VT7 MAX",17942,5142,"ultra",1,0],
+  ["VT7 PRO V2",18087,5287,"v2",1,1],
+  ["VT7 V2",18016,5216,"ultra",0,0],
+  ["VT7",17939,5139,"standard",0,0],
+  ["VT7 Air MAX V2",19214,6926,"v2",1,1],
+  ["VT7S MAX MASTER V2",18033,5233,"v2",1,1],
+  ["VT7S MAX V2",19202,6914,"v2",1,1],
+  ["VT7S PRO V2",18088,5288,"v2",1,1],
+  ["VT7S V2",18009,5209,"ultra",0,0],
+  ["VT7S Air MAX V2",19215,6927,"v2",1,1],
+  ["VT8 MAX MASTER V2",18040,5240,"v2",1,1],
+  ["VT8 MAX V2",19211,6923,"v2",1,1],
+  ["VT8 V2",18028,5228,"ultra",0,0],
+  ["VT8 Air MAX V2",19221,6933,"v2",1,1],
+  ["VT9 MAX MASTER V2",18035,5235,"v2",1,1],
+  ["VT9 MAX V2",19208,6920,"v2",1,1],
+  ["VT9 MAX",17944,5144,"ultra",1,0],
+  ["VT9 PRO V2",18089,5289,"v2",1,1],
+  ["VT9 V2",18022,5222,"ultra",0,0],
+  ["VT9",17940,5140,"standard",0,0],
+  ["VT9 Air MAX V2",19216,6928,"v2",1,1],
+  ["VT9S MAX MASTER V2",18036,5236,"v2",1,1],
+  ["VT9S MAX V2",19201,6913,"v2",1,1],
+  ["VT9S PRO V2",18090,5290,"v2",1,1],
+  ["VT9S V2",18003,5203,"ultra",0,0],
+  ["VT9S Air MAX V2",19217,6929,"v2",1,1],
 ];
 const DPI_FAMILIES = {
   standard: { min: 50, max: 26000, steps: [[50, 26000, 50]], lod: Array.from({length:11}, (_,i) => (10+i)/10) },
   ultra: { min: 10, max: 45000, steps: [[10,10050,10],[10050,45000,50]], lod: Array.from({length:11}, (_,i) => (7+i)/10) },
   v2: { min: 1, max: 60000, steps: [[1,60000,1]], lod: Array.from({length:11}, (_,i) => (7+i)/10) },
 };
-const MODELS = MODEL_ROWS.map(([name,wired,wireless,family,keyScan]) => ({name,wired,wireless,keyScan,...DPI_FAMILIES[family]}));
+const MODELS = MODEL_ROWS.map(([name,wired,wireless,family,keyScan,rfProtocol]) => ({name,wired,wireless,keyScan,rfProtocol,...DPI_FAMILIES[family]}));
 const FILTERS = MODELS.flatMap(m => [m.wired,m.wireless].map(productId => ({vendorId:VID,productId,usagePage:0xff00,usage:2})));
 const modelFor = d => d.vendorId === VID ? MODELS.find(m => m.wired === d.productId || m.wireless === d.productId) : undefined;
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
@@ -729,7 +741,7 @@ const RATES = [[125,8],[250,4],[500,2],[1000,1],[2000,132],[4000,130],[8000,129]
 const RATE_MODES = {8:[1,0],4:[1,0],2:[2,1,0],1:[5,4,3,2,1],132:[5,4,3,2],130:[5,4,3],129:[5,4,3]};
 const MODE_NAMES = ['Office','Balanced','Power','Hyper','Competition Hyper','Rampage Competitive'];
 const DEBOUNCE = [...Array.from({length:17},(_,i)=>i),18,20,22,24,26,28,30,32];
-const OFFSETS = {rate:640,scan:641,lod:644,motion:645,x:648,count:662,active:664,press:704,release:705,sleep:706,correction:707,angle:708,glass:709,y:712,lowLight:729,modes:732};
+const OFFSETS = {rate:640,scan:641,lod:644,motion:645,x:648,count:662,active:664,press:704,release:705,sleep:706,correction:707,angle:708,glass:709,y:712,rfBoost:728,lowLight:729,modes:732,rfPacket:0x60};
 const sleep = ms => new Promise(r => setTimeout(r,ms));
 function integer(n,min,max,label){ if (!Number.isInteger(n) || n<min || n>max) throw new Error(`Invalid ${label}`); return n; }
 function profileAddress(profile,offset){ return 0x600 + integer(profile,0,7,'profile')*0x400 + offset; }
@@ -805,7 +817,8 @@ class Rapoo {
     const perf=await this.read(a(640),8),misc=await this.read(a(704),6);
     const x=await this.read(a(648),14),y=await this.read(a(712),14);
     const count=Math.min(7,(await this.read(a(662),1))[0]+1),active=Math.min(count-1,(await this.read(a(664),1))[0]);
-    const modes=await this.read(a(732),7),lowLight=(await this.read(a(729),1))[0];
+    const modes=await this.read(a(732),7),lowLight=(await this.read(a(729),1))[0],rfBoost=(await this.read(a(728),1))[0];
+    const rfPacket=this.model.rfProtocol?(await this.read(OFFSETS.rfPacket,1))[0]:undefined;
     const profiles=[];
     for(let slot=0;slot<8;slot++){
       const bytes=await this.read(profileAddress(slot,1004),16);
@@ -814,7 +827,7 @@ class Rapoo {
     if(!profiles.some(v=>v.slot===p))profiles.push({slot:p,name:`Profile ${p+1}`});
     this.s={profile:p,profiles,count,active,stages:Array.from({length:7},(_,i)=>({x:x[i*2]|x[i*2+1]<<8,y:y[i*2]|y[i*2+1]<<8})),
       rate:perf[0],scan:perf[1],lod:perf[4],motion:perf[5],press:misc[0],release:misc[1],sleep:misc[2],
-      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight};
+      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight,rfBoost,rfPacket};
     this.ready=true;return this.s;
   });}
   change(fn){return this.lock(async()=>{
@@ -825,12 +838,17 @@ class Rapoo {
     return fn(this.s,p);
   });}
   async setByte(key,value){
-    const range={lod:[1,this.model.lod.length],motion:[0,1],press:[0,32],release:[0,32],sleep:[2,120],angle:[-30,30],glass:[0,1],lowLight:[0,1],scan:[3,6]};
+    const range={lod:[1,this.model.lod.length],motion:[0,1],press:[0,32],release:[0,32],sleep:[2,120],angle:[-30,30],glass:[0,1],lowLight:[0,1],rfBoost:[0,1],scan:[3,6]};
     if(!range[key])throw new Error('Unsupported setting');
     if(!(key==='sleep'&&value===255))integer(value,...range[key],key);
     if((key==='press'||key==='release')&&!DEBOUNCE.includes(value))throw new Error('Unsupported debounce value');
     if(key==='scan'&&!this.model.keyScan)throw new Error('Key scan rate is not supported by this model');
     return this.change(async(s,p)=>{await this.writeVerified(profileAddress(p,OFFSETS[key]),[value&255]);s[key]=value;});
+  }
+  setRfPacket(value){
+    if(!this.model.rfProtocol)return Promise.reject(new Error('Communication protocol is not supported by this model'));
+    if(value!==0&&value!==2)return Promise.reject(new Error('Unsupported communication protocol'));
+    return this.change(async s=>{await this.writeVerified(OFFSETS.rfPacket,[value]);s.rfPacket=value;});
   }
   setCorrection(bit,on){
     integer(bit,0,1,'correction bit');if(typeof on!=='boolean')throw new Error('Invalid correction switch');
@@ -952,6 +970,9 @@ function render(){
   $('#motion').checked=s.motion!==0;$('#snap').checked=(s.correction&1)===0;$('#ripple').checked=(s.correction&2)===0;
   $('#glass').checked=s.glass!==0;$('#lowLight').checked=s.lowLight!==0;
   $('#scanRow').classList.toggle('hidden',!m.keyScan);
+  fillSeg('#segRf',[[0,'Adaptive'],[1,'Maximum RF']],s.rfBoost,(d,v)=>d.setByte('rfBoost',v));
+  $('#rfProtoItem').classList.toggle('hidden',s.rfPacket===undefined);
+  fillSeg('#segRfProto',[[0,'Turbo'],[2,'Initial']],s.rfPacket,(d,v)=>d.setRfPacket(v));
   fillSeg('#segScan',[[3,'1K'],[4,'2K'],[5,'4K'],[6,'8K']],s.scan,(d,v)=>d.setByte('scan',v));
   const rows=[['Model',m.name],['Connection',driver.wired?'USB cable':'Wireless receiver'],['USB identity','24AE:'+driver.device.productId.toString(16).toUpperCase().padStart(4,'0')],['Protocol','VT_nrf54L'],['Polling rate',hz?hz.toLocaleString()+' Hz':'Unknown'],['Battery',driver.battery?driver.battery.percent+'%':'Waiting for a status report']];
   $('#kv').replaceChildren(...rows.map(([key,value])=>{const tr=document.createElement('tr');for(const text of [key,value]){const td=document.createElement('td');td.textContent=String(text);tr.append(td);}return tr;}));
@@ -1023,12 +1044,12 @@ $('#connect').onclick=$('#connect2').onclick=connect;
 function makeDemo(){
   const model=MODELS.find(m=>m.name==='VT3S MAX V2'),memory=new Uint8Array(0x3000),listeners=new Set();
   const put16=(a,v)=>{memory[a]=v&255;memory[a+1]=v>>>8;};
-  memory[0x10c]=memory[0x10d]=0;
+  memory[0x10c]=memory[0x10d]=0;memory[0x60]=2;
   for(let p=0;p<8;p++){
     const a=o=>profileAddress(p,o);
     if(p<3)memory.set(new TextEncoder().encode(['Everyday','Competitive','Creative'][p]),a(1004));
     memory[a(640)]=1;memory[a(641)]=4;memory[a(644)]=4;memory[a(645)]=1;
-    memory[a(662)]=3;memory[a(664)]=1;memory[a(704)]=2;memory[a(705)]=8;memory[a(706)]=10;memory[a(707)]=3;
+    memory[a(662)]=3;memory[a(664)]=1;memory[a(728)]=0;memory[a(704)]=2;memory[a(705)]=8;memory[a(706)]=10;memory[a(707)]=3;
     memory.set([1,1,2,4,4,4,4],a(732));
     [400,800,1600,3200,6400,12800,25600].forEach((v,i)=>{put16(a(648+i*2),v);put16(a(712+i*2),v);});
   }
