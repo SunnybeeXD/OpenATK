@@ -60,8 +60,8 @@ const wait=async(page)=>{for(let i=0;i<400;i++){if(page.app.driver?.ready&&!page
 const $=(page,id)=>page.document.querySelector('#'+id);
 const press=async(page,id,text)=>{const button=$(page,id).children.find(b=>b.textContent===text);ok(!!button,'Control exists: '+id+'/'+text);button.click();await wait(page);};
 const p=create(html,'?demo=1',setTimeout,clearTimeout);await wait(p);
-ok(p.all.filter(e=>e.dataset.tab).map(e=>e.dataset.tab).join(',')==='basics,tracking,light,buttons,device','All five OpenATK tabs');
-for(const tab of p.all.filter(e=>e.dataset.tab)){tab.click();ok(p.all.filter(e=>e.dataset.panel&&!e.classList.contains('hidden')).map(e=>e.dataset.panel).join('')===tab.dataset.tab,'Tab switches to '+tab.dataset.tab);}
+ok(p.all.filter(e=>e.dataset.tab).map(e=>e.dataset.tab).join(',')==='basics,tracking,light,buttons,macros,device','All OpenATK and macro tabs');
+for(const tab of p.all.filter(e=>e.dataset.tab)){tab.click();await wait(p);ok(p.all.filter(e=>e.dataset.panel&&!e.classList.contains('hidden')).map(e=>e.dataset.panel).join('')===tab.dataset.tab,'Tab switches to '+tab.dataset.tab);}
 await press(p,'segDpi','1,600 DPI');ok(p.app.driver.s.stages[p.app.driver.s.active].x===1600,'Sensitivity preset writes DPI');
 $(p,'dpiX').value=1701;$(p,'dpiY').value=1902;$(p,'saveDpi').click();await wait(p);ok($(p,'sDpi').textContent==='1701/1902','Custom X/Y DPI retained');
 $(p,'stage').value=2;$(p,'stage').onchange({target:$(p,'stage')});await wait(p);ok(p.app.driver.s.active===2,'Stage select captures value');

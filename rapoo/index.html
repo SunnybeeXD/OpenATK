@@ -518,6 +518,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
       <button data-tab="tracking" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Tracking</button>
       <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Lighting</button>
       <button data-tab="buttons" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg>Buttons &amp; power</button>
+      <button data-tab="macros" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7"/><path d="m17 15 4 3-4 3Z"/></svg>Macros</button>
       <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
     </nav>
     <p class="foot">Changes save to the mouse immediately and survive unplugging.
@@ -593,6 +594,24 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     </section>
     <section class="panel hidden" data-panel="buttons">
       <div class="phead"><div><h2>Buttons &amp; power</h2><p>Click timing and how the mouse sleeps.</p></div></div>
+<div class="item" id="buttonMappingsItem">
+  <div class="t">Button assignments</div>
+  <div class="d">Choose what each button does. Changes apply to the active profile. At least one physical button must remain a left click.</div>
+  <div class="erow"><label for="buttonControl">Control</label><select class="sel" id="buttonControl"></select><button class="btn ghost" id="buttonLoad">Read button assignments</button></div>
+  <p class="d" id="buttonCurrent">Read button assignments to begin.</p>
+  <div class="editor" id="buttonEditor">
+    <div class="erow"><label for="buttonAction">Action</label><select class="sel" id="buttonAction"></select></div>
+    <div class="hidden" id="buttonKeyboardFields">
+      <div class="erow"><label for="buttonKey">Key</label><select class="sel" id="buttonKey"></select><label for="buttonKey2">Second key</label><select class="sel" id="buttonKey2"></select></div>
+      <div class="erow"><label><input type="checkbox" id="buttonMod0"> Left Ctrl</label><label><input type="checkbox" id="buttonMod1"> Left Shift</label><label><input type="checkbox" id="buttonMod2"> Left Alt</label><label><input type="checkbox" id="buttonMod3"> Left Meta</label></div>
+      <div class="erow"><label><input type="checkbox" id="buttonMod4"> Right Ctrl</label><label><input type="checkbox" id="buttonMod5"> Right Shift</label><label><input type="checkbox" id="buttonMod6"> Right Alt</label><label><input type="checkbox" id="buttonMod7"> Right Meta</label></div>
+      <div class="erow"><input class="capture" id="buttonCapture" readonly aria-label="Capture a keyboard shortcut" placeholder="Focus here and press a shortcut"></div>
+    </div>
+    <div class="erow hidden" id="buttonMacroFields"><label for="buttonMacro">Saved macro</label><select class="sel" id="buttonMacro"></select></div>
+    <div class="erow"><button class="btn" id="buttonSave">Save assignment</button><button class="btn ghost" id="buttonCancel">Discard edit</button></div>
+  </div>
+</div>
+
       <div class="item">
         <div class="t">Click debounce</div>
         <div class="d">After a click, ignores further clicks for this long. Lower is faster; raise it only if a worn switch starts double-clicking.</div>
@@ -625,9 +644,49 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
           <label><input type="checkbox" id="sleepOff"> Never sleep</label><button class="btn ghost" id="saveSleep">Save timeout</button></div></details>
       </div>
     </section>
+    <section class="panel hidden" data-panel="macros">
+<div class="phead"><div><h2>Macros</h2><p>Record or edit a sequence, save it to a slot, then assign it to a mouse button.</p></div></div>
+<div class="item">
+  <div class="t">Onboard macros</div><div class="d">Twelve shared slots. Unassign a macro from every profile before replacing or deleting it.</div>
+  <div class="erow"><label for="macroSlot">Slot</label><select class="sel" id="macroSlot"></select><button class="btn ghost" id="macroOpen">Read selected macro</button><button class="btn ghost" id="macroNew">New macro</button></div>
+  <p class="d" id="macroStatus" role="status"></p>
+</div>
+<fieldset id="macroEditor" style="border:0;padding:0;margin:0;min-width:0">
+<div class="item">
+  <div class="erow"><label>Name <input class="num" id="macroName" maxlength="64" style="width:200px" aria-label="Macro name"></label><label>Playback <select class="sel" id="macroMode"><option value="repeat">Repeat</option><option value="toggle">Toggle with assigned button</option><option value="held">While assigned button is held</option></select></label><label>Times <input class="num" id="macroRepeat" type="number" min="1" max="65533" value="1"></label><label><input type="checkbox" id="macroIgnore"> Ignore delays</label></div>
+  <p class="d">Names use up to 16 UTF-8 bytes. Events fit within one 4096-byte slot.</p>
+  <div class="erow"><button class="btn ghost" id="macroRecord">Record new sequence</button><button class="btn ghost" id="macroStop">Stop recording</button><button class="btn ghost" id="macroClear">Clear draft</button></div>
+  <div id="macroRecordArea" tabindex="0" role="group" aria-label="Macro recording area" style="margin-top:14px;padding:24px;border:1px dashed var(--line2);border-radius:10px;color:var(--dim)">Press Record, then keep this area focused. Only keys, mouse buttons and wheel events inside this area are recorded. Escape or leaving the area stops recording.</div>
+  <div class="erow"><label for="macroAddKey">Add a key pair</label><select class="sel" id="macroAddKey"></select><button class="btn ghost" id="macroAddPair">Add press and release</button></div>
+  <div style="max-height:330px;overflow:auto;margin-top:16px"><table class="kv" id="macroEvents" aria-label="Macro events"></table></div>
+  <div class="erow"><button class="btn" id="macroSave">Save to mouse</button><button class="btn quiet" id="macroDelete">Delete from mouse</button><button class="btn ghost" id="macroExport">Export JSON</button><label class="btn ghost" style="cursor:pointer">Import JSON<input id="macroImport" type="file" accept=".json,application/json" hidden></label></div>
+  <p class="d">Import loads a local draft. Nothing is written until Save to mouse. Existing unsupported macro formats stay read-only.</p>
+</div>
+</fieldset>
+
+</section>
     </fieldset>
     <section class="panel hidden" data-panel="device">
       <div class="phead"><div><h2>Device</h2><p>Connection details and diagnostics.</p></div></div>
+<div class="item" id="profileManager">
+  <div class="t">Manage profiles</div>
+  <div class="d">Create a named onboard slot, rename the current profile or delete it. The default profile stays available.</div>
+  <p class="d" id="profileManageStatus"></p>
+  <div class="erow"><label for="profileNewName">New profile</label><input class="num" type="text" id="profileNewName" maxlength="16" style="width:180px" placeholder="Profile name"><button class="btn ghost" id="profileCreate">Create profile</button></div>
+  <div class="d" style="margin-top:8px">Names allow up to 16 UTF-8 bytes. Creating a profile names an unused slot with its stored settings; it does not clone the current profile.</div>
+  <div class="erow"><label for="profileRenameName">Current name</label><input class="num" type="text" id="profileRenameName" maxlength="16" style="width:180px"><button class="btn ghost" id="profileRename">Rename</button><button class="btn quiet" id="profileDelete">Delete current profile</button></div>
+</div>
+<div class="item" id="profileBackupManager">
+  <div class="t">Profile settings backup</div>
+  <div class="d">Export or restore the current profile's DPI, tracking, click timing and power settings. This settings-only backup excludes profile names, button assignments, macros, pairing, firmware and the global communication protocol.</div>
+  <div class="erow"><button class="btn ghost" id="profileExport">Export settings</button><label class="btn ghost" style="cursor:pointer">Load settings<input type="file" id="profileImport" accept=".json,application/json" hidden></label></div>
+  <div class="hidden" id="profileRestorePreview" style="margin-top:16px">
+    <div class="t">Restore preview</div><p class="d" id="profileRestoreTarget"></p>
+    <ul id="profileRestoreList" style="font-size:13px;color:var(--dim);padding-left:20px"></ul>
+    <div class="erow"><button class="btn" id="profileRestoreApply">Apply settings to this profile</button><button class="btn ghost" id="profileRestoreCancel">Cancel</button></div>
+  </div>
+</div>
+
       <div class="item">
         <table class="kv" id="kv"></table>
         <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
@@ -638,7 +697,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
       </div>
       <div class="item"><div class="t">Rapoo support</div>
         <div class="d">Experimental support for the VT nrf54L family. Physical hardware validation is still needed.
-          Profiles must already exist on the mouse. Remapping, macros, lighting effects, pairing, reset and firmware updates are not included.
+          Profiles must already exist on the mouse. Button remapping, standard macros and profile management are supported. Lighting effects, pairing, reset and firmware updates are not included.
           See the <a href="../docs/rapoo-protocol.md">supported models and protocol notes</a>.</div></div>
     </section>
   </main>
@@ -658,82 +717,82 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 const VID = 0x24ae;
 // name, wired PID, receiver PID, DPI family, key scan, RF protocol. See docs/rapoo-protocol.md.
 const MODEL_ROWS = [
-  ["VT0 MAX MASTER",17994,5194,"ultra",1,1],
-  ["VT0 MAX",17952,5152,"ultra",1,0],
-  ["VT0",17936,5136,"standard",0,0],
-  ["VT0 Air MAX",18081,5281,"ultra",1,0],
-  ["VT1 MAX",17988,5188,"ultra",1,0],
-  ["VT1",17941,5141,"standard",0,0],
-  ["VT1S MAX V2",19210,6922,"v2",1,1],
-  ["VT1S V2",18026,5226,"ultra",0,0],
-  ["VT2 MAX MASTER V2",18037,5237,"v2",1,1],
-  ["VT2 MAX V2",19209,6921,"v2",1,1],
-  ["VT2 MAX",17955,5155,"ultra",1,0],
-  ["VT2 V2",18024,5224,"ultra",0,0],
-  ["VT2",17954,5154,"standard",0,0],
-  ["VT2 Air MAX V2",19218,6930,"v2",1,1],
-  ["VT2K MAX",18084,5284,"ultra",1,0],
-  ["VT2S MAX MASTER V2",18038,5238,"v2",1,1],
-  ["VT2S MAX V2",19204,6916,"v2",1,1],
-  ["VT2S V2",18013,5213,"ultra",0,0],
-  ["VT2S Air MAX V2",19219,6931,"v2",1,1],
-  ["VT3 MAX MASTER V2",18029,5229,"v2",1,1],
-  ["VT3 MAX V2",19206,6918,"v2",1,1],
-  ["VT3 MAX",17943,5143,"ultra",1,0],
-  ["VT3 PRO V2",18085,5285,"v2",1,1],
-  ["VT3 V2",18018,5218,"ultra",0,0],
-  ["VT3",17938,5138,"standard",0,0],
-  ["VT3 Air MAX V2",19212,6924,"v2",1,1],
-  ["VT3S MAX MASTER V2",18030,5230,"v2",1,1],
-  ["VT3S MAX MASTER",17995,5195,"v2",1,1],
-  ["VT3S MAX V2",19207,6919,"v2",1,1],
-  ["VT3S MAX",17953,5153,"ultra",1,0],
-  ["VT3S PRO V2",18086,5286,"v2",1,1],
-  ["VT3S V2",18020,5220,"ultra",0,0],
-  ["VT3S",17937,5137,"standard",0,0],
-  ["VT3S Air MAX V2",19213,6925,"v2",1,1],
-  ["VT3S Air Max",18082,5282,"v2",1,0],
-  ["VT4 MAX MASTER V2",18039,5239,"v2",1,1],
-  ["VT4 MAX V2",19203,6915,"v2",1,1],
-  ["VT4 V2",18011,5211,"ultra",0,0],
-  ["VT4 Air MAX V2",19220,6932,"v2",1,1],
-  ["VT6 MAX",18002,5202,"ultra",1,0],
-  ["VT6",18001,5201,"standard",0,0],
-  ["VT7 MAX MASTER V2",18032,5232,"v2",1,1],
-  ["VT7 MAX V2",19205,6917,"v2",1,1],
-  ["VT7 MAX",17942,5142,"ultra",1,0],
-  ["VT7 PRO V2",18087,5287,"v2",1,1],
-  ["VT7 V2",18016,5216,"ultra",0,0],
-  ["VT7",17939,5139,"standard",0,0],
-  ["VT7 Air MAX V2",19214,6926,"v2",1,1],
-  ["VT7S MAX MASTER V2",18033,5233,"v2",1,1],
-  ["VT7S MAX V2",19202,6914,"v2",1,1],
-  ["VT7S PRO V2",18088,5288,"v2",1,1],
-  ["VT7S V2",18009,5209,"ultra",0,0],
-  ["VT7S Air MAX V2",19215,6927,"v2",1,1],
-  ["VT8 MAX MASTER V2",18040,5240,"v2",1,1],
-  ["VT8 MAX V2",19211,6923,"v2",1,1],
-  ["VT8 V2",18028,5228,"ultra",0,0],
-  ["VT8 Air MAX V2",19221,6933,"v2",1,1],
-  ["VT9 MAX MASTER V2",18035,5235,"v2",1,1],
-  ["VT9 MAX V2",19208,6920,"v2",1,1],
-  ["VT9 MAX",17944,5144,"ultra",1,0],
-  ["VT9 PRO V2",18089,5289,"v2",1,1],
-  ["VT9 V2",18022,5222,"ultra",0,0],
-  ["VT9",17940,5140,"standard",0,0],
-  ["VT9 Air MAX V2",19216,6928,"v2",1,1],
-  ["VT9S MAX MASTER V2",18036,5236,"v2",1,1],
-  ["VT9S MAX V2",19201,6913,"v2",1,1],
-  ["VT9S PRO V2",18090,5290,"v2",1,1],
-  ["VT9S V2",18003,5203,"ultra",0,0],
-  ["VT9S Air MAX V2",19217,6929,"v2",1,1],
+  ["VT0 MAX MASTER",17994,5194,"ultra",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT0 MAX",17952,5152,"ultra",1,0,[0,1,2,5,6,9,10,13]],
+  ["VT0",17936,5136,"standard",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT0 Air MAX",18081,5281,"ultra",1,0,[0,1,2,5,6,9,10,13]],
+  ["VT1 MAX",17988,5188,"ultra",1,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT1",17941,5141,"standard",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT1S MAX V2",19210,6922,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT1S V2",18026,5226,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT2 MAX MASTER V2",18037,5237,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT2 MAX V2",19209,6921,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT2 MAX",17955,5155,"ultra",1,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT2 V2",18024,5224,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT2",17954,5154,"standard",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT2 Air MAX V2",19218,6930,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT2K MAX",18084,5284,"ultra",1,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT2S MAX MASTER V2",18038,5238,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT2S MAX V2",19204,6916,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT2S V2",18013,5213,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT2S Air MAX V2",19219,6931,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT3 MAX MASTER V2",18029,5229,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT3 MAX V2",19206,6918,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT3 MAX",17943,5143,"ultra",1,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT3 PRO V2",18085,5285,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT3 V2",18018,5218,"ultra",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT3",17938,5138,"standard",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT3 Air MAX V2",19212,6924,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT3S MAX MASTER V2",18030,5230,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT3S MAX MASTER",17995,5195,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT3S MAX V2",19207,6919,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT3S MAX",17953,5153,"ultra",1,0,[0,1,2,5,6,9,10,13]],
+  ["VT3S PRO V2",18086,5286,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT3S V2",18020,5220,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT3S",17937,5137,"standard",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT3S Air MAX V2",19213,6925,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT3S Air Max",18082,5282,"v2",1,0,[0,1,2,5,6,9,10,13]],
+  ["VT4 MAX MASTER V2",18039,5239,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT4 MAX V2",19203,6915,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT4 V2",18011,5211,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT4 Air MAX V2",19220,6932,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT6 MAX",18002,5202,"ultra",1,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT6",18001,5201,"standard",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7 MAX MASTER V2",18032,5232,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7 MAX V2",19205,6917,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7 MAX",17942,5142,"ultra",1,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7 PRO V2",18087,5287,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7 V2",18016,5216,"ultra",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7",17939,5139,"standard",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7 Air MAX V2",19214,6926,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT7S MAX MASTER V2",18033,5233,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT7S MAX V2",19202,6914,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT7S PRO V2",18088,5288,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT7S V2",18009,5209,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT7S Air MAX V2",19215,6927,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT8 MAX MASTER V2",18040,5240,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT8 MAX V2",19211,6923,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT8 V2",18028,5228,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT8 Air MAX V2",19221,6933,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT9 MAX MASTER V2",18035,5235,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT9 MAX V2",19208,6920,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT9 MAX",17944,5144,"ultra",1,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT9 PRO V2",18089,5289,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT9 V2",18022,5222,"ultra",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT9",17940,5140,"standard",0,0,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT9 Air MAX V2",19216,6928,"v2",1,1,[0,1,2,3,4,5,6,9,10,13]],
+  ["VT9S MAX MASTER V2",18036,5236,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT9S MAX V2",19201,6913,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT9S PRO V2",18090,5290,"v2",1,1,[0,1,2,5,6,9,10,13]],
+  ["VT9S V2",18003,5203,"ultra",0,0,[0,1,2,5,6,9,10,13]],
+  ["VT9S Air MAX V2",19217,6929,"v2",1,1,[0,1,2,5,6,9,10,13]],
 ];
 const DPI_FAMILIES = {
   standard: { min: 50, max: 26000, steps: [[50, 26000, 50]], lod: Array.from({length:11}, (_,i) => (10+i)/10) },
   ultra: { min: 10, max: 45000, steps: [[10,10050,10],[10050,45000,50]], lod: Array.from({length:11}, (_,i) => (7+i)/10) },
   v2: { min: 1, max: 60000, steps: [[1,60000,1]], lod: Array.from({length:11}, (_,i) => (7+i)/10) },
 };
-const MODELS = MODEL_ROWS.map(([name,wired,wireless,family,keyScan,rfProtocol]) => ({name,wired,wireless,keyScan,rfProtocol,...DPI_FAMILIES[family]}));
+const MODELS = MODEL_ROWS.map(([name,wired,wireless,family,keyScan,rfProtocol,keys]) => ({name,wired,wireless,keyScan,rfProtocol,keys,...DPI_FAMILIES[family]}));
 const FILTERS = MODELS.flatMap(m => [m.wired,m.wireless].map(productId => ({vendorId:VID,productId,usagePage:0xff00,usage:2})));
 const modelFor = d => d.vendorId === VID ? MODELS.find(m => m.wired === d.productId || m.wireless === d.productId) : undefined;
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
@@ -771,6 +830,251 @@ function describeDevice(device){
     collections:collections(device).map(c=>({usagePage:hex(c.usagePage),usage:hex(c.usage),
       output:(c.outputReports||[]).map(r=>r.reportId),feature:(c.featureReports||[]).map(r=>r.reportId),input:(c.inputReports||[]).map(r=>r.reportId)}))};
 }
+// Buttons helpers start. Qx/VTNrf54LKeys in the public AHUB bundle.
+const RAPOO_BUTTON_OFFSETS = [0,4,8,12,16,20,24,28,32,36,40,44,48,52,56];
+const RAPOO_BUTTON_LABELS = ['Left click','Middle click','Right click','DPI +','DPI −','Forward','Back','Wheel left','Wheel right','Wheel up','Wheel down','Wheel up (secondary)','Wheel down (secondary)','Bottom / DIY','Bluetooth'];
+const RAPOO_BUTTON_DEFAULTS = [[3,0,1,0],[3,0,4,0],[3,0,2,0],[8,0,5,0],[8,0,6,0],[3,0,16,0],[3,0,8,0],[3,0,16,0],[3,0,8,0],[255,255,255,255],[255,255,255,255],[255,255,255,255],[255,255,255,255],[10,0,0,0],[3,0,32,0]];
+const RAPOO_MOUSE_ACTIONS = [['left','Left click',1],['right','Right click',2],['middle','Middle click',4],['back','Back',8],['forward','Forward',16]];
+const RAPOO_MODIFIER_LABELS = ['Left Ctrl','Left Shift','Left Alt','Left Meta','Right Ctrl','Right Shift','Right Alt','Right Meta'];
+const RAPOO_KEY_CHOICES = [
+  ...Array.from({length:26},(_,i)=>[4+i,String.fromCharCode(65+i)]),
+  ...Array.from({length:9},(_,i)=>[30+i,String(i+1)]),[39,'0'],[40,'Enter'],[41,'Escape'],[42,'Backspace'],[43,'Tab'],[44,'Space'],
+  [45,'Minus'],[46,'Equal'],[47,'Left bracket'],[48,'Right bracket'],[49,'Backslash'],[51,'Semicolon'],[52,'Quote'],[53,'Backquote'],[54,'Comma'],[55,'Period'],[56,'Slash'],[57,'Caps Lock'],
+  ...Array.from({length:12},(_,i)=>[58+i,'F'+(i+1)]),[70,'Print Screen'],[71,'Scroll Lock'],[72,'Pause'],[73,'Insert'],[74,'Home'],[75,'Page Up'],[76,'Delete'],[77,'End'],[78,'Page Down'],[79,'Right arrow'],[80,'Left arrow'],[81,'Down arrow'],[82,'Up arrow'],
+  ...Array.from({length:12},(_,i)=>[104+i,'F'+(i+13)]),
+];
+const RAPOO_KEY_CODES = Object.fromEntries([
+  ...Array.from({length:26},(_,i)=>['Key'+String.fromCharCode(65+i),i+4]),...Array.from({length:9},(_,i)=>['Digit'+(i+1),i+30]),['Digit0',39],
+  ...Array.from({length:12},(_,i)=>['F'+(i+1),58+i]),...Array.from({length:12},(_,i)=>['F'+(i+13),104+i]),
+  ...Object.entries({Enter:40,Escape:41,Backspace:42,Tab:43,Space:44,Minus:45,Equal:46,BracketLeft:47,BracketRight:48,Backslash:49,Semicolon:51,Quote:52,Backquote:53,Comma:54,Period:55,Slash:56,CapsLock:57,PrintScreen:70,ScrollLock:71,Pause:72,Insert:73,Home:74,PageUp:75,Delete:76,End:77,PageDown:78,ArrowRight:79,ArrowLeft:80,ArrowDown:81,ArrowUp:82}),
+]);
+function rapooButtonRaw(raw){
+  if(!raw||raw.length!==4||!Array.from(raw).every(v=>Number.isInteger(v)&&v>=0&&v<=255))throw new Error('Invalid button record');
+  return Array.from(raw);
+}
+function rapooDecodeButton(raw,index){
+  const b=rapooButtonRaw(raw);
+  if(b[0]===3&&b[1]===0&&b[3]===0){const mouse=RAPOO_MOUSE_ACTIONS.find(a=>a[2]===b[2]);if(mouse)return {kind:'mouse',button:mouse[0]};}
+  if(b[0]===0&&b[1]===0&&b[3]===0&&b[2]>=4&&b[2]<=223)return {kind:'keyboard',code:b[2],code2:0,modifiers:0};
+  if(b[0]===2&&b[1]>=4&&b[1]<=223&&(b[3]===0||(b[3]>=4&&b[3]<=223)))return {kind:'keyboard',code:b[1],code2:b[3],modifiers:b[2]};
+  if(b[0]===5&&b[1]===0&&b[3]===0&&b[2]<12)return {kind:'macro',slot:b[2]};
+  if(b[0]===7&&b[1]===0&&b[2]===0&&b[3]===0)return {kind:'disabled'};
+  if(b[0]===8&&b[1]===0&&b[3]===0&&(b[2]===5||b[2]===6))return {kind:'dpi',direction:b[2]===5?'up':'down'};
+  if(b[0]===11&&b[1]===255&&b[3]===255&&(b[2]===0||b[2]===1))return {kind:'wheel',direction:(b[2]^(index===10||index===12?1:0))?'down':'up'};
+  return {kind:'preserve'};
+}
+function rapooEncodeButton(action,index){
+  integer(index,0,14,'button index');if(!action||typeof action!=='object')throw new Error('Choose a button action');
+  switch(action.kind){
+    case 'default':return RAPOO_BUTTON_DEFAULTS[index].slice();
+    case 'mouse':{const value=RAPOO_MOUSE_ACTIONS.find(a=>a[0]===action.button);if(!value)throw new Error('Unsupported mouse action');return[3,0,value[2],0];}
+    case 'disabled':return[7,0,0,0];
+    case 'keyboard':{
+      const code=integer(action.code,4,223,'keyboard usage'),code2=action.code2??0,modifiers=integer(action.modifiers??0,0,255,'modifier mask');
+      if(code2!==0)integer(code2,4,223,'second keyboard usage');
+      return modifiers||code2?[2,code,modifiers,code2]:[0,0,code,0];
+    }
+    case 'macro':return[5,0,integer(action.slot,0,11,'macro slot'),0];
+    case 'dpi':if(!['up','down'].includes(action.direction))throw new Error('Unsupported DPI action');return[8,0,action.direction==='up'?5:6,0];
+    case 'wheel':{
+      if(![9,10,11,12].includes(index))throw new Error('Scroll actions can only be assigned to scroll controls');
+      if(!['up','down'].includes(action.direction))throw new Error('Unsupported scroll action');
+      return[11,255,(action.direction==='down'?1:0)^(index===10||index===12?1:0),255];
+    }
+    default:throw new Error('Unsupported button action. Existing raw mapping is preserved.');
+  }
+}
+function rapooUsableLeftClick(raw,index,physicalKeys){
+  if(!physicalKeys.includes(index)||[9,10,11,12].includes(index))return false;
+  const b=rapooButtonRaw(raw);return b[0]===3&&b[1]===0&&b[3]===0&&(b[2]&1)!==0;
+}
+function rapooButtonLabel(row,macros=[]){
+  const a=row.action||rapooDecodeButton(row.raw,row.index);
+  if(a.kind==='mouse')return RAPOO_MOUSE_ACTIONS.find(v=>v[0]===a.button)?.[1]||'Mouse button';
+  if(a.kind==='keyboard'){const key=code=>RAPOO_KEY_CHOICES.find(v=>v[0]===code)?.[1]||'HID '+code;return[...RAPOO_MODIFIER_LABELS.filter((_,i)=>a.modifiers&(1<<i)),key(a.code),...(a.code2?[key(a.code2)]:[])].join(' + ');}
+  if(a.kind==='macro')return 'Macro '+(a.slot+1)+(macros.find(m=>m.slot===a.slot)?.name?' · '+macros.find(m=>m.slot===a.slot).name:'');
+  if(a.kind==='disabled')return 'Disabled';if(a.kind==='dpi')return a.direction==='up'?'DPI +':'DPI −';if(a.kind==='wheel')return 'Scroll '+a.direction;
+  return 'Device-defined · '+row.raw.map(b=>b.toString(16).padStart(2,'0')).join(' ');
+}
+// Buttons helpers end.
+
+// Macro codec start. Rapoo VT_nrf54L: ar/qx, tm/sm and browser recorder na/_s.
+const RAPOO_MACROS = Object.freeze({slots:12, bytes:4096, chunk:24, nameBase:0xfd00, payloadBase:0x10000, stride:0x1000});
+const MACRO_BROWSER_KEYS = {
+  Enter:40,Escape:41,Backspace:42,Tab:43,Space:44,Minus:45,Equal:46,BracketLeft:47,BracketRight:48,Backslash:49,
+  Semicolon:51,Quote:52,Backquote:53,Comma:54,Period:55,Slash:56,CapsLock:57,PrintScreen:70,ScrollLock:71,Pause:72,
+  Insert:73,Home:74,PageUp:75,Delete:76,End:77,PageDown:78,ArrowRight:79,ArrowLeft:80,ArrowDown:81,ArrowUp:82,
+  NumLock:83,NumpadDivide:84,NumpadMultiply:85,NumpadSubtract:86,NumpadAdd:87,NumpadEnter:88,Numpad0:98,
+  NumpadDecimal:99,IntlBackslash:100,ContextMenu:101,NumpadEqual:103,IntlRo:135,KanaMode:136,IntlYen:137,
+  Convert:138,NonConvert:139,Lang1:144,Lang2:145,Lang3:146,Lang4:147,Lang5:148,
+  ControlLeft:224,ShiftLeft:225,AltLeft:226,MetaLeft:227,ControlRight:228,ShiftRight:229,AltRight:230,MetaRight:231,
+};
+for(let i=0;i<26;i++)MACRO_BROWSER_KEYS['Key'+String.fromCharCode(65+i)]=4+i;
+for(let i=1;i<=9;i++){MACRO_BROWSER_KEYS['Digit'+i]=29+i;MACRO_BROWSER_KEYS['Numpad'+i]=88+i;}
+MACRO_BROWSER_KEYS.Digit0=39;
+for(let i=1;i<=24;i++)MACRO_BROWSER_KEYS['F'+i]=i<=12?57+i:104+i-13;
+const MACRO_KEY_LABELS = new Map(Object.entries(MACRO_BROWSER_KEYS).map(([label,code])=>[code,label]));
+for(const [code,label] of [[240,'Mouse left'],[241,'Mouse right'],[242,'Mouse middle'],[243,'Mouse back'],[244,'Mouse forward']])MACRO_KEY_LABELS.set(code,label);
+const macroSlot = slot => integer(slot,0,RAPOO_MACROS.slots-1,'macro slot');
+const macroPayloadAddress = slot => RAPOO_MACROS.payloadBase+macroSlot(slot)*RAPOO_MACROS.stride;
+const macroNameAddress = slot => RAPOO_MACROS.nameBase+macroSlot(slot)*16;
+const macroEventBytes = event => event.key===247?6:event.key===248?10:3;
+function macroNameBytes(name){
+  if(typeof name!=='string'||!name.trim()||name!==name.trim()||/[\u0000-\u001f\u007f]/.test(name))throw new Error('Give the macro a name without control characters or surrounding spaces');
+  const bytes=new TextEncoder().encode(name);if(bytes.length>16)throw new Error('A macro name can use at most 16 UTF-8 bytes');
+  const result=new Uint8Array(16);result.set(bytes);return result;
+}
+function macroDecodeName(bytes){
+  if(bytes.length!==16)throw new Error('Truncated macro name');
+  if(bytes[0]===0||bytes[0]===10||bytes.every(v=>v===255))return '';
+  const end=bytes.indexOf(0);return new TextDecoder().decode(bytes.slice(0,end<0?16:end));
+}
+function macroNormalize(input,{allowEmpty=false,allowUnbalanced=false}={}){
+  if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('Invalid macro');
+  macroNameBytes(input.name);
+  const loop=integer(input.loop,1,65535,'macro repeat count');
+  if(typeof input.ignoreDelay!=='boolean'||!Array.isArray(input.package)||input.package.length>1364)throw new Error('Invalid macro events');
+  if(!allowEmpty&&!input.package.length)throw new Error('Add or record at least one complete key or mouse action');
+  const held=new Set(),events=[];
+  for(const event of input.package){
+    if(!event||typeof event!=='object'||Array.isArray(event))throw new Error('Invalid macro event');
+    const type=integer(event.type,0,1,'macro action'),key=integer(event.key,0,255,'macro key'),time=integer(event.time,0,32767,'macro delay');
+    const normalized={type,key,time};
+    if(key===247){normalized.x=integer(event.x,-2048,2047,'macro X movement');normalized.y=integer(event.y,-2048,2047,'macro Y movement');}
+    else if(key===248){
+      const mask=event.mouseKey??[0,0,0,0,0];
+      if(!Array.isArray(mask)||mask.length!==5||mask.some(v=>v!==0&&v!==1))throw new Error('Invalid macro mouse-button state');
+      normalized.mouseKey=mask.slice();normalized.x=integer(event.x??0,-32768,32767,'macro X movement');normalized.y=integer(event.y??0,-32768,32767,'macro Y movement');
+      normalized.vWheel=integer(event.vWheel??0,-128,127,'macro vertical wheel');normalized.hWheel=integer(event.hWheel??0,-128,127,'macro horizontal wheel');
+      for(let i=0;i<5;i++)mask[i]?held.add(240+i):held.delete(240+i);
+    }else{
+      if(!MACRO_KEY_LABELS.has(key))throw new Error('This macro contains an unsupported key code; its stored bytes have been left unchanged');
+      if(type===1){if(held.has(key)&&!allowUnbalanced)throw new Error('A macro presses the same key twice without releasing it');held.add(key);}
+      else{if(!held.has(key)&&!allowUnbalanced)throw new Error('A macro releases a key it has not pressed');held.delete(key);}
+    }
+    events.push(normalized);
+  }
+  if(!allowUnbalanced&&held.size)throw new Error('The macro must release every key and mouse button it presses');
+  if(4+events.reduce((sum,event)=>sum+macroEventBytes(event),0)>RAPOO_MACROS.bytes)throw new Error('Macro exceeds its 4096-byte slot');
+  return {name:input.name,loop,ignoreDelay:input.ignoreDelay,package:events};
+}
+function encodeRapooMacro(input,options){
+  const macro=macroNormalize(input,options),length=4+macro.package.reduce((sum,event)=>sum+macroEventBytes(event),0),bytes=new Uint8Array(length);
+  bytes[0]=length&255;bytes[1]=length>>>8;bytes[2]=macro.loop&255;bytes[3]=macro.loop>>>8;let offset=4;
+  for(const event of macro.package){
+    const time=macro.ignoreDelay?2:macro.loop===65534&&event.time===0?20:event.time,word=(time<<1)|event.type;
+    bytes[offset]=word&255;bytes[offset+1]=word>>>8;bytes[offset+2]=event.key;
+    if(event.key===247){const x=event.x&4095,y=event.y&4095;bytes[offset+3]=((x>>>8)<<4)|(y>>>8);bytes[offset+4]=x&255;bytes[offset+5]=y&255;}
+    else if(event.key===248){bytes[offset+3]=event.mouseKey.reduce((mask,on,i)=>mask|(on<<i),0);bytes[offset+4]=event.x&255;bytes[offset+5]=(event.x>>>8)&255;bytes[offset+6]=event.y&255;bytes[offset+7]=(event.y>>>8)&255;bytes[offset+8]=event.vWheel&255;bytes[offset+9]=event.hWheel&255;}
+    offset+=macroEventBytes(event);
+  }
+  return bytes;
+}
+function decodeRapooMacro(bytes,name){
+  if(!(bytes instanceof Uint8Array)||bytes.length<4)throw new Error('Truncated macro header');
+  const length=bytes[0]|bytes[1]<<8;if(length<4||length>RAPOO_MACROS.bytes||length!==bytes.length)throw new Error('Invalid stored macro length');
+  const loop=bytes[2]|bytes[3]<<8,events=[];let offset=4,unknownFlags=false;
+  const signed=(value,bits)=>value>=(1<<(bits-1))?value-(1<<bits):value;
+  while(offset<length){
+    if(offset+3>length)throw new Error('Truncated macro event');const word=bytes[offset]|bytes[offset+1]<<8,key=bytes[offset+2];
+    const event={type:word&1,key,time:word>>>1},size=macroEventBytes(event);if(offset+size>length)throw new Error('Truncated extended macro event');
+    if(key===247){event.x=signed((bytes[offset+3]>>>4)<<8|bytes[offset+4],12);event.y=signed((bytes[offset+3]&15)<<8|bytes[offset+5],12);}
+    else if(key===248){if(bytes[offset+3]&224)unknownFlags=true;event.mouseKey=Array.from({length:5},(_,i)=>(bytes[offset+3]>>>i)&1);event.x=signed(bytes[offset+4]|bytes[offset+5]<<8,16);event.y=signed(bytes[offset+6]|bytes[offset+7]<<8,16);event.vWheel=signed(bytes[offset+8],8);event.hWheel=signed(bytes[offset+9],8);}
+    events.push(event);offset+=size;
+  }
+  const macro={name,loop,ignoreDelay:events.length>0&&events.every(event=>event.time===2),package:events};
+  try{if(unknownFlags)throw new Error('This macro contains unknown mouse-state flags');macroNormalize(macro,{allowEmpty:true});return{...macro,supported:true};}
+  catch(error){return{...macro,supported:false,unsupportedReason:error.message,rawPayload:Array.from(bytes)};}
+}
+function parseRapooMacroFile(text){
+  if(typeof text!=='string'||text.length>262144)throw new Error('Macro file is too large');let value;
+  try{value=JSON.parse(text);}catch{throw new Error('Invalid macro JSON');}
+  if(value?.app==='openatk'&&value.kind==='rapoo-macro'&&value.v===1)return macroNormalize(value.macro);
+  if(value?.Platform!=='AHub'||!value.Macro||!Array.isArray(value.Macro.InfoList)||value.Macro.InfoList.length>2728)throw new Error('Choose an OpenATK Rapoo macro or Rapoo AHUB macro JSON file');
+  const source=value.Macro,events=[];let previousDelay=false;
+  for(const item of source.InfoList){
+    if(!item||typeof item!=='object')throw new Error('Invalid AHUB macro event');
+    if(item.Type===2){if(!events.length||previousDelay)throw new Error('A macro delay must follow one action');events[events.length-1].time=integer(item.Delay,0,32767,'macro delay');previousDelay=true;continue;}
+    previousDelay=false;let event;
+    if(item.Type===0||item.Type===1)event={type:item.Action,key:item.KeyCode,time:0};
+    else if(item.Type===3)event={type:0,key:247,time:0,x:item.X,y:item.Y};
+    else if(item.Type===4||item.Type===5)event={type:0,key:248,time:0,x:0,y:0,mouseKey:[0,0,0,0,0],vWheel:item.Type===5?item.KeyCode:0,hWheel:item.Type===4?item.KeyCode:0};
+    else throw new Error('Unsupported AHUB macro event');events.push(event);
+  }
+  const loop=source.PlayType===2?65534:source.PlayType===3?65535:source.PlayType===1?source.CycleNumber:0;
+  return macroNormalize({name:source.Name,loop,ignoreDelay:source.IgnoreDelay,package:events});
+}
+function macroEventLabel(event){
+  if(event.key===247)return 'Move '+event.x+', '+event.y;
+  if(event.key===248)return 'Mouse state / wheel '+(event.vWheel||event.hWheel||0);
+  return (event.type?'Press ':'Release ')+(MACRO_KEY_LABELS.get(event.key)||'Unknown key '+event.key);
+}
+// Macro codec end.
+
+
+
+// Profile management helpers. Names and reset defaults match Rapoo AHUB Yx/Gx.
+const RAPOO_PROFILE_SLOTS = 8, RAPOO_PROFILE_NAME_OFFSET = 1004, RAPOO_PROFILE_NAME_BYTES = 16;
+function profileUserSlots(model){
+  // All 69 supported retail manifests use the unrestricted eight-slot config.
+  // Future models may supply explicit userProfileSlots; never edit another slot.
+  const slots=model.userProfileSlots??[0,1,2,3,4,5,6,7];
+  if(!Array.isArray(slots)||!slots.length||slots.some(v=>!Number.isInteger(v)||v<0||v>=8)||new Set(slots).size!==slots.length)throw new Error('Invalid model profile slots');
+  return slots;
+}
+function profileNameBytes(value){
+  if(typeof value!=='string')throw new Error('Profile name must be text');
+  const name=value.trim();
+  if(!name||/[\u0000-\u001f\u007f]/.test(name))throw new Error('Enter a non-empty profile name without control characters');
+  const bytes=new TextEncoder().encode(name);
+  if(bytes.length>RAPOO_PROFILE_NAME_BYTES)throw new Error('Profile names are limited to 16 UTF-8 bytes');
+  const padded=new Uint8Array(RAPOO_PROFILE_NAME_BYTES);padded.set(bytes);return padded;
+}
+function profileDecodeName(bytes){
+  if(bytes[0]===0||bytes[0]===255)return '';
+  const end=bytes.indexOf(0);return new TextDecoder('utf-8').decode(bytes.slice(0,end<0?16:end));
+}
+function profilePlainObject(value,label){
+  if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('Invalid '+label);
+  return value;
+}
+function profileExactKeys(value,keys,label){
+  for(const key of Object.keys(value))if(!keys.includes(key))throw new Error('Unsupported '+label+' field: '+key);
+}
+function profileBoolean(value,label){if(typeof value!=='boolean')throw new Error('Invalid '+label);return value;}
+function validateProfileSettingsBackup(input,model){
+  profilePlainObject(input,'profile backup');
+  profileExactKeys(input,['app','kind','version','model','name','createdAt','settings'],'backup');
+  if(input.app!=='openatk'||input.kind!=='rapoo-profile-settings'||input.version!==1)throw new Error('This is not an OpenATK Rapoo settings backup');
+  if(input.model!==model.name)throw new Error('This backup is for a different mouse model');
+  if(input.name!==undefined&&(typeof input.name!=='string'||input.name.length>64))throw new Error('Invalid backup name');
+  if(input.createdAt!==undefined&&(typeof input.createdAt!=='string'||input.createdAt.length>40))throw new Error('Invalid backup date');
+  const s=profilePlainObject(input.settings,'settings');
+  profileExactKeys(s,['dpi','rate','lod','motion','press','release','sleep','angleSnap','ripple','angle','glass','lowLight','rfBoost','scan','modes'],'settings');
+  const dpi=profilePlainObject(s.dpi,'DPI settings');profileExactKeys(dpi,['count','active','stages'],'DPI');
+  integer(dpi.count,1,7,'DPI count');integer(dpi.active,0,dpi.count-1,'active DPI stage');
+  if(!Array.isArray(dpi.stages)||dpi.stages.length!==dpi.count)throw new Error('Invalid DPI stage table');
+  const stages=dpi.stages.map(stage=>{profilePlainObject(stage,'DPI stage');profileExactKeys(stage,['x','y'],'DPI stage');if(!validDpi(model,stage.x)||!validDpi(model,stage.y))throw new Error('Backup DPI does not fit this model');return{x:stage.x,y:stage.y};});
+  if(!RATES.some(rate=>rate[1]===s.rate))throw new Error('Unsupported backup polling rate');
+  if(typeof s.lod!=='number'||!model.lod.some(mm=>Math.abs(mm-s.lod)<0.00001))throw new Error('Unsupported backup lift-off distance');
+  for(const key of ['press','release'])if(!DEBOUNCE.includes(s[key]))throw new Error('Unsupported backup '+key+' debounce');
+  if(s.sleep!==255)integer(s.sleep,2,120,'backup sleep timeout');
+  integer(s.angle,-30,30,'backup sensor angle');
+  for(const key of ['motion','angleSnap','ripple','glass','lowLight','rfBoost'])profileBoolean(s[key],'backup '+key);
+  if(s.scan!==undefined){if(!model.keyScan)throw new Error('This model does not expose key scan rate');integer(s.scan,3,6,'backup key scan rate');}
+  if(!Array.isArray(s.modes)||s.modes.length!==7||s.modes.some((mode,i)=>!RATE_MODES[RATES[i][1]].includes(mode)))throw new Error('Unsupported backup sensor modes');
+  return {app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:input.name||'',createdAt:input.createdAt||'',settings:{dpi:{count:dpi.count,active:dpi.active,stages},rate:s.rate,lod:s.lod,motion:s.motion,press:s.press,release:s.release,sleep:s.sleep,angleSnap:s.angleSnap,ripple:s.ripple,angle:s.angle,glass:s.glass,lowLight:s.lowLight,rfBoost:s.rfBoost,...(s.scan===undefined?{}:{scan:s.scan}),modes:[...s.modes]}};
+}
+function makeProfileSettingsBackup(model,state){
+  if(!state)throw new Error('Read the mouse settings first');
+  const backup={app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:state.profiles.find(p=>p.slot===state.profile)?.name||'',createdAt:new Date().toISOString(),settings:{dpi:{count:state.count,active:state.active,stages:state.stages.slice(0,state.count).map(stage=>({x:stage.x,y:stage.y}))},rate:state.rate,lod:model.lod[state.lod-1],motion:state.motion!==0,press:state.press,release:state.release,sleep:state.sleep,angleSnap:(state.correction&1)===0,ripple:(state.correction&2)===0,angle:state.angle,glass:state.glass!==0,lowLight:state.lowLight!==0,rfBoost:state.rfBoost!==0,...(model.keyScan?{scan:state.scan}:{}),modes:[...state.modes]}};
+  return validateProfileSettingsBackup(backup,model);
+}
+function profileSettingsPreview(backup,model){
+  const s=validateProfileSettingsBackup(backup,model).settings,hz=RATES.find(r=>r[1]===s.rate)[0];
+  return ['DPI: '+s.dpi.stages.map((v,i)=>(i+1)+': '+v.x+(v.x!==v.y?'/'+v.y:'')).join(', '),'Active DPI stage: '+(s.dpi.active+1),'Polling: '+hz+' Hz','Lift-off: '+s.lod+' mm','Motion sync: '+(s.motion?'on':'off'),'Debounce: press '+s.press+' ms, release '+s.release+' ms','Sleep: '+(s.sleep===255?'never':s.sleep+' minutes'),'Angle snap: '+(s.angleSnap?'on':'off')+', ripple: '+(s.ripple?'on':'off'),'Sensor rotation: '+s.angle+' degrees','Glass tracking: '+(s.glass?'on':'off')+', low battery light: '+(s.lowLight?'on':'off'),'RF strategy: '+(s.rfBoost?'maximum':'adaptive'),...(s.scan===undefined?[]:['Key scan rate: '+s.scan]),'Sensor modes: '+s.modes.map(v=>MODE_NAMES[v]).join(', ')];
+}
+
 class Rapoo {
   constructor(device,{delay,timeout=3000,log=()=>{}}={}){
     this.device=device;this.model=modelFor(device);
@@ -827,7 +1131,7 @@ class Rapoo {
     if(!profiles.some(v=>v.slot===p))profiles.push({slot:p,name:`Profile ${p+1}`});
     this.s={profile:p,profiles,count,active,stages:Array.from({length:7},(_,i)=>({x:x[i*2]|x[i*2+1]<<8,y:y[i*2]|y[i*2+1]<<8})),
       rate:perf[0],scan:perf[1],lod:perf[4],motion:perf[5],press:misc[0],release:misc[1],sleep:misc[2],
-      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight,rfBoost,rfPacket};
+      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight,rfBoost,rfPacket,macros:this.macros||null};
     this.ready=true;return this.s;
   });}
   change(fn){return this.lock(async()=>{
@@ -889,6 +1193,171 @@ class Rapoo {
     if(!s.profiles.some(p=>p.slot===slot))throw new Error('Choose an existing profile');
     await this.writeVerified(0x10c,[slot,slot]);this.ready=false;
   });}
+  // Buttons methods start.
+  async _readButtonMap(profile){
+    integer(profile,0,7,'profile');const rows=[];
+    for(let index=0;index<RAPOO_BUTTON_OFFSETS.length;index++){
+      const raw=Array.from(await this.read(profileAddress(profile,RAPOO_BUTTON_OFFSETS[index]),4));
+      rows.push({index,raw,action:rapooDecodeButton(raw,index)});
+    }
+    return rows;
+  }
+  loadButtons(){return this.lock(async()=>{
+    if(!this.ready||!this.s)throw new Error('Read the mouse settings first');
+    const profile=(await this.read(0x10c,1))[0];
+    if(profile!==this.s.profile){this.ready=false;throw new Error('The active profile changed. Refresh before editing buttons.');}
+    const rows=await this._readButtonMap(profile);
+    this.s.buttons={profile,rows,loaded:true};return this.s.buttons;
+  });}
+  setButton(index,action){return this.change(async(s,profile)=>{
+    integer(index,0,14,'button index');
+    const physicalKeys=Array.isArray(this.model.keys)?this.model.keys:[];
+    if(!physicalKeys.includes(index))throw new Error('This control is not present on the connected model');
+    const encoded=rapooEncodeButton(action,index),rows=await this._readButtonMap(profile);
+    const next=rows.map(row=>row.index===index?{index,raw:encoded,action:rapooDecodeButton(encoded,index)}:row);
+    if(!next.some(row=>rapooUsableLeftClick(row.raw,row.index,physicalKeys)))throw new Error('Keep at least one physical button assigned to Left click. Map another button first.');
+    if(action.kind==='macro'){
+      const name=await this.read(0xfd00+action.slot*16,16);
+      if([0,10,255].includes(name[0]))throw new Error('Save a named macro in that slot before assigning it');
+      const length=await this.read(0x10000+action.slot*4096,2),size=length[0]|length[1]<<8;
+      if(size<7||size>4096)throw new Error('The selected macro has no valid stored actions');
+    }
+    await this.writeVerified(profileAddress(profile,RAPOO_BUTTON_OFFSETS[index]),encoded);
+    s.buttons={profile,rows:next,loaded:true};return s.buttons;
+  });}
+  // Buttons methods end.
+
+  async _readMacroList(){
+    const rows=[];for(let slot=0;slot<RAPOO_MACROS.slots;slot++)rows.push({slot,name:macroDecodeName(await this.read(macroNameAddress(slot),16))});
+    this.macros=rows;if(this.s)this.s.macros=rows;return rows;
+  }
+  loadMacros(){return this.lock(()=>this._readMacroList());}
+  async _readMacro(slot){
+    macroSlot(slot);const name=macroDecodeName(await this.read(macroNameAddress(slot),16));
+    if(!name)return{slot,name:'',loop:1,ignoreDelay:false,package:[],supported:true};
+    const address=macroPayloadAddress(slot),header=await this.read(address,4),length=header[0]|header[1]<<8;
+    if(length<4||length>RAPOO_MACROS.bytes)throw new Error('Stored macro '+(slot+1)+' has an invalid payload length; it has not been changed');
+    const bytes=new Uint8Array(length);
+    for(let offset=0;offset<length;offset+=RAPOO_MACROS.chunk){const count=Math.min(RAPOO_MACROS.chunk,length-offset);bytes.set(await this.read(address+offset,count),offset);}
+    return{slot,...decodeRapooMacro(bytes,name)};
+  }
+  readMacro(slot){return this.lock(()=>this._readMacro(slot));}
+  async _assertMacroUnbound(slot){
+    for(let profile=0;profile<8;profile++)for(let key=0;key<15;key++){
+      const bytes=await this.read(profileAddress(profile,key*4),4);
+      if(bytes[0]===5&&bytes[2]===slot)throw new Error('Macro '+(slot+1)+' is assigned in profile '+(profile+1)+'. Unassign it from every button before replacing or deleting it.');
+    }
+  }
+  async _activateMacro(address){
+    // ar.activate: zero-length A5 write to address+1 followed by 200 ms.
+    // This is a commit command, not an EEPROM byte to fabricate or read-verify.
+    await this.exchange(writeFrame(this.target,address+1,[]));await sleep(200);
+  }
+  async _writeMacroPayload(slot,bytes){
+    const address=macroPayloadAddress(slot);
+    for(let offset=0;offset<bytes.length;offset+=RAPOO_MACROS.chunk)await this.writeVerified(address+offset,bytes.slice(offset,offset+RAPOO_MACROS.chunk));
+    await this._activateMacro(address);
+    for(let offset=0;offset<bytes.length;offset+=RAPOO_MACROS.chunk){const count=Math.min(RAPOO_MACROS.chunk,bytes.length-offset),got=await this.read(address+offset,count);if(!got.every((value,i)=>value===bytes[offset+i]))throw new Error('Macro payload did not match after activation');}
+  }
+  saveMacro(slot,input){
+    macroSlot(slot);const macro=macroNormalize(input),payload=encodeRapooMacro(macro),nameBytes=macroNameBytes(macro.name);
+    return this.change(async()=>{
+      await this._assertMacroUnbound(slot);
+      const existingName=macroDecodeName(await this.read(macroNameAddress(slot),16));
+      if(existingName){const existing=await this._readMacro(slot);if(!existing.supported)throw new Error('This stored macro uses an unsupported format. Export it or delete it explicitly before replacing it.');}
+      await this._writeMacroPayload(slot,payload);
+      await this.writeVerified(macroNameAddress(slot),nameBytes);await this._activateMacro(macroNameAddress(slot));
+      const verified=await this.read(macroNameAddress(slot),16);if(!verified.every((value,i)=>value===nameBytes[i]))throw new Error('Macro name did not match after activation');
+      await this._readMacroList();return{slot,...decodeRapooMacro(payload,macro.name)};
+    });
+  }
+  deleteMacro(slot){
+    macroSlot(slot);return this.change(async()=>{
+      await this._assertMacroUnbound(slot);await this._writeMacroPayload(slot,Uint8Array.of(4,0,1,0));
+      const name=new Uint8Array(16);await this.writeVerified(macroNameAddress(slot),name);await this._activateMacro(macroNameAddress(slot));
+      const verified=await this.read(macroNameAddress(slot),16);if(!verified.every(value=>value===0))throw new Error('Macro deletion did not verify');
+      await this._readMacroList();
+    });
+  }
+
+  // Profile management start. All mutations are bounded to evidenced user slots.
+  async _readProfileDirectory(){
+    const profiles=[];
+    for(let slot=0;slot<RAPOO_PROFILE_SLOTS;slot++){
+      const bytes=await this.read(profileAddress(slot,RAPOO_PROFILE_NAME_OFFSET),RAPOO_PROFILE_NAME_BYTES);
+      profiles.push({slot,name:profileDecodeName(bytes),bytes});
+    }
+    return profiles;
+  }
+  _setManagedProfileDirectory(directory){
+    this.s.profiles=directory.filter(p=>p.name).map(p=>({slot:p.slot,name:p.name}));
+    if(!this.s.profiles.some(p=>p.slot===this.s.profile))this.s.profiles.push({slot:this.s.profile,name:'Profile '+(this.s.profile+1)});
+  }
+  async _waitManagedProfileName(slot,expected,initialDelay=500){
+    await sleep(this.profileSettleDelay??initialDelay);
+    for(let attempt=0;attempt<6;attempt++){
+      const got=await this.read(profileAddress(slot,RAPOO_PROFILE_NAME_OFFSET),RAPOO_PROFILE_NAME_BYTES);
+      if(expected.every((value,i)=>got[i]===value))return;
+      if(attempt<5)await sleep(this.profileRetryDelay??200);
+    }
+    throw new Error('The profile name did not settle on the mouse. Refresh before trying again.');
+  }
+  createManagedProfile(name,requestedSlot){
+    const bytes=profileNameBytes(name);
+    return this.change(async()=>{
+      const directory=await this._readProfileDirectory(),allowed=profileUserSlots(this.model).filter(slot=>slot!==0);
+      const slot=requestedSlot===undefined?allowed.find(slot=>!directory[slot].name):requestedSlot;
+      if(slot===undefined)throw new Error('All user profile slots are in use');
+      if(!allowed.includes(slot)||directory[slot].name)throw new Error('Choose an empty user profile slot');
+      // AHUB createConfig writes the name only. Stored settings are not cloned or reset.
+      await this.exchange(writeFrame(this.target,profileAddress(slot,RAPOO_PROFILE_NAME_OFFSET),bytes));
+      await this._waitManagedProfileName(slot,bytes);
+      directory[slot].name=profileDecodeName(bytes);this._setManagedProfileDirectory(directory);return slot;
+    });
+  }
+  renameManagedProfile(slot,name){
+    const bytes=profileNameBytes(name);
+    return this.change(async()=>{
+      if(!profileUserSlots(this.model).includes(slot))throw new Error('This profile slot is reserved');
+      const directory=await this._readProfileDirectory();if(!directory[slot]?.name&&slot!==this.s.profile)throw new Error('The profile does not exist');
+      await this.exchange(writeFrame(this.target,profileAddress(slot,RAPOO_PROFILE_NAME_OFFSET),bytes));
+      await this._waitManagedProfileName(slot,bytes,0);directory[slot].name=profileDecodeName(bytes);this._setManagedProfileDirectory(directory);
+    });
+  }
+  deleteManagedProfile(slot){
+    return this.change(async(s,current)=>{
+      if(slot===0)throw new Error('The default profile cannot be deleted');
+      if(!profileUserSlots(this.model).includes(slot))throw new Error('This profile slot is reserved');
+      const directory=await this._readProfileDirectory();if(!directory[slot]?.name)throw new Error('The profile does not exist');
+      if(!directory[0].name||directory.filter(p=>p.name).length<2)throw new Error('Keep the default profile before deleting another profile');
+      if(current===slot){await this.writeVerified(0x10c,[0,0]);s.profile=0;this.ready=false;delete s.buttons;}
+      const address=profileAddress(slot,RAPOO_PROFILE_NAME_OFFSET),empty=new Uint8Array(RAPOO_PROFILE_NAME_BYTES);
+      await this.exchange(writeFrame(this.target,address,empty));await sleep(this.profileSettleDelay??500);
+      // AHUB deletion issues an empty write after clearing the name, then restores Gx key defaults.
+      await this.exchange(writeFrame(this.target,address,[]));
+      for(let index=0;index<RAPOO_BUTTON_DEFAULTS.length;index++)await this.writeVerified(profileAddress(slot,index*4),RAPOO_BUTTON_DEFAULTS[index]);
+      await this._waitManagedProfileName(slot,empty,0);directory[slot].name='';this._setManagedProfileDirectory(directory);
+    });
+  }
+  async exportProfileSettings(){await this.readState();return makeProfileSettingsBackup(this.model,this.s);}
+  restoreProfileSettings(input){
+    const backup=validateProfileSettingsBackup(input,this.model),v=backup.settings;
+    return this.change(async(s,p)=>{
+      const a=offset=>profileAddress(p,offset),x=[],y=[];
+      for(const stage of v.dpi.stages){x.push(stage.x&255,stage.x>>>8);y.push(stage.y&255,stage.y>>>8);}
+      // Write tables before selecting a retained stage; count never overlaps the X table.
+      await this.writeVerified(a(648),x);await this.writeVerified(a(712),y);
+      await this.writeVerified(a(664),[0]);await this.writeVerified(a(662),[v.dpi.count-1]);await this.writeVerified(a(664),[v.dpi.active]);
+      for(const [offset,value] of [[640,v.rate],[644,this.model.lod.findIndex(mm=>Math.abs(mm-v.lod)<0.00001)+1],[645,Number(v.motion)],[704,v.press],[705,v.release],[706,v.sleep],[708,v.angle&255],[709,Number(v.glass)],[729,Number(v.lowLight)],[728,Number(v.rfBoost)]])await this.writeVerified(a(offset),[value]);
+      if(v.scan!==undefined)await this.writeVerified(a(641),[v.scan]);
+      const correction=(await this.read(a(707),1))[0];
+      await this.writeVerified(a(707),[(correction&~3)|(v.angleSnap?0:1)|(v.ripple?0:2)]);
+      await this.writeVerified(a(732),v.modes);this.ready=false;
+      return {profile:p,settingsOnly:true};
+    });
+  }
+  // Profile management end.
+
   onInput(e){
     if(this.closed)return;
     const b=new Uint8Array(e.data.buffer,e.data.byteOffset,e.data.byteLength);
@@ -980,6 +1449,7 @@ function render(){
   $('#kv').replaceChildren(...rows.map(([key,value])=>{const tr=document.createElement('tr');for(const text of [key,value]){const td=document.createElement('td');td.textContent=String(text);tr.append(td);}return tr;}));
   $('#controls').disabled=!driver.ready;$('#sCharge').classList.toggle('hidden',driver.battery?.status!==2);$('#refresh').disabled=busy;$('#disconnect').disabled=busy;
   $('#connect').disabled=busy;$('#connect2').disabled=busy;
+  renderButtons();renderMacros();renderProfiles();
 }
 async function action(fn,message='Saved and verified'){
   if(busy||!driver)return;const current=driver;busy=true;render();
@@ -990,8 +1460,11 @@ async function action(fn,message='Saved and verified'){
 function refresh(){return action(d=>d.readState(),'Settings refreshed');}
 function queueRefresh(){if(busy){refreshQueued=true;return;}refresh();}
 for(const button of document.querySelectorAll('[data-tab]'))button.onclick=()=>{
+  if(button.dataset.tab!=='macros')stopMacroRecording();
   for(const b of document.querySelectorAll('[data-tab]'))b.setAttribute('aria-pressed',String(b===button));
   for(const panel of document.querySelectorAll('[data-panel]'))panel.classList.toggle('hidden',panel.dataset.panel!==button.dataset.tab);
+  if(driver&&!busy&&button.dataset.tab==='buttons'&&(!driver.s?.buttons?.loaded||!Array.isArray(driver.s?.macros)))action(async d=>{await d.loadButtons();await d.loadMacros();},'Button assignments loaded');
+  if(driver&&!busy&&button.dataset.tab==='macros'&&!Array.isArray(driver.s?.macros))action(d=>d.loadMacros(),'Macros loaded');
 };
 $('#stage').onchange=e=>{const value=Number(e.target.value);action(d=>d.setStage(value));};
 $('#count').onchange=e=>{const value=Number(e.target.value);action(d=>d.setCount(value));};
@@ -1013,6 +1486,7 @@ $('#copylog').onclick=async()=>{
   catch{$('#logCopy').value=text;$('#logCopy').classList.remove('hidden');$('#logCopy').focus();$('#logCopy').select();toast('Copy the selected connection details');}
 };
 async function detach(){
+  stopMacroRecording();
   const old=driver;driver=null;refreshQueued=false;if(old){old.close();try{await old.device.close();}catch{}}
   $('#app').classList.add('hidden');$('#hero').classList.remove('hidden');$('#status').className='status off';$('#status').textContent='Not connected';$('#name').textContent='Rapoo Mouse';$('#connect').textContent='Connect';$('#connect').disabled=false;$('#connect2').disabled=false;document.title='Rapoo · OpenATK';
 }
@@ -1045,7 +1519,7 @@ async function connect(){
 $('#connect').onclick=$('#connect2').onclick=connect;
 // A transport-level simulation: the same driver, encoders and verification run as on hardware.
 function makeDemo(){
-  const model=MODELS.find(m=>m.name==='VT3S MAX V2'),memory=new Uint8Array(0x3000),listeners=new Set();
+  const model=MODELS.find(m=>m.name==='VT3S MAX V2'),memory=new Uint8Array(0x1c000),listeners=new Set();
   const put16=(a,v)=>{memory[a]=v&255;memory[a+1]=v>>>8;};
   memory[0x10c]=memory[0x10d]=0;memory[0x60]=2;
   for(let p=0;p<8;p++){
@@ -1053,6 +1527,7 @@ function makeDemo(){
     if(p<3)memory.set(new TextEncoder().encode(['Everyday','Competitive','Creative'][p]),a(1004));
     memory[a(640)]=1;memory[a(641)]=4;memory[a(644)]=4;memory[a(645)]=1;
     memory[a(662)]=3;memory[a(664)]=1;memory[a(728)]=0;memory[a(704)]=2;memory[a(705)]=8;memory[a(706)]=10;memory[a(707)]=3;
+    RAPOO_BUTTON_DEFAULTS.forEach((raw,i)=>memory.set(raw,a(i*4)));
     memory.set([1,1,2,4,4,4,4],a(732));
     [400,800,1600,3200,6400,12800,25600].forEach((v,i)=>{put16(a(648+i*2),v);put16(a(712+i*2),v);});
   }
@@ -1067,6 +1542,210 @@ function makeDemo(){
     },async receiveFeatureReport(){return new DataView(reply.buffer,reply.byteOffset,reply.byteLength);},
   };
 }
+// Buttons UI start.
+const ButtonUI={index:null,signature:'',device:null};
+function buttonOptions(id,rows,value){
+  const select=$(id);select.replaceChildren();for(const [key,label] of rows){const option=document.createElement('option');option.value=String(key);option.textContent=label;select.append(option);}
+  if(value!==undefined)select.value=String(value);
+}
+function showButtonActionFields(){
+  $('#buttonKeyboardFields').classList.toggle('hidden',$('#buttonAction').value!=='keyboard');
+  $('#buttonMacroFields').classList.toggle('hidden',$('#buttonAction').value!=='macro');
+}
+function renderButtons(){
+  if(!driver||!driver.s)return;
+  if(ButtonUI.device!==driver){ButtonUI.device=driver;ButtonUI.index=null;ButtonUI.signature='';}
+  const keys=Array.isArray(driver.model.keys)?driver.model.keys:[],cache=driver.s.buttons;
+  const loaded=cache?.loaded&&cache.profile===driver.s.profile;
+  if(!keys.includes(ButtonUI.index))ButtonUI.index=keys[0]??null;
+  buttonOptions('#buttonControl',keys.map(index=>[index,RAPOO_BUTTON_LABELS[index]||'Button '+index]),ButtonUI.index);
+  $('#buttonLoad').disabled=busy||!driver.ready;$('#buttonControl').disabled=busy||!loaded;
+  const row=loaded?cache.rows.find(row=>row.index===ButtonUI.index):null;
+  $('#buttonCurrent').textContent=row?'Current: '+rapooButtonLabel(row,driver.s.macros||[]):'Read button assignments to begin.';
+  const disabled=busy||!driver.ready||!row;
+  for(const element of ['buttonAction','buttonKey','buttonKey2','buttonMacro','buttonCapture','buttonSave','buttonCancel',...Array.from({length:8},(_,i)=>'buttonMod'+i)])$('#'+element).disabled=disabled;
+  if(!row){ButtonUI.signature='';return;}
+  const signature=driver.s.profile+':'+row.index+':'+row.raw.join(',');
+  if(ButtonUI.signature!==signature){
+    ButtonUI.signature=signature;
+    const actions=[['preserve','Keep current mapping'],['default','Default for this control'],...RAPOO_MOUSE_ACTIONS.map(([id,label])=>['mouse:'+id,label]),['keyboard','Keyboard key / shortcut'],['dpi:up','DPI +'],['dpi:down','DPI −'],['macro','Saved macro'],['disabled','Disable']];
+    if([9,10,11,12].includes(row.index))actions.push(['wheel:up','Scroll up'],['wheel:down','Scroll down']);
+    const a=row.action,kind=a.kind==='mouse'?'mouse:'+a.button:a.kind==='dpi'?'dpi:'+a.direction:a.kind==='wheel'?'wheel:'+a.direction:a.kind;
+    buttonOptions('#buttonAction',actions,kind);
+    const keyRows=RAPOO_KEY_CHOICES.slice();for(const value of [a.code,a.code2])if(value&&!keyRows.some(row=>row[0]===value))keyRows.push([value,'HID usage '+value]);
+    buttonOptions('#buttonKey',keyRows,a.code||4);buttonOptions('#buttonKey2',[[0,'None'],...keyRows],a.code2||0);
+    for(let i=0;i<8;i++)$('#buttonMod'+i).checked=!!((a.modifiers||0)&(1<<i));
+    $('#buttonCapture').value='';
+    ButtonUI.macroSlot=a.kind==='macro'?a.slot:null;
+    showButtonActionFields();
+  }
+  // Macro-list refresh must not erase a keyboard/shortcut draft or selected action.
+  const macroValue=$('#buttonMacro').value;
+  const macros=(driver.s.macros||[]).filter(m=>m.name).map(m=>[m.slot,(m.slot+1)+' · '+m.name]);
+  buttonOptions('#buttonMacro',macros.length?macros:[['','No saved macros loaded']],macros.some(m=>String(m[0])===macroValue)?macroValue:ButtonUI.macroSlot??macros[0]?.[0]??'');
+}
+function bindButtons(){
+  $('#buttonLoad').onclick=()=>action(d=>d.loadButtons(),'Button assignments refreshed');
+  $('#buttonControl').onchange=e=>{ButtonUI.index=Number(e.target.value);ButtonUI.signature='';renderButtons();};
+  $('#buttonAction').onchange=showButtonActionFields;
+  $('#buttonCancel').onclick=()=>{ButtonUI.signature='';renderButtons();};
+  $('#buttonCapture').onkeydown=e=>{
+    e.preventDefault();e.stopPropagation();const code=RAPOO_KEY_CODES[e.code];
+    if(!code)return;
+    $('#buttonKey').value=String(code);$('#buttonKey2').value='0';
+    const modifiers=(e.ctrlKey?1:0)|(e.shiftKey?2:0)|(e.altKey?4:0)|(e.metaKey?8:0);
+    for(let i=0;i<8;i++)$('#buttonMod'+i).checked=!!(modifiers&(1<<i));
+    $('#buttonCapture').value=[...RAPOO_MODIFIER_LABELS.filter((_,i)=>modifiers&(1<<i)),RAPOO_KEY_CHOICES.find(v=>v[0]===code)?.[1]||e.code].join(' + ');
+  };
+  $('#buttonSave').onclick=()=>{
+    if(busy||!driver?.ready)return;
+    const value=$('#buttonAction').value,index=ButtonUI.index;let mapping;
+    if(value==='preserve'){toast('Current mapping kept');return;}
+    if(value.startsWith('mouse:'))mapping={kind:'mouse',button:value.slice(6)};
+    else if(value.startsWith('dpi:'))mapping={kind:'dpi',direction:value.slice(4)};
+    else if(value.startsWith('wheel:'))mapping={kind:'wheel',direction:value.slice(6)};
+    else if(value==='keyboard')mapping={kind:'keyboard',code:Number($('#buttonKey').value),code2:Number($('#buttonKey2').value),modifiers:Array.from({length:8},(_,i)=>$('#buttonMod'+i).checked?1<<i:0).reduce((a,b)=>a|b,0)};
+    else if(value==='macro'){
+      if($('#buttonMacro').value===''){toast('Create and load a macro before assigning it',true);return;}
+      mapping={kind:'macro',slot:Number($('#buttonMacro').value)};
+    }else mapping={kind:value};
+    action(d=>d.setButton(index,mapping),'Button assignment saved and verified');
+  };
+}
+// Buttons UI end.
+
+const macroUi={device:null,slot:0,loadedSlot:null,draft:null,repeat:1,fill:true,eventsChanged:true,recording:false,held:new Set(),lastAt:0};
+function setMacroDraft(macro){
+  macroUi.slot=macro.slot??macroUi.slot;macroUi.loadedSlot=macroUi.slot;
+  macroUi.draft={name:macro.name||'Macro '+(macroUi.slot+1),loop:macro.loop||1,ignoreDelay:!!macro.ignoreDelay,package:macro.package.map(event=>({...event,mouseKey:event.mouseKey?.slice()})),supported:macro.supported!==false,unsupportedReason:macro.unsupportedReason,rawPayload:macro.rawPayload};
+  if(macroUi.draft.loop<65534)macroUi.repeat=macroUi.draft.loop;macroUi.fill=true;macroUi.eventsChanged=true;
+}
+function renderMacros(){
+  if(!driver||!driver.s)return;
+  if(macroUi.device!==driver){stopMacroRecording();macroUi.device=driver;macroUi.slot=0;macroUi.loadedSlot=null;setMacroDraft({name:'Macro 1',loop:1,ignoreDelay:false,package:[]});macroUi.loadedSlot=null;}
+  if((busy||!driver.ready)&&macroUi.recording)stopMacroRecording();
+  const list=driver.s.macros,loaded=Array.isArray(list),meta=list?.find(row=>row.slot===macroUi.slot),draft=macroUi.draft;
+  const select=$('#macroSlot');select.replaceChildren();
+  for(let slot=0;slot<12;slot++){const option=document.createElement('option');option.value=String(slot);option.textContent='Slot '+(slot+1)+' · '+(list?.find(row=>row.slot===slot)?.name||(!loaded?'Not loaded':'Empty'));select.append(option);}select.value=String(macroUi.slot);
+  const writable=draft.supported!==false&&(!meta?.name||macroUi.loadedSlot===macroUi.slot);
+  $('#macroStatus').textContent=draft.supported===false?'Read-only: '+draft.unsupportedReason:!loaded?'Read a slot to load the mouse’s macro list.':!writable?'Read this occupied slot before editing it.':macroUi.recording?'Recording in the focused area. Escape stops.':draft.package.length+' events · '+(4+draft.package.reduce((sum,event)=>sum+macroEventBytes(event),0))+'/4096 bytes';
+  $('#macroEditor').disabled=busy||!driver.ready||!loaded;
+  for(const id of ['macroName','macroMode','macroRepeat','macroIgnore','macroAddKey','macroAddPair','macroClear','macroImport'])$('#'+id).disabled=busy||!driver.ready||!writable||macroUi.recording;
+  $('#macroRepeat').disabled=busy||!writable||macroUi.recording||draft.loop>=65534;
+  for(const id of ['macroSlot','macroOpen','macroNew'])$('#'+id).disabled=busy||!driver.ready||macroUi.recording;
+  $('#macroSave').disabled=busy||!writable||!loaded||!draft.package.length||macroUi.recording;
+  $('#macroDelete').disabled=busy||!loaded||!meta?.name||macroUi.recording;
+  $('#macroRecord').disabled=busy||!writable||macroUi.recording;$('#macroStop').disabled=!macroUi.recording;
+  if(macroUi.fill){$('#macroName').value=draft.name;$('#macroMode').value=draft.loop===65534?'toggle':draft.loop===65535?'held':'repeat';$('#macroRepeat').value=macroUi.repeat;$('#macroIgnore').checked=draft.ignoreDelay;macroUi.fill=false;}
+  if(macroUi.eventsChanged){
+    const host=$('#macroEvents');host.replaceChildren();
+    draft.package.forEach((event,index)=>{const tr=document.createElement('tr'),label=document.createElement('td'),delay=document.createElement('td'),remove=document.createElement('td'),input=document.createElement('input'),button=document.createElement('button');
+      label.textContent=(index+1)+'. '+macroEventLabel(event);input.className='num';input.type='number';input.min=0;input.max=32767;input.value=event.time;input.setAttribute('aria-label','Delay after event '+(index+1));input.disabled=!writable||macroUi.recording;
+      input.onchange=()=>{try{event.time=integer(Number(input.value),0,32767,'macro delay');}catch(e){input.value=event.time;toast(e.message,true);}};
+      button.className='btn ghost';button.type='button';button.textContent='Remove';button.disabled=!writable||macroUi.recording;button.onclick=()=>{draft.package.splice(index,1);macroUi.eventsChanged=true;renderMacros();};delay.append(input);remove.append(button);tr.append(label,delay,remove);host.append(tr);
+    });macroUi.eventsChanged=false;
+  }
+}
+function stopMacroRecording(){
+  if(!macroUi.recording)return;macroUi.recording=false;
+  for(const key of macroUi.held)macroUi.draft.package.push({type:0,key,time:0});macroUi.held.clear();macroUi.eventsChanged=true;
+  const area=$('#macroRecordArea');if(area)area.textContent='Recording stopped. Review the draft before saving.';
+}
+function captureMacroEvent(event){
+  if(!macroUi.recording||document.activeElement!==$('#macroRecordArea'))return;
+  const draft=macroUi.draft,now=Date.now(),last=draft.package[draft.package.length-1];
+  if(last)last.time=Math.min(32767,Math.max(0,now-macroUi.lastAt));
+  const held=new Set(macroUi.held);if(event.key!==248){event.type?held.add(event.key):held.delete(event.key);}
+  const length=4+draft.package.reduce((sum,row)=>sum+macroEventBytes(row),0)+macroEventBytes(event)+held.size*3;
+  if(length>4096){stopMacroRecording();toast('Macro slot is full. Recording stopped.',true);renderMacros();return;}
+  draft.package.push(event);macroUi.held=held;macroUi.lastAt=now;macroUi.eventsChanged=true;renderMacros();
+}
+function bindMacros(){
+  const open=slot=>action(async d=>{stopMacroRecording();await d.loadMacros();const macro=await d.readMacro(slot);setMacroDraft(macro);},'Macro loaded');
+  $('#macroOpen').onclick=()=>open(macroUi.slot);
+  $('#macroSlot').onchange=e=>{const slot=Number(e.target.value);macroUi.slot=slot;open(slot);};
+  $('#macroNew').onclick=()=>action(async d=>{await d.loadMacros();const empty=d.s.macros.find(row=>!row.name);if(!empty)throw new Error('All twelve macro slots are occupied');setMacroDraft({slot:empty.slot,name:'Macro '+(empty.slot+1),loop:1,ignoreDelay:false,package:[]});},'New local draft');
+  $('#macroName').oninput=e=>{macroUi.draft.name=e.target.value;};
+  $('#macroMode').onchange=e=>{macroUi.draft.loop=e.target.value==='toggle'?65534:e.target.value==='held'?65535:macroUi.repeat;renderMacros();};
+  $('#macroRepeat').onchange=e=>{try{macroUi.repeat=integer(Number(e.target.value),1,65533,'repeat count');macroUi.draft.loop=macroUi.repeat;}catch(error){e.target.value=macroUi.repeat;toast(error.message,true);}};
+  $('#macroIgnore').onchange=e=>{macroUi.draft.ignoreDelay=e.target.checked;};
+  const keys=$('#macroAddKey');for(const [code,label] of MACRO_KEY_LABELS){const option=document.createElement('option');option.value=String(code);option.textContent=label;keys.append(option);}
+  $('#macroAddPair').onclick=()=>{const key=Number(keys.value),draft=macroUi.draft;try{const next={...draft,package:[...draft.package,{type:1,key,time:50},{type:0,key,time:0}]};encodeRapooMacro(next);draft.package=next.package;macroUi.eventsChanged=true;renderMacros();}catch(error){toast(error.message,true);}};
+  $('#macroClear').onclick=()=>{macroUi.draft.package=[];macroUi.eventsChanged=true;renderMacros();};
+  $('#macroSave').onclick=()=>{const slot=macroUi.slot,input={...macroUi.draft,name:$('#macroName').value};action(async d=>{const saved=await d.saveMacro(slot,input);setMacroDraft(saved);},'Macro saved and verified');};
+  $('#macroDelete').onclick=()=>{const slot=macroUi.slot;if(!confirm('Delete macro '+(slot+1)+' from the mouse?'))return;action(async d=>{await d.deleteMacro(slot);setMacroDraft({slot,name:'Macro '+(slot+1),loop:1,ignoreDelay:false,package:[]});},'Macro deleted');};
+  $('#macroExport').onclick=()=>{try{const draft=macroUi.draft,value=draft.supported===false?{app:'openatk',kind:'rapoo-macro-raw',v:1,macro:draft}:{app:'openatk',kind:'rapoo-macro',v:1,macro:macroNormalize(draft)};const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download='rapoo-macro-'+(macroUi.slot+1)+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(error){toast(error.message,true);}};
+  $('#macroImport').onchange=async e=>{try{const file=e.target.files?.[0];if(!file)return;if(file.size>262144)throw new Error('Macro file is too large');const macro=parseRapooMacroFile(await file.text());setMacroDraft({slot:macroUi.slot,...macro,supported:true});renderMacros();toast('Imported a local draft. Press Save to mouse to write it.');}catch(error){toast(error.message,true);}finally{e.target.value='';}};
+  const area=$('#macroRecordArea');
+  $('#macroRecord').onclick=()=>{macroUi.draft.package=[];macroUi.recording=true;macroUi.held.clear();macroUi.lastAt=Date.now();macroUi.eventsChanged=true;area.textContent='Recording here. Escape or moving focus outside this area stops.';area.focus();renderMacros();};
+  $('#macroStop').onclick=()=>{stopMacroRecording();renderMacros();};area.onblur=()=>{stopMacroRecording();renderMacros();};
+  area.onkeydown=e=>{if(!macroUi.recording)return;e.preventDefault();e.stopPropagation();if(e.code==='Escape'){stopMacroRecording();renderMacros();return;}const key=MACRO_BROWSER_KEYS[e.code];if(key===undefined||e.repeat||macroUi.held.has(key))return;captureMacroEvent({type:1,key,time:0});};
+  area.onkeyup=e=>{if(!macroUi.recording)return;e.preventDefault();e.stopPropagation();const key=MACRO_BROWSER_KEYS[e.code];if(key===undefined||!macroUi.held.has(key))return;captureMacroEvent({type:0,key,time:0});};
+  const mouseKey=button=>[240,242,241,243,244][button];
+  area.onmousedown=e=>{if(!macroUi.recording)return;e.preventDefault();const key=mouseKey(e.button);if(key===undefined||macroUi.held.has(key))return;captureMacroEvent({type:1,key,time:0});};
+  area.onmouseup=e=>{if(!macroUi.recording)return;e.preventDefault();const key=mouseKey(e.button);if(key===undefined||!macroUi.held.has(key))return;captureMacroEvent({type:0,key,time:0});};
+  area.onwheel=e=>{if(!macroUi.recording)return;e.preventDefault();const horizontal=Math.abs(e.deltaX)>Math.abs(e.deltaY);captureMacroEvent({type:0,key:248,time:0,x:0,y:0,mouseKey:Array.from({length:5},(_,i)=>Number(macroUi.held.has(240+i))),vWheel:horizontal?0:e.deltaY>0?-1:1,hWheel:horizontal?(e.deltaX>0?-1:1):0});};
+  area.oncontextmenu=e=>{if(macroUi.recording)e.preventDefault();};
+}
+
+// Profile UI start. Draft input and a loaded preview survive status-report renders.
+let profileRenameTarget=null,profileRenameDevice=null,profilePendingRestore=null;
+function renderProfiles(){
+  if(!driver?.s)return;
+  const s=driver.s,current=s.profiles.find(p=>p.slot===s.profile),identity=devId(driver.device)+':'+s.profile;
+  $('#profileManageStatus').textContent='Current: '+(s.profile+1)+' · '+(current?.name||'Unnamed profile')+'. '+s.profiles.length+' of 8 slots named.';
+  if(profileRenameDevice!==driver||profileRenameTarget!==identity){profileRenameDevice=driver;profileRenameTarget=identity;$('#profileRenameName').value=current?.name||'';}
+  const locked=busy||!driver.ready;
+  $('#profileCreate').disabled=locked||s.profiles.filter(p=>p.slot!==0).length>=profileUserSlots(driver.model).filter(slot=>slot!==0).length;
+  $('#profileRename').disabled=locked||!profileUserSlots(driver.model).includes(s.profile);
+  $('#profileDelete').disabled=locked||s.profile===0||s.profiles.length<2||!profileUserSlots(driver.model).includes(s.profile);
+  $('#profileExport').disabled=locked;$('#profileImport').disabled=locked;
+  $('#profileRestoreApply').disabled=locked||!profilePendingRestore||profilePendingRestore.device!==driver||profilePendingRestore.profile!==s.profile;
+  if(profilePendingRestore&&profilePendingRestore.device!==driver)clearProfileRestore();
+}
+function clearProfileRestore(){profilePendingRestore=null;$('#profileRestorePreview').classList.add('hidden');$('#profileImport').value='';}
+function bindProfiles(){
+  $('#profileCreate').onclick=()=>{
+    const name=$('#profileNewName').value;
+    action(async d=>{await d.createManagedProfile(name);await d.readState();$('#profileNewName').value='';profileRenameTarget=null;},'Profile created. Select it in Basics when ready.');
+  };
+  $('#profileRename').onclick=()=>{
+    const slot=driver.s.profile,name=$('#profileRenameName').value;
+    action(async d=>{await d.renameManagedProfile(slot,name);profileRenameTarget=null;},'Profile renamed');
+  };
+  $('#profileDelete').onclick=()=>{
+    const slot=driver.s.profile,name=driver.s.profiles.find(p=>p.slot===slot)?.name||'Profile '+(slot+1);
+    if(slot===0)return;
+    if(!window.confirm('Delete "'+name+'"? Its name and button assignments will be cleared. The default profile will remain.'))return;
+    action(async d=>{await d.deleteManagedProfile(slot);await d.readState();profileRenameTarget=null;clearProfileRestore();},'Profile deleted');
+  };
+  $('#profileExport').onclick=()=>action(async d=>{
+    const backup=await d.exportProfileSettings(),blob=new Blob([JSON.stringify(backup,null,2)+'\n'],{type:'application/json'}),url=URL.createObjectURL(blob);
+    const link=document.createElement('a');link.href=url;link.download=('rapoo-'+d.model.name+'-'+(backup.name||'profile')).replace(/[^a-zA-Z0-9_.-]+/g,'-')+'-settings.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },'Profile settings exported');
+  $('#profileImport').onchange=async e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    try{
+      if(file.size>65536)throw new Error('Profile settings backups must be smaller than 64 KiB');
+      if(!driver?.ready||busy)throw new Error('Read the mouse settings before loading a backup');
+      const d=driver,profile=d.s.profile,backup=validateProfileSettingsBackup(JSON.parse(await file.text()),d.model);
+      if(driver!==d||d.s.profile!==profile)throw new Error('The connected profile changed while loading the file');
+      profilePendingRestore={device:d,profile,backup};
+      $('#profileRestoreTarget').textContent='Apply to '+d.model.name+' · '+(d.s.profiles.find(p=>p.slot===profile)?.name||'Profile '+(profile+1))+'. Profile names, button assignments, macros, pairing, firmware and the global communication protocol are unchanged.';
+      $('#profileRestoreList').replaceChildren(...profileSettingsPreview(backup,d.model).map(text=>{const li=document.createElement('li');li.textContent=text;return li;}));
+      $('#profileRestorePreview').classList.remove('hidden');renderProfiles();
+    }catch(error){clearProfileRestore();toast(error.message||'Could not load the profile settings backup',true);}
+  };
+  $('#profileRestoreApply').onclick=()=>{
+    const pending=profilePendingRestore;
+    if(!pending||pending.device!==driver||pending.profile!==driver.s.profile){clearProfileRestore();toast('The target profile changed. Load the backup again.',true);return;}
+    action(async d=>{await d.restoreProfileSettings(pending.backup);await d.readState();clearProfileRestore();},'Profile settings restored');
+  };
+  $('#profileRestoreCancel').onclick=clearProfileRestore;
+}
+// Profile UI end.
+
+bindButtons();bindMacros();bindProfiles();
 async function start(){
   if(DEMO){$('#demoBar').classList.remove('hidden');$('#demoLink').classList.add('hidden');await attach(makeDemo());driver.battery={percent:78,status:0};render();return;}
   const mobile=navigator.userAgentData?.mobile||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
