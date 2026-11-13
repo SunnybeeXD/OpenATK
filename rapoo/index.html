@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com https://hwsoft.rapoo.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script>try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
 addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
@@ -99,6 +99,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .reel{height:240px}
   .reel img{width:100%;height:100%;object-fit:contain;animation:reelIn .45s ease-out}
   @keyframes reelIn{from{opacity:0;transform:scale(.96)}}
+  .hero .art.reel{width:min(340px,100%);animation:none}
+  .reel-toggle{margin-left:10px;padding:2px 0;border:0;background:none;color:var(--dim);font:inherit;text-decoration:underline;cursor:pointer}
+  .reel-toggle:focus-visible{outline:2px solid var(--acc);outline-offset:4px}
   .reelcap{font:500 11.5px var(--mono);color:var(--dim);margin:-4px 0 18px;min-height:17px;overflow-wrap:anywhere}
   .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(var(--acc-rgb),.28));
     animation:float 5s ease-in-out infinite}
@@ -451,34 +454,21 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   #connectionDetails #log{display:block;white-space:pre-wrap;overflow-wrap:anywhere}
   #logCopy{width:100%;min-height:160px;margin-top:12px;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)}
   @media(max-width:760px){.advanced .erow{flex-wrap:wrap}}
-  .mouse-map{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;margin-top:22px;padding:20px 18px 0;border:1px solid var(--line);border-radius:14px;background:#0b1016}
-  .mouse-view{position:relative;min-width:0;margin:0;align-self:start}
-  .mouse-view figcaption{font:500 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);text-align:center}
-  .mouse-view svg{display:block;width:100%;height:auto;overflow:visible}
-  .mouse-shell{fill:url(#mouseShell);stroke:#465362;stroke-width:2}
-  .mouse-hit{fill:#202b36;stroke:#536476;stroke-width:1.5;cursor:pointer;transition:fill .15s,stroke .15s;outline:none}
-  .mouse-hit:hover,.mouse-hit:focus-visible{fill:#35483f;stroke:var(--acc);stroke-width:2.5}
-  .mouse-hit.selected{fill:rgba(var(--acc-rgb),.42);stroke:var(--acc);stroke-width:2.5}
-  .mouse-hit[aria-disabled=true]{cursor:default}
-  .mouse-seam{fill:none;stroke:#0a0f14;stroke-width:3;pointer-events:none}
-  .mouse-wheel{fill:#11191f}
-  .mouse-wheel-lines{fill:none;stroke:#74818e;stroke-width:1.5;pointer-events:none}
-  .mouse-leader{fill:none;stroke:#475767;stroke-width:1;pointer-events:none}
-  .mouse-brand{fill:#576575;font:500 10px var(--mono);letter-spacing:.22em;pointer-events:none}
-  .mouse-foot{fill:#3d4853;stroke:#65717c;stroke-width:1.5}
-  .mouse-base{fill:#0a1016;stroke:#465362;stroke-width:1.5}
-  .mouse-sensor{fill:#84929d;stroke:#b2bcc4;stroke-width:1.5}
-  .mouse-power{fill:#11191f;stroke:#536476;stroke-width:2}
-  .mouse-callout{position:absolute;z-index:1;max-width:30%;min-height:34px;padding:8px 11px;border:1px solid #3c4957;border-radius:9px;background:#151e27;color:var(--ink);font:500 12px/1.25 Inter,sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s;box-shadow:0 3px 12px #0003}
-  .mouse-callout:hover:not(:disabled),.mouse-callout:focus-visible{border-color:var(--acc);background:#1c2d27;outline:2px solid transparent}
-  .mouse-callout.selected{background:var(--acc);border-color:var(--acc);color:#03170b;font-weight:600}
+  .mouse-map{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(220px,1fr);align-items:center;gap:24px;margin-top:20px;padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+  .mouse-art{min-width:0;margin:0;text-align:center}
+  .mouse-art img{display:block;width:100%;height:280px;object-fit:contain;filter:drop-shadow(0 16px 20px #0004)}
+  .mouse-art figcaption{margin-top:12px;color:var(--dim);font:400 11px/1.5 Inter,sans-serif}
+  .mouse-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:center}
+  .mouse-callout{display:flex;align-items:center;gap:8px;min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--card);color:var(--ink);text-align:left;font:500 12px/1.3 Inter,sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s}
+  .mouse-callout:hover:not(:disabled){border-color:var(--acc);background:var(--card2)}
+  .mouse-callout:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+  .mouse-callout.selected{background:rgba(var(--acc-rgb),.12);border-color:var(--acc);color:var(--acc)}
+  .mouse-callout.selected::before{content:'';flex:none;width:6px;height:6px;border-radius:50%;background:currentColor}
   .mouse-callout:disabled{opacity:.5;cursor:default}
-  .mouse-small{padding:6px 9px;min-height:30px;font-size:11px}
   .mouse-map-hint{margin:12px 0 18px}
   .button-selection{margin:18px 0 8px;font:600 17px var(--disp);color:var(--acc)}
-  @media(max-width:760px){.mouse-map{grid-template-columns:minmax(0,1fr);gap:6px;padding:16px 12px 0}.mouse-view{width:100%;max-width:480px;margin:0 auto}.mouse-bottom{max-width:380px}.mouse-callout{font-size:11.5px;padding:7px 9px}.mouse-map-hint{font-size:12px}}
-  @media(prefers-reduced-motion:reduce){.mouse-hit,.mouse-callout{transition:none}}
-
+  @media(max-width:760px){.mouse-map{grid-template-columns:minmax(0,1fr);gap:20px;padding:18px}.mouse-art img{height:220px}.mouse-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.mouse-map-hint{font-size:12px}}
+  @media(prefers-reduced-motion:reduce){.mouse-callout{transition:none}}
 </style>
 </head>
 <body>
@@ -504,8 +494,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   <a href="?" target="_top">Exit demo</a>
 </div>
 <div class="hero" id="hero">
-  <div class="art reel" id="heroArt"><img src="../assets/mouse.webp" alt=""></div>
-  <div class="reelcap">Rapoo VT series</div>
+  <div class="art reel" id="heroArt"><img id="heroImage" src="../assets/rapoo/vt3s-max-v2-white.png" alt="Rapoo VT3S MAX V2 in white" width="688" height="494"></div>
+  <div class="reelcap"><span id="heroCaption">Rapoo VT3S MAX V2</span><button class="reel-toggle" id="heroPause" type="button" aria-pressed="false" aria-label="Pause mouse slideshow">Pause</button></div>
   <div class="kicker">WebHID configurator</div>
   <h2>Tune your Rapoo mouse, right in the browser</h2>
   <p>Plug in the dongle or cable, then connect. Close Rapoo AHUB first if it's running,
@@ -515,7 +505,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     &middot; <a href="../docs/rapoo-protocol.md" style="color:var(--dim);font-size:13px">Supported hardware</a></p>
 </div>
 <div class="hero hidden" id="blocked">
-  <div class="art reel"><img src="../assets/mouse.webp" alt=""></div>
+  <div class="art reel"><img id="blockedImage" src="../assets/rapoo/vt3s-max-v2-white.png" alt="Rapoo VT3S MAX V2 in white" width="688" height="494"></div>
+  <div class="reelcap"><span id="blockedCaption">Rapoo VT3S MAX V2</span><button class="reel-toggle" id="blockedPause" type="button" aria-pressed="false" aria-label="Pause mouse slideshow">Pause</button></div>
   <h2>This needs a desktop</h2>
   <p>OpenATK talks to your mouse over WebHID. Open this page on a computer, in Chrome, Edge, Brave or Opera.</p>
   <a href="?demo=1" style="color:var(--dim);font-size:13px">Try a simulated mouse</a>
@@ -523,7 +514,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <div id="app" class="hidden">
   <aside>
     <div class="devcard">
-      <div class="art" id="devArt"><img src="../assets/mouse.webp" alt=""></div>
+      <div class="art photo" id="devArt"><img id="deviceImage" src="../assets/rapoo/vt3s-max-v2-white.png" alt="Rapoo VT3S MAX V2 illustration" width="688" height="494"></div>
       <div class="skins hidden" id="devSkins"></div>
       <div class="gauges">
         <div class="ring">
@@ -626,53 +617,24 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   <div class="t">Button assignments</div>
   <div class="d">Choose what each button does. Changes apply to the active profile. At least one physical button must remain a left click.</div>
 <div class="mouse-map" id="buttonMouseMap" aria-label="Choose a mouse control">
-  <figure class="mouse-view mouse-top">
-    <figcaption>Top view</figcaption>
-    <svg viewBox="0 0 460 400" aria-label="Mouse top view with selectable controls">
-      <defs><linearGradient id="mouseShell" x2=".8" y2="1"><stop stop-color="#26323e"/><stop offset="1" stop-color="#111820"/></linearGradient></defs>
-      <path class="mouse-shell" d="M231 24C176 24 143 53 141 103l-8 169c-3 65 33 103 98 103s101-38 98-103l-8-169c-2-50-35-79-90-79Z"/>
-      <path class="mouse-hit" data-mouse-key="0" role="button" tabindex="0" d="M228 28c-51 1-82 28-84 76l-3 70c19 29 47 42 87 44Z"/>
-      <path class="mouse-hit" data-mouse-key="2" role="button" tabindex="0" d="M234 28c51 1 82 28 84 76l3 70c-19 29-47 42-87 44Z"/>
-      <path class="mouse-seam" d="M231 26v207M141 177c32 57 148 57 180 0"/>
-      <rect class="mouse-hit mouse-wheel" data-mouse-key="1" role="button" tabindex="0" x="218" y="72" width="26" height="68" rx="12"/>
-      <path class="mouse-wheel-lines" d="M222 84h18M222 93h18M222 102h18M222 111h18M222 120h18M222 129h18"/>
-      <path class="mouse-hit" data-mouse-key="9" role="button" tabindex="0" d="m222 61 9-12 9 12Z"/>
-      <path class="mouse-hit" data-mouse-key="10" role="button" tabindex="0" d="m222 151 9 12 9-12Z"/>
-      <rect class="mouse-hit" data-mouse-key="5" role="button" tabindex="0" x="130" y="171" width="11" height="45" rx="5"/>
-      <rect class="mouse-hit" data-mouse-key="6" role="button" tabindex="0" x="127" y="226" width="11" height="45" rx="5"/>
-      <rect class="mouse-hit" data-mouse-key="3" role="button" tabindex="0" x="221" y="177" width="20" height="14" rx="5"/>
-      <rect class="mouse-hit" data-mouse-key="4" role="button" tabindex="0" x="221" y="196" width="20" height="14" rx="5"/>
-      <path class="mouse-leader" d="M86 83h42l26 17M85 194h43M85 248h40M244 83h91M244 112h91M244 145h91M308 174h27M242 185h22M242 203h22"/>
-      <text class="mouse-brand" x="231" y="304" text-anchor="middle">RAPOO</text>
-    </svg>
-    <button type="button" class="mouse-callout" data-mouse-key="0" style="left:0;top:21%">Left button</button>
-    <button type="button" class="mouse-callout" data-mouse-key="5" style="left:0;top:49%">Forward</button>
-    <button type="button" class="mouse-callout" data-mouse-key="6" style="left:0;top:62%">Back</button>
-    <button type="button" class="mouse-callout" data-mouse-key="9" style="right:0;top:20%">Wheel up</button>
-    <button type="button" class="mouse-callout" data-mouse-key="1" style="right:0;top:29%">Middle button</button>
-    <button type="button" class="mouse-callout" data-mouse-key="10" style="right:0;top:38%">Wheel down</button>
-    <button type="button" class="mouse-callout" data-mouse-key="2" style="right:0;top:47%">Right button</button>
-    <button type="button" class="mouse-callout mouse-small" data-mouse-key="3" style="left:55%;top:57%">DPI +</button>
-    <button type="button" class="mouse-callout mouse-small" data-mouse-key="4" style="left:55%;top:66%">DPI −</button>
+  <figure class="mouse-art">
+    <img src="https://hwsoft.rapoo.com/webdriver/manifests/VT3S%20MAX%20V2/func_White.png" alt="Rapoo VT3S MAX V2 mouse, top and underside views" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+    <figcaption>VT3S MAX V2 shown · Button positions vary by model</figcaption>
   </figure>
-  <figure class="mouse-view mouse-bottom">
-    <figcaption>Underside</figcaption>
-    <svg viewBox="0 0 360 400" aria-label="Mouse underside with selectable DIY button">
-      <path class="mouse-shell" d="M171 24c-55 0-88 29-90 79l-8 169c-3 65 33 103 98 103s101-38 98-103l-8-169c-2-50-35-79-90-79Z"/>
-      <path class="mouse-foot" d="M102 84c8-32 129-32 138 0l4 22c-10 17-140 17-148 0Z"/>
-      <path class="mouse-foot" d="M93 302c9 46 148 46 157 0l-6-19c-21 20-119 20-144 0Z"/>
-      <rect class="mouse-base" x="107" y="139" width="128" height="142" rx="25"/>
-      <rect class="mouse-sensor" x="153" y="205" width="36" height="45" rx="16"/>
-      <rect class="mouse-base" x="164" y="221" width="14" height="15" rx="3"/>
-      <circle class="mouse-power" cx="148" cy="163" r="10"/>
-      <circle class="mouse-hit" data-mouse-key="13" role="button" tabindex="0" cx="193" cy="163" r="12"/>
-      <path class="mouse-leader" d="M207 163h56"/>
-      <text class="mouse-brand" x="171" y="354" text-anchor="middle">UNDERSIDE</text>
-    </svg>
-    <button type="button" class="mouse-callout" data-mouse-key="13" style="right:0;top:42%">DIY button</button>
-  </figure>
+  <div class="mouse-controls" role="group" aria-label="Mouse controls">
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="0">Left button</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="2">Right button</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="1">Middle button</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="9">Wheel up</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="5">Forward</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="10">Wheel down</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="6">Back</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="13">DIY button</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="3">DPI +</button>
+    <button type="button" role="button" class="mouse-callout" data-mouse-key="4">DPI −</button>
+  </div>
 </div>
-<p class="d mouse-map-hint">Click a button on the mouse or its label to edit it. The highlight shows the selected control. This is a simplified layout; button positions vary by model.</p>
+<p class="d mouse-map-hint">Choose a control to edit its assignment. The highlighted control is selected.</p>
 <div class="button-selection" id="buttonSelectionTitle" role="status">Select a mouse button</div>
 
   <div class="erow"><label for="buttonControl">Control</label><select class="sel" id="buttonControl"></select><button class="btn ghost" id="buttonLoad">Read button assignments</button></div>
@@ -1461,6 +1423,41 @@ const QS = new URLSearchParams(location.search);
 if(QS.get('embed')==='1')document.body.classList.add('embed');
 const DEMO = QS.has('demo') && !['0','false','off','no'].includes(QS.get('demo').toLowerCase());
 let driver=null,busy=false,refreshQueued=false;
+// Official Rapoo artwork is bundled locally; the reel never requests device access.
+const RAPOO_ARTWORK=[
+  {name:'VT3S MAX V2',color:'white',src:'../assets/rapoo/vt3s-max-v2-white.png'},
+  {name:'VT9',color:'white',src:'../assets/rapoo/vt9-white.png'},
+  {name:'VT1 MAX',color:'orange',src:'../assets/rapoo/vt1-max-orange.png'}
+];
+let rapooArtIndex=0,rapooArtPaused=false,rapooArtTimer;
+const rapooReducedMotion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+function showRapooArtwork(index){
+  rapooArtIndex=index;
+  const art=RAPOO_ARTWORK[index];
+  for(const prefix of ['hero','blocked']){
+    const image=$('#'+prefix+'Image');image.src=art.src;image.alt='Rapoo '+art.name+' in '+art.color;
+    $('#'+prefix+'Caption').textContent='Rapoo '+art.name;
+  }
+}
+function scheduleRapooArtwork(){
+  clearTimeout(rapooArtTimer);
+  const reduced=!!rapooReducedMotion?.matches;
+  for(const id of ['heroPause','blockedPause']){
+    const button=$('#'+id);button.classList.toggle('hidden',reduced);
+    button.textContent=rapooArtPaused?'Play':'Pause';button.setAttribute('aria-pressed',String(rapooArtPaused));
+    button.setAttribute('aria-label',rapooArtPaused?'Play mouse slideshow':'Pause mouse slideshow');
+  }
+  if(reduced||rapooArtPaused||document.hidden||!$('#app').classList.contains('hidden'))return;
+  rapooArtTimer=setTimeout(()=>{showRapooArtwork((rapooArtIndex+1)%RAPOO_ARTWORK.length);scheduleRapooArtwork();},5000);
+}
+function setRapooDeviceArtwork(name){
+  const art=RAPOO_ARTWORK.find(art=>art.name===name)||RAPOO_ARTWORK[0];
+  $('#deviceImage').src=art.src;$('#deviceImage').alt='Rapoo '+art.name+' illustration';
+}
+for(const id of ['heroPause','blockedPause'])$('#'+id).onclick=()=>{rapooArtPaused=!rapooArtPaused;scheduleRapooArtwork();};
+document.addEventListener?.('visibilitychange',scheduleRapooArtwork);
+rapooReducedMotion?.addEventListener('change',scheduleRapooArtwork);
+showRapooArtwork(0);scheduleRapooArtwork();
 function log(label,bytes){
   const detail=typeof bytes==='string'?bytes:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(' ');
   const row=document.createElement('div');row.textContent=`${new Date().toISOString().slice(11,23)} ${label} ${detail}`;
@@ -1567,17 +1564,18 @@ async function detach(){
   stopMacroRecording();
   const old=driver;driver=null;refreshQueued=false;if(old){old.close();try{await old.device.close();}catch{}}
   $('#app').classList.add('hidden');$('#hero').classList.remove('hidden');$('#status').className='status off';$('#status').textContent='Not connected';$('#name').textContent='Rapoo Mouse';$('#connect').textContent='Connect';$('#connect').disabled=false;$('#connect2').disabled=false;document.title='Rapoo · OpenATK';
+  scheduleRapooArtwork();
 }
 $('#disconnect').onclick=async()=>{await detach();if(DEMO)location.href='?';};
 async function attach(device){
   if(!isCommandDevice(device))throw new Error('Choose a supported Rapoo VT configuration interface');
   await detach();if(!device.opened)await device.open();
-  const next=new Rapoo(device,{log,delay:DEMO?0:undefined});driver=next;
+  const next=new Rapoo(device,{log,delay:DEMO?0:undefined});driver=next;setRapooDeviceArtwork(next.model.name);
   next.onChange=()=>{if(!busy)render();};next.onProfile=()=>{if(driver===next)queueRefresh();};
   busy=true;$('#connect').disabled=$('#connect2').disabled=true;
   try{
     await next.readState();if(driver!==next)return;
-    $('#hero').classList.add('hidden');$('#blocked').classList.add('hidden');$('#app').classList.remove('hidden');$('#connectionDetails').classList.add('hidden');$('#togglelog').textContent='Show activity log';$('#connect').textContent=DEMO?'Demo':'Change device';
+    $('#hero').classList.add('hidden');$('#blocked').classList.add('hidden');$('#app').classList.remove('hidden');$('#connectionDetails').classList.add('hidden');$('#togglelog').textContent='Show activity log';$('#connect').textContent=DEMO?'Demo':'Change device';scheduleRapooArtwork();
     if(!DEMO)try{localStorage.setItem('rapoo:last',devId(device));}catch{}
   }catch(e){if(driver===next)await detach();throw e;}
   finally{busy=false;render();}
@@ -1867,3 +1865,4 @@ start().catch(e=>toast(e.message||'Could not read mouse settings',true));
 </script>
 </body>
 </html>
+
