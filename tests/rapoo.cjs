@@ -174,3 +174,13 @@ test('DPI stage selects capture the chosen value before the busy-state render re
   for(const [id,value] of [['stage',3],['count',7]]){const target=$('#'+id);target.value=String(value);target.onchange({target});}
   assert.deepEqual(calls,[['stage',3],['count',7]]);
 });
+test('an uninitialised stage count is clamped instead of failing the connection',async()=>{
+  const {driver,memory}=fixture();memory[0x600+662]=0xff;memory[0x600+664]=0xff;
+  const s=await driver.readState();assert.equal(s.count,7);assert.equal(s.active,6);
+});
+test('status reports update the sensor mode for the current polling rate',async()=>{
+  const {driver,listeners}=fixture();await driver.readState();
+  const report=new Uint8Array(17);report[7]=50;report[10]=1;report[16]=3;
+  for(const f of listeners)f({reportId:7,data:new DataView(report.buffer)});
+  assert.equal(driver.s.modes[3],3);
+});

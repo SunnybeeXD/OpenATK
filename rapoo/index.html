@@ -804,8 +804,7 @@ class Rapoo {
     const a=offset=>profileAddress(p,offset);
     const perf=await this.read(a(640),8),misc=await this.read(a(704),6);
     const x=await this.read(a(648),14),y=await this.read(a(712),14);
-    const count=(await this.read(a(662),1))[0]+1,active=(await this.read(a(664),1))[0];
-    integer(count,1,7,'stage count');integer(active,0,count-1,'active stage');
+    const count=Math.min(7,(await this.read(a(662),1))[0]+1),active=Math.min(count-1,(await this.read(a(664),1))[0]);
     const modes=await this.read(a(732),7),lowLight=(await this.read(a(729),1))[0];
     const profiles=[];
     for(let slot=0;slot<8;slot++){
@@ -881,6 +880,7 @@ class Rapoo {
       if(profile!==this.s.profile){this.ready=false;this.onProfile();return;}
       if(b[1]<this.s.count){this.s.active=b[1];const x=b[2]|b[3]<<8,y=b[4]|b[5]<<8;if(x&&y)this.s.stages[b[1]]={x,y};}
       if(b.length>10)this.s.rate=b[10];if(b.length>9)this.s.scan=b[9];
+      const slot=RATES.findIndex(r=>r[1]===this.s.rate);if(b.length>16&&slot>=0&&RATE_MODES[this.s.rate].includes(b[16]))this.s.modes[slot]=b[16];
     }
     this.onChange();
   }
@@ -955,7 +955,7 @@ function render(){
   fillSeg('#segScan',[[3,'1K'],[4,'2K'],[5,'4K'],[6,'8K']],s.scan,(d,v)=>d.setByte('scan',v));
   const rows=[['Model',m.name],['Connection',driver.wired?'USB cable':'Wireless receiver'],['USB identity','24AE:'+driver.device.productId.toString(16).toUpperCase().padStart(4,'0')],['Protocol','VT_nrf54L'],['Polling rate',hz?hz.toLocaleString()+' Hz':'Unknown'],['Battery',driver.battery?driver.battery.percent+'%':'Waiting for a status report']];
   $('#kv').replaceChildren(...rows.map(([key,value])=>{const tr=document.createElement('tr');for(const text of [key,value]){const td=document.createElement('td');td.textContent=String(text);tr.append(td);}return tr;}));
-  $('#controls').disabled=busy||!driver.ready;$('#refresh').disabled=busy;$('#disconnect').disabled=busy;
+  $('#controls').disabled=!driver.ready;$('#sCharge').classList.toggle('hidden',driver.battery?.status!==2);$('#refresh').disabled=busy;$('#disconnect').disabled=busy;
   $('#connect').disabled=busy;$('#connect2').disabled=busy;
 }
 async function action(fn,message='Saved and verified'){
