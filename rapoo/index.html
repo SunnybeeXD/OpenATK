@@ -451,6 +451,34 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   #connectionDetails #log{display:block;white-space:pre-wrap;overflow-wrap:anywhere}
   #logCopy{width:100%;min-height:160px;margin-top:12px;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)}
   @media(max-width:760px){.advanced .erow{flex-wrap:wrap}}
+  .mouse-map{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;margin-top:22px;padding:20px 18px 0;border:1px solid var(--line);border-radius:14px;background:#0b1016}
+  .mouse-view{position:relative;min-width:0;margin:0;align-self:start}
+  .mouse-view figcaption{font:500 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);text-align:center}
+  .mouse-view svg{display:block;width:100%;height:auto;overflow:visible}
+  .mouse-shell{fill:url(#mouseShell);stroke:#465362;stroke-width:2}
+  .mouse-hit{fill:#202b36;stroke:#536476;stroke-width:1.5;cursor:pointer;transition:fill .15s,stroke .15s;outline:none}
+  .mouse-hit:hover,.mouse-hit:focus-visible{fill:#35483f;stroke:var(--acc);stroke-width:2.5}
+  .mouse-hit.selected{fill:rgba(var(--acc-rgb),.42);stroke:var(--acc);stroke-width:2.5}
+  .mouse-hit[aria-disabled=true]{cursor:default}
+  .mouse-seam{fill:none;stroke:#0a0f14;stroke-width:3;pointer-events:none}
+  .mouse-wheel{fill:#11191f}
+  .mouse-wheel-lines{fill:none;stroke:#74818e;stroke-width:1.5;pointer-events:none}
+  .mouse-leader{fill:none;stroke:#475767;stroke-width:1;pointer-events:none}
+  .mouse-brand{fill:#576575;font:500 10px var(--mono);letter-spacing:.22em;pointer-events:none}
+  .mouse-foot{fill:#3d4853;stroke:#65717c;stroke-width:1.5}
+  .mouse-base{fill:#0a1016;stroke:#465362;stroke-width:1.5}
+  .mouse-sensor{fill:#84929d;stroke:#b2bcc4;stroke-width:1.5}
+  .mouse-power{fill:#11191f;stroke:#536476;stroke-width:2}
+  .mouse-callout{position:absolute;z-index:1;max-width:30%;min-height:34px;padding:8px 11px;border:1px solid #3c4957;border-radius:9px;background:#151e27;color:var(--ink);font:500 12px/1.25 Inter,sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s;box-shadow:0 3px 12px #0003}
+  .mouse-callout:hover:not(:disabled),.mouse-callout:focus-visible{border-color:var(--acc);background:#1c2d27;outline:2px solid transparent}
+  .mouse-callout.selected{background:var(--acc);border-color:var(--acc);color:#03170b;font-weight:600}
+  .mouse-callout:disabled{opacity:.5;cursor:default}
+  .mouse-small{padding:6px 9px;min-height:30px;font-size:11px}
+  .mouse-map-hint{margin:12px 0 18px}
+  .button-selection{margin:18px 0 8px;font:600 17px var(--disp);color:var(--acc)}
+  @media(max-width:760px){.mouse-map{grid-template-columns:minmax(0,1fr);gap:6px;padding:16px 12px 0}.mouse-view{width:100%;max-width:480px;margin:0 auto}.mouse-bottom{max-width:380px}.mouse-callout{font-size:11.5px;padding:7px 9px}.mouse-map-hint{font-size:12px}}
+  @media(prefers-reduced-motion:reduce){.mouse-hit,.mouse-callout{transition:none}}
+
 </style>
 </head>
 <body>
@@ -597,6 +625,56 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <div class="item" id="buttonMappingsItem">
   <div class="t">Button assignments</div>
   <div class="d">Choose what each button does. Changes apply to the active profile. At least one physical button must remain a left click.</div>
+<div class="mouse-map" id="buttonMouseMap" aria-label="Choose a mouse control">
+  <figure class="mouse-view mouse-top">
+    <figcaption>Top view</figcaption>
+    <svg viewBox="0 0 460 400" aria-label="Mouse top view with selectable controls">
+      <defs><linearGradient id="mouseShell" x2=".8" y2="1"><stop stop-color="#26323e"/><stop offset="1" stop-color="#111820"/></linearGradient></defs>
+      <path class="mouse-shell" d="M231 24C176 24 143 53 141 103l-8 169c-3 65 33 103 98 103s101-38 98-103l-8-169c-2-50-35-79-90-79Z"/>
+      <path class="mouse-hit" data-mouse-key="0" role="button" tabindex="0" d="M228 28c-51 1-82 28-84 76l-3 70c19 29 47 42 87 44Z"/>
+      <path class="mouse-hit" data-mouse-key="2" role="button" tabindex="0" d="M234 28c51 1 82 28 84 76l3 70c-19 29-47 42-87 44Z"/>
+      <path class="mouse-seam" d="M231 26v207M141 177c32 57 148 57 180 0"/>
+      <rect class="mouse-hit mouse-wheel" data-mouse-key="1" role="button" tabindex="0" x="218" y="72" width="26" height="68" rx="12"/>
+      <path class="mouse-wheel-lines" d="M222 84h18M222 93h18M222 102h18M222 111h18M222 120h18M222 129h18"/>
+      <path class="mouse-hit" data-mouse-key="9" role="button" tabindex="0" d="m222 61 9-12 9 12Z"/>
+      <path class="mouse-hit" data-mouse-key="10" role="button" tabindex="0" d="m222 151 9 12 9-12Z"/>
+      <rect class="mouse-hit" data-mouse-key="5" role="button" tabindex="0" x="130" y="171" width="11" height="45" rx="5"/>
+      <rect class="mouse-hit" data-mouse-key="6" role="button" tabindex="0" x="127" y="226" width="11" height="45" rx="5"/>
+      <rect class="mouse-hit" data-mouse-key="3" role="button" tabindex="0" x="221" y="177" width="20" height="14" rx="5"/>
+      <rect class="mouse-hit" data-mouse-key="4" role="button" tabindex="0" x="221" y="196" width="20" height="14" rx="5"/>
+      <path class="mouse-leader" d="M86 83h42l26 17M85 194h43M85 248h40M244 83h91M244 112h91M244 145h91M308 174h27M242 185h22M242 203h22"/>
+      <text class="mouse-brand" x="231" y="304" text-anchor="middle">RAPOO</text>
+    </svg>
+    <button type="button" class="mouse-callout" data-mouse-key="0" style="left:0;top:21%">Left button</button>
+    <button type="button" class="mouse-callout" data-mouse-key="5" style="left:0;top:49%">Forward</button>
+    <button type="button" class="mouse-callout" data-mouse-key="6" style="left:0;top:62%">Back</button>
+    <button type="button" class="mouse-callout" data-mouse-key="9" style="right:0;top:20%">Wheel up</button>
+    <button type="button" class="mouse-callout" data-mouse-key="1" style="right:0;top:29%">Middle button</button>
+    <button type="button" class="mouse-callout" data-mouse-key="10" style="right:0;top:38%">Wheel down</button>
+    <button type="button" class="mouse-callout" data-mouse-key="2" style="right:0;top:47%">Right button</button>
+    <button type="button" class="mouse-callout mouse-small" data-mouse-key="3" style="left:55%;top:57%">DPI +</button>
+    <button type="button" class="mouse-callout mouse-small" data-mouse-key="4" style="left:55%;top:66%">DPI −</button>
+  </figure>
+  <figure class="mouse-view mouse-bottom">
+    <figcaption>Underside</figcaption>
+    <svg viewBox="0 0 360 400" aria-label="Mouse underside with selectable DIY button">
+      <path class="mouse-shell" d="M171 24c-55 0-88 29-90 79l-8 169c-3 65 33 103 98 103s101-38 98-103l-8-169c-2-50-35-79-90-79Z"/>
+      <path class="mouse-foot" d="M102 84c8-32 129-32 138 0l4 22c-10 17-140 17-148 0Z"/>
+      <path class="mouse-foot" d="M93 302c9 46 148 46 157 0l-6-19c-21 20-119 20-144 0Z"/>
+      <rect class="mouse-base" x="107" y="139" width="128" height="142" rx="25"/>
+      <rect class="mouse-sensor" x="153" y="205" width="36" height="45" rx="16"/>
+      <rect class="mouse-base" x="164" y="221" width="14" height="15" rx="3"/>
+      <circle class="mouse-power" cx="148" cy="163" r="10"/>
+      <circle class="mouse-hit" data-mouse-key="13" role="button" tabindex="0" cx="193" cy="163" r="12"/>
+      <path class="mouse-leader" d="M207 163h56"/>
+      <text class="mouse-brand" x="171" y="354" text-anchor="middle">UNDERSIDE</text>
+    </svg>
+    <button type="button" class="mouse-callout" data-mouse-key="13" style="right:0;top:42%">DIY button</button>
+  </figure>
+</div>
+<p class="d mouse-map-hint">Click a button on the mouse or its label to edit it. The highlight shows the selected control. This is a simplified layout; button positions vary by model.</p>
+<div class="button-selection" id="buttonSelectionTitle" role="status">Select a mouse button</div>
+
   <div class="erow"><label for="buttonControl">Control</label><select class="sel" id="buttonControl"></select><button class="btn ghost" id="buttonLoad">Read button assignments</button></div>
   <p class="d" id="buttonCurrent">Read button assignments to begin.</p>
   <div class="editor" id="buttonEditor">
@@ -1543,6 +1621,30 @@ function makeDemo(){
   };
 }
 // Buttons UI start.
+function selectMouseControl(index){
+  if(!driver?.ready||busy||!driver.s.buttons?.loaded||!driver.model.keys.includes(index))return;
+  ButtonUI.index=index;ButtonUI.signature='';renderButtons();
+}
+function renderMouseDiagram(keys,loaded,rows=[]){
+  for(const element of document.querySelectorAll('[data-mouse-key]')){
+    const index=Number(element.getAttribute('data-mouse-key')),visible=keys.includes(index),selected=index===ButtonUI.index;
+    element.classList.toggle('hidden',!visible);element.classList.toggle('selected',visible&&selected);
+    const disabled=!visible||!loaded||busy||!driver?.ready;
+    element.disabled=disabled;element.setAttribute('aria-disabled',String(disabled));element.setAttribute('aria-pressed',String(visible&&selected));
+    if(element.getAttribute('role')==='button')element.setAttribute('tabindex',disabled?'-1':'0');
+    const row=rows.find(row=>row.index===index),name=RAPOO_BUTTON_LABELS[index]||'Button '+index;
+    element.setAttribute('aria-label',name+(row?'. Current assignment: '+rapooButtonLabel(row,driver.s.macros||[]):''));
+  }
+  $('#buttonSelectionTitle').textContent=loaded?'Editing: '+(RAPOO_BUTTON_LABELS[ButtonUI.index]||'mouse button'):'Read button assignments to select a control';
+}
+function bindMouseDiagram(){
+  for(const element of document.querySelectorAll('[data-mouse-key]')){
+    const select=()=>selectMouseControl(Number(element.getAttribute('data-mouse-key')));
+    element.onclick=select;
+    if(element.getAttribute('role')==='button')element.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}};
+  }
+}
+
 const ButtonUI={index:null,signature:'',device:null};
 function buttonOptions(id,rows,value){
   const select=$(id);select.replaceChildren();for(const [key,label] of rows){const option=document.createElement('option');option.value=String(key);option.textContent=label;select.append(option);}
@@ -1560,6 +1662,7 @@ function renderButtons(){
   if(!keys.includes(ButtonUI.index))ButtonUI.index=keys[0]??null;
   buttonOptions('#buttonControl',keys.map(index=>[index,RAPOO_BUTTON_LABELS[index]||'Button '+index]),ButtonUI.index);
   $('#buttonLoad').disabled=busy||!driver.ready;$('#buttonControl').disabled=busy||!loaded;
+  renderMouseDiagram(keys,loaded,loaded?cache.rows:[]);
   const row=loaded?cache.rows.find(row=>row.index===ButtonUI.index):null;
   $('#buttonCurrent').textContent=row?'Current: '+rapooButtonLabel(row,driver.s.macros||[]):'Read button assignments to begin.';
   const disabled=busy||!driver.ready||!row;
@@ -1585,8 +1688,9 @@ function renderButtons(){
   buttonOptions('#buttonMacro',macros.length?macros:[['','No saved macros loaded']],macros.some(m=>String(m[0])===macroValue)?macroValue:ButtonUI.macroSlot??macros[0]?.[0]??'');
 }
 function bindButtons(){
+  bindMouseDiagram();
   $('#buttonLoad').onclick=()=>action(d=>d.loadButtons(),'Button assignments refreshed');
-  $('#buttonControl').onchange=e=>{ButtonUI.index=Number(e.target.value);ButtonUI.signature='';renderButtons();};
+  $('#buttonControl').onchange=e=>selectMouseControl(Number(e.target.value));
   $('#buttonAction').onchange=showButtonActionFields;
   $('#buttonCancel').onclick=()=>{ButtonUI.signature='';renderButtons();};
   $('#buttonCapture').onkeydown=e=>{
