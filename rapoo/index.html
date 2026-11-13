@@ -777,7 +777,7 @@ class Rapoo {
     if(!this.model || !isCommandDevice(device))throw new Error('Unsupported Rapoo device or configuration interface');
     this.wired=device.productId===this.model.wired;this.target=this.wired?0xff:0xa5;
     this.delay=delay??(this.wired?1:10);this.timeout=timeout;this.log=log;
-    this.tail=Promise.resolve();this.closed=false;this.faulted=false;this.ready=false;
+    this.tail=Promise.resolve();this.closed=false;this.faulted=false;this.ready=false;this.inLogged=0;
     this.s=null;this.battery=null;this.onChange=()=>{};this.onProfile=()=>{};
     this.listener=e=>this.onInput(e);device.addEventListener('inputreport',this.listener);
   }
@@ -890,8 +890,10 @@ class Rapoo {
     await this.writeVerified(0x10c,[slot,slot]);this.ready=false;
   });}
   onInput(e){
-    if(this.closed||e.reportId!==7)return;
-    const b=new Uint8Array(e.data.buffer,e.data.byteOffset,e.data.byteLength);if(b.length<8)return;
+    if(this.closed)return;
+    const b=new Uint8Array(e.data.buffer,e.data.byteOffset,e.data.byteLength);
+    if(this.inLogged<40){this.inLogged++;this.log('IN '+e.reportId,b);}
+    if(e.reportId!==7||b.length<8)return;
     if(b[7]<=100)this.battery={percent:b[7],status:b[6]};
     if(this.s){
       const profile=b.length>11?b[11]:this.s.profile;
