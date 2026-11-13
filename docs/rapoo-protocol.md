@@ -57,7 +57,7 @@ Profile p is zero-based (0–7). Its base is 0x600 + p * 0x400.
 
 Communication protocol is a single byte at absolute 0x60, shared by all profiles: 0 Turbo, 2 Initial. The page exposes it only for models whose manifest sets `rfPacketType` to `always`. Models with `wirelessOnly` also require receiver firmware 0.74 or newer, which the page cannot read, so they are not offered.
 
-The current profile is at absolute 0x10C. Switching writes [slot, slot] to 0x10C–0x10D, matching Yx.setCurrentConfig. The page does not create, delete or rename profiles. UTF-8 profile labels may not reproduce names encoded by older software.
+The current profile is at absolute 0x10C. Switching writes [slot, slot] to 0x10C–0x10D, matching Yx.setCurrentConfig. The page can create, rename and delete user profiles; slot 0 cannot be deleted. Creating a profile writes its name only, preserving the slot’s stored settings and current selection. UTF-8 profile labels may not reproduce names encoded by older software.
 
 | Hz | Wire key | Allowed performance values |
 |---:|---:|---|
@@ -179,4 +179,16 @@ Run `node --test tests/rapoo.cjs tests/sensor-mode.cjs`. Tests cover packet byte
 
 Open `rapoo/index.html?demo=1` or `?demo=dongle` for a simulated wired mouse or receiver. Both use the same Rapoo driver against an EEPROM-backed HID simulation. No WebHID API is accessed in demo mode.
 
-Remapping, macros, lighting effects, RF pairing, reset, firmware updates and other Rapoo protocol families are not implemented. No calibration or firmware commands are sent. Real-device validation should compare reads to AHUB, change one setting, verify it in AHUB and after reconnecting, and include the activity log in any issue.
+Lighting effects, pressure macros, RF pairing, reset, firmware updates and other Rapoo protocol families are not implemented. No calibration or firmware commands are sent. Real-device validation should compare reads to AHUB, change one setting, verify it in AHUB and after reconnecting, and include the activity log in any issue.
+
+## Button remapping, macros and profile management
+
+Additional source cross-check: https://hid.rapoo.cn/AHUB_WEB/dist/assets/js/index-BmzKunBE.js (Chinese AHUB, inspected 2026-11-14). The supported VT model button layouts come from its manifests; only actual model controls are exposed.
+
+Button records are four bytes at profile base + [0,4,8,12,16,20,24,28,32,36,40,44,48,52,56]. Mouse actions use [3,0,mask,0], a plain keyboard key [0,0,usage,0], keyboard combinations [2,usage1,modifierMask,usage2], macro binding [5,0,slot,0], disable [7,0,0,0], DPI up/down [8,0,5-or-6,0]. Existing unknown/double-click/composite records are preserved. Each remap rereads all mappings and refuses to remove the last physical non-wheel left-click assignment.
+
+Twelve macro slots are shared across profiles. Names are 16 UTF-8 bytes at 0xFD00 + slot*16. Payloads are at 0x10000 + slot*0x1000, limited to 4096 bytes and transferred in 24-byte chunks. The LE16 length includes a four-byte header: length, then LE16 repeat/playback value (65534 toggle, 65535 while held). Ordinary events contain LE16 ((delay<<1)|press) and one key byte; extended 247/248 events carry signed mouse movement/state. Payload and name commits are zero-length writes at their base+1 followed by 200 ms, then read-back verification. Saving or deleting a globally bound macro is rejected until every binding is removed. Unknown formats remain read-only; pressure macros are excluded. Recording uses only the explicitly focused area and stops on Escape, blur, tab changes or disconnect, releasing held keys in the draft. Imported files are local drafts until the user saves.
+
+Profile names are limited to 16 UTF-8 bytes. Deletion follows AHUB: switch an active deleted slot to default, clear its name, wait, issue an empty name write and restore vendor button defaults. The default/last profile is protected. Settings JSON backups are model-specific, validated and previewed before restore. They exclude names, button mappings, macros, firmware, pairing and global communication protocol; macros have their own export/import.
+
+Validation: `node --test tests/rapoo.cjs tests/rapoo-ui.cjs tests/rapoo-buttons.cjs tests/rapoo-macros.cjs tests/rapoo-profiles.cjs tests/sensor-mode.cjs`. Hardware validation is still required.
