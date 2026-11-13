@@ -184,3 +184,16 @@ test('status reports update the sensor mode for the current polling rate',async(
   for(const f of listeners)f({reportId:7,data:new DataView(report.buffer)});
   assert.equal(driver.s.modes[3],3);
 });
+test('RF strategy is per profile and communication protocol is one global byte',async()=>{
+  const {driver,memory}=fixture();await driver.readState();
+  assert.equal(driver.s.rfBoost,0);assert.equal(driver.s.rfPacket,memory[0x60]);
+  await driver.setByte('rfBoost',1);assert.equal(memory[0x600+728],1);
+  await driver.setRfPacket(2);assert.equal(memory[0x60],2);
+  await driver.setRfPacket(0);assert.equal(memory[0x60],0);
+  await assert.rejects(driver.setRfPacket(1));await assert.rejects(driver.setByte('rfBoost',2));
+});
+test('communication protocol is unavailable on models that do not expose it',async()=>{
+  const {driver}=fixture();const wirelessOnly=api.MODELS.find(m=>m.name==='VT2');assert.equal(wirelessOnly.rfProtocol,0);
+  assert.equal(api.MODELS.find(m=>m.name==='VT3S MAX V2').rfProtocol,1);
+  driver.model=wirelessOnly;await assert.rejects(driver.setRfPacket(0),/not supported/);
+});

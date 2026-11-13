@@ -50,9 +50,12 @@ Profile p is zero-based (0–7). Its base is 0x600 + p * 0x400.
 | Sensor angle | 708 | Signed int8, -30 to +30 degrees |
 | Glass tracking | 709 | 0 off, 1 on |
 | Y DPI stages | 712 | Seven uint16 little-endian values |
+| Wireless RF strategy | 728 | 0 adaptive, 1 maximum RF |
 | Low battery light | 729 | 0 off, 1 on |
 | Sensor performance | 732–738 | One byte per polling option, in table order below |
 | Profile name | 1004 | 16-byte NUL-terminated name; used only to enumerate existing profiles |
+
+Communication protocol is a single byte at absolute 0x60, shared by all profiles: 0 Turbo, 2 Initial. The page exposes it only for models whose manifest sets `rfPacketType` to `always`. Models with `wirelessOnly` also require receiver firmware 0.74 or newer, which the page cannot read, so they are not offered.
 
 The current profile is at absolute 0x10C. Switching writes [slot, slot] to 0x10C–0x10D, matching Yx.setCurrentConfig. The page does not create, delete or rename profiles. UTF-8 profile labels may not reproduce names encoded by older software.
 
@@ -98,77 +101,77 @@ Battery status 2 means charging and shows the bolt. Battery is shown only after 
 
 These are 69 of the 77 VT_nrf54L manifests in the inspected bundle. The other 8 (ESM612ACE, ESM612MAX, ESM612PRO, ESM622MAX, ESM622PRO, ESM652PRO, ESM672MAX, ESM672PRO) are wired-only, have one PID each and use the cybercafe status report with a prefix byte this page does not parse, so they are not supported. All use VID 0x24AE. This table records protocol evidence, **not hardware confirmation**.
 
-| Model | Wired PID | Receiver PID | DPI family | Key scan control |
-|---|---|---|---|---|
-| VT0 MAX MASTER | 0x464A | 0x144A | Ultra | Yes |
-| VT0 MAX | 0x4620 | 0x1420 | Ultra | Yes |
-| VT0 | 0x4610 | 0x1410 | Standard | No |
-| VT0 Air MAX | 0x46A1 | 0x14A1 | Ultra | Yes |
-| VT1 MAX | 0x4644 | 0x1444 | Ultra | Yes |
-| VT1 | 0x4615 | 0x1415 | Standard | No |
-| VT1S MAX V2 | 0x4B0A | 0x1B0A | V2 | Yes |
-| VT1S V2 | 0x466A | 0x146A | Ultra | No |
-| VT2 MAX MASTER V2 | 0x4675 | 0x1475 | V2 | Yes |
-| VT2 MAX V2 | 0x4B09 | 0x1B09 | V2 | Yes |
-| VT2 MAX | 0x4623 | 0x1423 | Ultra | Yes |
-| VT2 V2 | 0x4668 | 0x1468 | Ultra | No |
-| VT2 | 0x4622 | 0x1422 | Standard | No |
-| VT2 Air MAX V2 | 0x4B12 | 0x1B12 | V2 | Yes |
-| VT2K MAX | 0x46A4 | 0x14A4 | Ultra | Yes |
-| VT2S MAX MASTER V2 | 0x4676 | 0x1476 | V2 | Yes |
-| VT2S MAX V2 | 0x4B04 | 0x1B04 | V2 | Yes |
-| VT2S V2 | 0x465D | 0x145D | Ultra | No |
-| VT2S Air MAX V2 | 0x4B13 | 0x1B13 | V2 | Yes |
-| VT3 MAX MASTER V2 | 0x466D | 0x146D | V2 | Yes |
-| VT3 MAX V2 | 0x4B06 | 0x1B06 | V2 | Yes |
-| VT3 MAX | 0x4617 | 0x1417 | Ultra | Yes |
-| VT3 PRO V2 | 0x46A5 | 0x14A5 | V2 | Yes |
-| VT3 V2 | 0x4662 | 0x1462 | Ultra | No |
-| VT3 | 0x4612 | 0x1412 | Standard | No |
-| VT3 Air MAX V2 | 0x4B0C | 0x1B0C | V2 | Yes |
-| VT3S MAX MASTER V2 | 0x466E | 0x146E | V2 | Yes |
-| VT3S MAX MASTER | 0x464B | 0x144B | V2 | Yes |
-| VT3S MAX V2 | 0x4B07 | 0x1B07 | V2 | Yes |
-| VT3S MAX | 0x4621 | 0x1421 | Ultra | Yes |
-| VT3S PRO V2 | 0x46A6 | 0x14A6 | V2 | Yes |
-| VT3S V2 | 0x4664 | 0x1464 | Ultra | No |
-| VT3S | 0x4611 | 0x1411 | Standard | No |
-| VT3S Air MAX V2 | 0x4B0D | 0x1B0D | V2 | Yes |
-| VT3S Air Max | 0x46A2 | 0x14A2 | V2 | Yes |
-| VT4 MAX MASTER V2 | 0x4677 | 0x1477 | V2 | Yes |
-| VT4 MAX V2 | 0x4B03 | 0x1B03 | V2 | Yes |
-| VT4 V2 | 0x465B | 0x145B | Ultra | No |
-| VT4 Air MAX V2 | 0x4B14 | 0x1B14 | V2 | Yes |
-| VT6 MAX | 0x4652 | 0x1452 | Ultra | Yes |
-| VT6 | 0x4651 | 0x1451 | Standard | No |
-| VT7 MAX MASTER V2 | 0x4670 | 0x1470 | V2 | Yes |
-| VT7 MAX V2 | 0x4B05 | 0x1B05 | V2 | Yes |
-| VT7 MAX | 0x4616 | 0x1416 | Ultra | Yes |
-| VT7 PRO V2 | 0x46A7 | 0x14A7 | V2 | Yes |
-| VT7 V2 | 0x4660 | 0x1460 | Ultra | No |
-| VT7 | 0x4613 | 0x1413 | Standard | No |
-| VT7 Air MAX V2 | 0x4B0E | 0x1B0E | V2 | Yes |
-| VT7S MAX MASTER V2 | 0x4671 | 0x1471 | V2 | Yes |
-| VT7S MAX V2 | 0x4B02 | 0x1B02 | V2 | Yes |
-| VT7S PRO V2 | 0x46A8 | 0x14A8 | V2 | Yes |
-| VT7S V2 | 0x4659 | 0x1459 | Ultra | No |
-| VT7S Air MAX V2 | 0x4B0F | 0x1B0F | V2 | Yes |
-| VT8 MAX MASTER V2 | 0x4678 | 0x1478 | V2 | Yes |
-| VT8 MAX V2 | 0x4B0B | 0x1B0B | V2 | Yes |
-| VT8 V2 | 0x466C | 0x146C | Ultra | No |
-| VT8 Air MAX V2 | 0x4B15 | 0x1B15 | V2 | Yes |
-| VT9 MAX MASTER V2 | 0x4673 | 0x1473 | V2 | Yes |
-| VT9 MAX V2 | 0x4B08 | 0x1B08 | V2 | Yes |
-| VT9 MAX | 0x4618 | 0x1418 | Ultra | Yes |
-| VT9 PRO V2 | 0x46A9 | 0x14A9 | V2 | Yes |
-| VT9 V2 | 0x4666 | 0x1466 | Ultra | No |
-| VT9 | 0x4614 | 0x1414 | Standard | No |
-| VT9 Air MAX V2 | 0x4B10 | 0x1B10 | V2 | Yes |
-| VT9S MAX MASTER V2 | 0x4674 | 0x1474 | V2 | Yes |
-| VT9S MAX V2 | 0x4B01 | 0x1B01 | V2 | Yes |
-| VT9S PRO V2 | 0x46AA | 0x14AA | V2 | Yes |
-| VT9S V2 | 0x4653 | 0x1453 | Ultra | No |
-| VT9S Air MAX V2 | 0x4B11 | 0x1B11 | V2 | Yes |
+| Model | Wired PID | Receiver PID | DPI family | Key scan control | RF protocol control |
+|---|---|---|---|---|---|
+| VT0 MAX MASTER | 0x464A | 0x144A | Ultra | Yes | Yes |
+| VT0 MAX | 0x4620 | 0x1420 | Ultra | Yes | No |
+| VT0 | 0x4610 | 0x1410 | Standard | No | No |
+| VT0 Air MAX | 0x46A1 | 0x14A1 | Ultra | Yes | No |
+| VT1 MAX | 0x4644 | 0x1444 | Ultra | Yes | No |
+| VT1 | 0x4615 | 0x1415 | Standard | No | No |
+| VT1S MAX V2 | 0x4B0A | 0x1B0A | V2 | Yes | Yes |
+| VT1S V2 | 0x466A | 0x146A | Ultra | No | No |
+| VT2 MAX MASTER V2 | 0x4675 | 0x1475 | V2 | Yes | Yes |
+| VT2 MAX V2 | 0x4B09 | 0x1B09 | V2 | Yes | Yes |
+| VT2 MAX | 0x4623 | 0x1423 | Ultra | Yes | No |
+| VT2 V2 | 0x4668 | 0x1468 | Ultra | No | No |
+| VT2 | 0x4622 | 0x1422 | Standard | No | No |
+| VT2 Air MAX V2 | 0x4B12 | 0x1B12 | V2 | Yes | Yes |
+| VT2K MAX | 0x46A4 | 0x14A4 | Ultra | Yes | No |
+| VT2S MAX MASTER V2 | 0x4676 | 0x1476 | V2 | Yes | Yes |
+| VT2S MAX V2 | 0x4B04 | 0x1B04 | V2 | Yes | Yes |
+| VT2S V2 | 0x465D | 0x145D | Ultra | No | No |
+| VT2S Air MAX V2 | 0x4B13 | 0x1B13 | V2 | Yes | Yes |
+| VT3 MAX MASTER V2 | 0x466D | 0x146D | V2 | Yes | Yes |
+| VT3 MAX V2 | 0x4B06 | 0x1B06 | V2 | Yes | Yes |
+| VT3 MAX | 0x4617 | 0x1417 | Ultra | Yes | No |
+| VT3 PRO V2 | 0x46A5 | 0x14A5 | V2 | Yes | Yes |
+| VT3 V2 | 0x4662 | 0x1462 | Ultra | No | No |
+| VT3 | 0x4612 | 0x1412 | Standard | No | No |
+| VT3 Air MAX V2 | 0x4B0C | 0x1B0C | V2 | Yes | Yes |
+| VT3S MAX MASTER V2 | 0x466E | 0x146E | V2 | Yes | Yes |
+| VT3S MAX MASTER | 0x464B | 0x144B | V2 | Yes | Yes |
+| VT3S MAX V2 | 0x4B07 | 0x1B07 | V2 | Yes | Yes |
+| VT3S MAX | 0x4621 | 0x1421 | Ultra | Yes | No |
+| VT3S PRO V2 | 0x46A6 | 0x14A6 | V2 | Yes | Yes |
+| VT3S V2 | 0x4664 | 0x1464 | Ultra | No | No |
+| VT3S | 0x4611 | 0x1411 | Standard | No | No |
+| VT3S Air MAX V2 | 0x4B0D | 0x1B0D | V2 | Yes | Yes |
+| VT3S Air Max | 0x46A2 | 0x14A2 | V2 | Yes | No |
+| VT4 MAX MASTER V2 | 0x4677 | 0x1477 | V2 | Yes | Yes |
+| VT4 MAX V2 | 0x4B03 | 0x1B03 | V2 | Yes | Yes |
+| VT4 V2 | 0x465B | 0x145B | Ultra | No | No |
+| VT4 Air MAX V2 | 0x4B14 | 0x1B14 | V2 | Yes | Yes |
+| VT6 MAX | 0x4652 | 0x1452 | Ultra | Yes | No |
+| VT6 | 0x4651 | 0x1451 | Standard | No | No |
+| VT7 MAX MASTER V2 | 0x4670 | 0x1470 | V2 | Yes | Yes |
+| VT7 MAX V2 | 0x4B05 | 0x1B05 | V2 | Yes | Yes |
+| VT7 MAX | 0x4616 | 0x1416 | Ultra | Yes | No |
+| VT7 PRO V2 | 0x46A7 | 0x14A7 | V2 | Yes | Yes |
+| VT7 V2 | 0x4660 | 0x1460 | Ultra | No | No |
+| VT7 | 0x4613 | 0x1413 | Standard | No | No |
+| VT7 Air MAX V2 | 0x4B0E | 0x1B0E | V2 | Yes | Yes |
+| VT7S MAX MASTER V2 | 0x4671 | 0x1471 | V2 | Yes | Yes |
+| VT7S MAX V2 | 0x4B02 | 0x1B02 | V2 | Yes | Yes |
+| VT7S PRO V2 | 0x46A8 | 0x14A8 | V2 | Yes | Yes |
+| VT7S V2 | 0x4659 | 0x1459 | Ultra | No | No |
+| VT7S Air MAX V2 | 0x4B0F | 0x1B0F | V2 | Yes | Yes |
+| VT8 MAX MASTER V2 | 0x4678 | 0x1478 | V2 | Yes | Yes |
+| VT8 MAX V2 | 0x4B0B | 0x1B0B | V2 | Yes | Yes |
+| VT8 V2 | 0x466C | 0x146C | Ultra | No | No |
+| VT8 Air MAX V2 | 0x4B15 | 0x1B15 | V2 | Yes | Yes |
+| VT9 MAX MASTER V2 | 0x4673 | 0x1473 | V2 | Yes | Yes |
+| VT9 MAX V2 | 0x4B08 | 0x1B08 | V2 | Yes | Yes |
+| VT9 MAX | 0x4618 | 0x1418 | Ultra | Yes | No |
+| VT9 PRO V2 | 0x46A9 | 0x14A9 | V2 | Yes | Yes |
+| VT9 V2 | 0x4666 | 0x1466 | Ultra | No | No |
+| VT9 | 0x4614 | 0x1414 | Standard | No | No |
+| VT9 Air MAX V2 | 0x4B10 | 0x1B10 | V2 | Yes | Yes |
+| VT9S MAX MASTER V2 | 0x4674 | 0x1474 | V2 | Yes | Yes |
+| VT9S MAX V2 | 0x4B01 | 0x1B01 | V2 | Yes | Yes |
+| VT9S PRO V2 | 0x46AA | 0x14AA | V2 | Yes | Yes |
+| VT9S V2 | 0x4653 | 0x1453 | Ultra | No | No |
+| VT9S Air MAX V2 | 0x4B11 | 0x1B11 | V2 | Yes | Yes |
 
 ## Validation and limits
 
