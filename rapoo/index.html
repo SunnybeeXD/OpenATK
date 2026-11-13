@@ -940,7 +940,7 @@ function render(){
   $('#name').textContent='Rapoo '+m.name;document.title=m.name+' · OpenATK';
   $('#status').className='status'+(driver.ready?'':' off');
   $('#status').textContent=!driver.ready?'Refresh or reconnect before editing':DEMO?'Demo · simulated mouse':driver.wired?'Connected · USB cable':'Connected · wireless receiver';
-  $('#sBatt').textContent=driver.battery?driver.battery.percent+'%':'—';
+  $('#sBatt').textContent=driver.battery?driver.battery.percent+'%':'…';
   $('#sBattBar').style.strokeDashoffset=String(238.76*(1-(driver.battery?.percent||0)/100));
   $('#sDpi').textContent=stage.x===stage.y?stage.x:stage.x+'/'+stage.y;
   $('#sConn').textContent=driver.wired?'USB cable':'Wireless';
@@ -1025,7 +1025,8 @@ async function attach(device){
   busy=true;$('#connect').disabled=$('#connect2').disabled=true;
   try{
     await next.readState();if(driver!==next)return;
-    $('#hero').classList.add('hidden');$('#blocked').classList.add('hidden');$('#app').classList.remove('hidden');$('#connectionDetails').classList.add('hidden');$('#togglelog').textContent='Show activity log';$('#connect').textContent=DEMO?'Demo':'Switch';
+    $('#hero').classList.add('hidden');$('#blocked').classList.add('hidden');$('#app').classList.remove('hidden');$('#connectionDetails').classList.add('hidden');$('#togglelog').textContent='Show activity log';$('#connect').textContent=DEMO?'Demo':'Change device';
+    if(!DEMO)try{localStorage.setItem('rapoo:last',devId(device));}catch{}
   }catch(e){if(driver===next)await detach();throw e;}
   finally{busy=false;render();}
 }
@@ -1072,7 +1073,10 @@ async function start(){
   if(!navigator.hid||mobile){$('#hero').classList.add('hidden');$('#blocked').classList.remove('hidden');$('#connect').disabled=true;return;}
   navigator.hid.addEventListener('disconnect',e=>{if(driver?.device===e.device)detach().then(()=>toast('Mouse disconnected',true));});
   navigator.hid.addEventListener('connect',e=>{if(!driver&&isCommandDevice(e.device))toast('Rapoo mouse detected. Press Connect to choose it.');});
-  const want=QS.get('d');if(want){const devices=await navigator.hid.getDevices();const device=devices.find(d=>devId(d)===want&&isCommandDevice(d));if(device)await attach(device);}
+  let want=QS.get('d');if(!want)try{want=localStorage.getItem('rapoo:last');}catch{}
+  const granted=(await navigator.hid.getDevices()).filter(isCommandDevice);
+  const device=granted.find(d=>devId(d)===want)||(granted.length===1?granted[0]:undefined);
+  if(device)await attach(device);
 }
 start().catch(e=>toast(e.message||'Could not read mouse settings',true));
 
