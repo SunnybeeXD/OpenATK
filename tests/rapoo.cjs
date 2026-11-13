@@ -9,7 +9,7 @@ const html=fs.readFileSync(path.join(__dirname,'../rapoo/index.html'),'utf8');
 function load(){
   const context=vm.createContext({Uint8Array,DataView,TextDecoder,TextEncoder,setTimeout,clearTimeout});
   vm.runInContext(html.slice(html.indexOf('// Protocol start.'),html.indexOf('// Protocol end.'))+
-    '\nglobalThis.api={Rapoo,MODELS,FILTERS,modelFor,isCommandDevice,validDpi,readFrame,writeFrame,profileAddress};',context);
+    '\nglobalThis.api={Rapoo,MODELS,FILTERS,modelFor,isCommandDevice,chooseCommandDevice,describeDevice,validDpi,readFrame,writeFrame,profileAddress};',context);
   return context.api;
 }
 const api=load();
@@ -54,6 +54,31 @@ test('vendor framing uses output 6, command A4/A5, little-endian four-byte addre
   assert.deepEqual([...api.writeFrame(0xa5,0x888,[0x20,0x03])],[165,165,2,136,8,0,0,32,3]);
   assert.equal(api.profileAddress(2,648),0x1088);
   assert.throws(()=>api.profileAddress(8,648));
+});
+test('configuration usage accepts sibling/child report collections and missing report metadata',async()=>{
+  for(const layout of [
+    [{usagePage:0xff00,usage:2},{usagePage:0xff00,usage:3,outputReports:[{reportId:6}]},{usagePage:0xff00,usage:4,featureReports:[{reportId:8}]}],
+    [{usagePage:0xff00,usage:2,children:[{usagePage:0xff00,usage:3,outputReports:[{reportId:6}]},{usagePage:0xff00,usage:4,featureReports:[{reportId:8}]}]}],
+    [{usagePage:0xff00,usage:2}],
+  ]){
+    const {dev,sent}=fixture();dev.collections=layout;
+    assert.ok(api.isCommandDevice(dev));const d=new api.Rapoo(dev,{delay:0});await d.readState();assert.equal(d.ready,true);assert.ok(sent.every(f=>f[1]===0xa4));d.close();
+  }
+  const {dev}=fixture();assert.equal(api.isCommandDevice({...dev,collections:[{usagePage:0xff00,usage:14,outputReports:[{reportId:6}],featureReports:[{reportId:8}]}]}),false);
+});
+test('picker can resolve only a unique authorized sibling of a selected USB identity',()=>{
+  const {dev}=fixture(),sibling={...dev,collections:[{usagePage:0xff00,usage:14}]};
+  const unrelated={...dev,productId:0x4610};
+  assert.equal(api.chooseCommandDevice([dev],[unrelated]),dev,'Prefer the directly selected configuration interface');
+  assert.equal(api.chooseCommandDevice([sibling],[unrelated,dev]),dev);
+  assert.equal(api.chooseCommandDevice([sibling],[unrelated]),undefined,'Do not connect an unrelated mouse');
+  assert.throws(()=>api.chooseCommandDevice([sibling],[dev,{...dev}]),/More than one/);
+});
+test('connection diagnostics retain device identity and reports without requiring report metadata',()=>{
+  const {dev}=fixture();const details=api.describeDevice({...dev,productName:'Rapoo receiver'});
+  assert.equal(details.vendorId,'0x24ae');assert.equal(details.productId,'0x4b07');assert.equal(details.model,'VT3S MAX V2');
+  assert.deepEqual(Array.from(details.collections[0].output),[6]);
+  assert.equal(api.describeDevice({...dev,collections:[{usagePage:0xff00,usage:2}]}).collections[0].feature.length,0);
 });
 test('reading configuration never writes, preserves raw fields, and decodes little-endian DPI',async()=>{
   const {driver,sent}=fixture();const s=await driver.readState();

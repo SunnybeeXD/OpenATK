@@ -570,10 +570,17 @@ fieldset:disabled{opacity:.55}dd{margin:2px 0 14px;color:var(--dim)}.num{width:1
     <p class="d">Profiles must already exist on the mouse. Remapping, macros, lighting effects, pairing, reset and firmware updates are not included.</p>
     <div class="erow"><button class="btn ghost" id="refresh">Refresh settings</button><button class="btn quiet" id="disconnect">Disconnect</button></div>
   </div>
-  <div class="item"><button class="btn ghost" id="togglelog">Show activity log</button><div id="log" class="hidden" aria-label="HID activity log" style="max-height:320px;overflow:auto;overflow-wrap:anywhere;font:11px/1.7 var(--mono);margin-top:16px"></div></div>
 </section>
 </main>
 </div>
+<p class="kmnote hidden" id="connectError" role="alert"></p>
+<details class="item" id="connectionDetails" style="margin-top:22px">
+  <summary style="cursor:pointer">Connection details and activity log</summary>
+  <p class="d">If a connection fails, copy these details to include the detected USB IDs, HID collections and error.</p>
+  <button class="btn ghost" id="copylog">Copy connection details</button>
+  <div id="log" aria-label="HID activity log" style="max-height:320px;overflow:auto;overflow-wrap:anywhere;white-space:pre-wrap;font:11px/1.7 var(--mono);margin-top:16px"></div>
+  <textarea class="hidden" id="logCopy" readonly aria-label="Connection details to copy" style="width:100%;min-height:160px;margin-top:12px"></textarea>
+</details>
 <p class="foot"><a href="../index.html" target="_top">OpenATK hub</a> · <a href="../docs/rapoo-protocol.md">Protocol and supported models</a></p>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -676,8 +683,25 @@ function writeFrame(target,address,values){ return Uint8Array.from([target,0xa5,
 function validDpi(model,value){ return Number.isInteger(value) && model.steps.some(([lo,hi,step]) => value>=lo && value<=hi && value%step===0); }
 function collections(device){ const all=[]; const visit=c=>{all.push(c);for(const child of c.children||[])visit(child);};for(const c of device.collections||[])visit(c);return all; }
 function isCommandDevice(device){
-  return !!modelFor(device) && collections(device).some(c => c.usagePage===0xff00 && c.usage===2
-    && (c.outputReports||[]).some(r=>r.reportId===6) && (c.featureReports||[]).some(r=>r.reportId===8));
+  // Match AHUB's configuration usage. The browser may expose output and feature
+  // reports in sibling/child collections, or omit their metadata before open().
+  // Report availability is established by the read-only exchange after opening.
+  return !!modelFor(device) && collections(device).some(c => c.usagePage===0xff00 && c.usage===2);
+}
+function chooseCommandDevice(picked,granted=[]){
+  const selected=picked.find(isCommandDevice);if(selected)return selected;
+  // Permission can cover sibling HID interfaces that requestDevice didn't return.
+  // Only consider interfaces of identities explicitly chosen in this picker.
+  const candidates=[...new Set(granted)].filter(d=>isCommandDevice(d)&&picked.some(p=>p.vendorId===d.vendorId&&p.productId===d.productId));
+  if(candidates.length>1)throw new Error('More than one matching Rapoo interface is authorized. Select the configuration interface for this mouse.');
+  return candidates[0];
+}
+function describeDevice(device){
+  const hex=n=>'0x'+Number(n).toString(16).padStart(4,'0');
+  return {name:device.productName||'',vendorId:hex(device.vendorId),productId:hex(device.productId),
+    model:modelFor(device)?.name||'Unlisted model',opened:device.opened,
+    collections:collections(device).map(c=>({usagePage:hex(c.usagePage),usage:hex(c.usage),
+      output:(c.outputReports||[]).map(r=>r.reportId),feature:(c.featureReports||[]).map(r=>r.reportId),input:(c.inputReports||[]).map(r=>r.reportId)}))};
 }
 class Rapoo {
   constructor(device,{delay,timeout=3000,log=()=>{}}={}){
@@ -813,7 +837,8 @@ const QS = new URLSearchParams(location.search);
 const DEMO = QS.has('demo') && !['0','false','off','no'].includes(QS.get('demo').toLowerCase());
 let driver=null,busy=false,refreshQueued=false;
 function log(label,bytes){
-  const row=document.createElement('div');row.textContent=`${new Date().toISOString().slice(11,23)} ${label} ${Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(' ')}`;
+  const detail=typeof bytes==='string'?bytes:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(' ');
+  const row=document.createElement('div');row.textContent=`${new Date().toISOString().slice(11,23)} ${label} ${detail}`;
   $('#log').append(row);if($('#log').childElementCount>400)$('#log').firstChild.remove();$('#log').scrollTop=$('#log').scrollHeight;
 }
 let toastTimer;
@@ -872,7 +897,11 @@ $('#saveAngle').onclick=()=>{const value=Number($('#angle').value);action(d=>d.s
 $('#saveSleep').onclick=()=>{const value=$('#sleepOff').checked?255:Number($('#sleep').value);action(d=>d.setByte('sleep',value));};
 $('#sleepOff').onchange=()=>{$('#sleep').disabled=$('#sleepOff').checked;if(!$('#sleepOff').checked&&!$('#sleep').value)$('#sleep').value=10;};
 $('#refresh').onclick=refresh;
-$('#togglelog').onclick=e=>{const hidden=$('#log').classList.toggle('hidden');e.target.textContent=hidden?'Show activity log':'Hide activity log';};
+$('#copylog').onclick=async()=>{
+  const text=Array.from($('#log').children,row=>row.textContent).join('\n')||'No connection attempt has been recorded. Press Connect first.';
+  try{await navigator.clipboard.writeText(text);toast('Connection details copied');}
+  catch{$('#logCopy').value=text;$('#logCopy').classList.remove('hidden');$('#logCopy').focus();$('#logCopy').select();toast('Copy the selected connection details');}
+};
 async function detach(){
   const old=driver;driver=null;refreshQueued=false;if(old){old.close();try{await old.device.close();}catch{}}
   $('#app').classList.add('hidden');$('#hero').classList.remove('hidden');$('#status').className='status off';$('#status').textContent='Not connected';$('#name').textContent='Rapoo';$('#connect').textContent='Connect';$('#connect').disabled=false;$('#connect2').disabled=false;document.title='Rapoo · OpenATK';
@@ -893,9 +922,14 @@ async function attach(device){
 async function connect(){
   if(busy||DEMO)return;
   if(!navigator.hid){toast('Use desktop Chrome, Edge, Brave or Opera for WebHID.',true);return;}
+  $('#connectError').classList.add('hidden');
   try{const picked=await navigator.hid.requestDevice({filters:FILTERS});if(!picked.length)return;
-    const device=picked.find(isCommandDevice);if(!device)throw new Error('No supported Rapoo configuration interface was selected');await attach(device);
-  }catch(e){toast(e.message||'Could not connect',true);}
+    for(const d of picked)log('SELECTED',JSON.stringify(describeDevice(d)));
+    let device=chooseCommandDevice(picked);
+    if(!device){const granted=await navigator.hid.getDevices();for(const d of granted.filter(d=>picked.some(p=>p.vendorId===d.vendorId&&p.productId===d.productId)))log('AUTHORIZED',JSON.stringify(describeDevice(d)));device=chooseCommandDevice(picked,granted);}
+    if(!device)throw new Error('No Rapoo VT configuration usage (0xFF00 / 2) was found. Copy the connection details below.');
+    await attach(device);
+  }catch(e){const message=e.message||'Could not connect';log('CONNECT ERROR',message);$('#connectError').textContent=message;$('#connectError').classList.remove('hidden');$('#connectionDetails').open=true;toast(message,true);}
 }
 $('#connect').onclick=$('#connect2').onclick=connect;
 // A transport-level simulation: the same driver, encoders and verification run as on hardware.
