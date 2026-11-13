@@ -4,7 +4,7 @@ const {test}=require('node:test');
 const fs=require('node:fs');
 const path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'../rapoo/index.html'),'utf8');
-function create(html,query,setTimeout,clearTimeout){
+function create(html,query,setTimeout,clearTimeout,media){
 const Encoder=TextEncoder,Decoder=TextDecoder,Params=URLSearchParams;
 
 const listeners=new Map(),elements=new Map(),all=[];
@@ -35,12 +35,14 @@ for(const match of html.slice(html.indexOf('<body>'),html.indexOf('// Protocol s
   if(/\bhidden(?:\s|>)/.test(attrs))el.hidden=true;all.push(el);
 }
 const document={body,title:'',hidden:false,activeElement:null,createElement:tag=>new Element(tag),
+  addEventListener(type,fn){listeners.set(type,fn);},dispatchEvent(event){listeners.get(event.type)?.(event);},
   querySelector(selector){return selector.startsWith('#')?elements.get(selector.slice(1)):null;},
   querySelectorAll(selector){if(selector==='[data-tab]')return all.filter(el=>el.dataset.tab);if(selector==='[data-panel]')return all.filter(el=>el.dataset.panel);if(selector==='[data-mouse-key]')return all.filter(el=>el.getAttribute('data-mouse-key')!==null);return[];}};
 const location={search:query,href:'',origin:'https://openatk.test'};
 const navigator={userAgent:'Test',userAgentData:{mobile:false}};
 const sandbox={document,location,navigator,URLSearchParams:Params,Uint8Array,DataView,TextEncoder:Encoder,TextDecoder:Decoder,setTimeout,clearTimeout,
   addEventListener(){},localStorage:{getItem(){return null;}},parent:null};
+if(media)sandbox.matchMedia=()=>media;
 sandbox.window=sandbox;sandbox.parent=sandbox;sandbox.globalThis=sandbox;
 const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
 const app=new Function('sandbox','with(sandbox){'+scripts+'\nreturn {get driver(){return driver},get busy(){return busy},makeDemo,connect,attach,detach,models:MODELS};}')(sandbox);
@@ -105,4 +107,33 @@ await blocked.app.connect();ok(!$(blocked,'connectError').classList.contains('hi
 return checks;
 
   } finally { for(const timer of timers)globalThis.clearTimeout(timer); }
+});
+
+
+test('Rapoo artwork cycles, pauses, respects reduced motion and stops offscreen',()=>{
+  const assert=require('node:assert/strict');
+  let nextId=0;const timers=new Map();
+  const later=(fn,ms)=>{const id=++nextId;timers.set(id,{fn,ms});return id;};
+  const cancel=id=>timers.delete(id);
+  const tick=()=>{const entry=[...timers].find(([,timer])=>timer.ms===5000);assert.ok(entry,'slideshow has one scheduled frame');timers.delete(entry[0]);entry[1].fn();};
+  const media={matches:false,addEventListener(type,fn){this.change=fn;}};
+  const p=create(html,'',later,cancel,media),get=id=>p.document.querySelector('#'+id);
+  assert.equal(get('heroCaption').textContent,'Rapoo VT3S MAX V2');
+  tick();assert.equal(get('heroCaption').textContent,'Rapoo VT9');
+  assert.equal(get('blockedImage').src,get('heroImage').src);
+  get('blockedPause').click();assert.equal(timers.size,0);assert.equal(get('heroPause').getAttribute('aria-pressed'),'true');
+  get('heroPause').click();tick();assert.equal(get('heroCaption').textContent,'Rapoo VT1 MAX');
+  tick();assert.equal(get('heroCaption').textContent,'Rapoo VT3S MAX V2');
+  media.matches=true;media.change();assert.equal(timers.size,0);assert.ok(get('heroPause').classList.contains('hidden'));
+  media.matches=false;media.change();assert.ok(!get('heroPause').classList.contains('hidden'));
+  p.document.hidden=true;p.document.dispatchEvent({type:'visibilitychange'});assert.equal(timers.size,0);
+  p.document.hidden=false;p.document.dispatchEvent({type:'visibilitychange'});tick();assert.equal(get('heroCaption').textContent,'Rapoo VT9');
+  get('app').classList.remove('hidden');p.document.dispatchEvent({type:'visibilitychange'});assert.equal(timers.size,0);
+  for(const el of p.all.filter(el=>el.tagName==='IMG'))assert.notEqual(el.getAttribute('src'),'../assets/mouse.webp');
+});
+
+test('Reduced-motion users get a static Rapoo image from first load',()=>{
+  const assert=require('node:assert/strict');const timers=new Map();let id=0;
+  const p=create(html,'',(fn,ms)=>{timers.set(++id,{fn,ms});return id;},id=>timers.delete(id),{matches:true,addEventListener(){}});
+  assert.equal(timers.size,0);assert.equal(p.document.querySelector('#heroCaption').textContent,'Rapoo VT3S MAX V2');
 });

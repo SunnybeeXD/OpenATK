@@ -197,3 +197,7 @@ Validation: `node --test tests/rapoo.cjs tests/rapoo-ui.cjs tests/rapoo-buttons.
 ## Button selector artwork
 
 The button selector uses Rapoo’s public [VT3S MAX V2 white top/underside artwork](https://hwsoft.rapoo.com/webdriver/manifests/VT3S%20MAX%20V2/func_White.png), loaded directly from its artwork CDN with no referrer. Rapoo retains ownership of that image. The caption identifies the illustrated model; the available control buttons still come from the connected model’s manifest, so this image does not claim to show every supported chassis. The labeled controls and the original Control dropdown remain usable if the image fails to load. Selecting a control only opens its editor; Save assignment performs the write.
+
+
+The disconnected and unsupported-browser screens cycle through bundled Rapoo VT3S MAX V2, VT9 and VT1 MAX thumbnails every five seconds, with their model names. Pause/Play controls stop or resume the slideshow; reduced-motion preferences keep it static, and it stops while the document is hidden or a device is connected. The device card uses a matching thumbnail for those three models, or the explicitly labeled VT3S MAX V2 illustration for other models. Image provenance is recorded in [assets/rapoo/README.md](../assets/rapoo/README.md).
+

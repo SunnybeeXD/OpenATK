@@ -99,6 +99,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   .reel{height:240px}
   .reel img{width:100%;height:100%;object-fit:contain;animation:reelIn .45s ease-out}
   @keyframes reelIn{from{opacity:0;transform:scale(.96)}}
+  .hero .art.reel{width:min(340px,100%);animation:none}
+  .reel-toggle{margin-left:10px;padding:2px 0;border:0;background:none;color:var(--dim);font:inherit;text-decoration:underline;cursor:pointer}
+  .reel-toggle:focus-visible{outline:2px solid var(--acc);outline-offset:4px}
   .reelcap{font:500 11.5px var(--mono);color:var(--dim);margin:-4px 0 18px;min-height:17px;overflow-wrap:anywhere}
   .hero .art{width:132px;margin:0 auto 18px;filter:drop-shadow(0 22px 40px rgba(var(--acc-rgb),.28));
     animation:float 5s ease-in-out infinite}
@@ -491,8 +494,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   <a href="?" target="_top">Exit demo</a>
 </div>
 <div class="hero" id="hero">
-  <div class="art reel" id="heroArt"><img src="../assets/mouse.webp" alt=""></div>
-  <div class="reelcap">Rapoo VT series</div>
+  <div class="art reel" id="heroArt"><img id="heroImage" src="../assets/rapoo/vt3s-max-v2-white.png" alt="Rapoo VT3S MAX V2 in white" width="688" height="494"></div>
+  <div class="reelcap"><span id="heroCaption">Rapoo VT3S MAX V2</span><button class="reel-toggle" id="heroPause" type="button" aria-pressed="false" aria-label="Pause mouse slideshow">Pause</button></div>
   <div class="kicker">WebHID configurator</div>
   <h2>Tune your Rapoo mouse, right in the browser</h2>
   <p>Plug in the dongle or cable, then connect. Close Rapoo AHUB first if it's running,
@@ -502,7 +505,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     &middot; <a href="../docs/rapoo-protocol.md" style="color:var(--dim);font-size:13px">Supported hardware</a></p>
 </div>
 <div class="hero hidden" id="blocked">
-  <div class="art reel"><img src="../assets/mouse.webp" alt=""></div>
+  <div class="art reel"><img id="blockedImage" src="../assets/rapoo/vt3s-max-v2-white.png" alt="Rapoo VT3S MAX V2 in white" width="688" height="494"></div>
+  <div class="reelcap"><span id="blockedCaption">Rapoo VT3S MAX V2</span><button class="reel-toggle" id="blockedPause" type="button" aria-pressed="false" aria-label="Pause mouse slideshow">Pause</button></div>
   <h2>This needs a desktop</h2>
   <p>OpenATK talks to your mouse over WebHID. Open this page on a computer, in Chrome, Edge, Brave or Opera.</p>
   <a href="?demo=1" style="color:var(--dim);font-size:13px">Try a simulated mouse</a>
@@ -510,7 +514,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <div id="app" class="hidden">
   <aside>
     <div class="devcard">
-      <div class="art" id="devArt"><img src="../assets/mouse.webp" alt=""></div>
+      <div class="art photo" id="devArt"><img id="deviceImage" src="../assets/rapoo/vt3s-max-v2-white.png" alt="Rapoo VT3S MAX V2 illustration" width="688" height="494"></div>
       <div class="skins hidden" id="devSkins"></div>
       <div class="gauges">
         <div class="ring">
@@ -1419,6 +1423,41 @@ const QS = new URLSearchParams(location.search);
 if(QS.get('embed')==='1')document.body.classList.add('embed');
 const DEMO = QS.has('demo') && !['0','false','off','no'].includes(QS.get('demo').toLowerCase());
 let driver=null,busy=false,refreshQueued=false;
+// Official Rapoo artwork is bundled locally; the reel never requests device access.
+const RAPOO_ARTWORK=[
+  {name:'VT3S MAX V2',color:'white',src:'../assets/rapoo/vt3s-max-v2-white.png'},
+  {name:'VT9',color:'white',src:'../assets/rapoo/vt9-white.png'},
+  {name:'VT1 MAX',color:'orange',src:'../assets/rapoo/vt1-max-orange.png'}
+];
+let rapooArtIndex=0,rapooArtPaused=false,rapooArtTimer;
+const rapooReducedMotion=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)');
+function showRapooArtwork(index){
+  rapooArtIndex=index;
+  const art=RAPOO_ARTWORK[index];
+  for(const prefix of ['hero','blocked']){
+    const image=$('#'+prefix+'Image');image.src=art.src;image.alt='Rapoo '+art.name+' in '+art.color;
+    $('#'+prefix+'Caption').textContent='Rapoo '+art.name;
+  }
+}
+function scheduleRapooArtwork(){
+  clearTimeout(rapooArtTimer);
+  const reduced=!!rapooReducedMotion?.matches;
+  for(const id of ['heroPause','blockedPause']){
+    const button=$('#'+id);button.classList.toggle('hidden',reduced);
+    button.textContent=rapooArtPaused?'Play':'Pause';button.setAttribute('aria-pressed',String(rapooArtPaused));
+    button.setAttribute('aria-label',rapooArtPaused?'Play mouse slideshow':'Pause mouse slideshow');
+  }
+  if(reduced||rapooArtPaused||document.hidden||!$('#app').classList.contains('hidden'))return;
+  rapooArtTimer=setTimeout(()=>{showRapooArtwork((rapooArtIndex+1)%RAPOO_ARTWORK.length);scheduleRapooArtwork();},5000);
+}
+function setRapooDeviceArtwork(name){
+  const art=RAPOO_ARTWORK.find(art=>art.name===name)||RAPOO_ARTWORK[0];
+  $('#deviceImage').src=art.src;$('#deviceImage').alt='Rapoo '+art.name+' illustration';
+}
+for(const id of ['heroPause','blockedPause'])$('#'+id).onclick=()=>{rapooArtPaused=!rapooArtPaused;scheduleRapooArtwork();};
+document.addEventListener?.('visibilitychange',scheduleRapooArtwork);
+rapooReducedMotion?.addEventListener('change',scheduleRapooArtwork);
+showRapooArtwork(0);scheduleRapooArtwork();
 function log(label,bytes){
   const detail=typeof bytes==='string'?bytes:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(' ');
   const row=document.createElement('div');row.textContent=`${new Date().toISOString().slice(11,23)} ${label} ${detail}`;
@@ -1525,17 +1564,18 @@ async function detach(){
   stopMacroRecording();
   const old=driver;driver=null;refreshQueued=false;if(old){old.close();try{await old.device.close();}catch{}}
   $('#app').classList.add('hidden');$('#hero').classList.remove('hidden');$('#status').className='status off';$('#status').textContent='Not connected';$('#name').textContent='Rapoo Mouse';$('#connect').textContent='Connect';$('#connect').disabled=false;$('#connect2').disabled=false;document.title='Rapoo · OpenATK';
+  scheduleRapooArtwork();
 }
 $('#disconnect').onclick=async()=>{await detach();if(DEMO)location.href='?';};
 async function attach(device){
   if(!isCommandDevice(device))throw new Error('Choose a supported Rapoo VT configuration interface');
   await detach();if(!device.opened)await device.open();
-  const next=new Rapoo(device,{log,delay:DEMO?0:undefined});driver=next;
+  const next=new Rapoo(device,{log,delay:DEMO?0:undefined});driver=next;setRapooDeviceArtwork(next.model.name);
   next.onChange=()=>{if(!busy)render();};next.onProfile=()=>{if(driver===next)queueRefresh();};
   busy=true;$('#connect').disabled=$('#connect2').disabled=true;
   try{
     await next.readState();if(driver!==next)return;
-    $('#hero').classList.add('hidden');$('#blocked').classList.add('hidden');$('#app').classList.remove('hidden');$('#connectionDetails').classList.add('hidden');$('#togglelog').textContent='Show activity log';$('#connect').textContent=DEMO?'Demo':'Change device';
+    $('#hero').classList.add('hidden');$('#blocked').classList.add('hidden');$('#app').classList.remove('hidden');$('#connectionDetails').classList.add('hidden');$('#togglelog').textContent='Show activity log';$('#connect').textContent=DEMO?'Demo':'Change device';scheduleRapooArtwork();
     if(!DEMO)try{localStorage.setItem('rapoo:last',devId(device));}catch{}
   }catch(e){if(driver===next)await detach();throw e;}
   finally{busy=false;render();}
@@ -1825,3 +1865,4 @@ start().catch(e=>toast(e.message||'Could not read mouse settings',true));
 </script>
 </body>
 </html>
+
