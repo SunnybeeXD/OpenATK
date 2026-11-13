@@ -134,7 +134,7 @@ Writes go to the mouse's persistent configuration. That's the same thing ATK HUB
 - The app never touches firmware-update or bootloader commands.
 - Read paths degrade rather than throw — a sleeping mouse shows "Asleep" instead of breaking the page.
 
-No telemetry, no network requests, no analytics. The page makes no outbound connections except loading two Google Fonts. Everything else is local.
+No telemetry or analytics. Fonts load from Google Fonts; mouse artwork can load from ATK’s CDN and Rapoo’s `hwsoft.rapoo.com` CDN. Device commands and settings stay local.
 
 ---
 

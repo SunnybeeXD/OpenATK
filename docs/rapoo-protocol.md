@@ -192,3 +192,8 @@ Twelve macro slots are shared across profiles. Names are 16 UTF-8 bytes at 0xFD0
 Profile names are limited to 16 UTF-8 bytes. Deletion follows AHUB: switch an active deleted slot to default, clear its name, wait, issue an empty name write and restore vendor button defaults. The default/last profile is protected. Settings JSON backups are model-specific, validated and previewed before restore. They exclude names, button mappings, macros, firmware, pairing and global communication protocol; macros have their own export/import.
 
 Validation: `node --test tests/rapoo.cjs tests/rapoo-ui.cjs tests/rapoo-buttons.cjs tests/rapoo-macros.cjs tests/rapoo-profiles.cjs tests/sensor-mode.cjs`. Hardware validation is still required.
+
+
+## Button selector artwork
+
+The button selector uses Rapoo’s public [VT3S MAX V2 white top/underside artwork](https://hwsoft.rapoo.com/webdriver/manifests/VT3S%20MAX%20V2/func_White.png), loaded directly from its artwork CDN with no referrer. Rapoo retains ownership of that image. The caption identifies the illustrated model; the available control buttons still come from the connected model’s manifest, so this image does not claim to show every supported chassis. The labeled controls and the original Control dropdown remain usable if the image fails to load. Selecting a control only opens its editor; Save assignment performs the write.
