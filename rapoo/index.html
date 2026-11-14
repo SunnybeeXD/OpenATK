@@ -501,7 +501,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   <p>Plug in the dongle or cable, then connect. Close Rapoo AHUB first if it's running,
      since only one program can talk to the mouse at a time. Works in Chrome, Edge, Brave and Opera.</p>
   <button class="btn" id="connect2">Connect mouse</button>
-  <p style="margin:20px auto 0"><a href="?demo=1" id="demoLink" style="color:var(--dim);font-size:13px">Try a simulated mouse</a>
+  <p style="margin:20px auto 0"><a href="?demo=1" id="demoLink" style="color:var(--dim);font-size:13px">Try a simulated VT2 RT</a>
     &middot; <a href="../docs/rapoo-protocol.md" style="color:var(--dim);font-size:13px">Supported hardware</a></p>
 </div>
 <div class="hero hidden" id="blocked">
@@ -509,7 +509,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   <div class="reelcap"><span id="blockedCaption">Rapoo VT3S MAX V2</span><button class="reel-toggle" id="blockedPause" type="button" aria-pressed="false" aria-label="Pause mouse slideshow">Pause</button></div>
   <h2>This needs a desktop</h2>
   <p>OpenATK talks to your mouse over WebHID. Open this page on a computer, in Chrome, Edge, Brave or Opera.</p>
-  <a href="?demo=1" style="color:var(--dim);font-size:13px">Try a simulated mouse</a>
+  <a href="?demo=1" style="color:var(--dim);font-size:13px">Try a simulated VT2 RT</a>
 </div>
 <div id="app" class="hidden">
   <aside>
@@ -1621,7 +1621,7 @@ async function connect(){
 $('#connect').onclick=$('#connect2').onclick=connect;
 // A transport-level simulation: the same driver, encoders and verification run as on hardware.
 function makeDemo(){
-  const model=MODELS.find(m=>m.name===(['rt','rt-dongle'].includes(QS.get('demo'))?'VT2 RT V2':'VT3S MAX V2')),memory=new Uint8Array(0x1c000),listeners=new Set();
+  const model=MODELS.find(m=>m.name===(['standard','standard-dongle'].includes(QS.get('demo'))?'VT3S MAX V2':'VT2 RT V2')),memory=new Uint8Array(0x1c000),listeners=new Set();
   const put16=(a,v)=>{memory[a]=v&255;memory[a+1]=v>>>8;};
   memory[0x10c]=memory[0x10d]=0;memory[0x60]=2;
   if(model.rt)for(let p=0;p<8;p++)for(const [key,[offset,min]] of Object.entries(RT_FIELDS))memory[profileAddress(p,offset)]=key==='feedback'?0:key.endsWith('Volume')?30:key.endsWith('Travel')?4:key.endsWith('Sensitivity')?2:min;
@@ -1635,7 +1635,7 @@ function makeDemo(){
     [400,800,1600,3200,6400,12800,25600].forEach((v,i)=>{put16(a(648+i*2),v);put16(a(712+i*2),v);});
   }
   let reply=new Uint8Array([1,0,0,0]);
-  return {vendorId:VID,productId:['dongle','rt-dongle'].includes(QS.get('demo'))?model.wireless:model.wired,productName:'Simulated Rapoo VT3S MAX V2',opened:false,
+  return {vendorId:VID,productId:['dongle','rt-dongle','standard-dongle'].includes(QS.get('demo'))?model.wireless:model.wired,productName:'Simulated Rapoo '+model.name,opened:false,
     collections:[{usagePage:0xff00,usage:2,outputReports:[{reportId:6}],featureReports:[{reportId:8}],inputReports:[{reportId:7}]}],
     async open(){this.opened=true;},async close(){this.opened=false;},addEventListener(t,fn){listeners.add(fn);},removeEventListener(t,fn){listeners.delete(fn);},
     async sendReport(id,frame){
