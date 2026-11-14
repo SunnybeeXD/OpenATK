@@ -264,3 +264,9 @@ Validation covers both models and both transports, all 17 field offsets and rang
 
 VT2 RT V2 is the default simulated mouse: the connection-screen demo links and `?demo=1` use cable mode, and `?demo=dongle` uses its receiver. The aliases `?demo=rt` and `?demo=rt-dongle` remain supported. Use `?demo=standard` or `?demo=standard-dongle` for the previous VT3S MAX V2 simulation. The simulated HID product name follows the selected model.
 
+
+### RT click-leaf selector
+
+The RT settings card pairs a Rapoo mouse illustration with one button's settings at a time. Click the left or right click leaf (or its labeled button) to select the side. Only that side's eight controls are shown. Hover previews the corresponding leaf and leaving hover restores the selected leaf; keyboard Enter/Space and control focus also synchronize the highlight. The shared feedback selector highlights both leaves. Selecting a leaf or changing hover/focus never writes settings; the existing validated field-change handlers still perform writes. The layout stacks on smaller screens, and the two leaf overlays do not use numbered markers. The illustration uses the same VT2 RT thumbnail as the assignment panel, with a local Rapoo fallback.
+
+
