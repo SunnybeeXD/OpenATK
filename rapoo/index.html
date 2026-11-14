@@ -477,6 +477,27 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   #buttonAdvanced{margin-top:16px}#buttonAdvanced summary{font-size:12px;color:var(--dim);cursor:pointer}
   @media(max-width:760px){.mouse-map{grid-template-columns:180px minmax(0,1fr);gap:16px}.mouse-picture{height:250px}.assignment-row{grid-template-columns:minmax(0,1fr);gap:6px}.assignment-label{font-size:12px}}
   @media(max-width:520px){.mouse-map{grid-template-columns:minmax(0,1fr)}.mouse-art{width:210px;margin:0 auto}.mouse-picture{height:290px}.assignment-row{grid-template-columns:minmax(110px,1fr) minmax(135px,1fr);gap:10px}}
+
+  .rt-layout{display:grid;grid-template-columns:232px minmax(0,1fr);gap:24px;align-items:start;margin-top:18px}
+  .rt-mouse{margin:0;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--bg);text-align:center}
+  .rt-mouse svg{display:block;width:100%;height:auto;max-height:350px}
+  .rt-mouse figcaption{margin-top:12px;font:400 11px/1.5 var(--mono);color:var(--dim)}
+  .rt-leaf{fill:transparent;stroke:transparent;stroke-width:2;cursor:pointer;transition:fill .15s,stroke .15s}
+  .rt-leaf.highlighted{fill:rgba(var(--acc-rgb),.32);stroke:var(--acc)}
+  .rt-leaf:focus-visible{outline:none;stroke:var(--acc);stroke-width:4}
+  .rt-leaf[aria-disabled=true]{pointer-events:none}
+  .rt-controls{min-width:0;max-width:600px}
+  .rt-side-switch{display:flex;gap:8px;margin-bottom:12px}
+  .rt-side-switch .btn{flex:1;justify-content:center}
+  .rt-side-switch .btn[aria-pressed=true]{border-color:var(--acc);background:rgba(var(--acc-rgb),.12);color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+  .rt-fields .erow{display:grid;grid-template-columns:minmax(0,1fr) 130px;align-items:center;gap:16px;margin:0;padding:10px 0;border-bottom:1px solid var(--line)}
+  .rt-fields .erow label{font-size:13px}
+  .rt-fields .erow .num,.rt-fields .erow .sel{width:100%;min-width:0}
+  .rt-fields .erow .sw{justify-self:end;width:52px;height:29px}
+  .rt-shared{margin-top:10px}
+  @media(max-width:760px){.rt-layout{grid-template-columns:190px minmax(0,1fr);gap:18px}.rt-fields .erow{grid-template-columns:minmax(0,1fr) 100px;gap:12px}}
+  @media(max-width:560px){.rt-layout{grid-template-columns:minmax(0,1fr)}.rt-mouse{width:200px;margin:0 auto}.rt-mouse svg{max-height:270px}.rt-controls{max-width:none}.rt-fields .erow{grid-template-columns:minmax(0,1fr) 120px}}
+  @media(prefers-reduced-motion:reduce){.rt-leaf{transition:none}}
 </style>
 </head>
 <body>
@@ -672,7 +693,41 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 </details>
 </div>
 
-<div class="item hidden" id="rtSettings"><div class="t">VT2 rapid trigger &amp; feedback</div><p class="d">Adjust each main button separately. Changes apply to the active profile. Level ranges match Rapoo AHUB.</p><div class="grid2"><div><h3>Left button</h3><div class="erow"><label for="rt_leftEnabled">Rapid trigger</label><input id="rt_leftEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_leftTravel">Actuation level</label><input id="rt_leftTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftSensitivity">Rapid-trigger level</label><input id="rt_leftSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftPressVibration">Press vibration</label><input id="rt_leftPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseVibration">Release vibration</label><input id="rt_leftReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftPressSound">Press sound</label><input id="rt_leftPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseSound">Release sound</label><input id="rt_leftReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftVolume">Sound volume (%)</label><input id="rt_leftVolume" class="num" type="number" min="0" max="100" step="1"></div></div><div><h3>Right button</h3><div class="erow"><label for="rt_rightEnabled">Rapid trigger</label><input id="rt_rightEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_rightTravel">Actuation level</label><input id="rt_rightTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightSensitivity">Rapid-trigger level</label><input id="rt_rightSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightPressVibration">Press vibration</label><input id="rt_rightPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseVibration">Release vibration</label><input id="rt_rightReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightPressSound">Press sound</label><input id="rt_rightPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseSound">Release sound</label><input id="rt_rightReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightVolume">Sound volume (%)</label><input id="rt_rightVolume" class="num" type="number" min="0" max="100" step="1"></div></div></div><div class="erow"><label for="rt_feedback">Feedback type</label><select class="sel" id="rt_feedback"><option value="0">Feedback 1</option><option value="1">Feedback 2</option><option value="2">Feedback 3</option></select></div><p class="d">Calibration remains available in Rapoo AHUB.</p></div>
+<div class="item hidden" id="rtSettings">
+  <div class="t">VT2 rapid trigger &amp; feedback</div>
+  <p class="d">Choose a click leaf on the mouse, then adjust that button. Changes save to the active profile.</p>
+  <div class="rt-layout">
+    <figure class="rt-mouse">
+      <svg viewBox="220 0 280 494" aria-label="VT2 RT mouse with selectable left and right click leaves">
+        <image id="rtMouseImage" href="https://hwsoft.rapoo.com/webdriver/manifests/VT2%20RT%20V2/thumb_Polar_Day.png" width="688" height="494"/>
+        <path class="rt-leaf" id="rtLeafLeft" role="button" tabindex="0" aria-label="Edit left click leaf" d="M354 18C308 18 269 30 252 61C237 89 240 141 247 174C257 215 301 243 354 247L354 145C342 144 339 137 339 123V89C339 76 344 70 354 69Z"/>
+        <path class="rt-leaf" id="rtLeafRight" role="button" tabindex="0" aria-label="Edit right click leaf" d="M357 18C404 18 445 32 461 65C474 96 469 145 461 180C449 216 410 242 357 247V145C368 144 372 137 372 123V89C372 76 367 70 357 69Z"/>
+      </svg>
+      <figcaption id="rtMouseHint">Left button selected</figcaption>
+    </figure>
+    <div class="rt-controls">
+      <div class="rt-side-switch" role="group" aria-label="Choose the RT button to edit"><button class="btn ghost" id="rtSelectLeft" type="button" aria-controls="rtPaneLeft" aria-pressed="true">Left button</button><button class="btn ghost" id="rtSelectRight" type="button" aria-controls="rtPaneRight" aria-pressed="false">Right button</button></div>
+      <div class="rt-fields" id="rtPaneLeft" role="group" aria-label="Left button RT settings"><div class="erow"><label for="rt_leftEnabled">Rapid trigger</label><input id="rt_leftEnabled" class="sw" type="checkbox"></div>
+<div class="erow"><label for="rt_leftTravel">Actuation level</label><input id="rt_leftTravel" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_leftSensitivity">Rapid-trigger level</label><input id="rt_leftSensitivity" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_leftPressVibration">Press vibration</label><input id="rt_leftPressVibration" class="num" type="number" min="0" max="10" step="1"></div>
+<div class="erow"><label for="rt_leftReleaseVibration">Release vibration</label><input id="rt_leftReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div>
+<div class="erow"><label for="rt_leftPressSound">Press sound</label><input id="rt_leftPressSound" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_leftReleaseSound">Release sound</label><input id="rt_leftReleaseSound" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_leftVolume">Sound volume (%)</label><input id="rt_leftVolume" class="num" type="number" min="0" max="100" step="1"></div></div>
+      <div class="rt-fields hidden" id="rtPaneRight" role="group" aria-label="Right button RT settings"><div class="erow"><label for="rt_rightEnabled">Rapid trigger</label><input id="rt_rightEnabled" class="sw" type="checkbox"></div>
+<div class="erow"><label for="rt_rightTravel">Actuation level</label><input id="rt_rightTravel" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_rightSensitivity">Rapid-trigger level</label><input id="rt_rightSensitivity" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_rightPressVibration">Press vibration</label><input id="rt_rightPressVibration" class="num" type="number" min="0" max="10" step="1"></div>
+<div class="erow"><label for="rt_rightReleaseVibration">Release vibration</label><input id="rt_rightReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div>
+<div class="erow"><label for="rt_rightPressSound">Press sound</label><input id="rt_rightPressSound" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_rightReleaseSound">Release sound</label><input id="rt_rightReleaseSound" class="num" type="number" min="1" max="10" step="1"></div>
+<div class="erow"><label for="rt_rightVolume">Sound volume (%)</label><input id="rt_rightVolume" class="num" type="number" min="0" max="100" step="1"></div></div>
+      <div class="rt-fields rt-shared"><div class="erow"><label for="rt_feedback">Feedback type (both buttons)</label><select class="sel" id="rt_feedback"><option value="0">Feedback 1</option><option value="1">Feedback 2</option><option value="2">Feedback 3</option></select></div></div>
+    </div>
+  </div>
+  <p class="d" style="margin-top:14px">Calibration remains available in Rapoo AHUB.</p>
+</div>
       <div class="item row"><div><label for="dc" class="t">DC mode (Korean firmware)</label><div class="d">Requires official Korean-market firmware. Rapoo says DC mode enables improved release response and anti-slam-click behavior on those models. The switch can appear on global models without having any effect. Saved to the active profile independently of debounce timings.</div></div><input class="sw" type="checkbox" id="dc"></div>
       <div class="item">
         <div class="t">Click debounce</div>
@@ -1666,8 +1721,22 @@ function makeDemo(){
   };
 }
 // RT UI start.
+let rtSelectedSide='left';
+function paintRtLeaves(side){
+  for(const name of ['left','right'])$('#rtLeaf'+(name==='left'?'Left':'Right')).classList.toggle('highlighted',side===name||side==='both');
+  $('#rtMouseHint').textContent=side==='both'?'Both buttons · shared feedback':(side==='left'?'Left':'Right')+' button selected';
+}
+function selectRtSide(side){
+  if(!driver?.model.rt||!['left','right'].includes(side))return;
+  rtSelectedSide=side;
+  for(const name of ['left','right']){const suffix=name==='left'?'Left':'Right';$('#rtPane'+suffix).classList.toggle('hidden',name!==side);$('#rtSelect'+suffix).setAttribute('aria-pressed',String(name===side));$('#rtLeaf'+suffix).setAttribute('aria-pressed',String(name===side));}
+  paintRtLeaves(side);
+}
 function renderRt(){
   $('#rtSettings').classList.toggle('hidden',!driver?.model.rt);
+  selectRtSide(rtSelectedSide);
+  for(const suffix of ['Left','Right']){const disabled=!driver?.ready||!driver?.model.rt||busy;$('#rtLeaf'+suffix).setAttribute('aria-disabled',String(disabled));$('#rtLeaf'+suffix).setAttribute('tabindex',disabled?'-1':'0');$('#rtSelect'+suffix).disabled=disabled;}
+  if(document.activeElement===$('#rt_feedback'))paintRtLeaves('both');
   for(const key of Object.keys(RT_FIELDS)){
     const input=$('#rt_'+key),value=driver?.s?.rt?.[key];input.disabled=busy||!driver?.ready||!driver?.model.rt;
     if(key.endsWith('Enabled'))input.checked=value!==undefined&&value!==0;
@@ -1677,7 +1746,21 @@ function renderRt(){
     }
   }
 }
-function bindRt(){for(const key of Object.keys(RT_FIELDS))$('#rt_'+key).onchange=e=>{const value=key.endsWith('Enabled')?Number(e.target.checked):e.target.value===''?NaN:Number(e.target.value);action(d=>d.setRt(key,value));};}
+function bindRt(){
+  for(const side of ['left','right']){
+    const suffix=side==='left'?'Left':'Right',leaf=$('#rtLeaf'+suffix),button=$('#rtSelect'+suffix);
+    leaf.onclick=button.onclick=()=>selectRtSide(side);
+    leaf.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectRtSide(side);}};
+    leaf.onmouseenter=leaf.onfocus=button.onmouseenter=button.onfocus=()=>paintRtLeaves(side);
+    leaf.onmouseleave=leaf.onblur=button.onmouseleave=button.onblur=()=>paintRtLeaves(rtSelectedSide);
+  }
+  const image=$('#rtMouseImage');image.onerror=()=>{const fallback='../assets/rapoo/vt3s-max-v2-white.png';if(image.getAttribute('href')!==fallback)image.setAttribute('href',fallback);};
+  for(const key of Object.keys(RT_FIELDS)){
+    const input=$('#rt_'+key),side=key.startsWith('left')?'left':key.startsWith('right')?'right':null;
+    input.onfocus=()=>{if(side)selectRtSide(side);else paintRtLeaves('both');};input.onblur=()=>paintRtLeaves(rtSelectedSide);
+    input.onchange=e=>{const value=key.endsWith('Enabled')?Number(e.target.checked):e.target.value===''?NaN:Number(e.target.value);action(d=>d.setRt(key,value));};
+  }
+}
 // RT UI end.
 // Buttons UI start.
 const BUTTON_ROW_ORDER=[0,2,1,6,5,3,4,9,10,13];

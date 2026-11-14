@@ -105,6 +105,15 @@ await blocked.app.connect();await wait(blocked);ok(!$(blocked,'app').classList.c
 blocked.sandbox.navigator.hid.requestDevice=async()=>{const d=blocked.app.makeDemo();d.collections=[{usagePage:0xff00,usage:14}];return[d];};
 await blocked.app.connect();ok(!$(blocked,'connectError').classList.contains('hidden')&&!$(blocked,'connectionDetails').classList.contains('hidden'),'Failed connection diagnostics visible');
 const rt=create(html,'?demo=1',setTimeout,clearTimeout);await wait(rt);ok(!$(rt,'rtSettings').classList.contains('hidden'),'Default demo shows VT2 RT settings');
+const beforeLeafSelection=JSON.stringify(rt.app.driver.s.rt);
+$(rt,'rtLeafRight').click();ok($(rt,'rtPaneLeft').classList.contains('hidden')&&!$(rt,'rtPaneRight').classList.contains('hidden'),'Right click leaf opens right settings');
+ok($(rt,'rtLeafRight').classList.contains('highlighted')&&!$(rt,'rtLeafLeft').classList.contains('highlighted'),'Only selected click leaf highlights');
+$(rt,'rtLeafLeft').onmouseenter();ok($(rt,'rtLeafLeft').classList.contains('highlighted')&&!$(rt,'rtLeafRight').classList.contains('highlighted'),'Hover previews other click leaf');$(rt,'rtLeafLeft').onmouseleave();
+ok($(rt,'rtLeafRight').classList.contains('highlighted'),'Leaving hover restores selected leaf');
+$(rt,'rtLeafLeft').onkeydown({key:'Enter',preventDefault(){}});ok(!$(rt,'rtPaneLeft').classList.contains('hidden')&&$(rt,'rtSelectLeft').getAttribute('aria-pressed')==='true','Leaf keyboard selection opens left settings');
+$(rt,'rt_rightVolume').onfocus();ok(!$(rt,'rtPaneRight').classList.contains('hidden'),'Focusing a right-side setting highlights the right leaf');
+$(rt,'rt_feedback').onfocus();ok($(rt,'rtLeafLeft').classList.contains('highlighted')&&$(rt,'rtLeafRight').classList.contains('highlighted'),'Shared feedback highlights both leaves');$(rt,'rt_feedback').onblur();
+ok(JSON.stringify(rt.app.driver.s.rt)===beforeLeafSelection,'Leaf selection, hover and focus do not alter RT settings');$(rt,'rtSelectLeft').click();
 $(rt,'rt_leftTravel').value='7';$(rt,'rt_leftTravel').onchange({target:$(rt,'rt_leftTravel')});await wait(rt);ok(rt.app.driver.s.rt.leftTravel===7,'Actuation control saves');
 $(rt,'rt_rightEnabled').checked=true;$(rt,'rt_rightEnabled').onchange({target:$(rt,'rt_rightEnabled')});await wait(rt);ok(rt.app.driver.s.rt.rightEnabled===1,'Rapid trigger switch saves');
 $(rt,'rt_leftTravel').value='11';$(rt,'rt_leftTravel').onchange({target:$(rt,'rt_leftTravel')});await wait(rt);ok($(rt,'rt_leftTravel').value==='7','Invalid RT value rolls back');
