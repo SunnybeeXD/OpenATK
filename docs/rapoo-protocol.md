@@ -208,15 +208,15 @@ Inspected [Rapoo Korea](https://hubkr.rapoo.com/home) on 2026-11-14. Its paramet
 
 | Item | Korean hub | OpenATK |
 | --- | --- | --- |
-| DC switch | Exposed in the debounce card | Added under Buttons & power as DC mode |
+| DC switch | Exposed in the debounce card; advertised behavior requires official Korean firmware | Added under Buttons & power as DC mode (Korean firmware), with the same firmware requirement |
 | Persistence | One byte per active onboard profile | Same address, read on connect/refresh/profile change |
 | Switch encoding | Off writes 0, on writes 1; reads interpret any nonzero value as on | Same; writes are read-back verified |
 | Debounce settings | Separate press/release bytes | Kept independent; changing DC only writes its byte |
 | Settings backup | Vendor configuration system | DC included as an optional boolean; older backups leave it unchanged |
 
-Wire format: profile base `0x600 + profile * 0x400`, offset **730** (`MOUSE_DCSWITCH` / `LOW_DC_SWITCH`), one-byte read/write through the existing VT nrf54L A4/A5 EEPROM commands. The existing target byte selects cable (`0xFF`) or receiver (`0xA5`). The same field is implemented and read by the global AHUB VT driver, including the newer supported models absent from Korea's catalog, so it is not a Korea-exclusive wire command. OpenATK exposes it for its existing VT nrf54L models only; no additional device protocol is enabled.
+Wire format: profile base `0x600 + profile * 0x400`, offset **730** (`MOUSE_DCSWITCH` / `LOW_DC_SWITCH`), one-byte read/write through the existing VT nrf54L A4/A5 EEPROM commands. The existing target byte selects cable (`0xFF`) or receiver (`0xA5`). The same field is implemented and read by the global AHUB VT driver, including the newer supported models absent from Korea's catalog, but sharing an EEPROM field does not establish that global firmware implements the same behavior. OpenATK exposes the field for its existing VT nrf54L models only and labels it as requiring Korean firmware; no additional device protocol is enabled. The client has no verified way to identify the regional firmware variant, so a readable field, an enabled toggle or successful read-back must not be treated as confirmation that DC behavior is active.
 
-The public UI labels do not explain what “DC” expands to or quantify its effect. OpenATK retains Rapoo's name without asserting a latency or double-click benefit. No firmware update, pairing or reset is involved. Initialization remains read-only. Physical-device validation is still required.
+The official Korean-market notice supplied by the user states that Freeflow-distributed Korean models use proprietary firmware distinct from global products. According to that notice, enabling DC MODE provides improved release-click response and anti-slam-click behavior on those Korean models. It explicitly says that DC MODE will not actually work on non-Korean-release products even if the web driver detects it. These are vendor claims; they have not been measured or verified on hardware here. This corrects the earlier inference that a shared command implied global feature support. The meaning of the acronym remains unspecified. No firmware update, pairing or reset is involved. Initialization remains read-only. Physical-device validation is still required.
 
 Primary implementation references:
 
