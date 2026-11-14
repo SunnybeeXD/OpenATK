@@ -260,3 +260,6 @@ Initialization reads the two blocks 740–763 and 764–770 without writing. Eac
 Hardware-free demos: `rapoo/index.html?demo=rt` and `?demo=rt-dongle`. The simulated models run the same read/write and verification code. Physical-device validation is pending. Calibration, live trigger polling, factory reset and firmware updates are not implemented; use AHUB for calibration. OpenATK sends no calibration or firmware commands.
 
 Validation covers both models and both transports, all 17 field offsets and ranges, read-only initialization, neighbor-byte preservation, stale-profile rejection, failed read-back handling, profile isolation, RT backup validation/round trips, legacy backup preservation, UI edits/rollback, standard-model hiding and both RT demos.
+
+
+VT2 RT V2 is the default simulated mouse: the connection-screen demo links and `?demo=1` use cable mode, and `?demo=dongle` uses its receiver. The aliases `?demo=rt` and `?demo=rt-dongle` remain supported. Use `?demo=standard` or `?demo=standard-dongle` for the previous VT3S MAX V2 simulation. The simulated HID product name follows the selected model.

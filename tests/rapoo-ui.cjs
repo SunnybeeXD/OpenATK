@@ -61,7 +61,7 @@ const ok=(condition,name)=>{if(!condition)throw Error(name);checks.push(name);};
 const wait=async(page)=>{for(let i=0;i<400;i++){if(page.app.driver?.ready&&!page.app.busy)return;await new Promise(r=>setTimeout(r,5));}throw Error('UI did not finish: '+page.document.querySelector('#toast').textContent);};
 const $=(page,id)=>page.document.querySelector('#'+id);
 const press=async(page,id,text)=>{const button=$(page,id).children.find(b=>b.textContent===text);ok(!!button,'Control exists: '+id+'/'+text);button.click();await wait(page);};
-const p=create(html,'?demo=1',setTimeout,clearTimeout);await wait(p);
+const p=create(html,'?demo=standard',setTimeout,clearTimeout);await wait(p);
 ok(p.all.filter(e=>e.dataset.tab).map(e=>e.dataset.tab).join(',')==='basics,tracking,light,buttons,macros,device','All OpenATK and macro tabs');
 for(const tab of p.all.filter(e=>e.dataset.tab)){tab.click();await wait(p);ok(p.all.filter(e=>e.dataset.panel&&!e.classList.contains('hidden')).map(e=>e.dataset.panel).join('')===tab.dataset.tab,'Tab switches to '+tab.dataset.tab);}
 const mapControls=p.document.querySelectorAll('[data-mouse-key]');
@@ -104,12 +104,12 @@ blocked.sandbox.navigator.hid={addEventListener(){},async requestDevice(){const 
 await blocked.app.connect();await wait(blocked);ok(!$(blocked,'app').classList.contains('hidden'),'Missing report metadata connection fix retained');await blocked.app.detach();
 blocked.sandbox.navigator.hid.requestDevice=async()=>{const d=blocked.app.makeDemo();d.collections=[{usagePage:0xff00,usage:14}];return[d];};
 await blocked.app.connect();ok(!$(blocked,'connectError').classList.contains('hidden')&&!$(blocked,'connectionDetails').classList.contains('hidden'),'Failed connection diagnostics visible');
-const rt=create(html,'?demo=rt',setTimeout,clearTimeout);await wait(rt);ok(!$(rt,'rtSettings').classList.contains('hidden'),'RT settings shown for VT2 RT');
+const rt=create(html,'?demo=1',setTimeout,clearTimeout);await wait(rt);ok(!$(rt,'rtSettings').classList.contains('hidden'),'Default demo shows VT2 RT settings');
 $(rt,'rt_leftTravel').value='7';$(rt,'rt_leftTravel').onchange({target:$(rt,'rt_leftTravel')});await wait(rt);ok(rt.app.driver.s.rt.leftTravel===7,'Actuation control saves');
 $(rt,'rt_rightEnabled').checked=true;$(rt,'rt_rightEnabled').onchange({target:$(rt,'rt_rightEnabled')});await wait(rt);ok(rt.app.driver.s.rt.rightEnabled===1,'Rapid trigger switch saves');
 $(rt,'rt_leftTravel').value='11';$(rt,'rt_leftTravel').onchange({target:$(rt,'rt_leftTravel')});await wait(rt);ok($(rt,'rt_leftTravel').value==='7','Invalid RT value rolls back');
 ok($(p,'rtSettings').classList.contains('hidden')&&$(p,'rt_leftTravel').disabled,'Standard model hides and disables RT controls');await rt.app.detach();
-const rtReceiver=create(html,'?demo=rt-dongle',setTimeout,clearTimeout);await wait(rtReceiver);ok(rtReceiver.app.driver.model.rt&&!rtReceiver.app.driver.wired,'RT receiver demo');await rtReceiver.app.detach();
+const rtReceiver=create(html,'?demo=dongle',setTimeout,clearTimeout);await wait(rtReceiver);ok(rtReceiver.app.driver.model.rt&&!rtReceiver.app.driver.wired,'Default receiver demo uses VT2 RT');await rtReceiver.app.detach();
 return checks;
 
   } finally { for(const timer of timers)globalThis.clearTimeout(timer); }
