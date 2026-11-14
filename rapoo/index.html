@@ -613,6 +613,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     </section>
     <section class="panel hidden" data-panel="buttons">
       <div class="phead"><div><h2>Buttons &amp; power</h2><p>Click timing and how the mouse sleeps.</p></div></div>
+<div class="item hidden" id="rtSettings"><div class="t">VT2 rapid trigger &amp; feedback</div><p class="d">Adjust each main button separately. Changes apply to the active profile. Level ranges match Rapoo AHUB.</p><div class="grid2"><div><h3>Left button</h3><div class="erow"><label for="rt_leftEnabled">Rapid trigger</label><input id="rt_leftEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_leftTravel">Actuation level</label><input id="rt_leftTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftSensitivity">Rapid-trigger level</label><input id="rt_leftSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftPressVibration">Press vibration</label><input id="rt_leftPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseVibration">Release vibration</label><input id="rt_leftReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftPressSound">Press sound</label><input id="rt_leftPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseSound">Release sound</label><input id="rt_leftReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftVolume">Sound volume (%)</label><input id="rt_leftVolume" class="num" type="number" min="0" max="100" step="1"></div></div><div><h3>Right button</h3><div class="erow"><label for="rt_rightEnabled">Rapid trigger</label><input id="rt_rightEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_rightTravel">Actuation level</label><input id="rt_rightTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightSensitivity">Rapid-trigger level</label><input id="rt_rightSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightPressVibration">Press vibration</label><input id="rt_rightPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseVibration">Release vibration</label><input id="rt_rightReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightPressSound">Press sound</label><input id="rt_rightPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseSound">Release sound</label><input id="rt_rightReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightVolume">Sound volume (%)</label><input id="rt_rightVolume" class="num" type="number" min="0" max="100" step="1"></div></div></div><div class="erow"><label for="rt_feedback">Feedback type</label><select class="sel" id="rt_feedback"><option value="0">Feedback 1</option><option value="1">Feedback 2</option><option value="2">Feedback 3</option></select></div><p class="d">Calibration remains available in Rapoo AHUB.</p></div>
 <div class="item" id="buttonMappingsItem">
   <div class="t">Button assignments</div>
   <div class="d">Choose what each button does. Changes apply to the active profile. At least one physical button must remain a left click.</div>
@@ -828,12 +829,13 @@ const MODEL_ROWS = [
   ["VT9S V2",18003,5203,"ultra",0,0,[0,1,2,5,6,9,10,13]],
   ["VT9S Air MAX V2",19217,6929,"v2",1,1,[0,1,2,5,6,9,10,13]],
 ];
+MODEL_ROWS.push(["VT2 RT V2",19232,6944,"v2",1,1,[0,1,2,5,6,9,10,13]],["VT2 RT MASTER V2",19233,6945,"v2",1,1,[0,1,2,5,6,9,10,13]]);
 const DPI_FAMILIES = {
   standard: { min: 50, max: 26000, steps: [[50, 26000, 50]], lod: Array.from({length:11}, (_,i) => (10+i)/10) },
   ultra: { min: 10, max: 45000, steps: [[10,10050,10],[10050,45000,50]], lod: Array.from({length:11}, (_,i) => (7+i)/10) },
   v2: { min: 1, max: 60000, steps: [[1,60000,1]], lod: Array.from({length:11}, (_,i) => (7+i)/10) },
 };
-const MODELS = MODEL_ROWS.map(([name,wired,wireless,family,keyScan,rfProtocol,keys]) => ({name,wired,wireless,keyScan,rfProtocol,keys,...DPI_FAMILIES[family]}));
+const MODELS = MODEL_ROWS.map(([name,wired,wireless,family,keyScan,rfProtocol,keys]) => ({name,wired,wireless,keyScan,rfProtocol,keys,rt:name==='VT2 RT V2'||name==='VT2 RT MASTER V2',...DPI_FAMILIES[family]}));
 const FILTERS = MODELS.flatMap(m => [m.wired,m.wireless].map(productId => ({vendorId:VID,productId,usagePage:0xff00,usage:2})));
 const modelFor = d => d.vendorId === VID ? MODELS.find(m => m.wired === d.productId || m.wireless === d.productId) : undefined;
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
@@ -841,6 +843,13 @@ const RATES = [[125,8],[250,4],[500,2],[1000,1],[2000,132],[4000,130],[8000,129]
 const RATE_MODES = {8:[1,0],4:[1,0],2:[2,1,0],1:[5,4,3,2,1],132:[5,4,3,2],130:[5,4,3],129:[5,4,3]};
 const MODE_NAMES = ['Office','Balanced','Power','Hyper','Competition Hyper','Rampage Competitive'];
 const DEBOUNCE = [...Array.from({length:17},(_,i)=>i),18,20,22,24,26,28,30,32];
+// LM20RT offsets and limits from the Chinese AHUB manifest and XP feature.
+const RT_FIELDS={"leftEnabled":[740,0,1],"leftTravel":[744,1,10],"leftSensitivity":[745,1,10],"rightEnabled":[748,0,1],"rightTravel":[752,1,10],"rightSensitivity":[753,1,10],"leftPressVibration":[756,0,10],"leftReleaseVibration":[757,0,10],"feedback":[758,0,2],"rightPressVibration":[760,0,10],"rightReleaseVibration":[761,0,10],"leftPressSound":[764,1,10],"leftReleaseSound":[765,1,10],"leftVolume":[766,0,100],"rightPressSound":[768,1,10],"rightReleaseSound":[769,1,10],"rightVolume":[770,0,100]};
+function validateRtBackup(value,model){
+  if(!model.rt)throw new Error('RT settings are not supported by this model');
+  profilePlainObject(value,'RT settings');profileExactKeys(value,Object.keys(RT_FIELDS),'RT settings');
+  const out={};for(const [key,[offset,min,max]] of Object.entries(RT_FIELDS))out[key]=integer(value[key],min,max,'RT '+key);return out;
+}
 const OFFSETS = {rate:640,scan:641,lod:644,motion:645,x:648,count:662,active:664,press:704,release:705,sleep:706,correction:707,angle:708,glass:709,y:712,rfBoost:728,lowLight:729,dc:730,modes:732,rfPacket:0x60};
 const sleep = ms => new Promise(r => setTimeout(r,ms));
 function integer(n,min,max,label){ if (!Number.isInteger(n) || n<min || n>max) throw new Error(`Invalid ${label}`); return n; }
@@ -1057,7 +1066,7 @@ function macroEventLabel(event){
 // Profile management helpers. Names and reset defaults match Rapoo AHUB Yx/Gx.
 const RAPOO_PROFILE_SLOTS = 8, RAPOO_PROFILE_NAME_OFFSET = 1004, RAPOO_PROFILE_NAME_BYTES = 16;
 function profileUserSlots(model){
-  // All 69 supported retail manifests use the unrestricted eight-slot config.
+  // Supported retail manifests use the unrestricted eight-slot config.
   // Future models may supply explicit userProfileSlots; never edit another slot.
   const slots=model.userProfileSlots??[0,1,2,3,4,5,6,7];
   if(!Array.isArray(slots)||!slots.length||slots.some(v=>!Number.isInteger(v)||v<0||v>=8)||new Set(slots).size!==slots.length)throw new Error('Invalid model profile slots');
@@ -1091,7 +1100,7 @@ function validateProfileSettingsBackup(input,model){
   if(input.name!==undefined&&(typeof input.name!=='string'||input.name.length>64))throw new Error('Invalid backup name');
   if(input.createdAt!==undefined&&(typeof input.createdAt!=='string'||input.createdAt.length>40))throw new Error('Invalid backup date');
   const s=profilePlainObject(input.settings,'settings');
-  profileExactKeys(s,['dpi','rate','lod','motion','press','release','sleep','angleSnap','ripple','angle','glass','lowLight','rfBoost','dc','scan','modes'],'settings');
+  profileExactKeys(s,['dpi','rate','lod','motion','press','release','sleep','angleSnap','ripple','angle','glass','lowLight','rfBoost','dc','rt','scan','modes'],'settings');
   const dpi=profilePlainObject(s.dpi,'DPI settings');profileExactKeys(dpi,['count','active','stages'],'DPI');
   integer(dpi.count,1,7,'DPI count');integer(dpi.active,0,dpi.count-1,'active DPI stage');
   if(!Array.isArray(dpi.stages)||dpi.stages.length!==dpi.count)throw new Error('Invalid DPI stage table');
@@ -1102,19 +1111,20 @@ function validateProfileSettingsBackup(input,model){
   if(s.sleep!==255)integer(s.sleep,2,120,'backup sleep timeout');
   integer(s.angle,-30,30,'backup sensor angle');
   for(const key of ['motion','angleSnap','ripple','glass','lowLight','rfBoost'])profileBoolean(s[key],'backup '+key);
+  if(s.rt!==undefined)validateRtBackup(s.rt,model);
   if(s.dc!==undefined)profileBoolean(s.dc,'backup DC mode');
   if(s.scan!==undefined){if(!model.keyScan)throw new Error('This model does not expose key scan rate');integer(s.scan,3,6,'backup key scan rate');}
   if(!Array.isArray(s.modes)||s.modes.length!==7||s.modes.some((mode,i)=>!RATE_MODES[RATES[i][1]].includes(mode)))throw new Error('Unsupported backup sensor modes');
-  return {app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:input.name||'',createdAt:input.createdAt||'',settings:{dpi:{count:dpi.count,active:dpi.active,stages},rate:s.rate,lod:s.lod,motion:s.motion,press:s.press,release:s.release,sleep:s.sleep,angleSnap:s.angleSnap,ripple:s.ripple,angle:s.angle,glass:s.glass,lowLight:s.lowLight,rfBoost:s.rfBoost,...(s.dc===undefined?{}:{dc:s.dc}),...(s.scan===undefined?{}:{scan:s.scan}),modes:[...s.modes]}};
+  return {app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:input.name||'',createdAt:input.createdAt||'',settings:{dpi:{count:dpi.count,active:dpi.active,stages},rate:s.rate,lod:s.lod,motion:s.motion,press:s.press,release:s.release,sleep:s.sleep,angleSnap:s.angleSnap,ripple:s.ripple,angle:s.angle,glass:s.glass,lowLight:s.lowLight,rfBoost:s.rfBoost,...(s.rt===undefined?{}:{rt:validateRtBackup(s.rt,model)}),...(s.dc===undefined?{}:{dc:s.dc}),...(s.scan===undefined?{}:{scan:s.scan}),modes:[...s.modes]}};
 }
 function makeProfileSettingsBackup(model,state){
   if(!state)throw new Error('Read the mouse settings first');
-  const backup={app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:state.profiles.find(p=>p.slot===state.profile)?.name||'',createdAt:new Date().toISOString(),settings:{dpi:{count:state.count,active:state.active,stages:state.stages.slice(0,state.count).map(stage=>({x:stage.x,y:stage.y}))},rate:state.rate,lod:model.lod[state.lod-1],motion:state.motion!==0,press:state.press,release:state.release,sleep:state.sleep,angleSnap:(state.correction&1)===0,ripple:(state.correction&2)===0,angle:state.angle,glass:state.glass!==0,lowLight:state.lowLight!==0,rfBoost:state.rfBoost!==0,...(state.dc===undefined?{}:{dc:state.dc!==0}),...(model.keyScan?{scan:state.scan}:{}),modes:[...state.modes]}};
+  const backup={app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:state.profiles.find(p=>p.slot===state.profile)?.name||'',createdAt:new Date().toISOString(),settings:{dpi:{count:state.count,active:state.active,stages:state.stages.slice(0,state.count).map(stage=>({x:stage.x,y:stage.y}))},rate:state.rate,lod:model.lod[state.lod-1],motion:state.motion!==0,press:state.press,release:state.release,sleep:state.sleep,angleSnap:(state.correction&1)===0,ripple:(state.correction&2)===0,angle:state.angle,glass:state.glass!==0,lowLight:state.lowLight!==0,rfBoost:state.rfBoost!==0,...(state.rt===undefined?{}:{rt:Object.fromEntries(Object.entries(state.rt).map(([key,value])=>[key,key.endsWith('Enabled')?Number(value!==0):value]))}),...(state.dc===undefined?{}:{dc:state.dc!==0}),...(model.keyScan?{scan:state.scan}:{}),modes:[...state.modes]}};
   return validateProfileSettingsBackup(backup,model);
 }
 function profileSettingsPreview(backup,model){
   const s=validateProfileSettingsBackup(backup,model).settings,hz=RATES.find(r=>r[1]===s.rate)[0];
-  return ['DPI: '+s.dpi.stages.map((v,i)=>(i+1)+': '+v.x+(v.x!==v.y?'/'+v.y:'')).join(', '),'Active DPI stage: '+(s.dpi.active+1),'Polling: '+hz+' Hz','Lift-off: '+s.lod+' mm','Motion sync: '+(s.motion?'on':'off'),...(s.dc===undefined?[]:['DC mode: '+(s.dc?'on':'off')]),'Debounce: press '+s.press+' ms, release '+s.release+' ms','Sleep: '+(s.sleep===255?'never':s.sleep+' minutes'),'Angle snap: '+(s.angleSnap?'on':'off')+', ripple: '+(s.ripple?'on':'off'),'Sensor rotation: '+s.angle+' degrees','Glass tracking: '+(s.glass?'on':'off')+', low battery light: '+(s.lowLight?'on':'off'),'RF strategy: '+(s.rfBoost?'maximum':'adaptive'),...(s.scan===undefined?[]:['Key scan rate: '+s.scan]),'Sensor modes: '+s.modes.map(v=>MODE_NAMES[v]).join(', ')];
+  return ['DPI: '+s.dpi.stages.map((v,i)=>(i+1)+': '+v.x+(v.x!==v.y?'/'+v.y:'')).join(', '),'Active DPI stage: '+(s.dpi.active+1),'Polling: '+hz+' Hz','Lift-off: '+s.lod+' mm','Motion sync: '+(s.motion?'on':'off'),...(s.dc===undefined?[]:['DC mode: '+(s.dc?'on':'off')]),'Debounce: press '+s.press+' ms, release '+s.release+' ms','Sleep: '+(s.sleep===255?'never':s.sleep+' minutes'),'Angle snap: '+(s.angleSnap?'on':'off')+', ripple: '+(s.ripple?'on':'off'),'Sensor rotation: '+s.angle+' degrees','Glass tracking: '+(s.glass?'on':'off')+', low battery light: '+(s.lowLight?'on':'off'),'RF strategy: '+(s.rfBoost?'maximum':'adaptive'),...(s.scan===undefined?[]:['Key scan rate: '+s.scan]),...(s.rt===undefined?[]:['RT settings: '+Object.entries(s.rt).map(([key,value])=>key+'='+value).join(', ')]),'Sensor modes: '+s.modes.map(v=>MODE_NAMES[v]).join(', ')];
 }
 
 class Rapoo {
@@ -1166,6 +1176,11 @@ class Rapoo {
     const modes=await this.read(a(732),7),lowLight=(await this.read(a(729),1))[0],rfBoost=(await this.read(a(728),1))[0];
     const dc=(await this.read(a(OFFSETS.dc),1))[0];
     const rfPacket=this.model.rfProtocol?(await this.read(OFFSETS.rfPacket,1))[0]:undefined;
+    let rt;
+    if(this.model.rt){
+      const first=await this.read(a(740),24),last=await this.read(a(764),7);
+      rt=Object.fromEntries(Object.entries(RT_FIELDS).map(([key,[offset]])=>[key,offset<764?first[offset-740]:last[offset-764]]));
+    }
     const profiles=[];
     for(let slot=0;slot<8;slot++){
       const bytes=await this.read(profileAddress(slot,1004),16);
@@ -1174,7 +1189,7 @@ class Rapoo {
     if(!profiles.some(v=>v.slot===p))profiles.push({slot:p,name:`Profile ${p+1}`});
     this.s={profile:p,profiles,count,active,stages:Array.from({length:7},(_,i)=>({x:x[i*2]|x[i*2+1]<<8,y:y[i*2]|y[i*2+1]<<8})),
       rate:perf[0],scan:perf[1],lod:perf[4],motion:perf[5],press:misc[0],release:misc[1],sleep:misc[2],
-      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight,rfBoost,dc,rfPacket,macros:this.macros||null};
+      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight,rfBoost,dc,rfPacket,rt,macros:this.macros||null};
     this.ready=true;return this.s;
   });}
   change(fn){return this.lock(async()=>{
@@ -1191,6 +1206,12 @@ class Rapoo {
     if((key==='press'||key==='release')&&!DEBOUNCE.includes(value))throw new Error('Unsupported debounce value');
     if(key==='scan'&&!this.model.keyScan)throw new Error('Key scan rate is not supported by this model');
     return this.change(async(s,p)=>{await this.writeVerified(profileAddress(p,OFFSETS[key]),[value&255]);s[key]=value;});
+  }
+  async setRt(key,value){
+    if(!this.model.rt)throw new Error('RT settings are not supported by this model');
+    const field=Object.hasOwn(RT_FIELDS,key)?RT_FIELDS[key]:undefined;
+    if(!field)throw new Error('Unsupported RT setting');integer(value,field[1],field[2],'RT '+key);
+    return this.change(async(s,p)=>{if(!s.rt)throw new Error('Read RT settings first');await this.writeVerified(profileAddress(p,field[0]),[value]);s.rt[key]=value;});
   }
   setRfPacket(value){
     if(!this.model.rfProtocol)return Promise.reject(new Error('Communication protocol is not supported by this model'));
@@ -1392,6 +1413,7 @@ class Rapoo {
       await this.writeVerified(a(648),x);await this.writeVerified(a(712),y);
       await this.writeVerified(a(664),[0]);await this.writeVerified(a(662),[v.dpi.count-1]);await this.writeVerified(a(664),[v.dpi.active]);
       for(const [offset,value] of [[640,v.rate],[644,this.model.lod.findIndex(mm=>Math.abs(mm-v.lod)<0.00001)+1],[645,Number(v.motion)],[704,v.press],[705,v.release],[706,v.sleep],[708,v.angle&255],[709,Number(v.glass)],[729,Number(v.lowLight)],[728,Number(v.rfBoost)]])await this.writeVerified(a(offset),[value]);
+      if(v.rt!==undefined)for(const [key,value] of Object.entries(v.rt))await this.writeVerified(a(RT_FIELDS[key][0]),[value]);
       if(v.dc!==undefined)await this.writeVerified(a(OFFSETS.dc),[Number(v.dc)]);
       if(v.scan!==undefined)await this.writeVerified(a(641),[v.scan]);
       const correction=(await this.read(a(707),1))[0];
@@ -1528,7 +1550,7 @@ function render(){
   $('#kv').replaceChildren(...rows.map(([key,value])=>{const tr=document.createElement('tr');for(const text of [key,value]){const td=document.createElement('td');td.textContent=String(text);tr.append(td);}return tr;}));
   $('#controls').disabled=!driver.ready;$('#sCharge').classList.toggle('hidden',driver.battery?.status!==2);$('#refresh').disabled=busy;$('#disconnect').disabled=busy;
   $('#connect').disabled=busy;$('#connect2').disabled=busy;
-  renderButtons();renderMacros();renderProfiles();
+  renderRt();renderButtons();renderMacros();renderProfiles();
 }
 async function action(fn,message='Saved and verified'){
   if(busy||!driver)return;const current=driver;busy=true;render();
@@ -1599,9 +1621,10 @@ async function connect(){
 $('#connect').onclick=$('#connect2').onclick=connect;
 // A transport-level simulation: the same driver, encoders and verification run as on hardware.
 function makeDemo(){
-  const model=MODELS.find(m=>m.name==='VT3S MAX V2'),memory=new Uint8Array(0x1c000),listeners=new Set();
+  const model=MODELS.find(m=>m.name===(['rt','rt-dongle'].includes(QS.get('demo'))?'VT2 RT V2':'VT3S MAX V2')),memory=new Uint8Array(0x1c000),listeners=new Set();
   const put16=(a,v)=>{memory[a]=v&255;memory[a+1]=v>>>8;};
   memory[0x10c]=memory[0x10d]=0;memory[0x60]=2;
+  if(model.rt)for(let p=0;p<8;p++)for(const [key,[offset,min]] of Object.entries(RT_FIELDS))memory[profileAddress(p,offset)]=key==='feedback'?0:key.endsWith('Volume')?30:key.endsWith('Travel')?4:key.endsWith('Sensitivity')?2:min;
   for(let p=0;p<8;p++){
     const a=o=>profileAddress(p,o);
     if(p<3)memory.set(new TextEncoder().encode(['Everyday','Competitive','Creative'][p]),a(1004));
@@ -1612,7 +1635,7 @@ function makeDemo(){
     [400,800,1600,3200,6400,12800,25600].forEach((v,i)=>{put16(a(648+i*2),v);put16(a(712+i*2),v);});
   }
   let reply=new Uint8Array([1,0,0,0]);
-  return {vendorId:VID,productId:QS.get('demo')==='dongle'?model.wireless:model.wired,productName:'Simulated Rapoo VT3S MAX V2',opened:false,
+  return {vendorId:VID,productId:['dongle','rt-dongle'].includes(QS.get('demo'))?model.wireless:model.wired,productName:'Simulated Rapoo VT3S MAX V2',opened:false,
     collections:[{usagePage:0xff00,usage:2,outputReports:[{reportId:6}],featureReports:[{reportId:8}],inputReports:[{reportId:7}]}],
     async open(){this.opened=true;},async close(){this.opened=false;},addEventListener(t,fn){listeners.add(fn);},removeEventListener(t,fn){listeners.delete(fn);},
     async sendReport(id,frame){
@@ -1622,6 +1645,20 @@ function makeDemo(){
     },async receiveFeatureReport(){return new DataView(reply.buffer,reply.byteOffset,reply.byteLength);},
   };
 }
+// RT UI start.
+function renderRt(){
+  $('#rtSettings').classList.toggle('hidden',!driver?.model.rt);
+  for(const key of Object.keys(RT_FIELDS)){
+    const input=$('#rt_'+key),value=driver?.s?.rt?.[key];input.disabled=busy||!driver?.ready||!driver?.model.rt;
+    if(key.endsWith('Enabled'))input.checked=value!==undefined&&value!==0;
+    else if(value!==undefined){
+      if(key==='feedback'&&!['0','1','2'].includes(String(value))&&!Array.from(input.options).some(o=>o.value===String(value)))option(input,value,'Unknown ('+value+')');
+      input.value=String(value);
+    }
+  }
+}
+function bindRt(){for(const key of Object.keys(RT_FIELDS))$('#rt_'+key).onchange=e=>{const value=key.endsWith('Enabled')?Number(e.target.checked):e.target.value===''?NaN:Number(e.target.value);action(d=>d.setRt(key,value));};}
+// RT UI end.
 // Buttons UI start.
 function selectMouseControl(index){
   if(!driver?.ready||busy||!driver.s.buttons?.loaded||!driver.model.keys.includes(index))return;
@@ -1851,7 +1888,7 @@ function bindProfiles(){
 }
 // Profile UI end.
 
-bindButtons();bindMacros();bindProfiles();
+bindRt();bindButtons();bindMacros();bindProfiles();
 async function start(){
   if(DEMO){$('#demoBar').classList.remove('hidden');$('#demoLink').classList.add('hidden');await attach(makeDemo());driver.battery={percent:78,status:0};render();return;}
   const mobile=navigator.userAgentData?.mobile||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);

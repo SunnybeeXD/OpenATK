@@ -1,4 +1,4 @@
-# Rapoo VT nrf54L protocol
+# Rapoo VT nrf54L and LM20RT protocols
 
 The standalone configurator is [rapoo/index.html](../rapoo/index.html).
 
@@ -11,11 +11,11 @@ This is an independent implementation of the wire format. No Rapoo source is shi
 
 ## Scope and device selection
 
-Only manifests selecting the VT_nrf54L driver are supported. Vendor ID is 0x24AE, configuration usage page 0xFF00, usage 2. Interface selection matches those IDs and the configuration usage, as AHUB does. Do not require output report 6 and feature report 8 to be described in the same collection: browsers can expose report descriptors in sibling or child collections, or omit that metadata before opening. The initial read-only configuration exchange establishes whether the commands actually work; editing stays disabled until it succeeds. Firmware-only interfaces (usage 14 or usage 1, without configuration usage 2) are excluded. The first product ID in each manifest is wired; the second is the receiver, as used by the vendor driver’s detectConnectionType.
+The 69 listed VT_nrf54L models and the two LM20RT VT2 RT models documented below are supported. Vendor ID is 0x24AE, configuration usage page 0xFF00, usage 2. Interface selection matches those IDs and the configuration usage, as AHUB does. Do not require output report 6 and feature report 8 to be described in the same collection: browsers can expose report descriptors in sibling or child collections, or omit that metadata before opening. The initial read-only configuration exchange establishes whether the commands actually work; editing stays disabled until it succeeds. Firmware-only interfaces (usage 14 or usage 1, without configuration usage 2) are excluded. The first product ID in each manifest is wired; the second is the receiver, as used by the vendor driver’s detectConnectionType.
 
 If the picker returns a sibling interface, the page also checks already-authorized configuration interfaces with the same VID/PID as the selected device. It refuses to guess between multiple candidates. Connection details are available before a successful connection and include selected device IDs, collection usages, advertised report IDs and errors. Copying them uses the clipboard when available and otherwise selects the text for manual copying.
 
-Other protocols are deliberately excluded: VT_CH584 (SE models), LM20RT (RT models), Telink3228C_Mouse (ULTRA), keyboards, bases and earlier unlisted mice. A similar product name does not establish compatibility.
+Other protocols are deliberately excluded: VT_CH584 (SE models), Telink3228C_Mouse (ULTRA), keyboards, bases and earlier unlisted mice. A similar product name does not establish compatibility.
 
 ## Transport
 
@@ -227,3 +227,36 @@ Primary implementation references:
 - Global client: https://hwsoft.rapoo.com/webdriver/AHUB_WEB/dist/assets/js/index-Bc6MfG2Y.js (`LOW_DC_SWITCH`, `getDcSwitch`, `setDcSwitch`, `getAllPerfCfg`).
 
 Validation covers cable/receiver packet bytes, profile isolation, preservation of adjacent EEPROM bytes, nonzero read semantics, invalid values, stale-profile protection, read-back failure, UI wiring, backup round trips and legacy backup preservation. Run `node --test tests/rapoo.cjs tests/rapoo-ui.cjs tests/rapoo-buttons.cjs tests/rapoo-macros.cjs tests/rapoo-profiles.cjs tests/sensor-mode.cjs`.
+
+## VT2 RT V2 / VT2 RT Master V2 (LM20RT)
+
+Source: the current public [Chinese AHUB](https://hub.rapoo.cn/) client, inspected 2026-11-14: https://hid.rapoo.cn/AHUB_WEB/dist/assets/js/index-exv-sdE5.js. Its manifests select **LM20RT**, not VT_nrf54L; protocol compatibility was checked against the LM20RT address table, `qP` device, `VP` DPI, `DP` profiles, `GP` keys, `ZP` performance and `XP` RT feature implementations. This support is an independent implementation of the shared transport and RT fields, not merely a product-ID alias.
+
+| Model | Cable PID | Receiver PID | VID / configuration usage |
+| --- | --- | --- | --- |
+| VT2 RT V2 | 19232 / `0x4B20` | 6944 / `0x1B20` | `0x24AE`, page `0xFF00`, usage 2 |
+| VT2 RT MASTER V2 | 19233 / `0x4B21` | 6945 / `0x1B21` | Same |
+
+The manifests specify PAW3955U, optical main switches and encoder, 1–60000 DPI in steps of 1, 0.7–1.7 mm LOD, key-scan adjustment, eight profiles and 4096-byte standard macros. Cable and receiver use the same output report 6 / feature report 8, A4/A5 commands, target FF/A5 and profile layout as the existing driver. Input report 7 shares the existing battery/DPI/profile/rate field positions. Firmware-only interfaces are still excluded. The Master's pairing-only PID 5210 is not added as a configurable RT device.
+
+The RT card appears only on the two verified LM20RT models. It exposes separate left/right actuation level, rapid-trigger enable and level, press/release vibration, press/release sound selection and sound volume, plus the shared feedback type. Labels use AHUB's levels rather than inventing a physical travel conversion. Stored unknown values are not automatically replaced; edits validate the manifest ranges.
+
+All addresses below are **profile-relative**, added to `0x600 + profile * 0x400`:
+
+| Field | Left offset | Right offset | Accepted write values |
+| --- | --- | --- | --- |
+| Rapid-trigger enable | 740 | 748 | 0 off / 1 on; reads treat nonzero as on |
+| Actuation level | 744 | 752 | 1–10 |
+| Rapid-trigger level | 745 | 753 | 1–10 |
+| Press vibration | 756 | 760 | 0–10 |
+| Release vibration | 757 | 761 | 0–10 |
+| Shared feedback type | 758 | Shared | 0–2, shown as Feedback 1–3 |
+| Press sound | 764 | 768 | 1–10 |
+| Release sound | 765 | 769 | 1–10 |
+| Sound volume | 766 | 770 | 0–100 |
+
+Initialization reads the two blocks 740–763 and 764–770 without writing. Each edit writes and verifies exactly one byte, preserving the holes/reserved bytes. Existing profile guards and transport serialization apply. Standard models never read or write the RT region. Profile changes re-read RT settings; settings backups include a validated optional `rt` object only for RT models. Legacy backups lacking it leave RT settings unchanged, and RT backups cannot be restored to standard mice.
+
+Hardware-free demos: `rapoo/index.html?demo=rt` and `?demo=rt-dongle`. The simulated models run the same read/write and verification code. Physical-device validation is pending. Calibration, live trigger polling, factory reset and firmware updates are not implemented; use AHUB for calibration. OpenATK sends no calibration or firmware commands.
+
+Validation covers both models and both transports, all 17 field offsets and ranges, read-only initialization, neighbor-byte preservation, stale-profile rejection, failed read-back handling, profile isolation, RT backup validation/round trips, legacy backup preservation, UI edits/rollback, standard-model hiding and both RT demos.

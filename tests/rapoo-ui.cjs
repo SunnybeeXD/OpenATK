@@ -104,6 +104,12 @@ blocked.sandbox.navigator.hid={addEventListener(){},async requestDevice(){const 
 await blocked.app.connect();await wait(blocked);ok(!$(blocked,'app').classList.contains('hidden'),'Missing report metadata connection fix retained');await blocked.app.detach();
 blocked.sandbox.navigator.hid.requestDevice=async()=>{const d=blocked.app.makeDemo();d.collections=[{usagePage:0xff00,usage:14}];return[d];};
 await blocked.app.connect();ok(!$(blocked,'connectError').classList.contains('hidden')&&!$(blocked,'connectionDetails').classList.contains('hidden'),'Failed connection diagnostics visible');
+const rt=create(html,'?demo=rt',setTimeout,clearTimeout);await wait(rt);ok(!$(rt,'rtSettings').classList.contains('hidden'),'RT settings shown for VT2 RT');
+$(rt,'rt_leftTravel').value='7';$(rt,'rt_leftTravel').onchange({target:$(rt,'rt_leftTravel')});await wait(rt);ok(rt.app.driver.s.rt.leftTravel===7,'Actuation control saves');
+$(rt,'rt_rightEnabled').checked=true;$(rt,'rt_rightEnabled').onchange({target:$(rt,'rt_rightEnabled')});await wait(rt);ok(rt.app.driver.s.rt.rightEnabled===1,'Rapid trigger switch saves');
+$(rt,'rt_leftTravel').value='11';$(rt,'rt_leftTravel').onchange({target:$(rt,'rt_leftTravel')});await wait(rt);ok($(rt,'rt_leftTravel').value==='7','Invalid RT value rolls back');
+ok($(p,'rtSettings').classList.contains('hidden')&&$(p,'rt_leftTravel').disabled,'Standard model hides and disables RT controls');await rt.app.detach();
+const rtReceiver=create(html,'?demo=rt-dongle',setTimeout,clearTimeout);await wait(rtReceiver);ok(rtReceiver.app.driver.model.rt&&!rtReceiver.app.driver.wired,'RT receiver demo');await rtReceiver.app.detach();
 return checks;
 
   } finally { for(const timer of timers)globalThis.clearTimeout(timer); }

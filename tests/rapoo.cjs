@@ -13,7 +13,7 @@ function load(){
   return context.api;
 }
 const api=load();
-function fixture({wireless=false,options={}}={}){
+function fixture({wireless=false,options={},rtModel}={}){
   const memory=new Uint8Array(0x3000),sent=[],listeners=new Set();
   memory[0x10c]=memory[0x10d]=0;
   for(let p=0;p<8;p++){
@@ -28,7 +28,7 @@ function fixture({wireless=false,options={}}={}){
     }
   }
   let reply=Uint8Array.of(1,0,0,0);
-  const dev={vendorId:0x24ae,productId:wireless?0x1b07:0x4b07,opened:true,
+  const dev={vendorId:0x24ae,productId:rtModel?(wireless?rtModel.wireless:rtModel.wired):(wireless?0x1b07:0x4b07),opened:true,
     collections:[{usagePage:0xff00,usage:2,outputReports:[{reportId:6}],featureReports:[{reportId:8}]}],
     addEventListener(t,f){listeners.add(f);},removeEventListener(t,f){listeners.delete(f);},
     async sendReport(id,frame){assert.equal(id,6);sent.push([...frame]);const address=(frame[3]|frame[4]<<8|frame[5]<<16|frame[6]<<24)>>>0;
@@ -39,11 +39,11 @@ function fixture({wireless=false,options={}}={}){
   const driver=new api.Rapoo(dev,{delay:0,...options});
   return {memory,sent,dev,driver,listeners};
 }
-test('only the 69 evidenced VT nrf54L models and their configuration interfaces are accepted',()=>{
-  assert.equal(api.MODELS.length,69);assert.equal(api.FILTERS.length,138);
+test('only the 71 evidenced VT nrf54L/LM20RT models and their configuration interfaces are accepted',()=>{
+  assert.equal(api.MODELS.length,71);assert.equal(api.FILTERS.length,142);
   const pids=new Set();for(const f of api.FILTERS){assert.equal(f.vendorId,0x24ae);assert.equal(f.usagePage,0xff00);assert.equal(f.usage,2);assert.ok(!pids.has(f.productId));pids.add(f.productId);}
   const {dev}=fixture();assert.ok(api.isCommandDevice(dev));
-  assert.equal(api.modelFor({...dev,productId:0x4b20}),undefined,'VT2 RT uses another driver');
+  assert.equal(api.modelFor({...dev,productId:0x4b20}).name,'VT2 RT V2');assert.equal(api.modelFor({...dev,productId:0x4b21}).rt,true);
   assert.equal(api.modelFor({...dev,productId:0x4a00}),undefined,'VT7 SE uses CH584');
   assert.equal(api.modelFor({...dev,vendorId:0x373e}),undefined);
   assert.equal(api.isCommandDevice({...dev,collections:[{usagePage:0xff00,usage:14}]}),false,'Never open the update interface');
@@ -218,4 +218,33 @@ for(const wireless of [false,true])test('DC mode uses the Korean/global one-byte
 test('DC read-back failure preserves the displayed value',async()=>{
   const {driver}=fixture();await driver.readState();driver.writeVerified=async()=>{throw Error('Read-back did not match')};
   await assert.rejects(driver.setByte('dc',1),/Read-back/);assert.equal(driver.s.dc,0);
+});
+
+for(const modelName of ['VT2 RT V2','VT2 RT MASTER V2'])for(const wireless of [false,true])test(modelName+' RT fields over '+(wireless?'receiver':'cable'),async()=>{
+ const rtModel=api.MODELS.find(m=>m.name===modelName),{driver,memory,sent}=fixture({wireless,rtModel});
+ const fields={leftEnabled:[740,1],leftTravel:[744,4],leftSensitivity:[745,2],rightEnabled:[748,1],rightTravel:[752,5],rightSensitivity:[753,3],leftPressVibration:[756,8],leftReleaseVibration:[757,4],feedback:[758,2],rightPressVibration:[760,6],rightReleaseVibration:[761,1],leftPressSound:[764,6],leftReleaseSound:[765,5],leftVolume:[766,75],rightPressSound:[768,3],rightReleaseSound:[769,1],rightVolume:[770,40]};
+ memory[api.profileAddress(0,740)]=255;memory[api.profileAddress(0,743)]=0xaa;memory[api.profileAddress(0,759)]=0xbb;
+ await driver.readState();assert.ok(sent.every(f=>f[1]!==0xa5));assert.equal(Object.keys(driver.s.rt).length,17);assert.equal(driver.s.rt.leftEnabled,255);sent.length=0;
+ for(const [key,[offset,value]] of Object.entries(fields)){await driver.setRt(key,value);assert.equal(driver.s.rt[key],value);assert.equal(memory[api.profileAddress(0,offset)],value);}
+ assert.deepEqual(sent.filter(f=>f[1]===0xa5),Object.values(fields).map(([offset,value])=>{const a=api.profileAddress(0,offset);return[wireless?165:255,165,1,a&255,a>>>8,0,0,value]}));
+ assert.equal(memory[api.profileAddress(0,743)],0xaa);assert.equal(memory[api.profileAddress(0,759)],0xbb);
+ const backup=await driver.exportProfileSettings();assert.equal(backup.settings.rt.leftTravel,4);backup.settings.rt.leftTravel=7;
+ await driver.restoreProfileSettings(backup);assert.equal(memory[api.profileAddress(0,744)],7);await driver.readState();
+ delete backup.settings.rt;sent.length=0;await driver.restoreProfileSettings(backup);assert.ok(sent.filter(f=>f[1]===0xa5).every(f=>{const a=f[3]|f[4]<<8;return a<api.profileAddress(0,740)||a>api.profileAddress(0,770)}));await driver.readState();
+ sent.length=0;for(const [key,value] of [['leftTravel',0],['leftTravel',11],['leftEnabled',2],['feedback',3],['rightVolume',101],['rightVolume',-1],['leftPressSound',0],['constructor',1]])await assert.rejects(driver.setRt(key,value));assert.equal(sent.length,0);
+ memory[0x10c]=1;await assert.rejects(driver.setRt('leftTravel',2),/profile changed/);assert.ok(sent.every(f=>f[1]!==0xa5));
+ await driver.readState();await driver.setRt('leftTravel',2);assert.equal(memory[api.profileAddress(1,744)],2);assert.equal(memory[api.profileAddress(0,744)],7);
+});
+test('standard models never read or write the RT area',async()=>{
+ const {driver,sent}=fixture();await driver.readState();assert.equal(driver.s.rt,undefined);assert.ok(sent.every(f=>{const a=f[3]|f[4]<<8;return a!==api.profileAddress(0,740)&&a!==api.profileAddress(0,764)}));sent.length=0;await assert.rejects(driver.setRt('leftTravel',2),/not supported/);assert.equal(sent.length,0);
+});
+test('failed RT read-back leaves state unchanged',async()=>{
+ const {driver}=fixture({rtModel:api.MODELS.find(m=>m.rt)});await driver.readState();driver.writeVerified=async()=>{throw Error('Read-back did not match')};await assert.rejects(driver.setRt('leftTravel',4),/Read-back/);assert.equal(driver.s.rt.leftTravel,0);
+});
+test('RT backups reject malformed or incompatible settings before USB writes',async()=>{
+ const rtModel=api.MODELS.find(m=>m.rt),{driver,memory,sent}=fixture({rtModel});
+ for(const [offset,value] of [[744,4],[745,2],[752,4],[753,2],[764,6],[765,6],[768,6],[769,6]])memory[api.profileAddress(0,offset)]=value;
+ await driver.readState();const backup=await driver.exportProfileSettings();
+ for(const mutate of [b=>b.settings.rt.leftTravel=11,b=>delete b.settings.rt.rightVolume,b=>b.settings.rt.fake=2,b=>b.settings.rt.leftEnabled=true]){const bad=JSON.parse(JSON.stringify(backup));mutate(bad);sent.length=0;assert.throws(()=>driver.restoreProfileSettings(bad));assert.equal(sent.length,0);}
+ const standard=fixture();await standard.driver.readState();backup.model=standard.driver.model.name;standard.sent.length=0;assert.throws(()=>standard.driver.restoreProfileSettings(backup),/not supported/);assert.equal(standard.sent.length,0);
 });
