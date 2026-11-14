@@ -71,3 +71,12 @@ test('invalid restore is rejected before any USB command',async()=>{
   const {driver,frames}=fixture();await driver.readState();const backup=await driver.exportProfileSettings();backup.settings.angle=31;frames.length=0;
   assert.throws(()=>driver.restoreProfileSettings(backup));assert.equal(frames.length,0);
 });
+
+test('DC mode backs up and restores; legacy backups leave DC untouched',async()=>{
+  const {driver,memory,frames}=fixture(),address=api.profileAddress(1,730);memory[address]=1;await driver.readState();
+  const backup=await driver.exportProfileSettings();assert.equal(backup.settings.dc,true);assert.ok(api.profileSettingsPreview(backup,driver.model).includes('DC mode: on'));
+  memory[address]=0;await driver.restoreProfileSettings(backup);assert.equal(memory[address],1);await driver.readState();
+  delete backup.settings.dc;frames.length=0;await driver.restoreProfileSettings(backup);assert.equal(memory[address],1);
+  assert.ok(frames.filter(f=>f[1]===0xa5).every(f=>(f[3]|f[4]<<8)!==address));
+  backup.settings.dc=1;frames.length=0;assert.throws(()=>driver.restoreProfileSettings(backup),/DC mode/);assert.equal(frames.length,0);
+});

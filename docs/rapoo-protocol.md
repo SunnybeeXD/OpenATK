@@ -201,3 +201,29 @@ The button selector uses Rapoo’s public [VT3S MAX V2 white top/underside artwo
 
 The disconnected and unsupported-browser screens cycle through bundled Rapoo VT3S MAX V2, VT9 and VT1 MAX thumbnails every five seconds, with their model names. Pause/Play controls stop or resume the slideshow; reduced-motion preferences keep it static, and it stops while the document is hidden or a device is connected. The device card uses a matching thumbnail for those three models, or the explicitly labeled VT3S MAX V2 illustration for other models. Image provenance is recorded in [assets/rapoo/README.md](../assets/rapoo/README.md).
 
+
+## Korean hub comparison: DC mode
+
+Inspected [Rapoo Korea](https://hubkr.rapoo.com/home) on 2026-11-14. Its parameters screen places **DC Switch** beside the press/release debounce controls and shows it when `productInfo.dcSwitch` is enabled. The public product metadata flags its VT nrf54L entries; its non-VT devices use other protocols and are outside this configurator's scope.
+
+| Item | Korean hub | OpenATK |
+| --- | --- | --- |
+| DC switch | Exposed in the debounce card; advertised behavior requires official Korean firmware | Added under Buttons & power as DC mode (Korean firmware), with the same firmware requirement |
+| Persistence | One byte per active onboard profile | Same address, read on connect/refresh/profile change |
+| Switch encoding | Off writes 0, on writes 1; reads interpret any nonzero value as on | Same; writes are read-back verified |
+| Debounce settings | Separate press/release bytes | Kept independent; changing DC only writes its byte |
+| Settings backup | Vendor configuration system | DC included as an optional boolean; older backups leave it unchanged |
+
+Wire format: profile base `0x600 + profile * 0x400`, offset **730** (`MOUSE_DCSWITCH` / `LOW_DC_SWITCH`), one-byte read/write through the existing VT nrf54L A4/A5 EEPROM commands. The existing target byte selects cable (`0xFF`) or receiver (`0xA5`). The same field is implemented and read by the global AHUB VT driver, including the newer supported models absent from Korea's catalog, but sharing an EEPROM field does not establish that global firmware implements the same behavior. OpenATK exposes the field for its existing VT nrf54L models only and labels it as requiring Korean firmware; no additional device protocol is enabled. The client has no verified way to identify the regional firmware variant, so a readable field, an enabled toggle or successful read-back must not be treated as confirmation that DC behavior is active.
+
+The official Korean-market notice supplied by the user states that Freeflow-distributed Korean models use proprietary firmware distinct from global products. According to that notice, enabling DC MODE provides improved release-click response and anti-slam-click behavior on those Korean models. It explicitly says that DC MODE will not actually work on non-Korean-release products even if the web driver detects it. These are vendor claims; they have not been measured or verified on hardware here. This corrects the earlier inference that a shared command implied global feature support. The meaning of the acronym remains unspecified. No firmware update, pairing or reset is involved. Initialization remains read-only. Physical-device validation is still required.
+
+Primary implementation references:
+
+- Korea entry bundle: https://hubkr.rapoo.com/assets/index-Bi8gQvIB.js (profile address table and public product metadata loader).
+- Korea parameters UI: https://hubkr.rapoo.com/assets/index-D4bnHIW4.js (capability gate and debounce-card placement).
+- Korea getter/setter: https://hubkr.rapoo.com/assets/useParameters-DmaGWNVI.js (`getDCSwitch` / `setDCSwitch`).
+- Korea public model data: https://hubkr.rapoo.com/enc.data (decoded by its shipped client).
+- Global client: https://hwsoft.rapoo.com/webdriver/AHUB_WEB/dist/assets/js/index-Bc6MfG2Y.js (`LOW_DC_SWITCH`, `getDcSwitch`, `setDcSwitch`, `getAllPerfCfg`).
+
+Validation covers cable/receiver packet bytes, profile isolation, preservation of adjacent EEPROM bytes, nonzero read semantics, invalid values, stale-profile protection, read-back failure, UI wiring, backup round trips and legacy backup preservation. Run `node --test tests/rapoo.cjs tests/rapoo-ui.cjs tests/rapoo-buttons.cjs tests/rapoo-macros.cjs tests/rapoo-profiles.cjs tests/sensor-mode.cjs`.
