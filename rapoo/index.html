@@ -652,6 +652,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   </div>
 </div>
 
+      <div class="item row"><div><label for="dc" class="t">DC mode</label><div class="d">Rapoo’s DC switch, also available in the Korean hub. Saved to the active profile independently of the debounce timings below.</div></div><input class="sw" type="checkbox" id="dc"></div>
       <div class="item">
         <div class="t">Click debounce</div>
         <div class="d">After a click, ignores further clicks for this long. Lower is faster; raise it only if a worn switch starts double-clicking.</div>
@@ -840,7 +841,7 @@ const RATES = [[125,8],[250,4],[500,2],[1000,1],[2000,132],[4000,130],[8000,129]
 const RATE_MODES = {8:[1,0],4:[1,0],2:[2,1,0],1:[5,4,3,2,1],132:[5,4,3,2],130:[5,4,3],129:[5,4,3]};
 const MODE_NAMES = ['Office','Balanced','Power','Hyper','Competition Hyper','Rampage Competitive'];
 const DEBOUNCE = [...Array.from({length:17},(_,i)=>i),18,20,22,24,26,28,30,32];
-const OFFSETS = {rate:640,scan:641,lod:644,motion:645,x:648,count:662,active:664,press:704,release:705,sleep:706,correction:707,angle:708,glass:709,y:712,rfBoost:728,lowLight:729,modes:732,rfPacket:0x60};
+const OFFSETS = {rate:640,scan:641,lod:644,motion:645,x:648,count:662,active:664,press:704,release:705,sleep:706,correction:707,angle:708,glass:709,y:712,rfBoost:728,lowLight:729,dc:730,modes:732,rfPacket:0x60};
 const sleep = ms => new Promise(r => setTimeout(r,ms));
 function integer(n,min,max,label){ if (!Number.isInteger(n) || n<min || n>max) throw new Error(`Invalid ${label}`); return n; }
 function profileAddress(profile,offset){ return 0x600 + integer(profile,0,7,'profile')*0x400 + offset; }
@@ -1090,7 +1091,7 @@ function validateProfileSettingsBackup(input,model){
   if(input.name!==undefined&&(typeof input.name!=='string'||input.name.length>64))throw new Error('Invalid backup name');
   if(input.createdAt!==undefined&&(typeof input.createdAt!=='string'||input.createdAt.length>40))throw new Error('Invalid backup date');
   const s=profilePlainObject(input.settings,'settings');
-  profileExactKeys(s,['dpi','rate','lod','motion','press','release','sleep','angleSnap','ripple','angle','glass','lowLight','rfBoost','scan','modes'],'settings');
+  profileExactKeys(s,['dpi','rate','lod','motion','press','release','sleep','angleSnap','ripple','angle','glass','lowLight','rfBoost','dc','scan','modes'],'settings');
   const dpi=profilePlainObject(s.dpi,'DPI settings');profileExactKeys(dpi,['count','active','stages'],'DPI');
   integer(dpi.count,1,7,'DPI count');integer(dpi.active,0,dpi.count-1,'active DPI stage');
   if(!Array.isArray(dpi.stages)||dpi.stages.length!==dpi.count)throw new Error('Invalid DPI stage table');
@@ -1101,18 +1102,19 @@ function validateProfileSettingsBackup(input,model){
   if(s.sleep!==255)integer(s.sleep,2,120,'backup sleep timeout');
   integer(s.angle,-30,30,'backup sensor angle');
   for(const key of ['motion','angleSnap','ripple','glass','lowLight','rfBoost'])profileBoolean(s[key],'backup '+key);
+  if(s.dc!==undefined)profileBoolean(s.dc,'backup DC mode');
   if(s.scan!==undefined){if(!model.keyScan)throw new Error('This model does not expose key scan rate');integer(s.scan,3,6,'backup key scan rate');}
   if(!Array.isArray(s.modes)||s.modes.length!==7||s.modes.some((mode,i)=>!RATE_MODES[RATES[i][1]].includes(mode)))throw new Error('Unsupported backup sensor modes');
-  return {app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:input.name||'',createdAt:input.createdAt||'',settings:{dpi:{count:dpi.count,active:dpi.active,stages},rate:s.rate,lod:s.lod,motion:s.motion,press:s.press,release:s.release,sleep:s.sleep,angleSnap:s.angleSnap,ripple:s.ripple,angle:s.angle,glass:s.glass,lowLight:s.lowLight,rfBoost:s.rfBoost,...(s.scan===undefined?{}:{scan:s.scan}),modes:[...s.modes]}};
+  return {app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:input.name||'',createdAt:input.createdAt||'',settings:{dpi:{count:dpi.count,active:dpi.active,stages},rate:s.rate,lod:s.lod,motion:s.motion,press:s.press,release:s.release,sleep:s.sleep,angleSnap:s.angleSnap,ripple:s.ripple,angle:s.angle,glass:s.glass,lowLight:s.lowLight,rfBoost:s.rfBoost,...(s.dc===undefined?{}:{dc:s.dc}),...(s.scan===undefined?{}:{scan:s.scan}),modes:[...s.modes]}};
 }
 function makeProfileSettingsBackup(model,state){
   if(!state)throw new Error('Read the mouse settings first');
-  const backup={app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:state.profiles.find(p=>p.slot===state.profile)?.name||'',createdAt:new Date().toISOString(),settings:{dpi:{count:state.count,active:state.active,stages:state.stages.slice(0,state.count).map(stage=>({x:stage.x,y:stage.y}))},rate:state.rate,lod:model.lod[state.lod-1],motion:state.motion!==0,press:state.press,release:state.release,sleep:state.sleep,angleSnap:(state.correction&1)===0,ripple:(state.correction&2)===0,angle:state.angle,glass:state.glass!==0,lowLight:state.lowLight!==0,rfBoost:state.rfBoost!==0,...(model.keyScan?{scan:state.scan}:{}),modes:[...state.modes]}};
+  const backup={app:'openatk',kind:'rapoo-profile-settings',version:1,model:model.name,name:state.profiles.find(p=>p.slot===state.profile)?.name||'',createdAt:new Date().toISOString(),settings:{dpi:{count:state.count,active:state.active,stages:state.stages.slice(0,state.count).map(stage=>({x:stage.x,y:stage.y}))},rate:state.rate,lod:model.lod[state.lod-1],motion:state.motion!==0,press:state.press,release:state.release,sleep:state.sleep,angleSnap:(state.correction&1)===0,ripple:(state.correction&2)===0,angle:state.angle,glass:state.glass!==0,lowLight:state.lowLight!==0,rfBoost:state.rfBoost!==0,...(state.dc===undefined?{}:{dc:state.dc!==0}),...(model.keyScan?{scan:state.scan}:{}),modes:[...state.modes]}};
   return validateProfileSettingsBackup(backup,model);
 }
 function profileSettingsPreview(backup,model){
   const s=validateProfileSettingsBackup(backup,model).settings,hz=RATES.find(r=>r[1]===s.rate)[0];
-  return ['DPI: '+s.dpi.stages.map((v,i)=>(i+1)+': '+v.x+(v.x!==v.y?'/'+v.y:'')).join(', '),'Active DPI stage: '+(s.dpi.active+1),'Polling: '+hz+' Hz','Lift-off: '+s.lod+' mm','Motion sync: '+(s.motion?'on':'off'),'Debounce: press '+s.press+' ms, release '+s.release+' ms','Sleep: '+(s.sleep===255?'never':s.sleep+' minutes'),'Angle snap: '+(s.angleSnap?'on':'off')+', ripple: '+(s.ripple?'on':'off'),'Sensor rotation: '+s.angle+' degrees','Glass tracking: '+(s.glass?'on':'off')+', low battery light: '+(s.lowLight?'on':'off'),'RF strategy: '+(s.rfBoost?'maximum':'adaptive'),...(s.scan===undefined?[]:['Key scan rate: '+s.scan]),'Sensor modes: '+s.modes.map(v=>MODE_NAMES[v]).join(', ')];
+  return ['DPI: '+s.dpi.stages.map((v,i)=>(i+1)+': '+v.x+(v.x!==v.y?'/'+v.y:'')).join(', '),'Active DPI stage: '+(s.dpi.active+1),'Polling: '+hz+' Hz','Lift-off: '+s.lod+' mm','Motion sync: '+(s.motion?'on':'off'),...(s.dc===undefined?[]:['DC mode: '+(s.dc?'on':'off')]),'Debounce: press '+s.press+' ms, release '+s.release+' ms','Sleep: '+(s.sleep===255?'never':s.sleep+' minutes'),'Angle snap: '+(s.angleSnap?'on':'off')+', ripple: '+(s.ripple?'on':'off'),'Sensor rotation: '+s.angle+' degrees','Glass tracking: '+(s.glass?'on':'off')+', low battery light: '+(s.lowLight?'on':'off'),'RF strategy: '+(s.rfBoost?'maximum':'adaptive'),...(s.scan===undefined?[]:['Key scan rate: '+s.scan]),'Sensor modes: '+s.modes.map(v=>MODE_NAMES[v]).join(', ')];
 }
 
 class Rapoo {
@@ -1162,6 +1164,7 @@ class Rapoo {
     const x=await this.read(a(648),14),y=await this.read(a(712),14);
     const count=Math.min(7,(await this.read(a(662),1))[0]+1),active=Math.min(count-1,(await this.read(a(664),1))[0]);
     const modes=await this.read(a(732),7),lowLight=(await this.read(a(729),1))[0],rfBoost=(await this.read(a(728),1))[0];
+    const dc=(await this.read(a(OFFSETS.dc),1))[0];
     const rfPacket=this.model.rfProtocol?(await this.read(OFFSETS.rfPacket,1))[0]:undefined;
     const profiles=[];
     for(let slot=0;slot<8;slot++){
@@ -1171,7 +1174,7 @@ class Rapoo {
     if(!profiles.some(v=>v.slot===p))profiles.push({slot:p,name:`Profile ${p+1}`});
     this.s={profile:p,profiles,count,active,stages:Array.from({length:7},(_,i)=>({x:x[i*2]|x[i*2+1]<<8,y:y[i*2]|y[i*2+1]<<8})),
       rate:perf[0],scan:perf[1],lod:perf[4],motion:perf[5],press:misc[0],release:misc[1],sleep:misc[2],
-      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight,rfBoost,rfPacket,macros:this.macros||null};
+      correction:misc[3],angle:misc[4]>127?misc[4]-256:misc[4],glass:misc[5],modes:Array.from(modes),lowLight,rfBoost,dc,rfPacket,macros:this.macros||null};
     this.ready=true;return this.s;
   });}
   change(fn){return this.lock(async()=>{
@@ -1182,7 +1185,7 @@ class Rapoo {
     return fn(this.s,p);
   });}
   async setByte(key,value){
-    const range={lod:[1,this.model.lod.length],motion:[0,1],press:[0,32],release:[0,32],sleep:[2,120],angle:[-30,30],glass:[0,1],lowLight:[0,1],rfBoost:[0,1],scan:[3,6]};
+    const range={lod:[1,this.model.lod.length],motion:[0,1],press:[0,32],release:[0,32],sleep:[2,120],angle:[-30,30],glass:[0,1],lowLight:[0,1],rfBoost:[0,1],dc:[0,1],scan:[3,6]};
     if(!range[key])throw new Error('Unsupported setting');
     if(!(key==='sleep'&&value===255))integer(value,...range[key],key);
     if((key==='press'||key==='release')&&!DEBOUNCE.includes(value))throw new Error('Unsupported debounce value');
@@ -1389,6 +1392,7 @@ class Rapoo {
       await this.writeVerified(a(648),x);await this.writeVerified(a(712),y);
       await this.writeVerified(a(664),[0]);await this.writeVerified(a(662),[v.dpi.count-1]);await this.writeVerified(a(664),[v.dpi.active]);
       for(const [offset,value] of [[640,v.rate],[644,this.model.lod.findIndex(mm=>Math.abs(mm-v.lod)<0.00001)+1],[645,Number(v.motion)],[704,v.press],[705,v.release],[706,v.sleep],[708,v.angle&255],[709,Number(v.glass)],[729,Number(v.lowLight)],[728,Number(v.rfBoost)]])await this.writeVerified(a(offset),[value]);
+      if(v.dc!==undefined)await this.writeVerified(a(OFFSETS.dc),[Number(v.dc)]);
       if(v.scan!==undefined)await this.writeVerified(a(641),[v.scan]);
       const correction=(await this.read(a(707),1))[0];
       await this.writeVerified(a(707),[(correction&~3)|(v.angleSnap?0:1)|(v.ripple?0:2)]);
@@ -1514,7 +1518,7 @@ function render(){
   $('#sleep').value=s.sleep===255?'':s.sleep;$('#sleepOff').checked=s.sleep===255;$('#sleep').disabled=busy||!driver.ready||s.sleep===255;
   $('#angle').value=s.angle;$('#angleOut').textContent=s.angle+'°';
   $('#motion').checked=s.motion!==0;$('#snap').checked=(s.correction&1)===0;$('#ripple').checked=(s.correction&2)===0;
-  $('#glass').checked=s.glass!==0;$('#lowLight').checked=s.lowLight!==0;
+  $('#dc').checked=s.dc!==0;$('#glass').checked=s.glass!==0;$('#lowLight').checked=s.lowLight!==0;
   $('#scanRow').classList.toggle('hidden',!m.keyScan);
   fillSeg('#segRf',[[0,'Adaptive'],[1,'Maximum RF']],s.rfBoost,(d,v)=>d.setByte('rfBoost',v));
   $('#rfProtoItem').classList.toggle('hidden',s.rfPacket===undefined);
@@ -1545,7 +1549,7 @@ $('#stage').onchange=e=>{const value=Number(e.target.value);action(d=>d.setStage
 $('#count').onchange=e=>{const value=Number(e.target.value);action(d=>d.setCount(value));};
 $('#saveDpi').onclick=()=>{const stage=driver.s.active,x=Number($('#dpiX').value),y=Number($('#dpiY').value);action(d=>d.setDpi(stage,x,y));};
 for(const key of ['press','release'])$('#'+key).onchange=e=>{const value=Number(e.target.value);action(d=>d.setByte(key,value));};
-for(const [id,key] of [['motion','motion'],['glass','glass'],['lowLight','lowLight']])$('#'+id).onchange=e=>{const value=Number(e.target.checked);action(d=>d.setByte(key,value));};
+for(const [id,key] of [['motion','motion'],['glass','glass'],['lowLight','lowLight'],['dc','dc']])$('#'+id).onchange=e=>{const value=Number(e.target.checked);action(d=>d.setByte(key,value));};
 for(const [id,bit] of [['snap',0],['ripple',1]])$('#'+id).onchange=e=>{const on=e.target.checked;action(d=>d.setCorrection(bit,on));};
 $('#lod').oninput=()=>{$('#lodOut').textContent=Number($('#lod').value).toFixed(1)+' mm';};
 $('#lod').onchange=e=>{const value=Number(e.target.value),index=driver.model.lod.findIndex(v=>Math.abs(v-value)<0.001);action(d=>d.setByte('lod',index+1));};

@@ -89,9 +89,9 @@ await press(p,'segPress','4 ms');await press(p,'segRelease','12 ms');ok(p.app.dr
 $(p,'press').value=3;$(p,'press').onchange({target:$(p,'press')});await wait(p);ok(p.app.driver.s.press===3,'Custom debounce retained');
 await press(p,'segSleep','Never');ok(p.app.driver.s.sleep===255,'Never-sleep segment');
 $(p,'sleepOff').checked=false;$(p,'sleepOff').onchange();$(p,'sleep').value=11;$(p,'saveSleep').click();await wait(p);ok(p.app.driver.s.sleep===11,'Custom sleep timeout retained');
-for(const id of ['snap','ripple','motion','glass','lowLight']){$(p,id).checked=true;$(p,id).onchange({target:$(p,id)});await wait(p);}
-ok((p.app.driver.s.correction&3)===0&&p.app.driver.s.glass===1&&p.app.driver.s.lowLight===1,'Tracking and lighting switches');
-await press(p,'segProfile','Creative');ok(p.app.driver.s.profile===2&&$(p,'dpiX').value==='800','Profile segment loads existing settings');
+for(const id of ['snap','ripple','motion','glass','lowLight','dc']){$(p,id).checked=true;$(p,id).onchange({target:$(p,id)});await wait(p);}
+ok((p.app.driver.s.correction&3)===0&&p.app.driver.s.glass===1&&p.app.driver.s.lowLight===1&&p.app.driver.s.dc===1,'Tracking, lighting and DC switches');
+await press(p,'segProfile','Creative');ok(p.app.driver.s.profile===2&&$(p,'dpiX').value==='800','Profile segment loads existing settings');ok(!$(p,'dc').checked,'Profile switch reloads DC mode');
 $(p,'dpiX').value=60001;$(p,'saveDpi').click();await wait(p);ok($(p,'dpiX').value==='800'&&$(p,'toast').textContent.includes('DPI'),'Invalid DPI rolls back');
 $(p,'togglelog').click();ok(!$(p,'connectionDetails').classList.contains('hidden')&&$(p,'connectionDetails').open,'Device activity log remains available');
 await $(p,'copylog').click();ok(!$(p,'logCopy').classList.contains('hidden'),'Copy-details fallback remains available');

@@ -203,3 +203,19 @@ test('incoming status reports are logged for diagnostics',async()=>{
   for(const f of listeners)f({reportId:9,data:new DataView(new Uint8Array(3).buffer)});
   assert.deepEqual(lines.map(l=>l[0]),['IN 7','IN 9']);assert.equal(driver.battery.percent,40);
 });
+
+for(const wireless of [false,true])test('DC mode uses the Korean/global one-byte profile field over '+(wireless?'receiver':'cable'),async()=>{
+  const {driver,memory,sent}=fixture({wireless});const address=api.profileAddress(0,730);
+  memory[address]=255;memory[address-1]=0xab;memory[address+1]=0xcd;
+  await driver.readState();assert.equal(driver.s.dc,255);assert.ok(sent.every(f=>f[1]!==0xa5),'initialization only reads');sent.length=0;
+  for(const value of [0,1]){await driver.setByte('dc',value);assert.equal(driver.s.dc,value);assert.equal(memory[address],value);}
+  assert.deepEqual(sent.filter(f=>f[1]===0xa5),[0,1].map(value=>[wireless?0xa5:0xff,0xa5,1,address&255,address>>>8,0,0,value]));
+  assert.equal(memory[address-1],0xab);assert.equal(memory[address+1],0xcd);
+  sent.length=0;await assert.rejects(driver.setByte('dc',2));await assert.rejects(driver.setByte('dc',true));assert.equal(sent.length,0);
+  memory[0x10c]=1;await assert.rejects(driver.setByte('dc',0),/profile changed/);assert.ok(sent.every(f=>f[1]!==0xa5));
+  await driver.readState();await driver.setByte('dc',0);assert.equal(memory[api.profileAddress(1,730)],0);assert.equal(memory[address],1);
+});
+test('DC read-back failure preserves the displayed value',async()=>{
+  const {driver}=fixture();await driver.readState();driver.writeVerified=async()=>{throw Error('Read-back did not match')};
+  await assert.rejects(driver.setByte('dc',1),/Read-back/);assert.equal(driver.s.dc,0);
+});
