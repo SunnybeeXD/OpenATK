@@ -454,21 +454,29 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   #connectionDetails #log{display:block;white-space:pre-wrap;overflow-wrap:anywhere}
   #logCopy{width:100%;min-height:160px;margin-top:12px;background:#0a0e13;color:var(--ink);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font:12px/1.5 var(--mono)}
   @media(max-width:760px){.advanced .erow{flex-wrap:wrap}}
-  .mouse-map{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(220px,1fr);align-items:center;gap:24px;margin-top:20px;padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
-  .mouse-art{min-width:0;margin:0;text-align:center}
-  .mouse-art img{display:block;width:100%;height:280px;object-fit:contain;filter:drop-shadow(0 16px 20px #0004)}
-  .mouse-art figcaption{margin-top:12px;color:var(--dim);font:400 11px/1.5 Inter,sans-serif}
-  .mouse-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:center}
-  .mouse-callout{display:flex;align-items:center;gap:8px;min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--card);color:var(--ink);text-align:left;font:500 12px/1.3 Inter,sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s}
-  .mouse-callout:hover:not(:disabled){border-color:var(--acc);background:var(--card2)}
-  .mouse-callout:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
-  .mouse-callout.selected{background:rgba(var(--acc-rgb),.12);border-color:var(--acc);color:var(--acc)}
-  .mouse-callout.selected::before{content:'';flex:none;width:6px;height:6px;border-radius:50%;background:currentColor}
-  .mouse-callout:disabled{opacity:.5;cursor:default}
-  .mouse-map-hint{margin:12px 0 18px}
-  .button-selection{margin:18px 0 8px;font:600 17px var(--disp);color:var(--acc)}
-  @media(max-width:760px){.mouse-map{grid-template-columns:minmax(0,1fr);gap:20px;padding:18px}.mouse-art img{height:220px}.mouse-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.mouse-map-hint{font-size:12px}}
-  @media(prefers-reduced-motion:reduce){.mouse-callout{transition:none}}
+  .mouse-map{display:grid;grid-template-columns:232px minmax(0,1fr);gap:22px;align-items:start;margin-top:16px}
+  .mouse-art{margin:0;padding:10px 0 14px;border:1px solid var(--line);border-radius:16px;background:var(--bg);text-align:center}
+  .mouse-picture{position:relative;height:320px;overflow:hidden}
+  .mouse-picture img{width:100%;height:100%;object-fit:cover;display:block}
+  .mouse-pin{position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;width:19px;height:19px;min-height:0;padding:0;border:1px solid var(--acc);border-radius:50%;background:var(--card);color:var(--acc);font:600 10px var(--mono);cursor:pointer}
+  .mouse-pin.selected,.mouse-pin.hovered{background:var(--acc);color:var(--bg);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.16)}
+  .mouse-pin:focus-visible,.assignment-label:focus-visible{outline:2px solid var(--acc);outline-offset:4px}
+  .mouse-pin:disabled{cursor:default;opacity:.5}
+  .mouse-underside{position:static;transform:none;display:inline-flex;width:auto;gap:6px;margin:4px auto 8px;padding:4px 8px;border-radius:6px;font-size:10px}
+  .mouse-art figcaption{padding:0 8px;color:var(--dim);font:400 10px/1.5 var(--mono)}
+  #buttonMouseHint{display:block;margin-top:3px}
+  .assignment-rows{min-width:0;display:grid;gap:10px}
+  .assignment-row{display:grid;grid-template-columns:minmax(120px,1fr) minmax(160px,250px);align-items:center;gap:16px;min-height:44px;padding:4px 0;border-radius:8px}
+  .assignment-row.hovered{background:rgba(var(--acc-rgb),.05)}
+  .assignment-label{display:flex;align-items:center;gap:10px;padding:0;border:0;background:none;text-align:left;color:var(--ink);font:600 13px var(--disp);cursor:pointer}
+  .assignment-label:disabled{cursor:default;opacity:.6}
+  .assignment-number{display:grid;place-items:center;flex:none;width:22px;height:22px;border:1px solid rgba(var(--acc-rgb),.35);border-radius:6px;background:rgba(var(--acc-rgb),.1);color:var(--acc);font:600 11px var(--mono)}
+  .assignment-label.selected .assignment-number{background:var(--acc);color:var(--bg)}
+  .assignment-row .sel{width:100%;min-width:0;margin:0}
+  .button-selection{margin:14px 0 8px;font:600 15px var(--disp);color:var(--acc)}
+  #buttonAdvanced{margin-top:16px}#buttonAdvanced summary{font-size:12px;color:var(--dim);cursor:pointer}
+  @media(max-width:760px){.mouse-map{grid-template-columns:180px minmax(0,1fr);gap:16px}.mouse-picture{height:250px}.assignment-row{grid-template-columns:minmax(0,1fr);gap:6px}.assignment-label{font-size:12px}}
+  @media(max-width:520px){.mouse-map{grid-template-columns:minmax(0,1fr)}.mouse-art{width:210px;margin:0 auto}.mouse-picture{height:290px}.assignment-row{grid-template-columns:minmax(110px,1fr) minmax(135px,1fr);gap:10px}}
 </style>
 </head>
 <body>
@@ -613,29 +621,39 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     </section>
     <section class="panel hidden" data-panel="buttons">
       <div class="phead"><div><h2>Buttons &amp; power</h2><p>Click timing and how the mouse sleeps.</p></div></div>
-<div class="item hidden" id="rtSettings"><div class="t">VT2 rapid trigger &amp; feedback</div><p class="d">Adjust each main button separately. Changes apply to the active profile. Level ranges match Rapoo AHUB.</p><div class="grid2"><div><h3>Left button</h3><div class="erow"><label for="rt_leftEnabled">Rapid trigger</label><input id="rt_leftEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_leftTravel">Actuation level</label><input id="rt_leftTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftSensitivity">Rapid-trigger level</label><input id="rt_leftSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftPressVibration">Press vibration</label><input id="rt_leftPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseVibration">Release vibration</label><input id="rt_leftReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftPressSound">Press sound</label><input id="rt_leftPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseSound">Release sound</label><input id="rt_leftReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftVolume">Sound volume (%)</label><input id="rt_leftVolume" class="num" type="number" min="0" max="100" step="1"></div></div><div><h3>Right button</h3><div class="erow"><label for="rt_rightEnabled">Rapid trigger</label><input id="rt_rightEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_rightTravel">Actuation level</label><input id="rt_rightTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightSensitivity">Rapid-trigger level</label><input id="rt_rightSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightPressVibration">Press vibration</label><input id="rt_rightPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseVibration">Release vibration</label><input id="rt_rightReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightPressSound">Press sound</label><input id="rt_rightPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseSound">Release sound</label><input id="rt_rightReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightVolume">Sound volume (%)</label><input id="rt_rightVolume" class="num" type="number" min="0" max="100" step="1"></div></div></div><div class="erow"><label for="rt_feedback">Feedback type</label><select class="sel" id="rt_feedback"><option value="0">Feedback 1</option><option value="1">Feedback 2</option><option value="2">Feedback 3</option></select></div><p class="d">Calibration remains available in Rapoo AHUB.</p></div>
 <div class="item" id="buttonMappingsItem">
   <div class="t">Button assignments</div>
-  <div class="d">Choose what each button does. Changes apply to the active profile. At least one physical button must remain a left click.</div>
-<div class="mouse-map" id="buttonMouseMap" aria-label="Choose a mouse control">
+  <div class="d">Choose what each button does. Simple assignments save straight away; shortcuts and macros use the editor below. At least one button must stay a left click.</div>
+<div class="mouse-map" id="buttonMouseMap" aria-label="Mouse button assignments">
   <figure class="mouse-art">
-    <img src="https://hwsoft.rapoo.com/webdriver/manifests/VT3S%20MAX%20V2/func_White.png" alt="Rapoo VT3S MAX V2 mouse, top and underside views" loading="lazy" decoding="async" referrerpolicy="no-referrer">
-    <figcaption>VT3S MAX V2 shown · Button positions vary by model</figcaption>
+    <div class="mouse-picture"><img id="buttonMousePhoto" src="../assets/rapoo/vt3s-max-v2-white.png" alt="Rapoo mouse top view; button positions are illustrative" referrerpolicy="no-referrer" width="688" height="494">
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="0" style="left:38%;top:32%" aria-label="Left button"><span id="mousePinNumber0">1</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="2" style="left:70%;top:32%" aria-label="Right button"><span id="mousePinNumber2">2</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="1" style="left:54%;top:28%" aria-label="Middle button"><span id="mousePinNumber1">3</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="6" style="left:18%;top:55%" aria-label="Back button"><span id="mousePinNumber6">4</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="5" style="left:19%;top:40%" aria-label="Forward button"><span id="mousePinNumber5">5</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="3" style="left:54%;top:58%" aria-label="DPI +"><span id="mousePinNumber3">6</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="4" style="left:54%;top:66%" aria-label="DPI −"><span id="mousePinNumber4">7</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="9" style="left:54%;top:13%" aria-label="Wheel up"><span id="mousePinNumber9">8</span></button>
+      <button type="button" role="button" class="mouse-pin" data-mouse-key="10" style="left:54%;top:44%" aria-label="Wheel down"><span id="mousePinNumber10">9</span></button>
+    </div>
+    <button type="button" class="mouse-pin mouse-underside" data-mouse-key="13"><span id="mousePinNumber13">10</span> Underside</button>
+    <figcaption>Illustration · positions vary<span id="buttonMouseHint">Hover a button</span></figcaption>
   </figure>
-  <div class="mouse-controls" role="group" aria-label="Mouse controls">
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="0">Left button</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="2">Right button</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="1">Middle button</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="9">Wheel up</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="5">Forward</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="10">Wheel down</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="6">Back</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="13">DIY button</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="3">DPI +</button>
-    <button type="button" role="button" class="mouse-callout" data-mouse-key="4">DPI −</button>
+  <div class="assignment-rows" aria-label="Button actions">
+    <div class="assignment-row" id="assignmentRow0"><button type="button" class="assignment-label" data-mouse-key="0"><span class="assignment-number" id="assignmentNumber0">1</span>Left button</button><select class="sel" id="assignmentAction0" aria-label="Assignment for Left button"></select></div>
+    <div class="assignment-row" id="assignmentRow2"><button type="button" class="assignment-label" data-mouse-key="2"><span class="assignment-number" id="assignmentNumber2">2</span>Right button</button><select class="sel" id="assignmentAction2" aria-label="Assignment for Right button"></select></div>
+    <div class="assignment-row" id="assignmentRow1"><button type="button" class="assignment-label" data-mouse-key="1"><span class="assignment-number" id="assignmentNumber1">3</span>Middle button</button><select class="sel" id="assignmentAction1" aria-label="Assignment for Middle button"></select></div>
+    <div class="assignment-row" id="assignmentRow6"><button type="button" class="assignment-label" data-mouse-key="6"><span class="assignment-number" id="assignmentNumber6">4</span>Back button</button><select class="sel" id="assignmentAction6" aria-label="Assignment for Back button"></select></div>
+    <div class="assignment-row" id="assignmentRow5"><button type="button" class="assignment-label" data-mouse-key="5"><span class="assignment-number" id="assignmentNumber5">5</span>Forward button</button><select class="sel" id="assignmentAction5" aria-label="Assignment for Forward button"></select></div>
+    <div class="assignment-row" id="assignmentRow3"><button type="button" class="assignment-label" data-mouse-key="3"><span class="assignment-number" id="assignmentNumber3">6</span>DPI +</button><select class="sel" id="assignmentAction3" aria-label="Assignment for DPI +"></select></div>
+    <div class="assignment-row" id="assignmentRow4"><button type="button" class="assignment-label" data-mouse-key="4"><span class="assignment-number" id="assignmentNumber4">7</span>DPI −</button><select class="sel" id="assignmentAction4" aria-label="Assignment for DPI −"></select></div>
+    <div class="assignment-row" id="assignmentRow9"><button type="button" class="assignment-label" data-mouse-key="9"><span class="assignment-number" id="assignmentNumber9">8</span>Wheel up</button><select class="sel" id="assignmentAction9" aria-label="Assignment for Wheel up"></select></div>
+    <div class="assignment-row" id="assignmentRow10"><button type="button" class="assignment-label" data-mouse-key="10"><span class="assignment-number" id="assignmentNumber10">9</span>Wheel down</button><select class="sel" id="assignmentAction10" aria-label="Assignment for Wheel down"></select></div>
+    <div class="assignment-row" id="assignmentRow13"><button type="button" class="assignment-label" data-mouse-key="13"><span class="assignment-number" id="assignmentNumber13">10</span>DIY / underside</button><select class="sel" id="assignmentAction13" aria-label="Assignment for DIY / underside"></select></div>
   </div>
 </div>
-<p class="d mouse-map-hint">Choose a control to edit its assignment. The highlighted control is selected.</p>
+<details id="buttonAdvanced"><summary>Edit shortcuts, macros or custom mappings</summary>
 <div class="button-selection" id="buttonSelectionTitle" role="status">Select a mouse button</div>
 
   <div class="erow"><label for="buttonControl">Control</label><select class="sel" id="buttonControl"></select><button class="btn ghost" id="buttonLoad">Read button assignments</button></div>
@@ -651,8 +669,10 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
     <div class="erow hidden" id="buttonMacroFields"><label for="buttonMacro">Saved macro</label><select class="sel" id="buttonMacro"></select></div>
     <div class="erow"><button class="btn" id="buttonSave">Save assignment</button><button class="btn ghost" id="buttonCancel">Discard edit</button></div>
   </div>
+</details>
 </div>
 
+<div class="item hidden" id="rtSettings"><div class="t">VT2 rapid trigger &amp; feedback</div><p class="d">Adjust each main button separately. Changes apply to the active profile. Level ranges match Rapoo AHUB.</p><div class="grid2"><div><h3>Left button</h3><div class="erow"><label for="rt_leftEnabled">Rapid trigger</label><input id="rt_leftEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_leftTravel">Actuation level</label><input id="rt_leftTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftSensitivity">Rapid-trigger level</label><input id="rt_leftSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftPressVibration">Press vibration</label><input id="rt_leftPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseVibration">Release vibration</label><input id="rt_leftReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_leftPressSound">Press sound</label><input id="rt_leftPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftReleaseSound">Release sound</label><input id="rt_leftReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_leftVolume">Sound volume (%)</label><input id="rt_leftVolume" class="num" type="number" min="0" max="100" step="1"></div></div><div><h3>Right button</h3><div class="erow"><label for="rt_rightEnabled">Rapid trigger</label><input id="rt_rightEnabled" class="sw" type="checkbox"></div><div class="erow"><label for="rt_rightTravel">Actuation level</label><input id="rt_rightTravel" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightSensitivity">Rapid-trigger level</label><input id="rt_rightSensitivity" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightPressVibration">Press vibration</label><input id="rt_rightPressVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseVibration">Release vibration</label><input id="rt_rightReleaseVibration" class="num" type="number" min="0" max="10" step="1"></div><div class="erow"><label for="rt_rightPressSound">Press sound</label><input id="rt_rightPressSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightReleaseSound">Release sound</label><input id="rt_rightReleaseSound" class="num" type="number" min="1" max="10" step="1"></div><div class="erow"><label for="rt_rightVolume">Sound volume (%)</label><input id="rt_rightVolume" class="num" type="number" min="0" max="100" step="1"></div></div></div><div class="erow"><label for="rt_feedback">Feedback type</label><select class="sel" id="rt_feedback"><option value="0">Feedback 1</option><option value="1">Feedback 2</option><option value="2">Feedback 3</option></select></div><p class="d">Calibration remains available in Rapoo AHUB.</p></div>
       <div class="item row"><div><label for="dc" class="t">DC mode (Korean firmware)</label><div class="d">Requires official Korean-market firmware. Rapoo says DC mode enables improved release response and anti-slam-click behavior on those models. The switch can appear on global models without having any effect. Saved to the active profile independently of debounce timings.</div></div><input class="sw" type="checkbox" id="dc"></div>
       <div class="item">
         <div class="t">Click debounce</div>
@@ -1553,9 +1573,9 @@ function render(){
   renderRt();renderButtons();renderMacros();renderProfiles();
 }
 async function action(fn,message='Saved and verified'){
-  if(busy||!driver)return;const current=driver;busy=true;render();
-  try{await fn(current);if(driver===current)toast(message);}
-  catch(e){toast(e.message||'Could not save',true);log('ERROR',new TextEncoder().encode(e.message||'Unknown error'));try{if(driver===current&&!current.closed&&!current.faulted)await current.readState();}catch{current.ready=false;}}
+  if(busy||!driver)return;const current=driver,reloadButtons=!!driver.s?.buttons?.loaded;busy=true;render();
+  try{await fn(current);if(driver===current&&reloadButtons&&current.ready&&!current.s.buttons?.loaded)await current.loadButtons();if(driver===current)toast(message);}
+  catch(e){toast(e.message||'Could not save',true);log('ERROR',new TextEncoder().encode(e.message||'Unknown error'));try{if(driver===current&&!current.closed&&!current.faulted){await current.readState();if(reloadButtons)await current.loadButtons();}}catch{current.ready=false;}}
   finally{busy=false;render();if(refreshQueued){refreshQueued=false;refresh();}}
 }
 function refresh(){return action(d=>d.readState(),'Settings refreshed');}
@@ -1660,6 +1680,36 @@ function renderRt(){
 function bindRt(){for(const key of Object.keys(RT_FIELDS))$('#rt_'+key).onchange=e=>{const value=key.endsWith('Enabled')?Number(e.target.checked):e.target.value===''?NaN:Number(e.target.value);action(d=>d.setRt(key,value));};}
 // RT UI end.
 // Buttons UI start.
+const BUTTON_ROW_ORDER=[0,2,1,6,5,3,4,9,10,13];
+function buttonActionKind(action){return action.kind==='mouse'?'mouse:'+action.button:action.kind==='dpi'?'dpi:'+action.direction:action.kind==='wheel'?'wheel:'+action.direction:action.kind;}
+function buttonActionChoices(index){const rows=[['preserve','Keep current mapping'],['default','Default for this control'],...RAPOO_MOUSE_ACTIONS.map(([id,label])=>['mouse:'+id,label]),['keyboard','Keyboard key / shortcut…'],['dpi:up','DPI +'],['dpi:down','DPI −'],['macro','Saved macro…'],['disabled','Disable']];if([9,10,11,12].includes(index))rows.push(['wheel:up','Scroll up'],['wheel:down','Scroll down']);return rows;}
+function renderAssignmentRows(keys,loaded,rows){
+  let number=0;
+  const photo=$('#buttonMousePhoto'),src=driver.model.rt&&photo.dataset.failed!=='1'?'https://hwsoft.rapoo.com/webdriver/manifests/VT2%20RT%20V2/thumb_Polar_Day.png':'../assets/rapoo/vt3s-max-v2-white.png';
+  if(photo.getAttribute('src')!==src)photo.setAttribute('src',src);
+  for(const index of BUTTON_ROW_ORDER){
+    const visible=keys.includes(index),host=$('#assignmentRow'+index),select=$('#assignmentAction'+index);host.classList.toggle('hidden',!visible);select.disabled=!visible||!loaded||busy||!driver.ready;
+    if(visible){number++;$('#assignmentNumber'+index).textContent=String(number);$('#mousePinNumber'+index).textContent=String(number);}
+    const row=rows.find(r=>r.index===index),kind=row?buttonActionKind(row.action):'preserve',choices=buttonActionChoices(index);
+    if(row&&['keyboard','macro'].includes(kind))choices.find(r=>r[0]===kind)[1]=rapooButtonLabel(row,driver.s.macros||[])+' (edit…)';
+    if(row&&!choices.some(r=>r[0]===kind))choices[0][1]='Current: '+rapooButtonLabel(row,driver.s.macros||[]);
+    buttonOptions('#assignmentAction'+index,choices,choices.some(r=>r[0]===kind)?kind:'preserve');
+  }
+}
+function highlightMouseControl(index,on){
+  for(const el of document.querySelectorAll('[data-mouse-key]'))if(Number(el.getAttribute('data-mouse-key'))===index)el.classList.toggle('hovered',on);
+  $('#assignmentRow'+index).classList.toggle('hovered',on);$('#buttonMouseHint').textContent=on?(RAPOO_BUTTON_LABELS[index]||'Mouse button'):'Hover a button';
+}
+function bindAssignmentRows(){
+  $('#buttonMousePhoto').onerror=()=>{const image=$('#buttonMousePhoto'),fallback='../assets/rapoo/vt3s-max-v2-white.png';image.dataset.failed='1';if(image.getAttribute('src')!==fallback)image.setAttribute('src',fallback);};
+  for(const index of BUTTON_ROW_ORDER)$('#assignmentAction'+index).onchange=e=>{
+    if(busy||!driver?.ready||!driver.s.buttons?.loaded)return;
+    const value=e.target.value;selectMouseControl(index);$('#buttonAction').value=value;showButtonActionFields();
+    if(value==='keyboard'||value==='macro'){$('#buttonAdvanced').open=true;$('#buttonAction').focus();}
+    else if(value!=='preserve')$('#buttonSave').click();
+  };
+}
+
 function selectMouseControl(index){
   if(!driver?.ready||busy||!driver.s.buttons?.loaded||!driver.model.keys.includes(index))return;
   ButtonUI.index=index;ButtonUI.signature='';renderButtons();
@@ -1674,12 +1724,15 @@ function renderMouseDiagram(keys,loaded,rows=[]){
     const row=rows.find(row=>row.index===index),name=RAPOO_BUTTON_LABELS[index]||'Button '+index;
     element.setAttribute('aria-label',name+(row?'. Current assignment: '+rapooButtonLabel(row,driver.s.macros||[]):''));
   }
+  renderAssignmentRows(keys,loaded,rows);
   $('#buttonSelectionTitle').textContent=loaded?'Editing: '+(RAPOO_BUTTON_LABELS[ButtonUI.index]||'mouse button'):'Read button assignments to select a control';
 }
 function bindMouseDiagram(){
   for(const element of document.querySelectorAll('[data-mouse-key]')){
     const select=()=>selectMouseControl(Number(element.getAttribute('data-mouse-key')));
-    element.onclick=select;
+    element.onclick=()=>{select();const row=driver?.s.buttons?.rows.find(row=>row.index===Number(element.getAttribute('data-mouse-key')));if(row&&['keyboard','macro'].includes(row.action.kind))$('#buttonAdvanced').open=true;};
+    element.onmouseenter=element.onfocus=()=>highlightMouseControl(Number(element.getAttribute('data-mouse-key')),true);
+    element.onmouseleave=element.onblur=()=>highlightMouseControl(Number(element.getAttribute('data-mouse-key')),false);
     if(element.getAttribute('role')==='button')element.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}};
   }
 }
@@ -1710,9 +1763,7 @@ function renderButtons(){
   const signature=driver.s.profile+':'+row.index+':'+row.raw.join(',');
   if(ButtonUI.signature!==signature){
     ButtonUI.signature=signature;
-    const actions=[['preserve','Keep current mapping'],['default','Default for this control'],...RAPOO_MOUSE_ACTIONS.map(([id,label])=>['mouse:'+id,label]),['keyboard','Keyboard key / shortcut'],['dpi:up','DPI +'],['dpi:down','DPI −'],['macro','Saved macro'],['disabled','Disable']];
-    if([9,10,11,12].includes(row.index))actions.push(['wheel:up','Scroll up'],['wheel:down','Scroll down']);
-    const a=row.action,kind=a.kind==='mouse'?'mouse:'+a.button:a.kind==='dpi'?'dpi:'+a.direction:a.kind==='wheel'?'wheel:'+a.direction:a.kind;
+    const actions=buttonActionChoices(row.index),a=row.action,kind=buttonActionKind(a);
     buttonOptions('#buttonAction',actions,kind);
     const keyRows=RAPOO_KEY_CHOICES.slice();for(const value of [a.code,a.code2])if(value&&!keyRows.some(row=>row[0]===value))keyRows.push([value,'HID usage '+value]);
     buttonOptions('#buttonKey',keyRows,a.code||4);buttonOptions('#buttonKey2',[[0,'None'],...keyRows],a.code2||0);
@@ -1727,7 +1778,7 @@ function renderButtons(){
   buttonOptions('#buttonMacro',macros.length?macros:[['','No saved macros loaded']],macros.some(m=>String(m[0])===macroValue)?macroValue:ButtonUI.macroSlot??macros[0]?.[0]??'');
 }
 function bindButtons(){
-  bindMouseDiagram();
+  bindMouseDiagram();bindAssignmentRows();
   $('#buttonLoad').onclick=()=>action(d=>d.loadButtons(),'Button assignments refreshed');
   $('#buttonControl').onchange=e=>selectMouseControl(Number(e.target.value));
   $('#buttonAction').onchange=showButtonActionFields;

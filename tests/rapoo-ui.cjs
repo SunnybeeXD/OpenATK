@@ -110,6 +110,22 @@ $(rt,'rt_rightEnabled').checked=true;$(rt,'rt_rightEnabled').onchange({target:$(
 $(rt,'rt_leftTravel').value='11';$(rt,'rt_leftTravel').onchange({target:$(rt,'rt_leftTravel')});await wait(rt);ok($(rt,'rt_leftTravel').value==='7','Invalid RT value rolls back');
 ok($(p,'rtSettings').classList.contains('hidden')&&$(p,'rt_leftTravel').disabled,'Standard model hides and disables RT controls');await rt.app.detach();
 const rtReceiver=create(html,'?demo=dongle',setTimeout,clearTimeout);await wait(rtReceiver);ok(rtReceiver.app.driver.model.rt&&!rtReceiver.app.driver.wired,'Default receiver demo uses VT2 RT');await rtReceiver.app.detach();
+const assignments=create(html,'?demo=1',setTimeout,clearTimeout);await wait(assignments);
+assignments.all.find(el=>el.dataset.tab==='buttons').click();await wait(assignments);
+for(const [index,number] of [[0,1],[2,2],[1,3],[6,4],[5,5],[9,6],[10,7],[13,8]])ok($(assignments,'assignmentNumber'+index).textContent===String(number),'Contiguous mouse number '+number);
+ok($(assignments,'assignmentRow3').classList.contains('hidden')&&$(assignments,'assignmentRow4').classList.contains('hidden'),'RT mouse hides absent DPI rows');
+const rowSelect=$(assignments,'assignmentAction6');rowSelect.value='mouse:forward';rowSelect.onchange({target:rowSelect});await wait(assignments);
+ok(assignments.app.driver.s.buttons.rows.find(r=>r.index===6).action.button==='forward','Row dropdown saves simple remap immediately');
+const leftSelect=$(assignments,'assignmentAction0');leftSelect.value='mouse:right';leftSelect.onchange({target:leftSelect});await wait(assignments);
+ok(leftSelect.value==='mouse:left'&&assignments.app.driver.s.buttons.rows.find(r=>r.index===0).action.button==='left','Last left click guard rolls back row dropdown');
+const beforeDraft=JSON.stringify(assignments.app.driver.s.buttons.rows);rowSelect.value='keyboard';rowSelect.onchange({target:rowSelect});
+ok($(assignments,'buttonAdvanced').open&&!$(assignments,'buttonKeyboardFields').classList.contains('hidden'),'Shortcut opens detailed editor');
+ok(JSON.stringify(assignments.app.driver.s.buttons.rows)===beforeDraft,'Custom mapping selection does not write an unfinished shortcut');
+$(assignments,'buttonKey').value='5';$(assignments,'buttonSave').click();await wait(assignments);
+ok(assignments.app.driver.s.buttons.rows.find(r=>r.index===6).action.code===5,'Detailed shortcut save still works');
+await press(assignments,'segProfile','Creative');ok($(assignments,'assignmentAction6').value==='mouse:back'&&!$(assignments,'assignmentAction6').disabled,'Profile switch reloads row assignments');
+const label=assignments.all.find(el=>el.getAttribute('data-mouse-key')==='6'&&el.classList.contains('assignment-label'));label.onmouseenter();
+ok($(assignments,'assignmentRow6').classList.contains('hovered')&&assignments.all.filter(el=>el.getAttribute('data-mouse-key')==='6').every(el=>el.classList.contains('hovered')),'Hover links numbered marker and assignment row');label.onmouseleave();await assignments.app.detach();
 return checks;
 
   } finally { for(const timer of timers)globalThis.clearTimeout(timer); }
