@@ -227,7 +227,9 @@
         state = null,
         busy = false,
         buttons = [];
-      const demo = new URLSearchParams(location.search).get("demo");
+      const qs = new URLSearchParams(location.search);
+      const demo = qs.get("demo");
+      if (qs.get("embed") === "1") document.body.classList.add("embed");
       const rates = {
         8: 125,
         4: 250,
@@ -581,6 +583,38 @@ $("#sBattBar").style.strokeDashoffset = 238.76 * (1-Math.min(100,state.battery.p
           };
         });
       }
+      async function connectSelected(selected) {
+        if (!selected.length) return;
+        const commands = selected.filter(WLM.isCommandDevice);
+        if (commands.length > 1)
+          throw new Error("Select a single WLmouse command interface.");
+        let command = commands[0];
+        if (!command) {
+          const identities = [
+            ...new Set(selected.map((d) => d.vendorId + ":" + d.productId)),
+          ];
+          if (identities.length !== 1)
+            throw new Error(
+              "Select one WLmouse device and its command interface.",
+            );
+          const siblings = (await navigator.hid.getDevices()).filter(
+            (d) =>
+              d.vendorId === selected[0].vendorId &&
+              d.productId === selected[0].productId &&
+              WLM.isCommandDevice(d),
+          );
+          if (siblings.length !== 1)
+            throw new Error(
+              "Could not identify a unique authorized 64-byte command interface. Select the WLmouse command interface.",
+            );
+          command = siblings[0];
+        }
+        const matches = WLM.modelsForDevice(command);
+        if (!matches.length) throw new Error("Unsupported device");
+        const m =
+          matches.length === 1 ? matches[0] : await selectModel(matches);
+        if (m) await connectDevice(command, m);
+      }
       $("#connect").onclick = () =>
         operation("Connect", async () => {
           if (demo === "1" || demo === "dongle") {
@@ -597,36 +631,7 @@ $("#sBattBar").style.strokeDashoffset = 238.76 * (1-Math.min(100,state.battery.p
           const selected = await navigator.hid.requestDevice({
             filters: WLM.filters,
           });
-          if (!selected.length) return;
-          const commands = selected.filter(WLM.isCommandDevice);
-          if (commands.length > 1)
-            throw new Error("Select a single WLmouse command interface.");
-          let command = commands[0];
-          if (!command) {
-            const identities = [
-              ...new Set(selected.map((d) => d.vendorId + ":" + d.productId)),
-            ];
-            if (identities.length !== 1)
-              throw new Error(
-                "Select one WLmouse device and its command interface.",
-              );
-            const siblings = (await navigator.hid.getDevices()).filter(
-              (d) =>
-                d.vendorId === selected[0].vendorId &&
-                d.productId === selected[0].productId &&
-                WLM.isCommandDevice(d),
-            );
-            if (siblings.length !== 1)
-              throw new Error(
-                "Could not identify a unique authorized 64-byte command interface. Select the WLmouse command interface.",
-              );
-            command = siblings[0];
-          }
-          const matches = WLM.modelsForDevice(command);
-          if (!matches.length) throw new Error("Unsupported device");
-          const m =
-            matches.length === 1 ? matches[0] : await selectModel(matches);
-          if (m) await connectDevice(command, m);
+          await connectSelected(selected);
         });
       $("#disconnect").onclick = () =>
         operation("Disconnect", async () => {
@@ -884,6 +889,21 @@ $("#demoBar").hidden=true;$("#connectTop").hidden=false;
             WLM.models.find((m) => m.name === "BEAST MINI"),
           );
         });
+      if (!demo && navigator.hid)
+        (async () => {
+          try {
+            const id = (d) => d.vendorId.toString(16) + ":" + d.productId.toString(16);
+            const all = (await navigator.hid.getDevices()).filter((d) =>
+              WLM.filters.some(
+                (f) => f.vendorId === d.vendorId && f.productId === d.productId,
+              ),
+            );
+            const first = all.find((d) => id(d) === qs.get("d")) ?? all[0];
+            if (first) await connectSelected([first]);
+          } catch (e) {
+            console.error(e);
+          }
+        })();
       if (!demo && navigator.hid)
         navigator.hid.addEventListener("disconnect", (e) => {
           if (e.device === device) {

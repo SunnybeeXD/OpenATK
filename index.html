@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script>try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
 addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
@@ -16,6 +16,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .hero{max-width:760px}
 #homeView{margin-top:72px}
 #homeView h2{font-size:28px;margin:0 0 10px}
+.rot{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--acc);transition:width .35s var(--ease)}
+.rot b{grid-area:1/1;justify-self:start;font-weight:inherit;white-space:nowrap;opacity:0;transform:translateY(45%);transition:opacity .3s,transform .35s var(--ease)}
+.rot b.on{opacity:1;transform:none}
 .picks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:36px 0 24px}
 .pick,.dev{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:10px;
   transition:border-color .12s,background-color .12s}
@@ -110,7 +113,7 @@ body.app #addTab{margin-left:auto}
 
 <div class="hero" id="homeView">
   <div class="kicker">WebHID configurator</div>
-  <h2>Tune your ATK gear, right in the browser</h2>
+  <h2>Tune your <span class="rot" id="rot"><b class="on">ATK</b><b>Rapoo</b><b>G-Wolves</b><b>RAWM</b><b>Finalmouse</b><b>WLmouse</b></span> mouse, right in the browser</h2>
   <p>Pick what you want to set up. Close ATK HUB first if it's running, since only one
      program can talk to a device at a time.</p>
 
@@ -136,8 +139,8 @@ body.app #addTab{margin-left:auto}
 
   <div id="anyWrap">
     <div class="or">or</div>
-    <button class="btn" id="connectAny">Connect any ATK device</button>
-    <p class="note">Shows every ATK mouse and keyboard in one list. Pick one or several with Ctrl or Shift.</p>
+    <button class="btn" id="connectAny">Connect a device</button>
+    <p class="note">Works with ATK, Rapoo, RAWM, G-Wolves, Finalmouse and WLmouse devices, all in one list. Pick one or several with Ctrl or Shift.</p>
   </div>
   </div>
   <p class="note warn hidden" id="unsupported"></p>
@@ -158,12 +161,6 @@ body.app #addTab{margin-left:auto}
 <div id="stage" class="hidden"></div>
 
 <div class="foot" id="foot">
-  <nav class="brands" aria-label="Other brands"><span>Other brands</span>
-    <a href="fm/" title="Ultralight X, Starlight X">Finalmouse</a>
-    <a href="rawm/" title="Leviathan V4 GT">RAWM</a>
-    <a href="rapoo/" title="VT series">Rapoo</a>
-    <a href="wlmouse/">WLmouse</a>
-    <a href="gwolves/" title="HTS Plus Pro and JM models">G-Wolves</a></nav>
   <div class="meta"><a href="tested.html">Tested hardware</a><a href="firmware/">Firmware</a><span>Not affiliated with ATK</span><span class="made"><svg viewBox="0 0 28 20" aria-hidden="true" focusable="false"><g fill="#d97757"><rect x="8" y="5" width="16" height="1"/><rect x="8" y="6" width="16" height="1"/><rect x="4" y="7" width="6" height="1"/><rect x="12" y="7" width="8" height="1"/><rect x="22" y="7" width="2" height="1"/><rect x="4" y="8" width="6" height="1"/><rect x="12" y="8" width="8" height="1"/><rect x="22" y="8" width="2" height="1"/><rect x="4" y="9" width="24" height="1"/><rect x="4" y="10" width="24" height="1"/><rect x="8" y="11" width="20" height="1"/><rect x="8" y="12" width="16" height="1"/><rect x="8" y="13" width="16" height="1"/><rect x="8" y="14" width="16" height="1"/><rect x="8" y="15" width="16" height="1"/><rect x="8" y="16" width="2" height="1"/><rect x="12" y="16" width="2" height="1"/><rect x="18" y="16" width="2" height="1"/><rect x="22" y="16" width="2" height="1"/><rect x="8" y="17" width="2" height="1"/><rect x="12" y="17" width="2" height="1"/><rect x="18" y="17" width="2" height="1"/><rect x="22" y="17" width="2" height="1"/><rect x="8" y="18" width="2" height="1"/><rect x="12" y="18" width="2" height="1"/><rect x="18" y="18" width="2" height="1"/><rect x="22" y="18" width="2" height="1"/><rect x="8" y="19" width="2" height="1"/><rect x="12" y="19" width="2" height="1"/><rect x="18" y="19" width="2" height="1"/><rect x="22" y="19" width="2" height="1"/></g><g fill="#ea4646"><rect x="1" y="0" width="2" height="1"/><rect x="6" y="0" width="2" height="1"/><rect x="0" y="1" width="4" height="1"/><rect x="5" y="1" width="4" height="1"/><rect x="0" y="2" width="9" height="1"/><rect x="1" y="3" width="7" height="1"/><rect x="2" y="4" width="5" height="1"/><rect x="3" y="5" width="3" height="1"/><rect x="4" y="6" width="1" height="1"/></g><g fill="#0b0d10"><rect x="10" y="7" width="2" height="1"/><rect x="20" y="7" width="2" height="1"/><rect x="10" y="8" width="2" height="1"/><rect x="20" y="8" width="2" height="1"/></g></svg>Built with help of Claude</span></div>
 </div>
 </div>
@@ -171,6 +168,7 @@ body.app #addTab{margin-left:auto}
 <div id="pal" class="hidden" role="dialog" aria-label="Jump to"><div class="box"><input id="palIn" placeholder="Jump to a device, theme or action" autocomplete="off" spellcheck="false" aria-label="Jump to"><ul id="palList" role="listbox"></ul></div></div>
 <div id="toast"></div>
 
+<script src="wlmouse/protocol.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const MICE = [
@@ -179,14 +177,42 @@ const MICE = [
   { vendorId: 0x3554, usagePage: 0xFF04, usage: 0x02 },
 ];
 const KEYBOARDS = [{ vendorId: 0x373B, usagePage: 0xFF60, usage: 0x61 }];
-const matches = (d, list) => d.collections.some(c =>
-  list.some(f => d.vendorId === f.vendorId && c.usagePage === f.usagePage && c.usage === f.usage));
+const matches = (d, list) => list.some(f => d.vendorId === f.vendorId && (f.productId == null || d.productId === f.productId)
+  && (f.usagePage == null || d.collections.some(c => c.usagePage === f.usagePage && (f.usage == null || c.usage === f.usage))));
+const byVid = (vendorId, pids, extra) => pids.map(productId => ({ vendorId, productId, ...extra }));
+const brand = (id, name, filters) => ({ id, name, filters, test: d => matches(d, filters) });
+const BRANDS = [
+  brand('atk', 'ATK', [...MICE, ...KEYBOARDS]),
+  brand('rapoo', 'Rapoo', [{ vendorId: 0x24AE, usagePage: 0xFF00, usage: 0x02 }]),
+  brand('rawm', 'RAWM', byVid(0x373E, [0x98, 0x99])),
+  brand('gwolves', 'G-Wolves', byVid(0x33E4, [0x5418, 0x4718, 0x5618, 0x4719, 0x5619, 0x5419, 0x3619, 0x2719, 0x5219, 0x4219, 0x3519, 0x3854])),
+  brand('fm', 'Finalmouse', [{ vendorId: 0x361D, productId: 0x100 }, ...byVid(0x361D, [0x300, 0x301, 0x310, 0x311], { usagePage: 0xFF00 })]),
+  brand('wlmouse', 'WLmouse', WLM.filters),
+];
+const ALL_FILTERS = BRANDS.flatMap(b => b.filters);
+const KEYS = ['mouse', 'keyboard', ...BRANDS.slice(1).map(b => b.id)];
+const kname = k => k === 'mouse' ? 'Mouse' : k === 'keyboard' ? 'Keyboard' : BRANDS.find(b => b.id === k).name;
+const fallbackName = k => k === 'keyboard' ? 'ATK keyboard' : k === 'mouse' ? 'ATK mouse' : kname(k) + ' mouse';
+const STOCK = { keyboard: 'assets/keyboard.svg', rapoo: 'assets/rapoo/vt9-white.png', wlmouse: 'assets/wlmouse/beast-mini.png', fm: 'assets/slx-nightfall.webp', rawm: 'assets/rawm/leviathan-v4-gt.png', gwolves: 'assets/gwolves/hts-plus-pro-white.png' };
 
 let toastTimer;
 function toast(msg){
   $('#toast').textContent = msg; $('#toast').className = 'show';
   clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').className = '', 2600);
 }
+
+const rot = $('#rot'), words = [...rot.children];
+let word = 0;
+const fitWord = () => { rot.style.width = words[word].offsetWidth + 'px'; };
+fitWord();
+document.fonts?.ready.then(fitWord);
+addEventListener('resize', fitWord);
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => {
+  words[word].classList.remove('on');
+  word = (word + 1) % words.length;
+  words[word].classList.add('on');
+  fitWord();
+}, 2200);
 
 const IS_MOBILE = navigator.userAgentData?.mobile === true
   || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
@@ -219,7 +245,10 @@ let loaded = false;
 const extra = new Map();
 const frames = new Map();
 
-const kindOf = d => matches(d, KEYBOARDS) ? 'keyboard' : 'mouse';
+const kindOf = d => {
+  const b = BRANDS.find(b => b.test(d));
+  return b.id === 'atk' ? (matches(d, KEYBOARDS) ? 'keyboard' : 'mouse') : b.id;
+};
 const hashFor = (kind, id) => `#d=${encodeURIComponent(id)}&k=${kind}`;
 
 function parseHash(){
@@ -228,30 +257,30 @@ function parseHash(){
   if (d && /^[0-9a-f]{1,4}:[0-9a-f]{1,4}$/i.test(d)){
     const id = d.toLowerCase();
     const dev = devices.find(x => devId(x) === id);
-    const kind = dev ? kindOf(dev) : p.get('k') === 'keyboard' ? 'keyboard' : 'mouse';
+    const kind = dev ? kindOf(dev) : KEYS.includes(p.get('k')) ? p.get('k') : 'mouse';
     return { key: 'd:' + id, kind, known: !!dev, src: `${kind}/index.html?d=${encodeURIComponent(id)}&embed=1` };
   }
-  if (demo === 'mouse' || demo === 'keyboard') return { key: 'demo:' + demo, kind: demo, src: `${demo}/index.html?demo=1&embed=1`, extra: { label: 'Demo ' + demo, demo: true } };
+  if (KEYS.includes(demo)) return { key: 'demo:' + demo, kind: demo, src: `${demo}/index.html?demo=1&embed=1`, extra: { label: 'Demo ' + demo, demo: true } };
   return null;
 }
 
 function card(d){
-  const kb = matches(d, KEYBOARDS);
+  const kind = kindOf(d), kb = kind === 'keyboard';
   const id = devId(d);
   const info = saved(id);
   const a = el('a', 'dev');
-  a.href = hashFor(kindOf(d), id);
+  a.href = hashFor(kind, id);
   const shot = el('div', 'shot'), img = el('img');
   const photo = typeof info.img === 'string' && info.img.startsWith('https://bpcdn.atkgear.com/') ? info.img : null;
-  const stock = kb ? 'assets/keyboard.svg' : 'assets/mouse.webp';
+  const stock = STOCK[kind] || 'assets/mouse.webp';
   img.src = photo ?? stock;
   img.alt = '';
   img.onerror = () => { if (img.src.indexOf(stock) === -1) img.src = stock; };
   shot.append(img);
   const meta = el('div', 'meta');
-  meta.append(el('b', null, safeName(info, d.productName || (kb ? 'ATK keyboard' : 'ATK mouse'))));
+  meta.append(el('b', null, safeName(info, d.productName || fallbackName(kind))));
   const row = el('div', 'row');
-  row.append(el('span', 'kind', kb ? 'Keyboard' : 'Mouse'));
+  row.append(el('span', 'kind', kname(kind)));
   const pct = safeBatt(info);
   if (!kb && pct !== null){
     const fresh = Date.now() - info.at < 30 * 60000;
@@ -271,7 +300,7 @@ function chip(key, kind, label, href, opts = {}){
   b.type = 'button';
   b.setAttribute('role', 'tab');
   b.dataset.key = key;
-  b.append(el('span', 'k', opts.demo ? 'Demo' : kind === 'keyboard' ? 'KB' : 'Mouse'), el('span', 'n', label));
+  b.append(el('span', 'k', opts.demo ? 'Demo' : kind === 'keyboard' ? 'KB' : kname(kind)), el('span', 'n', label));
   if (opts.batt != null){
     const bb = el('span', 'b', opts.batt + '%');
     if (opts.battAt) bb.title = `Battery when last read, ${ago(opts.battAt)}`;
@@ -293,7 +322,7 @@ function renderTabs(){
   const list = [];
   for (const d of devices){
     const id = devId(d), kind = kindOf(d), info = saved(id);
-    list.push(chip('d:' + id, kind, safeName(info, d.productName || (kind === 'keyboard' ? 'ATK keyboard' : 'ATK mouse')), hashFor(kind, id), { batt: kind === 'mouse' ? safeBatt(info) : null, battAt: info.at }));
+    list.push(chip('d:' + id, kind, safeName(info, d.productName || fallbackName(kind)), hashFor(kind, id), { batt: kind !== 'keyboard' ? safeBatt(info) : null, battAt: info.at }));
   }
   for (const [key, v] of extra){
     if (key.startsWith('d:')) continue;
@@ -426,7 +455,7 @@ function route(){
 }
 
 async function addDevices(){
-  try { await navigator.hid.requestDevice({ filters: [...MICE, ...KEYBOARDS] }); }
+  try { await navigator.hid.requestDevice({ filters: ALL_FILTERS }); }
   catch (e) { toast(e.message); return; }
   await renderDevices();
 }
@@ -453,15 +482,15 @@ function drawDevices(){ $('#devGrid').replaceChildren(...devices.map(card), addT
 async function renderDevices(){
   if (!HAS_HID){ loaded = true; route(); return; }
   let list = [];
-  try { list = (await navigator.hid.getDevices()).filter(d => matches(d, [...MICE, ...KEYBOARDS])); } catch {}
+  try { list = (await navigator.hid.getDevices()).filter(d => matches(d, ALL_FILTERS)); } catch {}
   const seen = new Set();
   list = list.filter(d => !seen.has(devId(d)) && seen.add(devId(d)));
-  list.sort((a, b) => Number(matches(a, KEYBOARDS)) - Number(matches(b, KEYBOARDS)));
+  list.sort((a, b) => Number(kindOf(a) === 'keyboard') - Number(kindOf(b) === 'keyboard'));
   devices = list;
   loaded = true;
   const live = new Set(list.map(d => 'd:' + devId(d)));
   for (const [k, f] of [...frames]) if (k.startsWith('d:') && !live.has(k)){ f.remove(); frames.delete(k); }
-  for (const d of list) if (kindOf(d) === 'mouse') ensureFrame('d:' + devId(d), `mouse/index.html?d=${encodeURIComponent(devId(d))}&embed=1`, true);
+  for (const d of list) if (kindOf(d) !== 'keyboard') ensureFrame('d:' + devId(d), `${kindOf(d)}/index.html?d=${encodeURIComponent(devId(d))}&embed=1`, true);
   drawDevices();
   $('#devSection').classList.toggle('hidden', !list.length);
   $('#pickSection').classList.toggle('hidden', !!list.length);
@@ -505,14 +534,13 @@ function paletteCommands(){
   list.push({ label: 'Start page', tag: 'Go', run: () => { location.hash = ''; } });
   for (const d of devices){
     const id = devId(d), kind = kindOf(d);
-    list.push({ label: safeName(saved(id), d.productName || (kind === 'keyboard' ? 'ATK keyboard' : 'ATK mouse')), tag: kind, run: () => { location.hash = hashFor(kind, id); } });
+    list.push({ label: safeName(saved(id), d.productName || fallbackName(kind)), tag: kname(kind), run: () => { location.hash = hashFor(kind, id); } });
   }
   if (HAS_HID) list.push({ label: 'Add a device', tag: 'Action', run: addDevices });
   if (!IS_MOBILE){
     list.push({ label: 'Try the demo mouse', tag: 'Demo', run: () => { location.hash = '#demo=mouse'; } });
     list.push({ label: 'Try the demo keyboard', tag: 'Demo', run: () => { location.hash = '#demo=keyboard'; } });
-    list.push({ label: 'Try the WLmouse demo', tag: 'Demo', run: () => { location.href = 'wlmouse/?demo=1'; } });
-    list.push({ label: 'Try the WLmouse dongle demo', tag: 'Demo', run: () => { location.href = 'wlmouse/?demo=dongle'; } });
+    for (const b of BRANDS.slice(1)) list.push({ label: `Try the ${b.name} demo`, tag: 'Demo', run: () => { location.hash = '#demo=' + b.id; } });
   }
   for (const [name] of THEMES) list.push({ label: `Accent: ${name}`, tag: 'Theme', run: () => setTheme(name) });
   return list;
