@@ -48,6 +48,8 @@
     <link rel="stylesheet" href="../ui.css">
 <style>
 html.demo #hero{display:none}
+.demo-link{margin-left:14px}
+.hero .muted{margin:6px 0 10px}
 .head-actions,.controls,.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .head-actions{margin-left:auto}
 .controls{flex:0 1 auto!important}
@@ -901,10 +903,12 @@ $("#demoBar").hidden=true;$("#connectTop").hidden=false;
                 (f) => f.vendorId === d.vendorId && f.productId === d.productId,
               ),
             );
-            const first = all.find((d) => id(d) === qs.get("d")) ?? all[0];
+            const cmd = all.filter(WLM.isCommandDevice);
+            const pool = cmd.length ? cmd : all;
+            const first = pool.find((d) => id(d) === qs.get("d")) ?? pool[0];
             if (first) await connectSelected([first]);
           } catch (e) {
-            console.error(e);
+            notice(e.message, true);
           }
         })();
       if (!demo && navigator.hid)
