@@ -88,13 +88,11 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
   </a>
   <div class="devhead">
     <h1>Firmware directory</h1>
-    <div class="status" id="status">Loading</div>
   </div>
   <a class="btn ghost" href="../">Back to hub</a>
 </header>
 
 <section class="intro">
-  <div class="kicker">Official files</div>
   <h2>Every firmware ATK's hub serves</h2>
   <p>Pulled straight from ATK's own firmware API for every ATK and VXE device the hub knows about. The links go to ATK's CDN and nothing is rehosted.</p>
 </section>
@@ -203,8 +201,6 @@ async function connect(){
 $('#connect').onclick=$('#detect').onclick=connect;
 $('#showAll').onclick=showAll;
 if(!navigator.hid){$('#connect').disabled=true;$('#detect').hidden=true;warn('Device detection needs WebHID. Open this page in Chrome, Edge or Opera on desktop, or view the entire database.')}
-$('#status').innerHTML='';
-$('#status').append(el('b',null,String(new Set(data.rows.map(r=>r.file)).size)),' files from hub '+data.hub);
 </script>
 </body>
 </html>
