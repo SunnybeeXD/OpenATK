@@ -16,6 +16,9 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .hero{max-width:760px}
 #homeView{margin-top:72px}
 #homeView h2{font-size:28px;margin:0 0 10px}
+.rot{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--acc);transition:width .35s var(--ease)}
+.rot b{grid-area:1/1;justify-self:start;font-weight:inherit;white-space:nowrap;opacity:0;transform:translateY(45%);transition:opacity .3s,transform .35s var(--ease)}
+.rot b.on{opacity:1;transform:none}
 .picks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:36px 0 24px}
 .pick,.dev{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:10px;
   transition:border-color .12s,background-color .12s}
@@ -110,7 +113,7 @@ body.app #addTab{margin-left:auto}
 
 <div class="hero" id="homeView">
   <div class="kicker">WebHID configurator</div>
-  <h2>Tune your ATK gear, right in the browser</h2>
+  <h2>Tune your <span class="rot" id="rot"><b class="on">ATK</b><b>Rapoo</b><b>G-Wolves</b><b>RAWM</b><b>Finalmouse</b><b>WLmouse</b></span> mouse, right in the browser</h2>
   <p>Pick what you want to set up. Close ATK HUB first if it's running, since only one
      program can talk to a device at a time.</p>
 
@@ -197,6 +200,19 @@ function toast(msg){
   $('#toast').textContent = msg; $('#toast').className = 'show';
   clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').className = '', 2600);
 }
+
+const rot = $('#rot'), words = [...rot.children];
+let word = 0;
+const fitWord = () => { rot.style.width = words[word].offsetWidth + 'px'; };
+fitWord();
+document.fonts?.ready.then(fitWord);
+addEventListener('resize', fitWord);
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => {
+  words[word].classList.remove('on');
+  word = (word + 1) % words.length;
+  words[word].classList.add('on');
+  fitWord();
+}, 2200);
 
 const IS_MOBILE = navigator.userAgentData?.mobile === true
   || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
