@@ -13,40 +13,43 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ui.css">
 <style>
-.hero{max-width:760px}
+.wrap{max-width:1360px}
+.hero{max-width:none}
 #homeView{margin-top:72px}
-#homeView h2{font-size:28px;margin:0 0 10px}
+#homeView h2{font-size:40px;letter-spacing:-.025em;margin:0 0 14px}
+#homeView>h2+p{font-size:15px;max-width:520px}
 .rot{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--acc);transition:width .35s var(--ease)}
 .rot b{grid-area:1/1;justify-self:start;font-weight:inherit;white-space:nowrap;opacity:0;transform:translateY(45%);transition:opacity .3s,transform .35s var(--ease)}
 .rot b.on{opacity:1;transform:none}
-.picks{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:36px 0 24px}
+.picks{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:44px auto 28px}
 .pick,.dev{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:10px;
   transition:border-color .12s,background-color .12s}
 .pick:hover,.dev:hover{border-color:var(--line2);background:var(--card)}
 .pick{align-items:center;gap:4px;padding:24px 20px 20px}
-.pick .img{height:120px;width:100%;display:grid;place-items:center;margin-bottom:12px}
-.pick img{max-height:120px;max-width:100%;object-fit:contain}
+.pick .img{height:170px;width:100%;display:grid;place-items:center;margin-bottom:12px}
+.pick img{max-height:170px;max-width:100%;object-fit:contain}
 .pick b{font:600 15px/1.3 var(--sans)}
 .pick em{font-style:normal;color:var(--dim);font-size:13px}
 .pick .go,.or,.hero .kicker,.demoline .tag{display:none}
 .hero .note{margin:12px auto 0;max-width:none;color:var(--dimmer);font-size:12.5px}
 .hero .note.warn{color:var(--warn)}
-.foot{max-width:760px;margin:64px auto 0;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px}
+.foot{max-width:none;margin:72px 0 0;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px}
 .foot .brands,.foot .meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
 .foot a{text-decoration:none}
 .foot a:hover{color:var(--ink)}
 .foot .made{display:inline-flex;align-items:center;gap:6px}
 .foot .made svg{width:20px;height:auto;flex:none;shape-rendering:crispEdges}
-.devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,340px));justify-content:center;gap:12px;margin:32px 0 18px;text-align:left}
+.devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));max-width:1160px;margin:40px auto 18px;gap:16px;text-align:left}
+.devgrid:has(.dev:nth-child(2):last-child){max-width:520px}
 .dev{overflow:hidden}
 .dev.add{grid-column:1/-1;justify-self:center;flex-direction:row;align-items:center;gap:8px;padding:9px 16px;cursor:pointer;
   font:500 13px var(--sans);color:var(--dim);background:transparent;border:1px dashed var(--line2)}
 .dev.add span{font-size:16px;line-height:1}
 .dev.add:hover{color:var(--ink)}
-.dev .shot{height:200px;display:grid;place-items:center;padding:20px}
-.dev .shot img{max-width:100%;max-height:160px;object-fit:contain}
-.dev .meta{padding:14px 16px 16px;border-top:1px solid var(--line)}
-.dev b{display:block;font:600 15px/1.3 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev .shot{height:240px;display:grid;place-items:center;padding:20px}
+.dev .shot img{max-width:100%;max-height:200px;object-fit:contain}
+.dev .meta{padding:16px 20px 18px;border-top:1px solid var(--line)}
+.dev b{display:block;font:600 16px/1.3 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dev .row{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--dim)}
 .dev .row .kind,.chip .k{font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .dev .row .kind{padding:3px 6px;border-radius:4px;border:1px solid var(--line2)}
