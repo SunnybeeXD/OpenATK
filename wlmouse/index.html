@@ -13,6 +13,8 @@
       rel="stylesheet"
     />
     <script>
+      if (/^(1|dongle)$/.test(new URLSearchParams(location.search).get("demo")))
+        document.documentElement.classList.add("demo");
       try {
         const t = localStorage.getItem("openatk.theme");
         if (t)
@@ -45,6 +47,7 @@
     </script>
     <link rel="stylesheet" href="../ui.css">
 <style>
+html.demo #hero{display:none}
 .head-actions,.controls,.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .head-actions{margin-left:auto}
 .controls{flex:0 1 auto!important}

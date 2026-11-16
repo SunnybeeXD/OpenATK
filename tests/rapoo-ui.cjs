@@ -34,7 +34,7 @@ for(const match of html.slice(html.indexOf('<body>'),html.indexOf('// Protocol s
   for(const a of attrs.matchAll(/([\w-]+)="([^"]*)"/g))el.setAttribute(a[1],a[2]);
   if(/\bhidden(?:\s|>)/.test(attrs))el.hidden=true;all.push(el);
 }
-const document={body,title:'',hidden:false,activeElement:null,createElement:tag=>new Element(tag),
+const document={body,documentElement:new Element('html'),title:'',hidden:false,activeElement:null,createElement:tag=>new Element(tag),
   addEventListener(type,fn){listeners.set(type,fn);},dispatchEvent(event){listeners.get(event.type)?.(event);},
   querySelector(selector){return selector.startsWith('#')?elements.get(selector.slice(1)):null;},
   querySelectorAll(selector){if(selector==='[data-tab]')return all.filter(el=>el.dataset.tab);if(selector==='[data-panel]')return all.filter(el=>el.dataset.panel);if(selector==='[data-mouse-key]')return all.filter(el=>el.getAttribute('data-mouse-key')!==null);return[];}};
