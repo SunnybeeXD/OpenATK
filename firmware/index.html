@@ -61,6 +61,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .gate{max-width:560px;margin:24px auto 48px;text-align:center}
 .gate h2{margin:0 0 10px;font:600 20px/1.3 var(--sans);letter-spacing:-.015em}
 .gate p{margin:0 auto 22px;color:var(--dim)}
+.gate .hint{max-width:480px;padding:10px 14px;border:1px solid var(--line);border-left:2px solid var(--warn);border-radius:var(--r);font-size:13px;text-align:left}
+.gate .hint b{color:var(--ink);font-weight:600}
 .gate .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 .gate .btn{padding:11px 18px;font-size:14px}
 .gate .gatenote{margin:18px auto 0;font-size:13px;color:var(--warn)}
@@ -102,6 +104,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <section class="gate" id="gate">
   <h2>Find your firmware</h2>
   <p>Connect your device and this page shows only the files for its exact VID:PID. The device ID is read in your browser and never sent anywhere.</p>
+  <p class="hint"><b>Plug the mouse in with its USB cable or use its dongle.</b> If it is only connected by Bluetooth or another wireless mode, it may not appear in the device list.</p>
   <div class="actions"><button class="btn" id="connect" type="button">Connect device</button><button class="btn ghost" id="showAll" type="button">View entire database</button></div>
   <p class="gatenote" id="gateNote" role="status"></p>
 </section>
