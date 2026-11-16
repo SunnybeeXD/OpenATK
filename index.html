@@ -190,7 +190,7 @@ const ALL_FILTERS = BRANDS.flatMap(b => b.filters);
 const KEYS = ['mouse', 'keyboard', ...BRANDS.slice(1).map(b => b.id)];
 const kname = k => k === 'mouse' ? 'Mouse' : k === 'keyboard' ? 'Keyboard' : BRANDS.find(b => b.id === k).name;
 const fallbackName = k => k === 'keyboard' ? 'ATK keyboard' : k === 'mouse' ? 'ATK mouse' : kname(k) + ' mouse';
-const STOCK = { keyboard: 'assets/keyboard.svg', rapoo: 'assets/rapoo/vt9-white.png', wlmouse: 'assets/wlmouse/beast-mini.png', fm: 'assets/slx-nightfall.webp' };
+const STOCK = { keyboard: 'assets/keyboard.svg', rapoo: 'assets/rapoo/vt9-white.png', wlmouse: 'assets/wlmouse/beast-mini.png', fm: 'assets/slx-nightfall.webp', rawm: 'assets/rawm/leviathan-v4-gt.png', gwolves: 'assets/gwolves/hts-plus-pro-white.png' };
 
 let toastTimer;
 function toast(msg){
