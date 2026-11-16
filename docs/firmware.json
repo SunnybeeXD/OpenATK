@@ -9,6 +9,15 @@
   "notes": "Fixed known issues"
  },
  {
+  "name": "ATK A9 2.0 NK",
+  "vid": "373b",
+  "pid": "1223",
+  "mark": "a9",
+  "version": "1.0.11",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f02eb9a50400c7c348dc03ebdc33a70c.bin",
+  "notes": "Factory firmware"
+ },
+ {
   "name": "ATK A9 3.0 NK",
   "vid": "373b",
   "pid": "1305",
@@ -45,12 +54,21 @@
   "notes": "Note: because the device's low-level firmware was optimized, the matching receiver firmware must also be updated to V3.00 or later."
  },
  {
+  "name": "ATK A9 Air",
+  "vid": "373b",
+  "pid": "1343",
+  "mark": "a9",
+  "version": "1.1.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c074eb55357c8bae27912f91cbe3b2f7.bin",
+  "notes": "Initial Firmware"
+ },
+ {
   "name": "ATK A9 Air +",
   "vid": "373b",
   "pid": "1288",
   "mark": "a9",
-  "version": "1.0.19",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/4f142b19d1f710eb143fb7ac4632e687.bin",
+  "version": "1.1.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ec4f9b691d2e2406c04ad4f837a87990.bin",
   "notes": "Initial Firmware"
  },
  {
@@ -79,6 +97,24 @@
   "version": "5.10",
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/932b54b8eeba14698cb49850f0e4f3c6.bin",
   "notes": "Factory firmware"
+ },
+ {
+  "name": "ATK A9 Mini",
+  "vid": "373b",
+  "pid": "1268",
+  "mark": "a9",
+  "version": "1.1.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/7e30127670fd63b0521316d41f2bd5d9.bin",
+  "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Mini +",
+  "vid": "373b",
+  "pid": "1251",
+  "mark": "a9",
+  "version": "1.1.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/80541e0c0aa410a0d52a2e435e5264bf.bin",
+  "notes": "Initial firmware"
  },
  {
   "name": "ATK A9 Mini +",
@@ -169,15 +205,6 @@
   "version": "1.08",
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/ed3b938157accf96a4f4b28b04443d53.bin",
   "notes": "April update #1:\n1. Factory firmware"
- },
- {
-  "name": "ATK A9 NK",
-  "vid": "373b",
-  "pid": "1223",
-  "mark": "a9",
-  "version": "1.0.11",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/f02eb9a50400c7c348dc03ebdc33a70c.bin",
-  "notes": "Factory firmware"
  },
  {
   "name": "ATK A9 Plus 3.0 NK",
@@ -342,6 +369,15 @@
   "notes": "Initial Firmware"
  },
  {
+  "name": "ATK A9 SE 3.0 NK",
+  "vid": "373b",
+  "pid": "134d",
+  "mark": "a9",
+  "version": "1.1.0",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/1bf3bd70e4edbce5a7f0d4c8e81a02f0.bin",
+  "notes": "Initial Firmware"
+ },
+ {
   "name": "ATK A9 SE NK",
   "vid": "373b",
   "pid": "1135",
@@ -409,9 +445,18 @@
   "vid": "373b",
   "pid": "1314",
   "mark": "a9",
-  "version": "1.1.4",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/60cf9cd32c98d8b9af7d8570e2495f1f.bin",
+  "version": "1.1.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/2bb886d868bb70c9b0d913971b981bb0.bin",
   "notes": "Initial Firmware"
+ },
+ {
+  "name": "ATK A9 Ultimate +",
+  "vid": "373b",
+  "pid": "1287",
+  "mark": "a9",
+  "version": "1.1.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/750ea8070b5b76eac9d070d5dccbed8e.bin",
+  "notes": "Initial firmware"
  },
  {
   "name": "ATK A9 Ultimate +",
@@ -1368,6 +1413,24 @@
   "notes": "1. Reduced wireless wake-up delay\n2. Fixed some known issues"
  },
  {
+  "name": "ATK ZERO +",
+  "vid": "373b",
+  "pid": "129e",
+  "mark": "zero",
+  "version": "3.0.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c5c5a8d64e4608f416071439f8bba48c.bin",
+  "notes": "1. Added virtual sensor offset feature\n2. Added dynamic DPI feature\n3. Fixed some known issues"
+ },
+ {
+  "name": "ATK ZERO + GENGAR EDITION",
+  "vid": "373b",
+  "pid": "1331",
+  "mark": "zero",
+  "version": "3.0.6",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/3b3fad9b9ff8ef2980fc34bceb7e480c.bin",
+  "notes": "1. Added virtual sensor offset feature\n2. Added dynamic DPI feature\n3. Fixed some known issues"
+ },
+ {
   "name": "ATK ZERO EX",
   "vid": "373b",
   "pid": "11cc",
@@ -1428,15 +1491,6 @@
   "mark": "v3",
   "version": "1.0.22",
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/00731ad030a01e4d0e4213f61c264e08.bin",
-  "notes": "Initial Firmware"
- },
- {
-  "name": "Mouse",
-  "vid": "373b",
-  "pid": "1367",
-  "mark": "v3",
-  "version": "1.0.22",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9a615d0587ccadced081e1fa0a498c5a.bin",
   "notes": "Initial Firmware"
  },
  {
@@ -1809,6 +1863,15 @@
   "notes": "Initial Firmware"
  },
  {
+  "name": "VXE V3 Pro Silent NK ",
+  "vid": "373b",
+  "pid": "1367",
+  "mark": "v3",
+  "version": "1.0.22",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/9a615d0587ccadced081e1fa0a498c5a.bin",
+  "notes": "Initial Firmware"
+ },
+ {
   "name": "VXE V3 Silent NK",
   "vid": "373b",
   "pid": "1366",
@@ -1933,6 +1996,15 @@
   "version": "5.01",
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/6dcaa6778f8c3e6b2746af19da0c759f.bin",
   "notes": "Factory firmware"
+ },
+ {
+  "name": "Wireless mouse 8k dongle-L0",
+  "vid": "373b",
+  "pid": "124f",
+  "mark": "dongle",
+  "version": "3.0.5",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/7fe504e794d7f1207fe869fea8278c57.bin",
+  "notes": "1. Fixed an issue where the mouse would fail to wake the device from sleep mode."
  },
  {
   "name": "Wireless mouse 8k dongle-L0",
