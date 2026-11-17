@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data:">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>{const d=new URLSearchParams(location.search).get('demo');if((d!==null&&!['0','false','off','no'].includes(d.toLowerCase()))||navigator.hid)document.documentElement.classList.add('starting')}
+try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
+addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==window){e.preventDefault();parent.postMessage({type:'openatk-palette'},location.origin)}});</script>
+<title>XSYD keyboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../ui.css">
+<style>
+html.starting #hero{display:none}
+.startup{display:none;margin:56px auto 0;max-width:760px;text-align:center;color:var(--dim)}
+html.starting .startup{display:block}
+.hero .sub{margin:-6px 0 14px;font:400 11.5px var(--mono);color:var(--dimmer)}
+.hero .demo{display:inline-block;margin-left:14px;color:var(--dim);font-size:13px}
+.hero .hint{margin:20px auto 0;color:var(--dimmer);font-size:13px}
+.head-actions{display:flex;align-items:center;gap:9px}
+.ident .t{font:600 14px var(--sans);overflow-wrap:anywhere}
+.ident .d{font-size:12px;color:var(--dim);overflow-wrap:anywhere}
+.gate{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:13px;color:var(--ink)}
+.gate span{flex:1}
+.foot{line-height:1.5}
+.gatenote{margin:0 0 16px}
+.seg.wrap2{display:flex}
+.row2{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+.row2 input[type=text]{width:240px}
+.kmap{position:relative;margin:16px 0 6px;max-width:100%}
+.kk{position:absolute;display:flex;align-items:center;justify-content:center;padding:0 2px;border:1px solid var(--line2);border-radius:5px;background:var(--card);
+  color:var(--dim);font:500 10.5px/1.1 var(--mono);text-align:center;overflow:hidden;cursor:pointer;transition:border-color .12s,color .12s,background-color .12s}
+.kk:hover:not(:disabled){border-color:var(--dim);color:var(--ink)}
+.kk[aria-pressed=true]{border-color:var(--acc);color:var(--ink);background:rgba(var(--acc-rgb),.14)}
+.kk.dim{opacity:.5}
+.kk:disabled{cursor:default;opacity:.4}
+.kk span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.picker{display:flex;flex-wrap:wrap;gap:4px;max-height:176px;overflow:auto;margin-top:12px;padding:8px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+.kc{padding:6px 9px;border:1px solid var(--line2);border-radius:5px;background:var(--card);color:var(--ink);font:500 12px var(--mono);cursor:pointer}
+.kc:hover{border-color:var(--dim)}
+.kc[aria-pressed=true]{border-color:var(--acc);background:rgba(var(--acc-rgb),.14)}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px 22px;margin-top:14px}
+.fields label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--dim)}
+.fields input{width:100%}
+.fields small{color:var(--dimmer);font-size:11.5px}
+.cur{margin-top:10px;font:400 12.5px var(--mono);color:var(--dim)}
+.cur b{color:var(--ink);font-weight:500}
+.list{margin:8px 0 0;padding:0;list-style:none;font-size:13px;color:var(--dim)}
+.list li{padding:5px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border:0}
+.list b{color:var(--ink);font-weight:500}
+.busy #app main{opacity:.6;pointer-events:none}
+.busy #app aside .tabs{pointer-events:none}
+.seg button{flex:0 0 auto}
+#keyNote{margin-bottom:14px}
+.logbar{display:flex;gap:9px;margin-top:12px}
+@media(max-width:820px){.row2 input[type=text]{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <a class="brand" href="../index.html" aria-label="OpenATK">
+    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" style="color:var(--acc)" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
+    <b>Open<span>ATK</span></b>
+  </a>
+  <div class="devhead">
+    <h1 id="headerName">XSYD keyboard</h1>
+    <div class="status off" id="status">Not connected</div>
+  </div>
+  <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK" target="_blank" rel="noopener noreferrer" aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
+  <div class="head-actions">
+    <button class="btn ghost hidden" id="refresh" type="button">Refresh</button>
+    <button class="btn ghost hidden" id="disconnect" type="button">Disconnect</button>
+    <button class="btn" id="connect" type="button">Connect</button>
+  </div>
+</header>
+
+<div class="notice error hidden" id="notice" role="status" aria-live="polite"></div>
+<div class="demobar hidden" id="demoBar" role="status">
+  <span><b>Demo mode.</b> This is a simulated keyboard. Nothing is sent to hardware and nothing is saved.</span>
+  <a href="../index.html" target="_top">Exit demo</a>
+</div>
+<div class="startup" id="startup" role="status">Looking for your keyboard...</div>
+
+<div class="hero" id="hero">
+  <div class="art" style="width:260px"><img src="../assets/xsyd/keyboard.svg" alt=""></div>
+  <div class="kicker">WebHID configurator</div>
+  <h2>Tune your XSYD-platform keyboard, right in the browser</h2>
+  <p>Many keyboard brands are built on the same XSYD platform and share one web driver, so this page finds them by how they
+     talk, not by model. Plug the keyboard in by cable, close the maker's web driver, then connect.</p>
+  <button class="btn" id="connectHero" type="button">Connect keyboard</button><a class="demo" href="?demo=1" id="demoLink">Try a simulated keyboard</a>
+  <p class="hint">Use Chrome, Edge or Opera. This page was written from the public XSYD web driver and has not been tested on a real keyboard.
+     <a href="../docs/xsyd-keyboard-protocol.md">Protocol notes</a></p>
+</div>
+
+<div id="app" class="hidden">
+  <aside>
+    <div class="devcard">
+      <div class="art" id="devArt"><img src="../assets/xsyd/keyboard.svg" alt="XSYD keyboard"></div>
+      <div class="ident"><div class="t" id="devName">XSYD keyboard</div><div class="d" id="devInfo"></div></div>
+      <div class="gauges">
+        <div class="ring hidden" id="ringBatt">
+          <svg viewBox="0 0 96 96" aria-hidden="true"><circle class="trk" cx="48" cy="48" r="38"/><circle id="sBattBar" cx="48" cy="48" r="38"/></svg>
+          <div class="mid"><div><div class="v batt-row" id="sBatt">-</div><div class="k">BATTERY</div></div></div>
+        </div>
+        <div class="minis">
+          <div class="mini"><div class="k">Polling</div><div class="v" id="sRate">-</div></div>
+          <div class="mini"><div class="k">Config</div><div class="v" id="sCfg">-</div></div>
+          <div class="mini"><div class="k">Link</div><div class="v" id="sLink">USB</div></div>
+        </div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Settings">
+      <button role="tab" data-tab="basics" aria-pressed="true" aria-selected="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
+      <button role="tab" data-tab="keys" aria-pressed="false" aria-selected="false"><svg viewBox="0 0 20 14" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M6.5 10.5h7" stroke-linecap="round"/></svg>Keys</button>
+      <button role="tab" data-tab="mag" aria-pressed="false" aria-selected="false" id="magTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10"/><path d="m8 9 4 4 4-4"/><path d="M5 17h14M7 21h10"/></svg>Magnetic</button>
+      <button role="tab" data-tab="device" aria-pressed="false" aria-selected="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
+    </nav>
+    <label class="gate" for="allow"><span>Allow changes</span><input type="checkbox" class="sw" id="allow"></label>
+    <p class="foot">Off by default. Nothing on this page has been tried on a real keyboard. Not affiliated with XSYD or any keyboard maker.</p>
+  </aside>
+
+  <main>
+    <div class="notice gatenote" id="gateNote">Changes are off, so this page only reads from the keyboard. Turn on Allow changes in the sidebar to edit anything.</div>
+
+    <section class="panel" id="basics" role="tabpanel">
+      <div class="phead"><div><h2>Basics</h2><p>Report rate, system mode and config slots.</p></div></div>
+      <div class="item">
+        <h3>Report rate</h3>
+        <p>How often the keyboard reports to the computer. Only the rates this keyboard says it supports are listed.</p>
+        <div class="seg" id="rateSeg" aria-label="Report rate"></div>
+        <div class="note hidden" id="rateNote"></div>
+      </div>
+      <div class="item">
+        <h3>System mode</h3>
+        <p>Selects the Windows or Mac key layout stored on the keyboard.</p>
+        <div class="seg" id="sysSeg" aria-label="System mode"></div>
+        <div class="note hidden" id="sysNote"></div>
+      </div>
+      <div class="item">
+        <h3>Config slots</h3>
+        <p>The keyboard keeps several configs. Switching changes the keys and trigger settings in use.</p>
+        <div class="seg" id="cfgSeg" aria-label="Config slot"></div>
+        <div class="row2" id="renameRow">
+          <select class="sel" id="renameSlot" aria-label="Slot to rename"></select>
+          <input type="text" id="renameText" maxlength="32" aria-label="New name" placeholder="New name">
+          <button class="btn ghost" id="renameBtn" type="button" data-write>Rename slot</button>
+        </div>
+        <div class="note hidden" id="cfgNote"></div>
+      </div>
+      <div class="item" id="powerItem">
+        <h3>Battery and connection</h3>
+        <p id="powerText">Not read.</p>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="keys" role="tabpanel">
+      <div class="phead"><div><h2>Keys</h2><p>Pick a key on the board, then choose what it should send.</p></div></div>
+      <div class="seg" id="layerSeg" aria-label="Layer"></div>
+      <div class="kmap" id="keyMap"></div>
+      <div class="note" id="keyNote">Codes are shown as the keyboard reports them. Lighting, macro, reset and layer codes cannot be assigned from this page.</div>
+      <div class="item" id="keyEditor">
+        <h3 id="keyTitle">No key selected</h3>
+        <div class="cur" id="keyCur"></div>
+        <div class="seg" id="groupSeg" aria-label="Code type"></div>
+        <div class="picker" id="picker"></div>
+        <div class="row2 hidden" id="comboRow">
+          <label class="inline"><input type="checkbox" data-mod="Ctrl">Ctrl</label>
+          <label class="inline"><input type="checkbox" data-mod="Shift">Shift</label>
+          <label class="inline"><input type="checkbox" data-mod="Alt">Alt</label>
+          <label class="inline"><input type="checkbox" data-mod="Win">Win</label>
+          <select class="sel" id="comboKey" aria-label="Combo key"></select>
+          <button class="btn ghost" id="comboUse" type="button">Use combo</button>
+        </div>
+        <div class="row2 hidden" id="hexRow">
+          <input type="text" id="hexIn" maxlength="6" placeholder="0x0004" aria-label="Key code in hex">
+          <button class="btn ghost" id="hexUse" type="button">Use code</button>
+          <span class="note" style="margin:0">Raw 16 bit code. Only normal keys, combos, media and mouse buttons are accepted.</span>
+        </div>
+        <div class="cur" id="keyNew"></div>
+        <div class="row2">
+          <button class="btn" id="keyApply" type="button" data-write>Assign to key</button>
+          <button class="btn ghost" id="keyDefault" type="button" data-write>Restore default</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="mag" role="tabpanel">
+      <div class="phead"><div><h2>Magnetic</h2><p>Travel and rapid trigger settings, key by key.</p></div></div>
+      <div class="row2" style="margin-top:0">
+        <button class="btn ghost" id="selAll" type="button">Select all keys</button>
+        <button class="btn ghost" id="selNone" type="button">Clear selection</button>
+        <span class="note" style="margin:0">Click a key to read it. Shift or Ctrl click adds more keys.</span>
+      </div>
+      <div class="kmap" id="perfMap"></div>
+      <div class="item" id="perfEditor">
+        <h3 id="perfTitle">No key selected</h3>
+        <div class="seg" id="modeSeg" aria-label="Trigger mode"></div>
+        <div class="fields" id="perfFields"></div>
+        <div class="note" id="perfNote"></div>
+        <div class="row2">
+          <button class="btn" id="perfApply" type="button" data-write>Apply to selected keys</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="device" role="tabpanel">
+      <div class="phead"><div><h2>Device</h2><p>What the keyboard reports about itself.</p></div></div>
+      <div class="item"><table class="kv" id="kv"></table>
+        <div class="row2"><button class="btn ghost" id="refreshDetails" type="button">Refresh from device</button></div></div>
+      <div class="item">
+        <h3>Not supported yet</h3>
+        <p>The keyboard may have these, but the protocol for them is not decoded, so this page never writes them.</p>
+        <ul class="list" id="missing"></ul>
+      </div>
+      <div class="item">
+        <h3>Frame log</h3>
+        <p>Every 64 byte report sent and received, in hex, with trailing zeros trimmed. Copy it to share a capture.</p>
+        <div id="log" aria-live="polite"></div>
+        <div class="logbar"><button class="btn ghost" id="logCopy" type="button">Copy log</button><button class="btn ghost" id="logClear" type="button">Clear log</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="footer" style="margin-top:22px">OpenATK is an independent project. <a href="../index.html">Back to OpenATK</a></footer>
+</div>
+
+<div class="modal hidden" id="askModal" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+  <div class="mbox">
+    <h3 id="askTitle"></h3>
+    <div class="mstep" id="askText"></div>
+    <div class="erow" style="justify-content:center"><button class="btn" id="askYes" type="button">Write</button><button class="btn ghost" id="askNo" type="button">Cancel</button></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script src="protocol.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const el = (tag, cls, text) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+};
+const QS = new URLSearchParams(location.search);
+const EMBED = QS.get("embed") === "1";
+if (EMBED) document.body.classList.add("embed");
+const DEMO_RAW = QS.get("demo");
+const DEMO = DEMO_RAW !== null && !["0", "false", "off", "no"].includes(DEMO_RAW.toLowerCase());
+if (DEMO) $("#demoLink").classList.add("hidden");
+
+const U = XSYD, R = U.req, K = U.keys;
+const IS_MOBILE = navigator.userAgentData?.mobile === true || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const hex = a => Array.from(a).map(b => b.toString(16).padStart(2, "0")).join(" ");
+const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
+const um = mm => Math.round(mm * 1000);
+const SHORT = s => s.replace("Left ", "L ").replace("Right ", "R ").replace("Page Up", "PgUp").replace("Page Down", "PgDn").replace("Backspace", "Bksp").replace("Print Screen", "PrtSc").replace("Insert", "Ins").replace("Delete", "Del").replace("Scroll Lock", "ScrLk").replace("Caps Lock", "Caps").replace("Pass-through", "Thru");
+
+let S = null;
+let busy = false;
+let askResolve = null;
+
+function toast(msg, bad) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.className = "show" + (bad ? " bad" : "");
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => { t.className = ""; }, 2600);
+}
+
+function notice(msg) {
+  const n = $("#notice");
+  n.textContent = msg || "";
+  n.classList.toggle("hidden", !msg);
+}
+
+function logLine(cls, label, bytes) {
+  const box = $("#log");
+  const row = el("div", cls);
+  let body = "";
+  if (bytes && bytes.length) {
+    let end = bytes.length;
+    while (end > 2 && bytes[end - 1] === 0) end--;
+    body = hex(bytes.slice(0, end)) + (end < bytes.length ? `  (${bytes.length} bytes)` : "");
+  }
+  row.textContent = `${new Date().toISOString().slice(11, 23)}  ${label}  ${body}`.trimEnd();
+  box.append(row);
+  while (box.childElementCount > 500) box.firstChild.remove();
+  box.scrollTop = box.scrollHeight;
+}
+const frameLog = (cls, bytes, note) => logLine(cls, cls === "tx" ? "TX" : cls === "rx" ? "RX" : "!!", note ? Uint8Array.from([]) : bytes);
+
+function frameLogWithNote(cls, bytes, note) {
+  if (note) logLine(cls, note);
+  else frameLog(cls, bytes);
+}
+
+function ask(title, text) {
+  $("#askTitle").textContent = title;
+  $("#askText").textContent = text;
+  $("#askModal").classList.remove("hidden");
+  $("#askYes").focus();
+  return new Promise(res => { askResolve = res; });
+}
+function askDone(v) {
+  $("#askModal").classList.add("hidden");
+  const r = askResolve;
+  askResolve = null;
+  if (r) r(v);
+}
+$("#askYes").onclick = () => askDone(true);
+$("#askNo").onclick = () => askDone(false);
+
+function applyGate() {
+  const on = !!S && S.drv.writes;
+  document.querySelectorAll("[data-write]").forEach(b => { b.disabled = !on; });
+  $("#gateNote").classList.toggle("hidden", on);
+}
+
+async function op(label, fn, isWrite) {
+  if (busy) return;
+  if (isWrite && !S.drv.writes) {
+    notice("Changes are off. Turn on Allow changes in the sidebar first.");
+    return;
+  }
+  busy = true;
+  document.body.classList.add("busy");
+  try {
+    await fn();
+    notice("");
+    logLine("rx", `${label} done`);
+  } catch (e) {
+    console.error(e);
+    logLine("er", `${label} failed: ${e.message}`);
+    notice(`${label} failed: ${e.message}.` + (isWrite ? " The keyboard may or may not have applied it. Nothing was retried. Use Refresh to read it back." : ""));
+  } finally {
+    busy = false;
+    document.body.classList.remove("busy");
+    if (S) render();
+  }
+}
+
+function seg(box, items, current, onPick, write) {
+  box.replaceChildren(...items.map(([val, label]) => {
+    const b = el("button", null, label);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(val === current));
+    if (write) b.dataset.write = "";
+    b.onclick = () => onPick(val);
+    return b;
+  }));
+}
+
+function displayName() {
+  const n = (S.dev.productName || "").trim();
+  return n || "XSYD keyboard";
+}
+
+function features() {
+  const f = S.feat;
+  const sw = [["mechanical", "Mechanical"], ["magnetic", "Magnetic"], ["optical", "Optical"], ["inductive", "Inductive"], ["magnetic3D", "Magnetic 3D"]].filter(x => f.switches[x[0]]).map(x => x[1]);
+  const con = [["usb", "USB"], ["g24", "2.4G"], ["ble", "Bluetooth"], ["usb3", "USB3"]].filter(x => f.connections[x[0]]).map(x => x[1]);
+  return { sw, con };
+}
+
+function remember() {
+  if (DEMO || !S) return;
+  try {
+    const k = "openatk.dev." + devId(S.dev);
+    const old = JSON.parse(localStorage.getItem(k) || "{}");
+    const patch = { name: displayName(), kind: "xsyd", at: Date.now() };
+    if (S.power && S.power.battery != null) {
+      patch.battery = S.power.battery;
+      patch.charging = S.power.charging;
+    }
+    localStorage.setItem(k, JSON.stringify({ ...old, ...patch }));
+  } catch {}
+}
+
+async function loadStyle() {
+  S.style = [];
+  for (let r = 0; r < U.ROWS; r++) S.style.push(await S.drv.run(R.layoutStyle(r)));
+}
+async function loadLayer(layer) {
+  const rows = [];
+  for (let r = 0; r < U.ROWS; r++) rows.push(await S.drv.run(R.layoutRow(layer, r)));
+  S.codes[layer] = rows;
+}
+
+async function loadAll() {
+  const d = S.drv;
+  const f = features();
+  S.fail = {};
+  S.perf = new Map();
+  S.defaults = new Map();
+  S.codes = {};
+  S.selK = null;
+  S.selP = [];
+  S.pending = null;
+  let timeouts = 0;
+  const sec = async (name, fn) => {
+    try {
+      await fn();
+    } catch (e) {
+      S.fail[name] = e.message;
+      logLine("er", `${name}: ${e.message}`);
+      if (e.message === "No reply from the keyboard" && ++timeouts >= 2) throw new Error("The keyboard stopped replying");
+    }
+  };
+  S.rates = [];
+  await sec("Report rate list", async () => { S.rates = await d.run(R.rateList()); });
+  await sec("Report rate", async () => { S.rate = await d.run(R.rateGet()); });
+  await sec("System mode", async () => { S.system = await d.run(R.systemGet()); });
+  S.names = [];
+  await sec("Config slots", async () => {
+    const n = await d.run(R.configCount());
+    S.cfg = await d.run(R.configGet());
+    for (let i = 0; i < n; i++) S.names.push(await d.run(R.configName(i)));
+  });
+  S.power = null;
+  if (S.feat.connections.g24 || S.feat.connections.ble) await sec("Battery", async () => { S.power = await d.run(R.power()); });
+  S.rtMin = null;
+  if (S.feat.switches.magnetic) await sec("Trigger precision", async () => { S.rtMin = await d.run(R.rtPrecision()); });
+  await sec("Key layout", async () => {
+    await loadStyle();
+    await loadLayer(S.layer);
+  });
+  remember();
+  return f;
+}
+
+function mapCells() {
+  const out = [];
+  (S.style || []).forEach((row, r) => row.forEach((e, c) => {
+    if (!e.ratio) return;
+    const [w, h] = U.SIZES[e.ratio];
+    out.push({ r, c, x: e.col, y: e.row, w, h, kind: e.ratio === 12 ? "knob" : e.ratio >= 13 ? "screen" : "key" });
+  }));
+  return out;
+}
+
+function drawMap(box, o) {
+  const cells = mapCells();
+  if (!cells.length) {
+    box.style.width = "";
+    box.style.height = "";
+    box.replaceChildren(el("div", "note", S.fail["Key layout"] ? "The key layout could not be read: " + S.fail["Key layout"] : "The keyboard reported no keys."));
+    return;
+  }
+  const maxX = Math.max(...cells.map(k => k.x + k.w));
+  const maxY = Math.max(...cells.map(k => k.y + k.h));
+  const avail = box.parentElement.clientWidth || 640;
+  const u = Math.max(18, Math.min(48, Math.floor(avail / maxX)));
+  box.style.width = Math.ceil(maxX * u) + "px";
+  box.style.height = Math.ceil(maxY * u) + "px";
+  box.replaceChildren(...cells.map(k => {
+    const b = el("button", "kk");
+    b.type = "button";
+    b.style.left = k.x * u + 1 + "px";
+    b.style.top = k.y * u + 1 + "px";
+    b.style.width = k.w * u - 3 + "px";
+    b.style.height = k.h * u - 3 + "px";
+    if (k.kind !== "key") {
+      b.disabled = true;
+      b.append(el("span", null, k.kind === "knob" ? "Knob" : "Screen"));
+      b.title = k.kind === "knob" ? "Knob, not supported yet" : "Screen, not supported yet";
+      return b;
+    }
+    const code = S.codes[0]?.[k.r]?.[k.c];
+    const lab = o.label(k);
+    b.append(el("span", null, SHORT(lab.text)));
+    b.title = lab.title;
+    if (lab.dim) b.classList.add("dim");
+    b.setAttribute("aria-pressed", String(o.on(k)));
+    b.onclick = ev => { if (!busy) o.pick(k, ev); };
+    return b;
+  }));
+}
+
+function renderStats() {
+  $("#headerName").textContent = displayName();
+  $("#devName").textContent = displayName();
+  const i = S.info;
+  $("#devInfo").textContent = DEMO ? "Simulated device" : `Board ${K.hex4(i.boardId >> 16)}${(i.boardId & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")} / firmware ${i.app}`;
+  $("#sRate").textContent = S.rate != null ? U.RATES[S.rate] : "-";
+  $("#sCfg").textContent = S.cfg != null && S.names[S.cfg] ? S.names[S.cfg] : "-";
+  const link = S.power ? U.CONNECTIONS[S.power.mode] : features().con.join(" / ") || "-";
+  $("#sLink").textContent = link;
+  const ring = $("#ringBatt");
+  const pct = S.power && S.power.battery;
+  ring.classList.toggle("hidden", pct == null);
+  if (pct != null) {
+    $("#sBatt").textContent = pct + "%" + (S.power.charging ? " charging" : "");
+    $("#sBattBar").style.strokeDashoffset = 238.76 * (1 - Math.min(100, pct) / 100);
+  }
+  $("#magTab").classList.toggle("hidden", !S.feat.switches.magnetic);
+}
+
+function failNote(box, name) {
+  box.classList.toggle("hidden", !S.fail[name]);
+  box.textContent = S.fail[name] ? `Could not read this: ${S.fail[name]}` : "";
+}
+
+function renderBasics() {
+  const rates = S.rates.length ? S.rates : S.rate != null ? [S.rate] : [];
+  seg($("#rateSeg"), rates.map(v => [v, U.RATES[v]]), S.rate, v => {
+    if (v !== S.rate) op("Report rate", async () => { S.rate = await S.drv.run(R.rateSet(v)); }, true);
+  }, true);
+  failNote($("#rateNote"), "Report rate");
+  seg($("#sysSeg"), S.system == null ? [] : [[0, "Windows"], [1, "Mac"]], S.system, v => {
+    if (v !== S.system) op("System mode", async () => { S.system = await S.drv.run(R.systemSet(v)); S.defaults = new Map(); }, true);
+  }, true);
+  failNote($("#sysNote"), "System mode");
+  seg($("#cfgSeg"), S.names.map((n, i) => [i, `${i + 1}. ${n || "unnamed"}`]), S.cfg, v => {
+    if (v === S.cfg) return;
+    op("Config switch", async () => {
+      S.cfg = await S.drv.run(R.configSet(v));
+      await loadAll();
+    }, true);
+  }, true);
+  failNote($("#cfgNote"), "Config slots");
+  const sel = $("#renameSlot");
+  const keep = sel.value;
+  sel.replaceChildren(...S.names.map((n, i) => { const o = el("option", null, `${i + 1}. ${n || "unnamed"}`); o.value = String(i); return o; }));
+  if (keep && Number(keep) < S.names.length) sel.value = keep;
+  $("#renameRow").classList.toggle("hidden", !S.names.length);
+  const p = S.power;
+  $("#powerItem").classList.toggle("hidden", !(S.feat.connections.g24 || S.feat.connections.ble));
+  $("#powerText").textContent = S.fail["Battery"] ? `Could not read this: ${S.fail["Battery"]}` : p
+    ? `${U.CONNECTIONS[p.mode]}, ${p.battery == null ? "battery level not reported" : p.battery + "%"}${p.charging ? ", charging" : ""}.`
+    : "Not read.";
+}
+
+function curCode() {
+  const k = S.selK;
+  return k ? S.codes[S.layer]?.[k.r]?.[k.c] : undefined;
+}
+
+function renderKeys() {
+  seg($("#layerSeg"), [[0, "Layer 0"], [1, "Fn1"], [2, "Fn2"], [3, "Fn3"]], S.layer, v => {
+    if (v === S.layer) return;
+    op("Read layer", async () => {
+      S.layer = v;
+      S.selK = null;
+      S.pending = null;
+      if (!S.codes[v]) await loadLayer(v);
+    });
+  });
+  drawMap($("#keyMap"), {
+    label: k => {
+      const code = S.codes[S.layer]?.[k.r]?.[k.c];
+      if (code == null) return { text: "?", title: "not read" };
+      return { text: K.describe(code), title: `${K.describe(code)} ${K.hex4(code)}  row ${k.r}, column ${k.c}`, dim: code === 0 || code === 1 };
+    },
+    on: k => !!S.selK && S.selK.r === k.r && S.selK.c === k.c,
+    pick: k => {
+      S.selK = { r: k.r, c: k.c };
+      S.pending = null;
+      op("Read default", async () => { await ensureDefault(); });
+    },
+  });
+  const sel = S.selK;
+  $("#keyTitle").textContent = sel ? `Row ${sel.r}, column ${sel.c}, layer ${S.layer}` : "No key selected";
+  const code = curCode();
+  $("#keyCur").replaceChildren(...(sel && code != null ? [document.createTextNode("Current: "), Object.assign(el("b"), { textContent: `${K.describe(code)} ${K.hex4(code)}` }), document.createTextNode(defaultText())] : []));
+  const groups = [...Object.keys(K.groups), "Combo", "Hex"];
+  seg($("#groupSeg"), groups.map(g => [g, g]), S.group, g => { S.group = g; renderKeys(); });
+  const pk = $("#picker");
+  pk.classList.toggle("hidden", S.group === "Combo" || S.group === "Hex");
+  $("#comboRow").classList.toggle("hidden", S.group !== "Combo");
+  $("#hexRow").classList.toggle("hidden", S.group !== "Hex");
+  pk.replaceChildren(...(K.groups[S.group] || []).map(c => {
+    const b = el("button", "kc", SHORT(K.describe(c)));
+    b.type = "button";
+    b.title = K.hex4(c);
+    b.setAttribute("aria-pressed", String(S.pending === c));
+    b.onclick = () => { S.pending = c; renderKeys(); };
+    return b;
+  }));
+  $("#keyNew").replaceChildren(...(S.pending != null ? [document.createTextNode("New: "), Object.assign(el("b"), { textContent: `${K.describe(S.pending)} ${K.hex4(S.pending)}` })] : []));
+  $("#keyApply").dataset.ready = String(!!sel && S.pending != null);
+  applyGate();
+  if (!sel || S.pending == null) $("#keyApply").disabled = true;
+  const dc = defaultCode();
+  if (!sel || dc == null || !K.canAssign(dc)) $("#keyDefault").disabled = true;
+}
+
+function defaultCode() {
+  const k = S.selK;
+  const row = k && S.defaults.get(`${S.system || 0}:${S.layer}:${k.r}`);
+  return row ? row[k.c] : null;
+}
+function defaultText() {
+  const dc = defaultCode();
+  return dc == null ? "" : `   Default: ${K.describe(dc)} ${K.hex4(dc)}`;
+}
+async function ensureDefault() {
+  const k = S.selK;
+  const key = `${S.system || 0}:${S.layer}:${k.r}`;
+  if (!S.defaults.has(key)) S.defaults.set(key, await S.drv.run(R.defaultRow(S.system || 0, S.layer, k.r)));
+}
+
+function maxTravel(p) {
+  return p.axisRangeMax > 0 ? p.axisRangeMax / 1000 : 3.4;
+}
+
+function renderMag() {
+  drawMap($("#perfMap"), {
+    label: k => {
+      const code = S.codes[0]?.[k.r]?.[k.c];
+      const p = S.perf.get(`${k.r},${k.c}`);
+      return { text: code == null ? "?" : K.describe(code), title: `${code == null ? "" : K.describe(code)}  row ${k.r}, column ${k.c}` + (p ? `  ${U.MODES[p.mode]}` : ""), dim: code === 0 };
+    },
+    on: k => S.selP.includes(`${k.r},${k.c}`),
+    pick: (k, ev) => {
+      const id = `${k.r},${k.c}`;
+      if (ev.shiftKey || ev.ctrlKey || ev.metaKey) S.selP = S.selP.includes(id) ? S.selP.filter(x => x !== id) : [...S.selP, id];
+      else S.selP = [id];
+      const last = S.selP[S.selP.length - 1];
+      if (!last) { renderMag(); return; }
+      op("Read key", async () => { await readPerf(last); });
+    },
+  });
+  const n = S.selP.length;
+  $("#perfTitle").textContent = n ? (n === 1 ? `Key row ${S.selP[0].split(",")[0]}, column ${S.selP[0].split(",")[1]}` : `${n} keys selected`) : "No key selected";
+  const last = S.selP[S.selP.length - 1];
+  const p = last && S.perf.get(last);
+  $("#perfEditor").classList.toggle("hidden", false);
+  if (!p) {
+    $("#modeSeg").replaceChildren();
+    $("#perfFields").replaceChildren();
+    $("#perfNote").textContent = "Select a key to see and change its trigger settings. Values are in millimetres.";
+    $("#perfApply").disabled = true;
+    return;
+  }
+  if (!S.edit || S.edit.from !== last) S.edit = { from: last, mode: p.mode, normalPress: p.normalPress / 1000, rtFirstTouch: p.rtFirstTouch / 1000, rtPress: p.rtPress / 1000, rtRelease: p.rtRelease / 1000, pressDead: p.pressDead / 1000, releaseDead: p.releaseDead / 1000 };
+  const e = S.edit;
+  seg($("#modeSeg"), U.MODES.map((m, i) => [i, m]), e.mode, v => { e.mode = v; renderMag(); }, true);
+  const min = S.rtMin || 0.001, max = maxTravel(p);
+  const field = (key, label, lo, hi) => {
+    const l = el("label", null, label);
+    const i = el("input");
+    i.type = "number";
+    i.className = "num";
+    i.step = "0.001";
+    i.min = String(lo);
+    i.max = String(hi);
+    i.value = String(e[key]);
+    i.setAttribute("aria-label", label);
+    i.oninput = () => { e[key] = Number(i.value); };
+    l.append(i, el("small", null, `${lo} to ${hi} mm`));
+    return l;
+  };
+  const fields = e.mode === 0
+    ? [field("normalPress", "Actuation point", min, max)]
+    : [field("rtFirstTouch", "First trigger", min, max), field("rtPress", "Press sensitivity", min, max), field("rtRelease", "Release sensitivity", min, max)];
+  fields.push(field("pressDead", "Top dead zone", 0, 1), field("releaseDead", "Bottom dead zone", 0, 1));
+  $("#perfFields").replaceChildren(...fields);
+  $("#perfNote").textContent = `Axis maximum for this key: ${max} mm. The smallest step the keyboard allows is ${min} mm. Other per-key values the keyboard reported are kept as they are.`;
+  applyGate();
+}
+
+async function readPerf(id) {
+  const [r, c] = id.split(",").map(Number);
+  const p = await S.drv.run(R.perfGet(r, c));
+  S.perf.set(id, p);
+  S.edit = null;
+}
+
+function checkRange(name, mm, lo, hi) {
+  if (!Number.isFinite(mm) || um(mm) < um(lo) || um(mm) > um(hi)) throw new Error(`${name} must be from ${lo} to ${hi} mm`);
+}
+
+async function applyPerf() {
+  const ids = S.selP.slice();
+  const e = S.edit;
+  if (!ids.length || !e) throw new Error("Select a key first");
+  if (ids.length > 1 && !(await ask("Write to several keys", `Write these trigger settings to ${ids.length} keys?`))) return;
+  for (const id of ids) {
+    const [r, c] = id.split(",").map(Number);
+    const cur = await S.drv.run(R.perfGet(r, c));
+    const min = S.rtMin || 0.001, max = maxTravel(cur);
+    const next = { ...cur, mode: e.mode };
+    checkRange("Top dead zone", e.pressDead, 0, 1);
+    checkRange("Bottom dead zone", e.releaseDead, 0, 1);
+    next.pressDead = um(e.pressDead);
+    next.releaseDead = um(e.releaseDead);
+    if (e.mode === 0) {
+      checkRange("Actuation point", e.normalPress, min, max);
+      next.normalPress = um(e.normalPress);
+    } else {
+      checkRange("First trigger", e.rtFirstTouch, min, max);
+      checkRange("Press sensitivity", e.rtPress, min, max);
+      checkRange("Release sensitivity", e.rtRelease, min, max);
+      next.rtFirstTouch = um(e.rtFirstTouch);
+      next.rtPress = um(e.rtPress);
+      next.rtRelease = um(e.rtRelease);
+    }
+    try {
+      S.perf.set(id, await S.drv.run(R.perfSet(r, c, next)));
+    } catch (err) {
+      throw new Error(`Key row ${r}, column ${c}: ${err.message}`);
+    }
+  }
+  S.edit = null;
+}
+
+function renderDevice() {
+  const i = S.info, f = features();
+  const col = S.dev.collections.find(c => U.FILTERS.some(x => x.usagePage === c.usagePage && x.usage === c.usage));
+  const rows = [
+    ["Name", displayName()],
+    ["USB ID", DEMO ? "simulated" : `${S.dev.vendorId.toString(16).padStart(4, "0")}:${S.dev.productId.toString(16).padStart(4, "0")}`],
+    ["Interface", col ? `usage page ${K.hex4(col.usagePage)}, usage ${col.usage}` : "-"],
+    ["Device type", `${i.type} / ${i.subtype}`],
+    ["Board ID", "0x" + i.boardId.toString(16).toUpperCase().padStart(8, "0")],
+    ["Firmware", i.app],
+    ["PCB version", i.pcb],
+    ["Run mode", String(i.runMode)],
+    ["Serial", i.serial],
+    ["Build", i.build || "-"],
+    ["Switches", f.sw.join(", ") || "none reported"],
+    ["Connections", f.con.join(", ") || "none reported"],
+  ];
+  $("#kv").replaceChildren(...rows.map(([a, b]) => {
+    const tr = el("tr");
+    tr.append(el("td", null, a), el("td", null, b));
+    return tr;
+  }));
+  const m = [];
+  if (S.feat.basic.rgb) m.push(["Lighting", "The keyboard has RGB. The lighting commands are not decoded."]);
+  if (S.feat.basic.knob) m.push(["Knob", "Knob assignment is not decoded."]);
+  const x = S.feat.extended;
+  if (x.smallScreen || x.fullScreen || x.dotMatrix) m.push(["Screen", "Screen content is not decoded."]);
+  if (x.haptic) m.push(["Haptics", "Haptic feedback is not decoded."]);
+  if (x.voicePlayback || x.voiceRecognition) m.push(["Voice", "Voice features are not decoded."]);
+  if (x.gamepad) m.push(["Gamepad mode", "Gamepad settings are not decoded."]);
+  if (S.feat.switches.magnetic3D) m.push(["3D magnetic switches", "These use a separate command set that is not decoded."]);
+  m.push(["Macros and advanced keys", "Macros, dual stage keys and SOCD are not decoded."]);
+  m.push(["Firmware update", "Left out on purpose. A bad flash can brick the board."]);
+  $("#missing").replaceChildren(...m.map(([a, b]) => { const li = el("li"); li.append(el("b", null, a), document.createTextNode(": " + b)); return li; }));
+}
+
+function render() {
+  if (!S) return;
+  renderStats();
+  renderBasics();
+  renderKeys();
+  if (S.feat.switches.magnetic) renderMag();
+  renderDevice();
+  applyGate();
+  if (!S.feat.switches.magnetic && $("#mag") && !$("#mag").classList.contains("hidden")) showTab("basics");
+}
+
+function showTab(name) {
+  document.querySelectorAll("[data-tab]").forEach(b => {
+    b.setAttribute("aria-pressed", String(b.dataset.tab === name));
+    b.setAttribute("aria-selected", String(b.dataset.tab === name));
+  });
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("hidden", p.id !== name));
+  if (S) render();
+}
+document.querySelectorAll("[data-tab]").forEach(b => { b.onclick = () => showTab(b.dataset.tab); });
+
+async function attach(dev) {
+  const drv = new U.Driver(dev, { onLog: frameLogWithNote, timeout: DEMO ? 300 : 1500 });
+  await drv.open();
+  try {
+    const info = await drv.run(R.info());
+    const feat = await drv.run(R.features());
+    S = { drv, dev, info, feat, layer: 0, group: "Letters", fail: {}, codes: {}, names: [], rates: [], perf: new Map(), defaults: new Map(), selP: [], edit: null };
+    await loadAll();
+  } catch (e) {
+    S = null;
+    try { await drv.close(); } catch {}
+    throw e;
+  }
+  $("#allow").checked = false;
+  $("#hero").classList.add("hidden");
+  $("#app").classList.remove("hidden");
+  $("#refresh").classList.remove("hidden");
+  $("#disconnect").classList.remove("hidden");
+  $("#connect").classList.add("hidden");
+  $("#status").className = "status";
+  $("#status").innerHTML = "";
+  const b = el("b", null, DEMO ? "Demo" : "Connected");
+  $("#status").append(b, document.createTextNode(DEMO ? " / simulated" : ""));
+  $("#demoBar").classList.toggle("hidden", !DEMO);
+  render();
+}
+
+function detach() {
+  if (S) {
+    const d = S.drv;
+    S = null;
+    d.close().catch(() => {});
+  }
+  $("#app").classList.add("hidden");
+  $("#hero").classList.remove("hidden");
+  $("#refresh").classList.add("hidden");
+  $("#disconnect").classList.add("hidden");
+  $("#connect").classList.remove("hidden");
+  $("#status").className = "status off";
+  $("#status").textContent = "Not connected";
+  $("#headerName").textContent = "XSYD keyboard";
+  $("#demoBar").classList.add("hidden");
+}
+
+async function connectDevice(dev) {
+  busy = true;
+  document.body.classList.add("busy");
+  try {
+    await attach(dev);
+    notice("");
+  } catch (e) {
+    notice(`Could not connect: ${e.message}`);
+    logLine("er", `connect failed: ${e.message}`);
+  } finally {
+    busy = false;
+    document.body.classList.remove("busy");
+  }
+}
+
+async function connect() {
+  if (DEMO) { location.href = "../index.html"; return; }
+  if (!navigator.hid) { notice("This browser cannot talk to USB devices. Use Chrome, Edge or Opera on a computer."); return; }
+  try {
+    const got = await navigator.hid.requestDevice({ filters: U.FILTERS });
+    const dev = U.pickCommand(got);
+    if (!dev) { notice("No XSYD command interface was found on that device."); return; }
+    if (S) detach();
+    await connectDevice(dev);
+  } catch (e) {
+    notice(e.message || "Could not connect");
+  }
+}
+
+$("#connect").onclick = connect;
+$("#connectHero").onclick = connect;
+$("#disconnect").onclick = () => detach();
+$("#refresh").onclick = () => { if (S) op("Refresh", loadAll); };
+$("#refreshDetails").onclick = $("#refresh").onclick;
+$("#allow").onchange = e => {
+  if (S) S.drv.writes = e.target.checked;
+  applyGate();
+  if (S) render();
+};
+$("#renameBtn").onclick = () => op("Rename slot", async () => {
+  const i = Number($("#renameSlot").value);
+  const text = $("#renameText").value.trim();
+  await S.drv.run(R.configRename(i, text));
+  const back = await S.drv.run(R.configName(i));
+  if (back !== text) throw new Error(`The keyboard stored "${back}" instead of "${text}"`);
+  S.names[i] = back;
+  $("#renameText").value = "";
+}, true);
+$("#keyApply").onclick = () => op("Assign key", async () => {
+  const k = S.selK, code = S.pending;
+  if (!k || code == null) throw new Error("Pick a key and a code first");
+  if (!K.canAssign(code)) throw new Error("That code cannot be assigned from this page");
+  const yes = await ask("Assign key", `Set row ${k.r}, column ${k.c} on layer ${S.layer} to ${K.describe(code)} (${K.hex4(code)})?`);
+  if (!yes) return;
+  S.codes[S.layer][k.r][k.c] = await S.drv.run(R.keySet(S.layer, k.r, k.c, code));
+  S.pending = null;
+}, true);
+$("#keyDefault").onclick = () => op("Restore default", async () => {
+  const k = S.selK, code = defaultCode();
+  if (!k || code == null || !K.canAssign(code)) throw new Error("The default for this key cannot be assigned from this page");
+  const yes = await ask("Restore default", `Set row ${k.r}, column ${k.c} on layer ${S.layer} back to ${K.describe(code)} (${K.hex4(code)})?`);
+  if (!yes) return;
+  S.codes[S.layer][k.r][k.c] = await S.drv.run(R.keySet(S.layer, k.r, k.c, code));
+  S.pending = null;
+}, true);
+$("#comboUse").onclick = () => {
+  try {
+    const mods = [...document.querySelectorAll("[data-mod]")].filter(c => c.checked).map(c => c.dataset.mod);
+    S.pending = K.makeCombo(mods, Number($("#comboKey").value));
+    renderKeys();
+  } catch (e) { notice(e.message); }
+};
+$("#hexUse").onclick = () => {
+  const t = $("#hexIn").value.trim();
+  const v = /^(0x)?[0-9a-f]{1,4}$/i.test(t) ? parseInt(t.replace(/^0x/i, ""), 16) : NaN;
+  if (!K.canAssign(v)) { notice("That code is not a normal key, combo, media key or mouse button, so it cannot be assigned here."); return; }
+  notice("");
+  S.pending = v;
+  renderKeys();
+};
+$("#comboKey").replaceChildren(...Object.keys(K.HID).map(Number).filter(c => c >= 4 && c <= 115).map(c => { const o = el("option", null, K.HID[c]); o.value = String(c); return o; }));
+$("#selAll").onclick = () => {
+  if (!S) return;
+  S.selP = mapCells().filter(k => k.kind === "key" && S.codes[0]?.[k.r]?.[k.c]).map(k => `${k.r},${k.c}`);
+  const last = S.selP[S.selP.length - 1];
+  if (last) op("Read key", async () => { await readPerf(last); }); else render();
+};
+$("#selNone").onclick = () => { if (S) { S.selP = []; S.edit = null; render(); } };
+$("#perfApply").onclick = () => op("Write trigger settings", applyPerf, true);
+$("#logClear").onclick = () => { $("#log").replaceChildren(); };
+$("#logCopy").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText([...$("#log").children].map(r => r.textContent).join("\n"));
+    toast("Log copied");
+  } catch { toast("Could not copy the log", true); }
+};
+if (navigator.hid) navigator.hid.addEventListener("disconnect", e => {
+  if (S && e.device === S.dev) {
+    detach();
+    notice("The keyboard was unplugged. Reconnect to continue.");
+  }
+});
+addEventListener("resize", () => { if (S && !busy) render(); });
+
+async function start() {
+  try {
+    if (DEMO) {
+      await connectDevice(new U.DemoDevice({ layout: DEMO_RAW }));
+    } else if (IS_MOBILE || !navigator.hid) {
+      $("#connect").classList.add("hidden");
+      $("#connectHero").classList.add("hidden");
+      notice(IS_MOBILE ? "Phones and tablets cannot talk to USB devices from a web page. Open this page on a computer, in Chrome, Edge or Opera." : "This browser cannot talk to USB devices. Open this page in Chrome, Edge or Opera.");
+    } else {
+      const found = (await navigator.hid.getDevices()).filter(U.hasCollection);
+      const want = QS.get("d");
+      const pick = want ? found.filter(d => devId(d) === want.toLowerCase()) : found.length === 1 ? found : [];
+      const dev = U.pickCommand(pick);
+      if (dev) await connectDevice(dev);
+    }
+  } catch (e) {
+    notice(e.message);
+  } finally {
+    document.documentElement.classList.remove("starting");
+  }
+}
+start();
+</script>
+</body>
+</html>

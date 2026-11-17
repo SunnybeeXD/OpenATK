@@ -9,8 +9,10 @@ parses replies, not from a capture.
 - WebHID, usage `1`, usage pages `0xFFB0` (65456) and `0xFF80` (65408).
 - Requests: `device.sendReport(0, frame)`. Report ID 0, 64 bytes, zero padded. There is no checksum at this layer.
 - Replies: `inputreport` events. The driver queues them and hands the next one to the waiting request, with retries.
-- The device filter list (vendor and product IDs) is not in the bundle. It is fetched from an API that needs
-  headers the page adds, then decrypted client side. Use the capture page to read it from a real session instead.
+- The device filter list (vendor and product IDs) is not in the bundle. The /connect route uses the same main bundle.
+  The catalog is fetched from an API, AES decrypted client side, and keyed by `vid-pid` with a usage page and usage per
+  entry. Use the capture page to read it from a real session instead. OpenATK matches on the HID collection
+  (usage 1 on `0xFFB0` or `0xFF80`) and does not keep a model list.
 
 ## Frame
 
@@ -51,7 +53,7 @@ All multi-byte numbers are little endian unless marked.
 |---------|-------|
 | `[1, 1]` protocol | `[2]` main, `[3]` sub, `[4]` hardware, `[5]` software version |
 | `[1, 2]` device info | `[2]` type, `[3]` subtype, `[4..7]` board ID big endian, `[8..11]` app version, `[12..15]` PCB version, `[16]` run mode, `[17..28]` serial, `[29..40]` build timestamp (ASCII) |
-| `[1, 3]` features | `[2]` switch type bits: 1 mechanical, 2 magnetic, 4 optical, 8 inductive, 16 magnetic 3D. `[3]` connection bits: 1 USB, 2 2.4G, 4 BLE, 8 USB3. `[4]` bit 1 RGB, bit 2 knob. `[5]` bit 1 small screen, 2 full screen, 4 haptic, 8 voice |
+| `[1, 3]` features | `[2]` switch type bits: 1 mechanical, 2 magnetic, 4 optical, 8 inductive, 16 magnetic 3D. `[3]` connection bits: 1 USB, 2 2.4G, 4 BLE, 8 USB3. `[4]` bit 1 RGB, bit 2 knob. `[5]` bit 1 small screen, 2 full screen, 4 haptic, 8 voice playback, 16 voice recognition, 32 gamepad, 64 dot matrix |
 
 ## Global (2)
 
@@ -61,7 +63,7 @@ Frame: `[2, command, action, value?]`. Action: `0` read list, `1` read, `2` writ
 |---------|------|-------|
 | 1 | ResetFactory | argument is a scope: 0 all, 1 calibration, 2 performance, 3 lighting, 4 layout, 5 higher key, 6 macro, 7 axis |
 | 2 | SaveParam | same scopes, plus 15 for high polling rate reset |
-| 3 | ConfigSwitch | write value 0 to 3 selects config 1 to 4. `[2,3,3,i]` reads the name of config i (reply bytes `[4..35]`, UTF-8). `[2,3,4,i,...utf8]` sets it, 32 bytes max |
+| 3 | ConfigSwitch | `[2,3,0]` reply byte 3 is the slot count, `[2,3,1]` reads the current slot, `[2,3,2,i]` selects slot i (0 to 3 is config 1 to 4). `[2,3,3,i]` reads the name of config i (reply bytes `[4..35]`, UTF-8). `[2,3,4,i,...utf8]` sets it, 32 bytes max |
 | 4 | SystemSetting | value 0 Windows, 1 Mac |
 | 5 | ReportRateSetting | value 0 8 kHz, 1 4 kHz, 2 2 kHz, 3 1 kHz, 4 500 Hz, 5 250 Hz, 6 125 Hz. Action 0 returns the list the board supports: byte 3 is the count, then that many values |
 | 6 | CalibrationSetting | value 0 start, 1 stop |
@@ -88,9 +90,29 @@ Keycodes are 16 bit.
 | `[3, 2, layer, row, ...codes]` set layout row | |
 | `[3, 3, layer, row, col]` get key code | `[2]` layer, `[3]` row, `[4]` col, `[5..6]` keycode |
 | `[3, 4, layer, row, col, code]` set key code | |
+| `[3, 5, row]` get layout style (command 5, GetKeyLayoutStyle) | 21 entries of 16 bit little endian from byte 3: bits 15 to 11 row times 4, bits 10 to 4 column times 4, bits 3 to 0 size code. Size 0 no key, 12 knob, 13 to 15 screen |
 | `[3, 6, system << 4 or fn, row]` get default layout row | `[2]` is `system << 4 or fn`, `[3]` row, `[4..]` codes |
 
 Layout styles: 0 104 key, 1 87, 2 99, 3 68, 4 75, 5 84.
+
+The driver reads 6 rows of 21 columns and 4 layers (Fn0 to Fn3). A key with code 0 is not present. Size codes map to
+key width and height in key units: 1 is 1x1, 2 is 1.25, 3 is 1.5, 4 is 1.75, 5 is 2, 6 is 2.25, 7 is 2.5, 8 is 2.75,
+9 is 6.25, 10 is 1x2, 11 is the ISO enter shape, 15 is a screen.
+
+### Keycodes (from the driver tables)
+
+| range | meaning |
+|-------|---------|
+| `0x0000` | no key. `0x0001` pass-through to the layer below |
+| `0x0004` to `0x0073`, `0x00E0` to `0x00E7` | USB HID keyboard usages (4 is A, 41 is Esc, 224 to 231 are the modifiers) |
+| `0x1000 < v < 0x2000` | combo: `0x1000 + (modifiers << 8) + usage`, modifier bits 1 Ctrl, 2 Shift, 4 Alt, 8 Win. The driver's "system" keys are combos (`0x1329` is Ctrl+Shift+Esc, `0x1807` is Win+D) |
+| `0x2000 + n` | media, n is a USB consumer usage (`0x20E9` volume up, `0x20CD` play or pause) |
+| `0x4000` to `0x4BFF` | mouse: `0x4100` left, `0x4200` right, `0x4300` middle, `0x4400` forward, `0x4500` back, `0x4600` to `0x4900` move, `0x4A01` and `0x4B01` wheel |
+| `0xF100` to `0xF103` | layer keys Fn0 to Fn3 (the driver also writes pass-through to the higher layers when one is set) |
+| `0xF2xx` | control: `0xF200` factory reset, `0xF201` Windows layout, `0xF202` Mac layout, `0xF203` calibrate, `0xF205` to `0xF208` configs, `0xF209` lock Win key |
+| `0xF3xx`, `0xF4xx`, `0xF5xx` | lighting, wireless mode, macro slots |
+
+The driver's `setKeyCode` does not call SaveParam afterwards.
 
 ## Performance, the magnetic switch settings (4)
 
@@ -128,7 +150,9 @@ Reply to get:
 | 23..24 | axisRangeMax |
 | 25..26 | axisCoefficient |
 
-The meaning of `mode` values is not in the bundle.
+`mode` is 0 fixed point (uses normalPress), 1 rapid trigger, 2 interval rapid trigger (the driver's `Normal`, `RT` and `IntervalRT`). The driver writes `calibrate` as 0 on every set and edits one key at a time. Travel limits in the UI are the rapid trigger step from `[2,12,0]` up to the key's axis range (3.4 mm when none is known), and 0 to 1 mm for dead zones. The set reply uses the same layout as the get reply.
+
+Key `[4, 1, row, col]` has no row or column echo documented, so OpenATK only checks category, command and length, plus that written fields come back as sent.
 
 Live key data: `[4, 3, sub, row]` with sub 0 ADC, 1 route, 2 calibrate, 3 key status. Reply: `[2]` sub, `[3]` row, then 16 bit values from byte 4.
 
@@ -136,13 +160,13 @@ Live key data: `[4, 3, sub, row]` with sub 0 ADC, 1 route, 2 calibrate, 3 key st
 
 Key mode IDs the UI uses: 0 none, 1 DKS, 2 MPT, 3 MT, 4 TGL, 5 END, 6 SOCD, 7 RS. SOCD resolution: 0 cover, 1 priority A, 2 priority B, 3 neutral. Packet layouts were not decoded.
 
-## Power and connection (probably category 13)
+## Power and connection (category 13)
 
 | request | reply |
 |---------|-------|
-| basic info | `[2]` mode, `[3]` charging, `[4]` battery. Mode 0 USB, 1 2.4G, 2 to 4 Bluetooth 1 to 3 |
-| set sleep | shallow and deep sleep times as 32 bit values |
-| get sleep | `[2..5]` shallow, `[6..9]` deep |
+| `[13, 1]` basic info | `[2]` mode, `[3]` charging, `[4]` battery. Mode 0 USB, 1 2.4G, 2 to 4 Bluetooth 1 to 3 |
+| `[13, 2, ...]` set sleep | shallow and deep sleep times as 32 bit values |
+| `[13, 3]` get sleep | `[2..5]` shallow, `[6..9]` deep |
 
 ## Not decoded yet
 
