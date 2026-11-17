@@ -159,7 +159,7 @@ label.inline{font-size:13px;color:var(--dim);display:flex;align-items:center;gap
 .kv td{padding:7px 0;border-bottom:1px solid var(--line)}
 .kv tr:last-child td{border-bottom:0}
 .kv td:first-child{color:var(--dim)}
-.kv td:last-child{text-align:right}
+.kv td:last-child{text-align:right;overflow-wrap:anywhere}
 #log{font-family:var(--mono);font-size:11px;line-height:1.6;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
   padding:10px 12px;margin-top:14px;height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--dimmer)}
 #log .tx{color:#8ba3c4} #log .rx{color:#8ab59b} #log .er{color:var(--bad)}
