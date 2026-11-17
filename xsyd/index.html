@@ -118,6 +118,7 @@ html.starting .startup{display:block}
       <button role="tab" data-tab="basics" aria-pressed="true" aria-selected="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
       <button role="tab" data-tab="keys" aria-pressed="false" aria-selected="false"><svg viewBox="0 0 20 14" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M6.5 10.5h7" stroke-linecap="round"/></svg>Keys</button>
       <button role="tab" data-tab="mag" aria-pressed="false" aria-selected="false" id="magTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10"/><path d="m8 9 4 4 4-4"/><path d="M5 17h14M7 21h10"/></svg>Magnetic</button>
+      <button role="tab" data-tab="axis" aria-pressed="false" aria-selected="false" id="axisTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16"/><path d="m4 8 3-3 3 3M14 16l3 3 3-3"/></svg>Switches</button>
       <button role="tab" data-tab="device" aria-pressed="false" aria-selected="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
     </nav>
     <label class="gate" for="allow"><span>Allow changes</span><input type="checkbox" class="sw" id="allow"></label>
@@ -208,6 +209,47 @@ html.starting .startup{display:block}
       </div>
     </section>
 
+    <section class="panel hidden" id="axis" role="tabpanel">
+      <div class="phead"><div><h2>Switches</h2><p>Which switch each key is told it has. This sets how the keyboard scales key travel.</p></div></div>
+      <div class="notice">The vendor's named switch list (brands, models and ranges) lives on their server and is not included here. This page only works with what the keyboard itself reports. After a switch change the keys are marked uncalibrated. Calibration is not implemented here, so calibrate them with the vendor tool.</div>
+      <div class="row2">
+        <button class="btn ghost" id="axSelAll" type="button">Select all keys</button>
+        <button class="btn ghost" id="axSelNone" type="button">Clear selection</button>
+        <span class="note" style="margin:0">Click a key to read it. Shift or Ctrl click adds more. The last clicked key is the copy source.</span>
+      </div>
+      <div class="kmap" id="axisMap"></div>
+      <div class="item">
+        <h3 id="axisTitle">Selected keys</h3>
+        <p id="axisKind"></p>
+        <table class="kv" id="axisTable"></table>
+      </div>
+      <div class="item">
+        <h3>Copy switch</h3>
+        <p>Copies the switch fields from the last clicked key to every other selected key. Every other field of each target is kept.</p>
+        <div class="row2"><button class="btn" id="axCopy" type="button" data-write>Copy to the other selected keys</button></div>
+      </div>
+      <div class="item hidden" id="axV1">
+        <h3>Pick from the keyboard's list</h3>
+        <p>The keyboard lists these axes by id. Names are not available, so they are shown as ids. The choice is stored per key as the position in this list.</p>
+        <div class="seg" id="axisSeg" aria-label="Axis"></div>
+        <div class="row2"><button class="btn" id="axApply" type="button" data-write>Apply to selected keys</button></div>
+        <h3 style="margin-top:22px">Default axis</h3>
+        <p id="axDefText"></p>
+        <div class="seg" id="axDefSeg" aria-label="Default axis"></div>
+        <div class="row2"><button class="btn ghost" id="axDefApply" type="button" data-write>Set default axis</button></div>
+      </div>
+      <div class="item hidden" id="axV2">
+        <h3>Advanced</h3>
+        <p>This keyboard has no axis list, so each key stores an axis id, a range and a coefficient. Wrong values mis-scale key travel, and the keys must be recalibrated with the vendor tool. Only use values you know are right for your switches.</p>
+        <div class="fields">
+          <label>Axis id<input type="number" class="num" id="v2Id" min="0" max="65535" step="1"><small>0 to 65535</small></label>
+          <label>Range max (mm)<input type="number" class="num" id="v2Range" min="0.5" max="10" step="0.001"><small>0.5 to 10 mm</small></label>
+          <label>Coefficient<input type="number" class="num" id="v2Coef" min="0" max="65535" step="1"><small>0 to 65535</small></label>
+        </div>
+        <div class="row2"><button class="btn" id="axV2Apply" type="button" data-write>Apply to selected keys</button></div>
+      </div>
+    </section>
+
     <section class="panel hidden" id="device" role="tabpanel">
       <div class="phead"><div><h2>Device</h2><p>What the keyboard reports about itself.</p></div></div>
       <div class="item"><table class="kv" id="kv"></table>
@@ -258,6 +300,7 @@ if (DEMO) $("#demoLink").classList.add("hidden");
 
 const U = XSYD, R = U.req, K = U.keys;
 const IS_MOBILE = navigator.userAgentData?.mobile === true || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const AXIS_ROWS = 12;
 const hex = a => Array.from(a).map(b => b.toString(16).padStart(2, "0")).join(" ");
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
 const um = mm => Math.round(mm * 1000);
@@ -426,6 +469,15 @@ async function loadAll() {
   });
   S.power = null;
   if (S.feat.connections.g24 || S.feat.connections.ble) await sec("Battery", async () => { S.power = await d.run(R.power()); });
+  S.axis = null;
+  if (S.feat.switches.magnetic) await sec("Switches", async () => {
+    const list = await d.run(R.axisList());
+    let def = null;
+    if (list.length) {
+      try { def = await d.run(R.axisDefaultGet()); } catch (e) { S.fail["Default axis"] = e.message; }
+    }
+    S.axis = { list, def, v2: list.length === 0 };
+  });
   S.rtMin = null;
   if (S.feat.switches.magnetic) await sec("Trigger precision", async () => { S.rtMin = await d.run(R.rtPrecision()); });
   await sec("Key layout", async () => {
@@ -501,6 +553,7 @@ function renderStats() {
     $("#sBattBar").style.strokeDashoffset = 238.76 * (1 - Math.min(100, pct) / 100);
   }
   $("#magTab").classList.toggle("hidden", !S.feat.switches.magnetic);
+  $("#axisTab").classList.toggle("hidden", !S.feat.switches.magnetic);
 }
 
 function failNote(box, name) {
@@ -712,6 +765,87 @@ async function applyPerf() {
   S.edit = null;
 }
 
+const axisLabel = i => `Axis #${S.axis.list[i]}`;
+const swFields = p => ({ axis: p.axis, axisV2Id: p.axisV2Id, axisRangeMax: p.axisRangeMax, axisCoefficient: p.axisCoefficient });
+
+function renderAxis() {
+  drawMap($("#axisMap"), {
+    label: k => {
+      const code = S.codes[0]?.[k.r]?.[k.c];
+      return { text: code == null ? "?" : K.describe(code), title: `${code == null ? "" : K.describe(code)}  row ${k.r}, column ${k.c}`, dim: code === 0 };
+    },
+    on: k => S.selP.includes(`${k.r},${k.c}`),
+    pick: (k, ev) => {
+      const id = `${k.r},${k.c}`;
+      if (ev.shiftKey || ev.ctrlKey || ev.metaKey) S.selP = S.selP.includes(id) ? S.selP.filter(x => x !== id) : [...S.selP, id];
+      else S.selP = [id];
+      op("Read keys", async () => { await readMissing(S.selP.slice(0, 200)); });
+    },
+  });
+  const a = S.axis;
+  $("#axV1").classList.toggle("hidden", !a || a.v2);
+  $("#axV2").classList.toggle("hidden", !a || !a.v2);
+  const n = S.selP.length;
+  $("#axisTitle").textContent = n ? `${n} key${n === 1 ? "" : "s"} selected` : "No key selected";
+  $("#axisKind").textContent = !a ? `Could not read the axis list: ${S.fail["Switches"] || "unknown error"}`
+    : a.v2 ? "This keyboard reports no axis list. Switch data is stored per key as an id, a range and a coefficient."
+    : `This keyboard reports ${a.list.length} axes: ${a.list.map(v => `#${v}`).join(", ")}. Each key stores a position in that list.${a.def == null ? "" : ` Default axis position: ${a.def}.`}`;
+  const rows = S.selP.slice(0, AXIS_ROWS).map(id => {
+    const p = S.perf.get(id);
+    const tr = el("tr");
+    const [r, c] = id.split(",");
+    const sw = !p ? "not read" : a && !a.v2 ? (p.axis < a.list.length ? `${axisLabel(p.axis)} (position ${p.axis})` : `position ${p.axis} is outside the list`) : `id ${p.axisV2Id}`;
+    const cal = !p ? "" : p.calibrate === 1 ? "calibrated" : p.calibrate === 2 ? "calibrating" : "not calibrated";
+    tr.append(el("td", null, `Row ${r}, column ${c}`), el("td", null, p ? `${sw}, range ${p.axisRangeMax / 1000} mm, coefficient ${p.axisCoefficient}, ${cal}` : sw));
+    return tr;
+  });
+  if (n > AXIS_ROWS) { const tr = el("tr"); tr.append(el("td", null, `${n - AXIS_ROWS} more`), el("td", null, "")); rows.push(tr); }
+  $("#axisTable").replaceChildren(...rows);
+  const last = S.selP[S.selP.length - 1];
+  const cur = last && S.perf.get(last);
+  if (a && !a.v2) {
+    if (S.axSel == null && cur && cur.axis < a.list.length) S.axSel = cur.axis;
+    seg($("#axisSeg"), a.list.map((v, i) => [i, `Axis #${v}`]), S.axSel, v => { S.axSel = v; renderAxis(); });
+    $("#axDefText").textContent = a.def == null ? `Could not read the default axis${S.fail["Default axis"] ? ": " + S.fail["Default axis"] : ""}.` : `Current default: position ${a.def}${a.def < a.list.length ? ` (${axisLabel(a.def)})` : ""}. Whether the keyboard counts this as a position or an id is not confirmed.`;
+    if (S.defSel == null && a.def != null) S.defSel = a.def;
+    seg($("#axDefSeg"), a.list.map((v, i) => [i, `Axis #${v}`]), S.defSel, v => { S.defSel = v; renderAxis(); });
+  }
+  if (a && a.v2 && cur && S.v2From !== last) {
+    S.v2From = last;
+    $("#v2Id").value = String(cur.axisV2Id);
+    $("#v2Range").value = String(cur.axisRangeMax / 1000);
+    $("#v2Coef").value = String(cur.axisCoefficient);
+  }
+  applyGate();
+  if (!n || !a) { $("#axCopy").disabled = true; $("#axApply").disabled = true; $("#axV2Apply").disabled = true; }
+  if (n < 2) $("#axCopy").disabled = true;
+  if (S.axSel == null) $("#axApply").disabled = true;
+  if (!a || a.def == null) $("#axDefApply").disabled = true;
+}
+
+async function readMissing(ids) {
+  for (const id of ids) if (!S.perf.has(id)) await readPerf(id);
+}
+
+async function writeSwitch(ids, fields, what) {
+  if (!ids.length) throw new Error("Select a key first");
+  const yes = await ask("Change switch data", `${what} on ${ids.length} key${ids.length === 1 ? "" : "s"}? The keys will show as not calibrated and need the vendor calibration.`);
+  if (!yes) return;
+  for (const id of ids) {
+    const [r, c] = id.split(",").map(Number);
+    const cur = await S.drv.run(R.perfGet(r, c));
+    try {
+      await S.drv.run(R.perfSet(r, c, { ...cur, ...fields }));
+      const back = await S.drv.run(R.perfGet(r, c));
+      for (const k of Object.keys(fields)) if (back[k] !== fields[k]) throw new Error(`${k} reads back as ${back[k]}, expected ${fields[k]}`);
+      S.perf.set(id, back);
+    } catch (err) {
+      throw new Error(`Key row ${r}, column ${c}: ${err.message}`);
+    }
+  }
+  S.edit = null;
+}
+
 function renderDevice() {
   const i = S.info, f = features();
   const col = S.dev.collections.find(c => U.FILTERS.some(x => x.usagePage === c.usagePage && x.usage === c.usage));
@@ -753,10 +887,10 @@ function render() {
   renderStats();
   renderBasics();
   renderKeys();
-  if (S.feat.switches.magnetic) renderMag();
+  if (S.feat.switches.magnetic) { renderMag(); renderAxis(); }
   renderDevice();
   applyGate();
-  if (!S.feat.switches.magnetic && $("#mag") && !$("#mag").classList.contains("hidden")) showTab("basics");
+  if (!S.feat.switches.magnetic && ["mag", "axis"].some(t => !$("#" + t).classList.contains("hidden"))) showTab("basics");
 }
 
 function showTab(name) {
@@ -901,6 +1035,38 @@ $("#selAll").onclick = () => {
   if (last) op("Read key", async () => { await readPerf(last); }); else render();
 };
 $("#selNone").onclick = () => { if (S) { S.selP = []; S.edit = null; render(); } };
+$("#axSelAll").onclick = () => {
+  if (!S) return;
+  S.selP = mapCells().filter(k => k.kind === "key" && S.codes[0]?.[k.r]?.[k.c]).map(k => `${k.r},${k.c}`);
+  op("Read keys", async () => { await readMissing(S.selP); });
+};
+$("#axSelNone").onclick = () => { if (S) { S.selP = []; render(); } };
+$("#axCopy").onclick = () => op("Copy switch", async () => {
+  const ids = S.selP.slice();
+  const src = S.perf.get(ids[ids.length - 1]);
+  if (ids.length < 2 || !src) throw new Error("Select a source key and at least one target");
+  await writeSwitch(ids.slice(0, -1), swFields(src), "Copy the switch data of the last clicked key");
+}, true);
+$("#axApply").onclick = () => op("Set axis", async () => {
+  if (S.axSel == null || !S.axis || S.axSel >= S.axis.list.length) throw new Error("Pick an axis from the list");
+  await writeSwitch(S.selP.slice(), { axis: S.axSel }, `Set ${axisLabel(S.axSel)}`);
+}, true);
+$("#axDefApply").onclick = () => op("Set default axis", async () => {
+  if (S.defSel == null || !S.axis || S.defSel >= S.axis.list.length) throw new Error("Pick an axis from the list");
+  const yes = await ask("Set default axis", `Set the default axis to position ${S.defSel} (${axisLabel(S.defSel)})?`);
+  if (!yes) return;
+  await S.drv.run(R.axisDefaultSet(S.defSel));
+  const back = await S.drv.run(R.axisDefaultGet());
+  if (back !== S.defSel) throw new Error(`The keyboard reports ${back} after writing ${S.defSel}`);
+  S.axis.def = back;
+}, true);
+$("#axV2Apply").onclick = () => op("Set switch data", async () => {
+  const id = Number($("#v2Id").value), mm = Number($("#v2Range").value), coef = Number($("#v2Coef").value);
+  if (!Number.isInteger(id) || id < 0 || id > 65535) throw new Error("Axis id must be a whole number from 0 to 65535");
+  if (!Number.isFinite(mm) || mm < 0.5 || mm > 10) throw new Error("Range max must be from 0.5 to 10 mm");
+  if (!Number.isInteger(coef) || coef < 0 || coef > 65535) throw new Error("Coefficient must be a whole number from 0 to 65535");
+  await writeSwitch(S.selP.slice(), { axisV2Id: id, axisRangeMax: um(mm), axisCoefficient: coef }, `Set id ${id}, range ${mm} mm, coefficient ${coef}`);
+}, true);
 $("#perfApply").onclick = () => op("Write trigger settings", applyPerf, true);
 $("#logClear").onclick = () => { $("#log").replaceChildren(); };
 $("#logCopy").onclick = async () => {
@@ -920,7 +1086,7 @@ addEventListener("resize", () => { if (S && !busy) render(); });
 async function start() {
   try {
     if (DEMO) {
-      await connectDevice(new U.DemoDevice({ layout: DEMO_RAW }));
+      await connectDevice(new U.DemoDevice({ layout: DEMO_RAW, axis: QS.get("axis") === "v2" ? "v2" : "v1" }));
     } else if (IS_MOBILE || !navigator.hid) {
       $("#connect").classList.add("hidden");
       $("#connectHero").classList.add("hidden");

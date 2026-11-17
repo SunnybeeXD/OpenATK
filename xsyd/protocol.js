@@ -147,6 +147,19 @@
       if (bytes.some(b => b < 32 || b === 127)) throw new Error("The name has control characters");
       return { b: [2, 3, 4, i, ...bytes], need: 2, write: true, parse: r => r };
     },
+    axisList: () => ({
+      b: [2, 7, 0], need: 4,
+      parse: r => {
+        const n = r[3];
+        if (4 + 2 * n > r.length) throw new ReplyError(`Axis list claims ${n} entries`, r);
+        return Array.from({ length: n }, (_, i) => u16(r, 4 + 2 * i));
+      },
+    }),
+    axisDefaultGet: () => ({ b: [2, 9, 1], need: 4, parse: r => r[3] }),
+    axisDefaultSet: v => {
+      int(v, 0, 255, "Default axis");
+      return { b: [2, 9, 0, v], need: 2, write: true, parse: r => r };
+    },
     rtPrecision: () => ({
       b: [2, 12, 0], need: 4,
       parse: r => (r[3] ? r[3] / 1000 : null),
@@ -231,7 +244,7 @@
         need: 27, write: true,
         parse: r => {
           const got = parsePerf(r);
-          for (const k of ["mode", ...t]) if (got[k] !== p[k]) throw say(`Key ${row}/${col} ${k}`, got[k], p[k]);
+          for (const k of ["mode", ...t, "axis", "axisV2Id", "axisRangeMax", "axisCoefficient"]) if (got[k] !== p[k]) throw say(`Key ${row}/${col} ${k}`, got[k], p[k]);
           return got;
         },
       };
@@ -451,6 +464,9 @@
       this.sent = [];
       this.delay = opts.delay === undefined ? 0 : opts.delay;
       this.fault = opts.fault || null;
+      this.v2 = opts.axis === "v2";
+      this.axes = this.v2 ? [] : [17, 18, 35];
+      this.defaultAxis = 0;
       this.rates = [0, 1, 3, 4, 5, 6];
       this.rate = 3;
       this.system = 0;
@@ -482,7 +498,7 @@
 
     key(row, col) {
       const id = row * COLS + col;
-      if (!this.perf.has(id)) this.perf.set(id, { mode: 0, normalPress: 1500, normalRelease: 1500, rtFirstTouch: 1200, rtPress: 300, rtRelease: 300, pressDead: 100, releaseDead: 100, axis: 2, calibrate: 0, axisV2Id: 0x0102, axisRangeMax: 3400, axisCoefficient: 1000 });
+      if (!this.perf.has(id)) this.perf.set(id, { mode: 0, normalPress: 1500, normalRelease: 1500, rtFirstTouch: 1200, rtPress: 300, rtRelease: 300, pressDead: 100, releaseDead: 100, axis: this.v2 ? 0 : 1, calibrate: 1, axisV2Id: this.v2 ? 0x0102 : 0, axisRangeMax: 3400, axisCoefficient: this.v2 ? 1000 : 0 });
       return this.perf.get(id);
     }
 
@@ -515,6 +531,12 @@
           const n = Array.from(q.slice(4)).findIndex(x => x === 0);
           this.names[q[3]] = new TextDecoder().decode(q.slice(4, n < 0 ? 64 : 4 + n)).slice(0, 32);
         }
+      } else if (k === 0x0207) {
+        r[3] = this.axes.length;
+        this.axes.forEach((v, i) => r.set(put16(v), 4 + 2 * i));
+      } else if (k === 0x0209) {
+        if (q[2] === 0) this.defaultAxis = q[3];
+        r[3] = this.defaultAxis;
       } else if (k === 0x020C) r[3] = 10;
       else if (k === 0x0305) {
         let x = 0;
@@ -546,10 +568,9 @@
         if (k === 0x0402) {
           p.mode = q[4];
           ["normalPress", "normalRelease", "rtFirstTouch", "rtPress", "rtRelease", "pressDead", "releaseDead"].forEach((n, i) => { p[n] = u16(q, 5 + 2 * i); });
-          p.axis = q[19];
-          p.axisV2Id = u16(q, 21);
-          p.axisRangeMax = u16(q, 23);
-          p.axisCoefficient = u16(q, 25);
+          const sw = [q[19], u16(q, 21), u16(q, 23), u16(q, 25)];
+          if (sw.some((v, i) => v !== [p.axis, p.axisV2Id, p.axisRangeMax, p.axisCoefficient][i])) p.calibrate = 0;
+          [p.axis, p.axisV2Id, p.axisRangeMax, p.axisCoefficient] = sw;
         }
         r.set([q[2], q[3], p.mode], 2);
         [p.normalPress, p.normalRelease, p.rtFirstTouch, p.rtPress, p.rtRelease, p.pressDead, p.releaseDead].forEach((v, i) => r.set(put16(v), 5 + 2 * i));
