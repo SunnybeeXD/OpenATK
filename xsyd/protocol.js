@@ -425,22 +425,20 @@
     }
   }
 
-  const demoRows = [
-    [41, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 76],
-    [53, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 45, 46, 42, 75],
-    [43, 20, 26, 8, 21, 23, 28, 24, 12, 18, 19, 47, 48, 49, 78],
-    [57, 4, 22, 7, 9, 10, 11, 13, 14, 15, 51, 52, 40, 74],
-    [225, 29, 27, 6, 25, 5, 17, 16, 54, 55, 56, 229, 82, 77],
-    [224, 227, 226, 44, 230, 0xF101, 228, 80, 81, 79],
-  ];
-  const demoRatios = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1],
-    [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1],
-    [4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1],
-    [6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1],
-    [2, 2, 2, 9, 1, 1, 1, 1, 1, 1],
-  ];
+  const k = (code, ratio = 1, gap = 0) => [code, ratio, gap];
+  const num = [53, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 45, 46].map(c => k(c));
+  const qwerty = [20, 26, 8, 21, 23, 28, 24, 12, 18, 19, 47, 48].map(c => k(c));
+  const asdf = [4, 22, 7, 9, 10, 11, 13, 14, 15, 51, 52].map(c => k(c));
+  const zxcv = [29, 27, 6, 25, 5, 17, 16, 54, 55, 56].map(c => k(c));
+  const fkeys = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => k(a + i));
+  const bottom = (tail = []) => [k(224, 2), k(227, 2), k(226, 2), k(44, 9), k(230, 2), k(0xF101, 2), k(101, 2), k(228, 2), ...tail];
+  const layouts = {
+    k60: [num.concat([k(42, 5)]), [k(43, 3), ...qwerty, k(49, 3)], [k(57, 4), ...asdf, k(40, 6)], [k(225, 6), ...zxcv, k(229, 8)], bottom(), []],
+    k66: [num.concat([k(42, 5), k(76)]), [k(43, 3), ...qwerty, k(49, 3), k(75)], [k(57, 4), ...asdf, k(40, 6), k(78)], [k(225, 6), ...zxcv, k(229, 2), k(82), k(77)], [k(224, 2), k(227, 2), k(226, 2), k(44, 9), k(230, 2), k(0xF101, 2), k(80), k(81), k(79)], []],
+    k75: [[k(41), ...fkeys(58, 69), k(76)], [...num, k(42, 5), k(75)], [k(43, 3), ...qwerty, k(49, 3), k(78)], [k(57, 4), ...asdf, k(40, 6), k(74)], [k(225, 6), ...zxcv, k(229, 4), k(82), k(77)], [k(224, 2), k(227, 2), k(226, 2), k(44, 9), k(230, 2), k(0xF101), k(228), k(80), k(81), k(79)]],
+    tkl: [[k(41), ...fkeys(58, 61).map((e, i) => i ? e : k(58, 1, 1)), ...fkeys(62, 65).map((e, i) => i ? e : k(62, 1, 0.5)), ...fkeys(66, 69).map((e, i) => i ? e : k(66, 1, 0.5)), k(70, 1, 0.25), k(71), k(72)], [...num, k(42, 5), k(73, 1, 0.25), k(74), k(75)], [k(43, 3), ...qwerty, k(49, 3), k(76, 1, 0.25), k(77), k(78)], [k(57, 4), ...asdf, k(40, 6)], [k(225, 6), ...zxcv, k(229, 8), k(82, 1, 1.25)], [k(224, 2), k(227, 2), k(226, 2), k(44, 9), k(230, 2), k(0xF101, 2), k(101, 2), k(228, 2), k(80, 1, 0.25), k(81), k(79)]],
+  };
+  const layoutKey = v => ({ "60": "k60", "66": "k66", "75": "k75", tkl: "tkl" })[String(v || "").toLowerCase()] || "k75";
 
   class DemoDevice {
     constructor(opts = {}) {
@@ -459,7 +457,8 @@
       this.cfg = 0;
       this.names = ["Default", "FPS", "Typing", "Game"];
       this.battery = 76;
-      this.codes = [0, 1, 2, 3].map(l => demoRows.map(row => Array.from({ length: COLS }, (_, i) => (l === 0 ? row[i] || 0 : row[i] ? 1 : 0))));
+      this.layout = layouts[layoutKey(opts.layout)];
+      this.codes = [0, 1, 2, 3].map(l => this.layout.map(row => Array.from({ length: COLS }, (_, i) => (l === 0 ? (row[i] ? row[i][0] : 0) : row[i] ? 1 : 0))));
       this.perf = new Map();
     }
 
@@ -518,12 +517,13 @@
         }
       } else if (k === 0x020C) r[3] = 10;
       else if (k === 0x0305) {
-        demoRows[q[2]].forEach((_, i) => {
-          let x = 0;
-          for (let j = 0; j < i; j++) x += SIZES[demoRatios[q[2]][j]][0];
-          const o = ((q[2] * 4) << 11) | ((x * 4) << 4) | demoRatios[q[2]][i];
+        let x = 0;
+        this.layout[q[2]].forEach(([, ratio, gap], i) => {
+          x += gap;
+          const o = ((q[2] * 4) << 11) | ((x * 4) << 4) | ratio;
           r[3 + 2 * i] = o & 255;
           r[4 + 2 * i] = o >> 8;
+          x += SIZES[ratio][0];
         });
       } else if (k === 0x0301) {
         r[2] = q[2];
@@ -533,7 +533,7 @@
         r[2] = q[2];
         r[3] = q[3];
         const l = q[2] & 15;
-        demoRows[q[3]].forEach((c, i) => r.set(put16(l === 0 ? c : 1), 4 + 2 * i));
+        this.layout[q[3]].forEach(([c], i) => r.set(put16(l === 0 ? c : 1), 4 + 2 * i));
       } else if (k === 0x0303) {
         r.set([q[2], q[3], q[4]], 2);
         r.set(put16(this.codes[q[2]][q[3]][q[4]]), 5);

@@ -261,7 +261,7 @@ const IS_MOBILE = navigator.userAgentData?.mobile === true || /Android|iPhone|iP
 const hex = a => Array.from(a).map(b => b.toString(16).padStart(2, "0")).join(" ");
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
 const um = mm => Math.round(mm * 1000);
-const SHORT = s => s.replace("Left ", "L ").replace("Right ", "R ").replace("Page Up", "PgUp").replace("Page Down", "PgDn").replace("Backspace", "Bksp").replace("Print Screen", "PrtSc").replace("Scroll Lock", "ScrLk").replace("Caps Lock", "Caps").replace("Pass-through", "Thru");
+const SHORT = s => s.replace("Left ", "L ").replace("Right ", "R ").replace("Page Up", "PgUp").replace("Page Down", "PgDn").replace("Backspace", "Bksp").replace("Print Screen", "PrtSc").replace("Insert", "Ins").replace("Delete", "Del").replace("Scroll Lock", "ScrLk").replace("Caps Lock", "Caps").replace("Pass-through", "Thru");
 
 let S = null;
 let busy = false;
@@ -920,7 +920,7 @@ addEventListener("resize", () => { if (S && !busy) render(); });
 async function start() {
   try {
     if (DEMO) {
-      await connectDevice(new U.DemoDevice());
+      await connectDevice(new U.DemoDevice({ layout: DEMO_RAW }));
     } else if (IS_MOBILE || !navigator.hid) {
       $("#connect").classList.add("hidden");
       $("#connectHero").classList.add("hidden");
