@@ -21,7 +21,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .rot{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--acc);transition:width .35s var(--ease)}
 .rot b{grid-area:1/1;justify-self:start;font-weight:inherit;white-space:nowrap;opacity:0;transform:translateY(45%);transition:opacity .3s,transform .35s var(--ease)}
 .rot b.on{opacity:1;transform:none}
-.picks{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:44px auto 28px}
+.picks{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:44px auto 28px}
 .pick,.dev{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:10px;
   transition:border-color .12s,background-color .12s}
 .pick:hover,.dev:hover{border-color:var(--line2);background:var(--card)}
@@ -135,14 +135,8 @@ body.app #addTab{margin-left:auto}
     <a class="pick" href="#" id="pickKeyboard" data-kind="keyboard">
       <div class="img"><img src="assets/keyboard.svg" alt=""></div>
       <b>Keyboard</b>
-      <em>Trigger travel, rapid trigger, advanced keys, lighting</em>
+      <em>ATK and XSYD-platform keyboards: trigger travel, rapid trigger, remap</em>
       <span class="go">Open keyboard configurator &rarr;</span>
-    </a>
-    <a class="pick" href="#" id="pickXsyd" data-kind="xsyd">
-      <div class="img"><img src="assets/xsyd/keyboard.svg" alt=""></div>
-      <b>XSYD keyboard</b>
-      <em>Rapid trigger, key remap, report rate</em>
-      <span class="go">Open XSYD configurator &rarr;</span>
     </a>
   </div>
 
@@ -472,13 +466,14 @@ async function addDevices(){
 
 async function pick(kind){
   if (!HAS_HID){ toast($('#unsupported').textContent || 'This browser can\u2019t talk to USB devices.'); return; }
-  const filters = kind === 'xsyd' ? BRANDS.find(b => b.id === 'xsyd').filters : kind === 'keyboard' ? KEYBOARDS : MICE;
+  const xsyd = BRANDS.find(b => b.id === 'xsyd').filters;
+  const filters = kind === 'keyboard' ? [...KEYBOARDS, ...xsyd] : MICE;
   let got;
   try { got = await navigator.hid.requestDevice({ filters }); }
   catch (e) { toast(e.message); return; }
   await renderDevices();
-  const d = got.find(x => kind === 'xsyd' ? kindOf(x) === 'xsyd' : matches(x, filters));
-  if (d) location.hash = hashFor(kind, devId(d));
+  const d = got.find(x => matches(x, filters));
+  if (d) location.hash = hashFor(kindOf(d), devId(d));
 }
 
 function addTile(){
