@@ -220,3 +220,52 @@ test("the page is wired for embed, demo and a strict script policy", () => {
   }
   assert.equal(/FirmwareUpgrade|\[8, /.test(fs.readFileSync(path.join(__dirname, "../xsyd/protocol.js"), "utf8")), false);
 });
+
+test("axis builders produce the documented bytes", () => {
+  assert.deepEqual(R.axisList().b, [2, 7, 0]);
+  assert.deepEqual(R.axisDefaultGet().b, [2, 9, 1]);
+  assert.deepEqual(R.axisDefaultSet(2).b, [2, 9, 0, 2]);
+  assert.throws(() => R.axisDefaultSet(256));
+  const p = { mode: 0, normalPress: 1, normalRelease: 1, rtFirstTouch: 1, rtPress: 1, rtRelease: 1, pressDead: 0, releaseDead: 0, axis: 2, axisV2Id: 0x0304, axisRangeMax: 3400, axisCoefficient: 0x0506 };
+  const b = R.perfSet(0, 0, p).b;
+  assert.deepEqual(b.slice(19, 27), [2, 0, 0x04, 0x03, 0x48, 0x0D, 0x06, 0x05]);
+});
+
+test("axis list parsing is bounds checked", async () => {
+  const v1 = await session();
+  assert.deepEqual(await v1.drv.run(R.axisList()), [17, 18, 35]);
+  assert.equal(await v1.drv.run(R.axisDefaultGet()), 0);
+  const v2 = await session({ axis: "v2" });
+  assert.deepEqual(await v2.drv.run(R.axisList()), []);
+  const lying = await session({ fault: (q, r) => { if (q[1] === 7) r[3] = 200; return r; } });
+  await assert.rejects(() => lying.drv.run(R.axisList()), /claims 200/);
+});
+
+test("switch writes keep other fields, mark keys uncalibrated and are verified", async () => {
+  const { dev, drv } = await session();
+  drv.writes = true;
+  const cur = await drv.run(R.perfGet(1, 1));
+  assert.equal(cur.calibrate, 1);
+  assert.equal(cur.axis, 1);
+  const got = await drv.run(R.perfSet(1, 1, { ...cur, axis: 2, rtPress: 123 }));
+  assert.equal(got.axis, 2);
+  const back = await drv.run(R.perfGet(1, 1));
+  assert.equal(back.calibrate, 0);
+  assert.equal(back.rtPress, 123);
+  assert.equal(back.axisRangeMax, cur.axisRangeMax);
+  assert.equal(dev.sent.at(-2)[20], 0);
+  await drv.run(R.axisDefaultSet(2));
+  assert.equal(await drv.run(R.axisDefaultGet()), 2);
+});
+
+test("v2 demo stores id, range and coefficient per key", async () => {
+  const { drv } = await session({ axis: "v2" });
+  drv.writes = true;
+  const cur = await drv.run(R.perfGet(0, 0));
+  assert.equal(cur.axisV2Id, 0x0102);
+  const got = await drv.run(R.perfSet(0, 0, { ...cur, axisV2Id: 7, axisRangeMax: 4000, axisCoefficient: 900 }));
+  assert.deepEqual([got.axisV2Id, got.axisRangeMax, got.axisCoefficient], [7, 4000, 900]);
+  const lying = await session({ axis: "v2", fault: (q, r) => { if (q[1] === 2) r[23] = 0; return r; } });
+  lying.drv.writes = true;
+  await assert.rejects(() => lying.drv.run(R.perfSet(0, 0, { ...cur, axisRangeMax: 4000 })), /axisRangeMax/);
+});

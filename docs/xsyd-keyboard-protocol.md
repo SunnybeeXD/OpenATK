@@ -67,9 +67,9 @@ Frame: `[2, command, action, value?]`. Action: `0` read list, `1` read, `2` writ
 | 4 | SystemSetting | value 0 Windows, 1 Mac |
 | 5 | ReportRateSetting | value 0 8 kHz, 1 4 kHz, 2 2 kHz, 3 1 kHz, 4 500 Hz, 5 250 Hz, 6 125 Hz. Action 0 returns the list the board supports: byte 3 is the count, then that many values |
 | 6 | CalibrationSetting | value 0 start, 1 stop |
-| 7 | AxisLibraryQuery | reply byte 3 is the count, then that many 16 bit axis IDs |
+| 7 | AxisLibraryQuery | `[2,7,0]`, reply byte 3 is the count, then that many 16 bit axis IDs from byte 4. An empty list means a "v2" board |
 | 8 | EffectAreaQuery | lighting areas |
-| 9 | ModifyDefaultAxis | |
+| 9 | ModifyDefaultAxis | `[2,9,0,value]` sets, `[2,9,1]` reads, value at byte 3. One byte, so it cannot be a 16 bit id. Whether it is a position in the axis list is not confirmed, and the set reply is not parsed by the driver |
 | 10 | DoubleLightingQuery | |
 | 11 | SpecialLightingQuery | |
 | 12 | RtPrecisionQuery | `[2,12,0]`, reply byte 3 divided by 1000 is the minimum rapid trigger step in mm |
@@ -155,6 +155,16 @@ Reply to get:
 Key `[4, 1, row, col]` has no row or column echo documented, so OpenATK only checks category, command and length, plus that written fields come back as sent.
 
 Live key data: `[4, 3, sub, row]` with sub 0 ADC, 1 route, 2 calibrate, 3 key status. Reply: `[2]` sub, `[3]` row, then 16 bit values from byte 4.
+
+### Switch data (the vendor's Axis tab)
+
+The per-key performance packet carries the switch. On v1 boards (non-empty axis list) the per-key `axis` byte is the
+position in the board's own id list. On v2 boards (empty list) the key uses `axisV2Id`, `axisRangeMax` (micrometres,
+3400 is 3.4 mm) and `axisCoefficient`. The vendor page fills these from a remote catalog (brands, names, ranges) that
+is not in the bundle and is not reproduced here. After a switch change the driver writes `calibrate` as 0, and the keys
+need the vendor calibration flow (`calibrate` 0 none, 1 calibrated, 2 in progress). The driver's v1 write sends only the
+`axis` field changed. Wrong values mis-scale travel. OpenATK copies switch fields between keys, picks from the board's
+list, and offers numeric entry on v2 boards, each as a read-modify-write that is read back.
 
 ## Higher key modes (6)
 
