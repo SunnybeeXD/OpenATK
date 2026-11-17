@@ -1,5 +1,5 @@
 import concurrent.futures as cf
-import json, os, re, sys, time, urllib.request
+import email.utils, json, os, re, sys, time, urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hubwatch import bundle
@@ -40,10 +40,42 @@ def lookup(job):
             for i in items if i and i.get('file')]
 
 
+def stamp(rows):
+    def head(r):
+        for a in range(3):
+            try:
+                req = urllib.request.Request(r['file'], method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req, timeout=30) as x:
+                    t = email.utils.parsedate_to_datetime(x.headers['Last-Modified'])
+                    return t.strftime('%Y-%m-%d')
+            except Exception:
+                time.sleep(2 * (a + 1))
+    with cf.ThreadPoolExecutor(8) as ex:
+        for r, d in zip(rows, ex.map(head, rows)):
+            if d:
+                r['date'] = d
+
+
+def write(rows, hub):
+    json.dump(rows, open(os.path.join(ROOT, 'docs', 'firmware.json'), 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
+    page = os.path.join(ROOT, 'firmware', 'index.html')
+    html = open(page, encoding='utf-8').read()
+    blob = json.dumps({'hub': hub, 'rows': rows}, ensure_ascii=False).replace('</', '<\\/')
+    html = re.sub(r'(<script id="fw" type="application/json">).*?(</script>)', lambda m: m.group(1) + blob + m.group(2), html, count=1, flags=re.S)
+    open(page, 'w', encoding='utf-8').write(html)
+    print('%d rows' % len(rows))
+
+
 def main(argv):
     if len(argv) != 2:
-        print('usage: fwdir.py <hub version>')
+        print('usage: fwdir.py <hub version> | dates')
         sys.exit(2)
+    if argv[1] == 'dates':
+        old = json.load(open(os.path.join(ROOT, 'docs', 'firmware.json'), encoding='utf-8'))
+        html = open(os.path.join(ROOT, 'firmware', 'index.html'), encoding='utf-8').read()
+        stamp(old)
+        write(old, re.search(r'"hub": "([^"]+)"', html).group(1))
+        return
     jobs = [(k, names, m) for k, (names, marks) in devices(bundle(argv[1])).items()
             for m in marks | {'dongle'} | (set() if marks else {'device', 'mouse'})]
     with cf.ThreadPoolExecutor(4) as ex:
@@ -56,13 +88,8 @@ def main(argv):
         print('%d notes need a translation in tools/fwnotes.json:' % len(todo))
         print(json.dumps(sorted(todo), ensure_ascii=False, indent=1))
     rows = sorted({(r['file'], r['mark']): r for r in rows}.values(), key=lambda r: (r['name'].lower(), r['mark'], r['vid'], r['pid']))
-    json.dump(rows, open(os.path.join(ROOT, 'docs', 'firmware.json'), 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
-    page = os.path.join(ROOT, 'firmware', 'index.html')
-    html = open(page, encoding='utf-8').read()
-    blob = json.dumps({'hub': argv[1], 'rows': rows}, ensure_ascii=False).replace('</', '<\\/')
-    html = re.sub(r'(<script id="fw" type="application/json">).*?(</script>)', lambda m: m.group(1) + blob + m.group(2), html, count=1, flags=re.S)
-    open(page, 'w', encoding='utf-8').write(html)
-    print('%d rows' % len(rows))
+    stamp(rows)
+    write(rows, argv[1])
 
 
 assert devices('{vendorId:13652,productId:62863,usagePage:1,custom:{name:"VXE R1",firmwareMark:"r1"}},{vendorId:1,productId:2}') == {(13652, 62863): ({'VXE R1'}, {'r1'}), (1, 2): (set(), set())}
