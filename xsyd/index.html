@@ -241,6 +241,8 @@ html.starting .startup{display:block}
       <div class="item hidden" id="axV2">
         <h3>Advanced</h3>
         <p>This keyboard has no axis list, so each key stores an axis id, a range and a coefficient. Wrong values mis-scale key travel, and the keys must be recalibrated with the vendor tool. Only use values you know are right for your switches.</p>
+        <div class="seg" id="v2Presets" aria-label="Travel presets"></div>
+        <p class="note">The presets only fill in the range. The id and coefficient stay as they are on the selected key.</p>
         <div class="fields">
           <label>Axis id<input type="number" class="num" id="v2Id" min="0" max="65535" step="1"><small>0 to 65535</small></label>
           <label>Range max (mm)<input type="number" class="num" id="v2Range" min="0.5" max="10" step="0.001"><small>0.5 to 10 mm</small></label>
@@ -816,12 +818,17 @@ function renderAxis() {
     $("#v2Range").value = String(cur.axisRangeMax / 1000);
     $("#v2Coef").value = String(cur.axisCoefficient);
   }
+  if (a && a.v2) {
+    const mm = Number($("#v2Range").value);
+    seg($("#v2Presets"), [3, 3.4, 3.6, 3.8, 4, 4.2].map(v => [v, `${v} mm`]), mm, v => { $("#v2Range").value = String(v); renderAxis(); });
+  }
   applyGate();
   if (!n || !a) { $("#axCopy").disabled = true; $("#axApply").disabled = true; $("#axV2Apply").disabled = true; }
   if (n < 2) $("#axCopy").disabled = true;
   if (S.axSel == null) $("#axApply").disabled = true;
   if (!a || a.def == null) $("#axDefApply").disabled = true;
 }
+$("#v2Range").addEventListener("input", () => renderAxis());
 
 async function readMissing(ids) {
   for (const id of ids) if (!S.perf.has(id)) await readPerf(id);
