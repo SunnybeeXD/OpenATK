@@ -126,6 +126,8 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <script>
 const $=s=>document.querySelector(s);
 const data=JSON.parse($('#fw').textContent);
+const FAM={};for(const [v,o] of Object.entries({"373b":{"b":"1154 1155 11db 11dc 1211 1213 1214 1215 1216 1222 1223 1224 123a 124c 124d 124f 1251 1263 1264 1268 127b 1287 1288 128f 1290 1291 1299 129a 129e 12a3 12b1 12cd 12ce 12d0 12d1 12d2 12d8 12d9 12db 12dc 12de 12e1 12e3 12ea 12ec 12f1 12f5 1300 1301 1302 1304 1305 1306 1307 1308 130b 130e 130f 1310 1311 1312 1314 1315 1319 1324 1326 1331 1332 1333 1337 1338 133c 133d 133e 133f 1343 1344 1345 1346 1347 1348 134b 134c 134d 134e 134f 1350 1357 135b 135c 135d 135e 1366 1367 1368 1369 1371 1374 1375 3010 3028 3045 3062 3180 3198 31b0 3280 3298 32b0 4010 4028 4045 4062 4180 4198 41b0 41c8 5010 5028 5045 5062 5180 5198 51b0 6010 6028 6045 6062 6180 6198 61b0 7010 7028 7045 7180 7198 71b0 8010 8028 8045 8180 8198 81b0 9010 9028 9045 9180 9198 91b0 a010 a045 a180 a198 a1b0","c":"1014 1015 1016 1017 1018 1019 101a 101b 102e 102f 1030 1031 103c 103d 103e 103f 1040 1045 104a 104b 104c 104d 105b 1065 1066 1067 1068 1069 106a 1084 1085 1086 1087 10ac 10c7 10c8 10c9 10ca 10cb 10cc 10e7 10e8 10e9 10fd 1106 1107 110d 110e 1115 1116 1117 1119 111a 111b 1135 113e 113f 1149 114a 114b 114c 1157 1158 1159 115b 115c 115d 115e 11a0 11a6 11a7 11a9 11aa 11ab 11b3 11b6 11c8 11cc 11cd 11ce 11cf 11d2 11d8 11d9 11dd 11e3 11e4 11e5 11e7 11ec 11ed 11f0 11f2 11f3 11f4 11f5 11f6 11f7 11f9 11fd 11fe 1201 120a 120b 120d 120e 121f 1230 123d 123e 123f 1240 1245 1246 1248 1249 124a 124e 1256 125a 1266 1269 126c 126d 126e 126f 1270 1271 1272 1273 1274 1278 1279 127a 127c 127e 127f 1285 1286 1289 128a 128b 128c 128d 128e 1292 1293 1296 129b 129c 129d 12a2 12a7 12a8 12a9 12ab 12af 12b0 12b3 12b4 12bf 12c5 12c6 12cc 12d7 12da 12e4 12e9 12f7 12f9 12fa 12fb 12ff 1303 1316 131a 132a 132b 133b 1340 1341 1342 1358 1359 1363"},"3554":{"c":"f502 f503 f505 f506 f50a f50b f58a f58c f58d f58e f58f fb12"}}))for(const [k,l] of Object.entries(o))l.split(' ').forEach(p=>FAM[v+':'+p]=k==='b'?'BITMOUSE':'COMPX');
+const protoOf=(id,devs)=>{for(const d of devs)for(const c of d.collections||[]){if(c.usagePage===0xFF04&&c.usage===2)return{name:'COMPX',src:'its interface'};if(c.usagePage===0xFF05&&c.usage===1)return{name:'BITMOUSE',src:'its interface'}}return FAM[id]?{name:FAM[id],src:'the device list'}:null};
 const brandOf=n=>/dongle|receiver/i.test(n)?'Dongles':/^ATK/i.test(n)?'ATK':/^(VXE|MAD R)/i.test(n)?'VXE':'Other';
 const cmpVer=(a,b)=>{const x=String(a).split(/[^0-9]+/).map(Number),y=String(b).split(/[^0-9]+/).map(Number);for(let i=0;i<Math.max(x.length,y.length);i++){const d=(y[i]||0)-(x[i]||0);if(d)return d}return 0};
 const groups=[...data.rows.reduce((m,r)=>{const k=r.name+'|'+r.vid+':'+r.pid+'|'+r.mark;if(!m.has(k))m.set(k,{name:r.name,id:r.vid+':'+r.pid,mark:r.mark,brand:brandOf(r.name),vers:[]});m.get(k).vers.push(r);return m},new Map()).values()];
@@ -138,7 +140,7 @@ function card(g){
   const c=el('article','card');
   c.append(el('h3',null,g.name));
   const m=el('div','meta');
-  m.append(el('span','pill acc',g.id),el('span','pill',g.mark),el('span','pill',g.vers.length+(g.vers.length>1?' versions':' version')));
+  m.append(el('span','pill acc',g.id),el('span','pill',g.mark),...(FAM[g.id]?[el('span','pill',FAM[g.id])]:[]),el('span','pill',g.vers.length+(g.vers.length>1?' versions':' version')));
   c.append(m);
   const list=el('div','vers');
   g.vers.forEach((v,i)=>{
@@ -183,14 +185,14 @@ async function connect(){
   let devs;
   try{devs=await navigator.hid.requestDevice({filters:vids})}catch(e){warn('Could not open the device picker: '+e.message);return}
   if(!devs.length)return;
-  const seen=new Map();
-  devs.forEach(d=>{const id=hex(d.vendorId)+':'+hex(d.productId);if(!seen.has(id))seen.set(id,d.productName||'Unknown device')});
+  const seen=new Map(),byId=new Map();
+  devs.forEach(d=>{const id=hex(d.vendorId)+':'+hex(d.productId);if(!seen.has(id))seen.set(id,d.productName||'Unknown device');if(!byId.has(id))byId.set(id,[]);byId.get(id).push(d)});
   ids=new Set(seen.keys());
   const files=groups.filter(g=>ids.has(g.id)).reduce((s,g)=>s+g.vers.length,0);
   $('#gateNote').textContent='';
   openBrowse();$('#browse').classList.add('device');draw();
   const parts=[];
-  seen.forEach((name,id)=>parts.push(el('b',null,name),' is ',el('code',null,id),'. '));
+  seen.forEach((name,id)=>{parts.push(el('b',null,name),' is ',el('code',null,id),'. ');const f=protoOf(id,byId.get(id));parts.push(...(f?['Protocol: ',el('b',null,f.name),' (read from '+f.src+'). ']:['Protocol family unknown. ']))});
   parts.push(files
     ?files+' matching firmware file'+(files>1?'s':'')+' shown below.'
     :'ATK\'s API has no firmware listed for this exact VID:PID. If it is a wireless mouse, try checking the dongle and the mouse on a cable separately.');
