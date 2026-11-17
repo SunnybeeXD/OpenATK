@@ -21,7 +21,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .rot{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--acc);transition:width .35s var(--ease)}
 .rot b{grid-area:1/1;justify-self:start;font-weight:inherit;white-space:nowrap;opacity:0;transform:translateY(45%);transition:opacity .3s,transform .35s var(--ease)}
 .rot b.on{opacity:1;transform:none}
-.picks{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:44px auto 28px}
+.picks{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:44px auto 28px}
 .pick,.dev{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:10px;
   transition:border-color .12s,background-color .12s}
 .pick:hover,.dev:hover{border-color:var(--line2);background:var(--card)}
@@ -138,18 +138,24 @@ body.app #addTab{margin-left:auto}
       <em>Trigger travel, rapid trigger, advanced keys, lighting</em>
       <span class="go">Open keyboard configurator &rarr;</span>
     </a>
+    <a class="pick" href="#" id="pickXsyd" data-kind="xsyd">
+      <div class="img"><img src="assets/xsyd/keyboard.svg" alt=""></div>
+      <b>XSYD keyboard</b>
+      <em>Rapid trigger, key remap, report rate</em>
+      <span class="go">Open XSYD configurator &rarr;</span>
+    </a>
   </div>
 
   <div id="anyWrap">
     <div class="or">or</div>
     <button class="btn" id="connectAny">Connect a device</button>
-    <p class="note">Works with ATK, Rapoo, RAWM, G-Wolves, Finalmouse and WLmouse devices, all in one list. Pick one or several with Ctrl or Shift.</p>
+    <p class="note">Works with ATK, Rapoo, RAWM, G-Wolves, Finalmouse, WLmouse and XSYD-platform keyboards, all in one list. Pick one or several with Ctrl or Shift.</p>
   </div>
   </div>
   <p class="note warn hidden" id="unsupported"></p>
 
   <p class="demoline" id="demoLine"><span class="tag">Demo</span>No device handy? Try a simulated
-    <a href="#demo=mouse">mouse</a> or <a href="#demo=keyboard">keyboard</a>.
+    <a href="#demo=mouse">mouse</a> or <a href="#demo=keyboard">keyboard</a>, or an <a href="#demo=xsyd">XSYD keyboard</a>.
     Nothing is sent to real hardware.</p>
 </div>
 
@@ -180,7 +186,7 @@ const MICE = [
   { vendorId: 0x3554, usagePage: 0xFF04, usage: 0x02 },
 ];
 const KEYBOARDS = [{ vendorId: 0x373B, usagePage: 0xFF60, usage: 0x61 }];
-const matches = (d, list) => list.some(f => d.vendorId === f.vendorId && (f.productId == null || d.productId === f.productId)
+const matches = (d, list) => list.some(f => (f.vendorId == null || d.vendorId === f.vendorId) && (f.productId == null || d.productId === f.productId)
   && (f.usagePage == null || d.collections.some(c => c.usagePage === f.usagePage && (f.usage == null || c.usage === f.usage))));
 const byVid = (vendorId, pids, extra) => pids.map(productId => ({ vendorId, productId, ...extra }));
 const brand = (id, name, filters) => ({ id, name, filters, test: d => matches(d, filters) });
@@ -191,12 +197,13 @@ const BRANDS = [
   brand('gwolves', 'G-Wolves', byVid(0x33E4, [0x5418, 0x4718, 0x5618, 0x4719, 0x5619, 0x5419, 0x3619, 0x2719, 0x5219, 0x4219, 0x3519, 0x3854])),
   brand('fm', 'Finalmouse', [{ vendorId: 0x361D, productId: 0x100 }, ...byVid(0x361D, [0x300, 0x301, 0x310, 0x311], { usagePage: 0xFF00 })]),
   brand('wlmouse', 'WLmouse', WLM.filters),
+  brand('xsyd', 'XSYD', [{ usagePage: 0xFFB0, usage: 0x01 }, { usagePage: 0xFF80, usage: 0x01 }]),
 ];
 const ALL_FILTERS = BRANDS.flatMap(b => b.filters);
 const KEYS = ['mouse', 'keyboard', ...BRANDS.slice(1).map(b => b.id)];
 const kname = k => k === 'mouse' ? 'Mouse' : k === 'keyboard' ? 'Keyboard' : BRANDS.find(b => b.id === k).name;
-const fallbackName = k => k === 'keyboard' ? 'ATK keyboard' : k === 'mouse' ? 'ATK mouse' : kname(k) + ' mouse';
-const STOCK = { keyboard: 'assets/keyboard.svg', rapoo: 'assets/rapoo/vt9-white.png', wlmouse: 'assets/wlmouse/beast-mini.png', fm: 'assets/slx-nightfall.webp', rawm: 'assets/rawm/leviathan-v4-gt.png', gwolves: 'assets/gwolves/hts-plus-pro-white.png' };
+const fallbackName = k => k === 'keyboard' ? 'ATK keyboard' : k === 'mouse' ? 'ATK mouse' : k === 'xsyd' ? 'XSYD keyboard' : kname(k) + ' mouse';
+const STOCK = { keyboard: 'assets/keyboard.svg', rapoo: 'assets/rapoo/vt9-white.png', wlmouse: 'assets/wlmouse/beast-mini.png', fm: 'assets/slx-nightfall.webp', rawm: 'assets/rawm/leviathan-v4-gt.png', gwolves: 'assets/gwolves/hts-plus-pro-white.png', xsyd: 'assets/xsyd/keyboard.svg' };
 
 let toastTimer;
 function toast(msg){
@@ -465,11 +472,12 @@ async function addDevices(){
 
 async function pick(kind){
   if (!HAS_HID){ toast($('#unsupported').textContent || 'This browser can\u2019t talk to USB devices.'); return; }
+  const filters = kind === 'xsyd' ? BRANDS.find(b => b.id === 'xsyd').filters : kind === 'keyboard' ? KEYBOARDS : MICE;
   let got;
-  try { got = await navigator.hid.requestDevice({ filters: kind === 'keyboard' ? KEYBOARDS : MICE }); }
+  try { got = await navigator.hid.requestDevice({ filters }); }
   catch (e) { toast(e.message); return; }
   await renderDevices();
-  const d = got.find(x => matches(x, kind === 'keyboard' ? KEYBOARDS : MICE));
+  const d = got.find(x => kind === 'xsyd' ? kindOf(x) === 'xsyd' : matches(x, filters));
   if (d) location.hash = hashFor(kind, devId(d));
 }
 
