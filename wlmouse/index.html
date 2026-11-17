@@ -376,7 +376,8 @@ $("#sBattBar").style.strokeDashoffset = 238.76 * (1-Math.min(100,state.battery.p
               : model.pollingWireless;
         const codes = Object.keys(rates)
           .map(Number)
-          .filter((k) => allowed.includes(rates[k]));
+          .filter((k) => allowed.includes(rates[k]))
+          .sort((x, y) => rates[x] - rates[y]);
         $("#performance").innerHTML =
           row(
             "Polling rate",
