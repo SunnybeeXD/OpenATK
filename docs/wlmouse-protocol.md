@@ -58,3 +58,12 @@ The response bytes at normalized offsets 6 and 7 are candidate profile and physi
 Macro commands use group 4 and 16-bit big-endian IDs. Allocate command 1 carries ID and 32-bit big-endian size. Write command 3 carries ID, 32-bit big-endian offset, one-byte length, and bytes; the vendor writes chunks of at most 51 bytes. Get size is command 129; get data is 131; list is 133; delete is 2. Names use set 6 and get 134, with a one-byte ID in the vendor implementation and GBK text. Macro operations use longer delays than ordinary setting commands. Deletion also restores buttons assigned to the macro in the vendor UI.
 
 The vendor UI serializes a stream of variable-length events: keyboard key down/up `02 key` / `03 key`, modifier down/up `09 mask` / `0a mask`, mouse button state `01 mask`, wheel `10 01` / `10 ff`, and delay opcodes `20` through `23` followed by 1–4 big-endian delay bytes in milliseconds. Mouse state masks use bits 1, 2, 4, 8, and 16 for left through forward. This describes serialization observed in the downloaded UI; it has not been validated on a physical mouse and should not be used to infer device limits or recovery behavior.
+
+
+## Startup visibility
+
+The page now shows a stable loading message while it checks already-authorized devices and waits for connection/state reads. The initial head script applies the visibility gate before the body can show the Connect screen; both Connect and the app remain hidden until startup settles. The automatic check runs through the same operation lock as manual actions, preventing overlapping Connect attempts. Once startup finishes, only the connected app or the Connect screen is revealed. Errors keep their notice and release the gate, including demo failures. Unsupported browsers retain the connection guidance, and unrecognized demo parameters fall back to ordinary startup. Existing 64-byte command-interface preference and the requested device ID are preserved.
+
+This addresses the connection-screen flash during automatic startup; no device settings, lighting commands or protocol encoding are changed. It does not establish a cause for any reported physical-device LED flashing or unrelated flicker while idle.
+
+Regression tests: `node --test tests/wlmouse-ui.cjs`. The fixture holds authorization enumeration and connection pending to check that Connect cannot flash before success or failure, and covers missing grants, enumeration errors, connection errors, both demos, unsupported browsers and unknown demo parameters.

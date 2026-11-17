@@ -13,8 +13,8 @@
       rel="stylesheet"
     />
     <script>
-      if (/^(1|dongle)$/.test(new URLSearchParams(location.search).get("demo")))
-        document.documentElement.classList.add("demo");
+      if (/^(1|dongle)$/.test(new URLSearchParams(location.search).get("demo")) || navigator.hid)
+        document.documentElement.classList.add("wl-starting");
       try {
         const t = localStorage.getItem("openatk.theme");
         if (t)
@@ -47,7 +47,9 @@
     </script>
     <link rel="stylesheet" href="../ui.css">
 <style>
-html.demo #hero{display:none}
+html.wl-starting #hero,html.wl-starting #app{display:none!important}
+.startup-status{display:none;margin:56px auto 0;max-width:760px;padding:32px;text-align:center;color:var(--dim)}
+html.wl-starting .startup-status{display:block}
 .demo-link{margin-left:14px}
 .hero .muted{margin:6px 0 10px}
 .head-actions,.controls,.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
@@ -96,6 +98,7 @@ html.demo #hero{display:none}
         hidden
       ></div>
       <div id="demoBar" class="demobar" role="status" hidden><span><b>Demo mode.</b> This is a simulated mouse. Nothing is sent to hardware and nothing is saved.</span><a href="?">Exit demo</a></div>
+<div id="startupStatus" class="startup-status" role="status" aria-live="polite">Checking for your WLmouse…</div>
 <section id="hero" class="hero">
         <img
           src="../assets/wlmouse/beast-mini.png"
@@ -233,7 +236,7 @@ html.demo #hero{display:none}
         busy = false,
         buttons = [];
       const qs = new URLSearchParams(location.search);
-      const demo = qs.get("demo");
+      const demo = /^(1|dongle)$/.test(qs.get("demo")) ? qs.get("demo") : null;
       if (qs.get("embed") === "1") document.body.classList.add("embed");
       const rates = {
         8: 125,
@@ -886,31 +889,34 @@ $("#demoBar").hidden=true;$("#connectTop").hidden=false;
           return new DataView(r.buffer);
         }
       }
-      if (demo === "1" || demo === "dongle")
-        operation("Start demo", async () => {
-          const d = new DemoDevice(demo === "dongle");
-          await connectDevice(
-            d,
-            WLM.models.find((m) => m.name === "BEAST MINI"),
-          );
-        });
-      if (!demo && navigator.hid)
-        (async () => {
-          try {
-            const id = (d) => d.vendorId.toString(16) + ":" + d.productId.toString(16);
-            const all = (await navigator.hid.getDevices()).filter((d) =>
-              WLM.filters.some(
-                (f) => f.vendorId === d.vendorId && f.productId === d.productId,
-              ),
-            );
-            const cmd = all.filter(WLM.isCommandDevice);
-            const pool = cmd.length ? cmd : all;
-            const first = pool.find((d) => id(d) === qs.get("d")) ?? pool[0];
-            if (first) await connectSelected([first]);
-          } catch (e) {
-            notice(e.message, true);
+      // Startup visibility is settled once, after authorized-device reads finish.
+      function finishStartup() {
+        document.documentElement.classList.remove("wl-starting");
+      }
+      async function start() {
+        try {
+          if (demo) {
+            await operation("Start demo", async () => {
+              const d = new DemoDevice(demo === "dongle");
+              await connectDevice(d, WLM.models.find((m) => m.name === "BEAST MINI"));
+            });
+          } else if (navigator.hid) {
+            await operation("Check connected devices", async () => {
+              const id = (d) => d.vendorId.toString(16) + ":" + d.productId.toString(16);
+              const all = (await navigator.hid.getDevices()).filter((d) =>
+                WLM.filters.some((f) => f.vendorId === d.vendorId && f.productId === d.productId),
+              );
+              const cmd = all.filter(WLM.isCommandDevice);
+              const pool = cmd.length ? cmd : all;
+              const first = pool.find((d) => id(d) === qs.get("d")) ?? pool[0];
+              if (first) await connectSelected([first]);
+            });
           }
-        })();
+        } finally {
+          finishStartup();
+        }
+      }
+      start();
       if (!demo && navigator.hid)
         navigator.hid.addEventListener("disconnect", (e) => {
           if (e.device === device) {
