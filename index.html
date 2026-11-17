@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'none'; frame-src 'self'; base-uri 'none'; form-action 'none'; img-src 'self' data: https://bpcdn.atkgear.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Configure gaming mice and keyboards in your browser. Connect supported hardware over WebHID or try an OpenATK demo.">
 <script>try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
 addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
 addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
@@ -15,13 +16,11 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 <style>
 .wrap{max-width:1360px}
 .hero{max-width:none}
-#homeView{margin-top:72px}
-#homeView h2{font-size:40px;letter-spacing:-.025em;margin:0 0 14px}
-#homeView>h2+p{font-size:15px;max-width:520px}
-.rot{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--acc);transition:width .35s var(--ease)}
-.rot b{grid-area:1/1;justify-self:start;font-weight:inherit;white-space:nowrap;opacity:0;transform:translateY(45%);transition:opacity .3s,transform .35s var(--ease)}
-.rot b.on{opacity:1;transform:none}
-.picks{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:44px auto 28px}
+#homeView{max-width:880px;margin-top:clamp(32px,6vw,72px)}
+#homeView h1{font:600 clamp(26px,4vw,40px)/1.15 var(--sans);letter-spacing:-.025em;margin:0 0 12px;white-space:normal;text-wrap:balance}
+#homeView>p{font-size:15px;max-width:58ch}
+.home-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px}
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));gap:16px;margin:28px 0 0}
 .pick,.dev{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:10px;
   transition:border-color .12s,background-color .12s}
 .pick:hover,.dev:hover{border-color:var(--line2);background:var(--card)}
@@ -30,16 +29,24 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .pick img{max-height:170px;max-width:100%;object-fit:contain}
 .pick b{font:600 15px/1.3 var(--sans)}
 .pick em{font-style:normal;color:var(--dim);font-size:13px}
-.pick .go,.or,.hero .kicker,.demoline .tag{display:none}
-.hero .note{margin:12px auto 0;max-width:none;color:var(--dimmer);font-size:12.5px}
+.hero .kicker{display:none}
+.hero .note{margin:12px auto 0;max-width:52ch;color:var(--dim);font-size:13px}
 .hero .note.warn{color:var(--warn)}
+.catalog{margin-top:36px;text-align:start}
+.catalog h2{font:600 18px/1.25 var(--sans);margin:0 0 6px}
+.catalog>p{max-width:none;margin:0 0 14px}
+.catalog-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;padding:0;margin:0;list-style:none}
+.catalog-list li{display:flex;align-items:center;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;padding:6px 12px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.catalog-list a{display:inline-flex;align-items:center;min-block-size:32px;text-underline-offset:4px}
+.catalog-list .demo-link{color:var(--dim);font-size:13px}
+.catalog-list a:hover{color:var(--ink)}
 .foot{max-width:none;margin:72px 0 0;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px}
-.foot .brands,.foot .meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.foot .meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
 .foot a{text-decoration:none}
 .foot a:hover{color:var(--ink)}
 .foot .made{display:inline-flex;align-items:center;gap:6px}
 .foot .made svg{width:20px;height:auto;flex:none;shape-rendering:crispEdges}
-.devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));max-width:1160px;margin:40px auto 18px;gap:16px;text-align:left}
+.devgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));max-width:1160px;margin:28px auto 18px;gap:16px;text-align:left}
 .devgrid:has(.dev:only-child){max-width:520px}
 .dev{overflow:hidden}
 .dev.add{width:max-content;margin:0 auto;flex-direction:row;align-items:center;gap:8px;padding:9px 16px;cursor:pointer;
@@ -55,8 +62,6 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .dev .row .kind{padding:3px 6px;border-radius:4px;border:1px solid var(--line2)}
 .dev .row .batt{display:inline-flex;align-items:center;gap:5px}
 .dev .row .go{margin-left:auto;color:var(--ink);font-weight:500}
-.hero .demoline{margin:6px auto 0;max-width:none;font-size:12.5px;color:var(--dimmer)}
-.demoline a{color:var(--dim)}
 header .tabs{display:flex;flex-direction:row;gap:4px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;padding:2px;border:0}
 header .tabs::-webkit-scrollbar{display:none}
 .chip{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;max-width:260px;padding:7px 10px;border-radius:7px;border:1px solid transparent;
@@ -68,22 +73,23 @@ header .tabs::-webkit-scrollbar{display:none}
 .chip .x{margin-left:2px;color:var(--dimmer);padding:0 2px;font-size:15px;line-height:1}
 .chip .x:hover{color:var(--bad)}
 .chip.demo .k{color:var(--warn)}
-#stage iframe{display:block;width:100%;border:0;background:transparent;height:calc(100vh - 62px);min-height:520px}
+#stage iframe{display:block;width:100%;border:0;background:transparent;height:calc(100vh - 62px);height:calc(100dvh - 62px);min-height:520px}
 body.app .wrap{max-width:1236px;padding-bottom:0}
 .themes{display:none}
 .kbd{font:400 11px/1 var(--mono);color:var(--dimmer);margin-left:8px}
-#pal{position:fixed;inset:0;z-index:20;display:grid;place-items:start center;padding-top:14vh;background:rgba(0,0,0,.66)}
-#pal .box{width:min(520px,92vw);border-radius:10px;background:var(--card);border:1px solid var(--line2);overflow:hidden}
-#pal input{width:100%;border:0;border-radius:0;outline:0;background:transparent;color:var(--ink);font:400 14px/1 var(--sans);padding:14px 16px;border-bottom:1px solid var(--line)}
+#pal{width:min(520px,calc(100% - 28px));margin:clamp(12px,14vh,120px) auto auto;padding:0;border-radius:10px;background:var(--card);color:var(--ink);border:1px solid var(--line2)}
+#pal:modal{overscroll-behavior:contain}
+#pal::backdrop{background:rgba(0,0,0,.66);overflow:hidden;overscroll-behavior:contain}
+#pal .pal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 0}
+#pal .pal-header label{font-weight:600}
+#pal input{width:calc(100% - 24px);margin:10px 12px 4px;padding:10px 12px;color:var(--ink);background:var(--bg);border:1px solid var(--line2);border-radius:6px;font:400 14px/1.25 var(--sans)}
 #pal ul{list-style:none;margin:0;padding:6px;max-height:min(46vh,380px);overflow:auto}
 #pal li{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13.5px;color:var(--dim)}
 #pal li small{margin-left:auto;color:var(--dimmer);font:400 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
 #pal li[aria-selected=true]{background:var(--card2);color:var(--ink)}
-#pal .none{padding:18px;color:var(--dimmer);text-align:center;font-size:13.5px}
+#pal .none{margin:0;padding:18px;color:var(--dim);text-align:center;font-size:13.5px}
 @media (max-width:820px){
-#homeView{margin-top:36px}
-#homeView h2{font-size:23px}
-.picks{grid-template-columns:1fr;margin:22px 0 20px}
+.picks{margin-top:22px}
 .pick .img{height:84px}
 .pick img{max-height:84px}
 .dev .shot{height:140px}
@@ -114,11 +120,19 @@ body.app #addTab{margin-left:auto}
      aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
 </header>
 
+<main>
 <div class="hero" id="homeView">
-  <div class="kicker">WebHID configurator</div>
-  <h2>Tune your <span class="rot" id="rot"><b class="on">ATK</b><b>Rapoo</b><b>G-Wolves</b><b>RAWM</b><b>Finalmouse</b><b>WLmouse</b></span> mouse, right in the browser</h2>
-  <p>Pick what you want to set up. Close ATK HUB first if it's running, since only one
-     program can talk to a device at a time.</p>
+  <h1>Configure your mouse or keyboard</h1>
+  <p>Adjust DPI, buttons, lighting, and more on supported devices. Connect your gear or try a demo.</p>
+
+  <div id="anyWrap">
+    <div class="home-actions">
+      <button class="btn" id="connectAny" type="button">Connect a device</button>
+      <a class="btn ghost" href="#catalogTitle">Browse demos</a>
+    </div>
+    <p class="note">Close any other device configurator before connecting.</p>
+  </div>
+  <p class="note warn hidden" id="unsupported"></p>
 
   <div class="hidden" id="devSection">
     <div class="devgrid" id="devGrid"></div>
@@ -126,31 +140,33 @@ body.app #addTab{margin-left:auto}
 
   <div id="pickSection">
   <div class="picks">
-    <a class="pick" href="#" id="pickMouse" data-kind="mouse">
+    <a class="pick" href="mouse/" data-kind="mouse">
       <div class="img"><img src="assets/mouse.webp" alt=""></div>
-      <b>Mouse</b>
+      <b>ATK mouse</b>
       <em>DPI, polling, lift-off, buttons, macros, lighting</em>
-      <span class="go">Open mouse configurator &rarr;</span>
     </a>
-    <a class="pick" href="#" id="pickKeyboard" data-kind="keyboard">
+    <a class="pick" href="keyboard/" data-kind="keyboard">
       <div class="img"><img src="assets/keyboard.svg" alt=""></div>
-      <b>Keyboard</b>
-      <em>ATK and XSYD-platform keyboards: trigger travel, rapid trigger, remap</em>
-      <span class="go">Open keyboard configurator &rarr;</span>
+      <b>ATK and XSYD keyboards</b>
+      <em>Trigger travel, rapid trigger, key remapping</em>
     </a>
   </div>
-
-  <div id="anyWrap">
-    <div class="or">or</div>
-    <button class="btn" id="connectAny">Connect a device</button>
-    <p class="note">Works with ATK, Rapoo, RAWM, G-Wolves, Finalmouse, WLmouse and XSYD-platform keyboards, all in one list. Pick one or several with Ctrl or Shift.</p>
   </div>
-  </div>
-  <p class="note warn hidden" id="unsupported"></p>
 
-  <p class="demoline" id="demoLine"><span class="tag">Demo</span>No device handy? Try a simulated
-    <a href="#demo=mouse">mouse</a> or <a href="#demo=keyboard">keyboard</a>.
-    Nothing is sent to real hardware.</p>
+  <nav class="catalog" aria-labelledby="catalogTitle">
+    <h2 id="catalogTitle" tabindex="-1">Configurators and demos</h2>
+    <p>Try any demo without connecting hardware.</p>
+    <ul class="catalog-list" role="list">
+      <li><a href="mouse/">ATK mouse</a><a class="demo-link" href="#demo=mouse" aria-label="ATK mouse demo">Demo</a></li>
+      <li><a href="keyboard/">ATK keyboard</a><a class="demo-link" href="#demo=keyboard" aria-label="ATK keyboard demo">Demo</a></li>
+      <li><a href="xsyd/">XSYD keyboard</a><a class="demo-link" href="#demo=xsyd" aria-label="XSYD keyboard demo">Demo</a></li>
+      <li><a href="wlmouse/">WLmouse</a><a class="demo-link" href="#demo=wlmouse" aria-label="WLmouse demo">Demo</a></li>
+      <li><a href="rapoo/">Rapoo</a><a class="demo-link" href="#demo=rapoo" aria-label="Rapoo demo">Demo</a></li>
+      <li><a href="gwolves/">G-Wolves</a><a class="demo-link" href="#demo=gwolves" aria-label="G-Wolves demo">Demo</a></li>
+      <li><a href="rawm/">RAWM</a><a class="demo-link" href="#demo=rawm" aria-label="RAWM demo">Demo</a></li>
+      <li><a href="fm/">Finalmouse</a><a class="demo-link" href="#demo=fm" aria-label="Finalmouse demo">Demo</a></li>
+    </ul>
+  </nav>
 </div>
 
 <div class="hero hidden" id="cfgView">
@@ -162,14 +178,23 @@ body.app #addTab{margin-left:auto}
 </div>
 
 <div id="stage" class="hidden"></div>
+</main>
 
 <div class="foot" id="foot">
   <div class="meta"><a href="tested.html">Tested hardware</a><a href="firmware/">Firmware</a><span>Not affiliated with ATK</span><span class="made"><svg viewBox="0 0 28 20" aria-hidden="true" focusable="false"><g fill="#d97757"><rect x="8" y="5" width="16" height="1"/><rect x="8" y="6" width="16" height="1"/><rect x="4" y="7" width="6" height="1"/><rect x="12" y="7" width="8" height="1"/><rect x="22" y="7" width="2" height="1"/><rect x="4" y="8" width="6" height="1"/><rect x="12" y="8" width="8" height="1"/><rect x="22" y="8" width="2" height="1"/><rect x="4" y="9" width="24" height="1"/><rect x="4" y="10" width="24" height="1"/><rect x="8" y="11" width="20" height="1"/><rect x="8" y="12" width="16" height="1"/><rect x="8" y="13" width="16" height="1"/><rect x="8" y="14" width="16" height="1"/><rect x="8" y="15" width="16" height="1"/><rect x="8" y="16" width="2" height="1"/><rect x="12" y="16" width="2" height="1"/><rect x="18" y="16" width="2" height="1"/><rect x="22" y="16" width="2" height="1"/><rect x="8" y="17" width="2" height="1"/><rect x="12" y="17" width="2" height="1"/><rect x="18" y="17" width="2" height="1"/><rect x="22" y="17" width="2" height="1"/><rect x="8" y="18" width="2" height="1"/><rect x="12" y="18" width="2" height="1"/><rect x="18" y="18" width="2" height="1"/><rect x="22" y="18" width="2" height="1"/><rect x="8" y="19" width="2" height="1"/><rect x="12" y="19" width="2" height="1"/><rect x="18" y="19" width="2" height="1"/><rect x="22" y="19" width="2" height="1"/></g><g fill="#ea4646"><rect x="1" y="0" width="2" height="1"/><rect x="6" y="0" width="2" height="1"/><rect x="0" y="1" width="4" height="1"/><rect x="5" y="1" width="4" height="1"/><rect x="0" y="2" width="9" height="1"/><rect x="1" y="3" width="7" height="1"/><rect x="2" y="4" width="5" height="1"/><rect x="3" y="5" width="3" height="1"/><rect x="4" y="6" width="1" height="1"/></g><g fill="#0b0d10"><rect x="10" y="7" width="2" height="1"/><rect x="20" y="7" width="2" height="1"/><rect x="10" y="8" width="2" height="1"/><rect x="20" y="8" width="2" height="1"/></g></svg>Built with help of Claude</span></div>
 </div>
 </div>
 
-<div id="pal" class="hidden" role="dialog" aria-label="Jump to"><div class="box"><input id="palIn" placeholder="Jump to a device, theme or action" autocomplete="off" spellcheck="false" aria-label="Jump to"><ul id="palList" role="listbox"></ul></div></div>
-<div id="toast"></div>
+<dialog id="pal" aria-labelledby="palLabel" closedby="any">
+  <div class="pal-header">
+    <label id="palLabel" for="palIn">Jump to</label>
+    <form method="dialog"><button class="btn ghost" type="submit">Close</button></form>
+  </div>
+  <input id="palIn" role="combobox" aria-expanded="false" aria-controls="palList" aria-autocomplete="list" placeholder="Device, demo or action" autocomplete="off" spellcheck="false" autofocus>
+  <ul id="palList" role="listbox" aria-label="Jump results"></ul>
+  <p class="none" id="palEmpty" role="status" hidden>Nothing matches.</p>
+</dialog>
+<div id="toast" role="status"></div>
 
 <script src="wlmouse/protocol.js"></script>
 <script>
@@ -205,27 +230,14 @@ function toast(msg){
   clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').className = '', 2600);
 }
 
-const rot = $('#rot'), words = [...rot.children];
-let word = 0;
-const fitWord = () => { rot.style.width = words[word].offsetWidth + 'px'; };
-fitWord();
-document.fonts?.ready.then(fitWord);
-addEventListener('resize', fitWord);
-if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => {
-  words[word].classList.remove('on');
-  word = (word + 1) % words.length;
-  words[word].classList.add('on');
-  fitWord();
-}, 2200);
-
 const IS_MOBILE = navigator.userAgentData?.mobile === true
   || /Android|iPhone|iPad|iPod|IEMobile|BlackBerry|Opera Mini|webOS|Windows Phone/i.test(navigator.userAgent)
   || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 const HAS_HID = !IS_MOBILE && 'hid' in navigator;
 
-if (IS_MOBILE) $('#demoLine').classList.add('hidden');
 if (!HAS_HID){
-  $('#anyWrap').classList.add('hidden');
+  $('#connectAny').classList.add('hidden');
+  $('#anyWrap .note').classList.add('hidden');
   $('#unsupported').textContent = IS_MOBILE
     ? 'Phones and tablets can’t talk to USB devices from a web page. Open OpenATK on a computer, in Chrome, Edge or Opera.'
     : navigator.brave
@@ -420,11 +432,11 @@ async function showCfg(code){
   }));
 }
 
-function ensureFrame(key, src, background){
+function ensureFrame(key, src, kind, background){
   if (frames.has(key)) return;
   const f = document.createElement('iframe');
   f.src = src;
-  f.title = key;
+  f.title = key.startsWith('demo:') ? `${kname(kind)} demo` : `${kname(kind)} configurator`;
   f.allow = 'hid';
   f.dataset.key = key;
   if (background) f.classList.add('hidden');
@@ -451,7 +463,7 @@ function route(){
   $('#stage').classList.toggle('hidden', !r);
   if (r){
     if (r.extra && !extra.has(r.key)) extra.set(r.key, { kind: r.kind, ...r.extra });
-    ensureFrame(r.key, r.src);
+    ensureFrame(r.key, r.src, r.kind);
     sendCfg(r.key);
     for (const [k, f] of frames) f.classList.toggle('hidden', k !== r.key);
   }
@@ -496,14 +508,21 @@ async function renderDevices(){
   loaded = true;
   const live = new Set(list.map(d => 'd:' + devId(d)));
   for (const [k, f] of [...frames]) if (k.startsWith('d:') && !live.has(k)){ f.remove(); frames.delete(k); }
-  for (const d of list) if (kindOf(d) !== 'keyboard') ensureFrame('d:' + devId(d), `${kindOf(d)}/index.html?d=${encodeURIComponent(devId(d))}&embed=1`, true);
+  for (const d of list){
+    const kind = kindOf(d);
+    if (kind !== 'keyboard') ensureFrame('d:' + devId(d), `${kind}/index.html?d=${encodeURIComponent(devId(d))}&embed=1`, kind, true);
+  }
   drawDevices();
   $('#devSection').classList.toggle('hidden', !list.length);
   $('#pickSection').classList.toggle('hidden', !!list.length);
   route();
 }
 
-for (const a of document.querySelectorAll('.pick')) a.onclick = e => { e.preventDefault(); pick(a.dataset.kind); };
+for (const a of document.querySelectorAll('.pick')) a.onclick = e => {
+  if (!HAS_HID || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  pick(a.dataset.kind);
+};
 $('#connectAny').onclick = addDevices;
 $('#addTab').onclick = addDevices;
 $('#cfgAdd').onclick = e => { e.preventDefault(); addDevices(); };
@@ -534,7 +553,8 @@ for (const [name, color] of THEMES){
 }
 for (const b of $('#themes').children) b.setAttribute('aria-pressed', String(b.dataset.theme === themeName()));
 
-let palItems = [], palSel = 0;
+const palette = $('#pal'), paletteInput = $('#palIn'), paletteList = $('#palList');
+let palItems = [], palSel = 0, paletteFrame = null;
 function paletteCommands(){
   const list = [];
   list.push({ label: 'Start page', tag: 'Go', run: () => { location.hash = ''; } });
@@ -543,58 +563,93 @@ function paletteCommands(){
     list.push({ label: safeName(saved(id), d.productName || fallbackName(kind)), tag: kname(kind), run: () => { location.hash = hashFor(kind, id); } });
   }
   if (HAS_HID) list.push({ label: 'Add a device', tag: 'Action', run: addDevices });
-  if (!IS_MOBILE){
-    list.push({ label: 'Try the demo mouse', tag: 'Demo', run: () => { location.hash = '#demo=mouse'; } });
-    list.push({ label: 'Try the demo keyboard', tag: 'Demo', run: () => { location.hash = '#demo=keyboard'; } });
-    for (const b of BRANDS.slice(1)) list.push({ label: `Try the ${b.name} demo`, tag: 'Demo', run: () => { location.hash = '#demo=' + b.id; } });
+  for (const kind of KEYS){
+    const name = kind === 'mouse' || kind === 'keyboard' ? 'ATK ' + kind : kname(kind);
+    list.push({ label: `Try the ${name} demo`, tag: 'Demo', run: () => { location.hash = '#demo=' + kind; } });
   }
   for (const [name] of THEMES) list.push({ label: `Accent: ${name}`, tag: 'Theme', run: () => setTheme(name) });
   return list;
 }
 function drawPalette(){
-  const q = $('#palIn').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const q = paletteInput.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
   palItems = paletteCommands().filter(c => q.every(w => (c.label + ' ' + c.tag).toLowerCase().includes(w)));
-  palSel = Math.min(palSel, Math.max(0, palItems.length - 1));
-  const ul = $('#palList');
-  if (!palItems.length){ const n = el('div', 'none', 'Nothing matches'); ul.replaceChildren(n); return; }
-  ul.replaceChildren(...palItems.map((c, i) => {
+  const hasResults = palItems.length > 0;
+  paletteList.hidden = !hasResults;
+  $('#palEmpty').hidden = hasResults;
+  paletteInput.setAttribute('aria-expanded', String(hasResults));
+  paletteList.replaceChildren(...palItems.map((c, i) => {
     const li = el('li');
+    li.id = `palOption${i}`;
     li.setAttribute('role', 'option');
-    li.setAttribute('aria-selected', String(i === palSel));
+    li.setAttribute('aria-selected', 'false');
     li.append(el('span', null, c.label), el('small', null, c.tag));
-    li.onmousemove = () => { if (palSel !== i){ palSel = i; drawPalette(); } };
+    li.onpointermove = () => { if (palSel !== i) selectPalette(i); };
     li.onclick = () => runPalette(i);
     return li;
   }));
-  ul.children[palSel]?.scrollIntoView({ block: 'nearest' });
+  selectPalette(0, true);
 }
-function openPalette(){
-  $('#pal').classList.remove('hidden');
-  $('#palIn').value = '';
-  palSel = 0;
+function selectPalette(i, scroll = false){
+  paletteList.children[palSel]?.setAttribute('aria-selected', 'false');
+  palSel = i;
+  const option = paletteList.children[i];
+  if (!option){ paletteInput.removeAttribute('aria-activedescendant'); return; }
+  option.setAttribute('aria-selected', 'true');
+  paletteInput.setAttribute('aria-activedescendant', option.id);
+  if (scroll) option.scrollIntoView({ block: 'nearest' });
+}
+function openPalette(frame = null){
+  if (palette.open) return;
+  paletteFrame = frame;
+  paletteInput.value = '';
+  palette.showModal();
   drawPalette();
-  $('#palIn').focus();
 }
-function closePalette(){ $('#pal').classList.add('hidden'); }
 function runPalette(i){
   const c = palItems[i];
-  closePalette();
-  if (c) c.run();
+  if (!c) return;
+  palette.close();
+  c.run();
 }
-$('#palBtn').onclick = openPalette;
-$('#palIn').oninput = () => { palSel = 0; drawPalette(); };
-$('#pal').onclick = e => { if (e.target === $('#pal')) closePalette(); };
-$('#palIn').onkeydown = e => {
-  if (e.key === 'ArrowDown'){ e.preventDefault(); palSel = (palSel + 1) % Math.max(1, palItems.length); drawPalette(); }
-  else if (e.key === 'ArrowUp'){ e.preventDefault(); palSel = (palSel - 1 + palItems.length) % Math.max(1, palItems.length); drawPalette(); }
-  else if (e.key === 'Enter'){ e.preventDefault(); runPalette(palSel); }
-  else if (e.key === 'Escape'){ e.preventDefault(); closePalette(); }
+$('#palBtn').onclick = () => openPalette();
+palette.addEventListener('close', () => {
+  // Native focus return covers the main page. The invoking frame is a separate document.
+  const frame = paletteFrame;
+  paletteFrame = null;
+  if (frame?.isConnected && frame === frames.get(parseHash()?.key)) frame.focus();
+});
+paletteInput.oninput = drawPalette;
+paletteInput.onkeydown = e => {
+  if (e.isComposing || e.keyCode === 229 || !palItems.length) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+    e.preventDefault();
+    const next = palSel + (e.key === 'ArrowDown' ? 1 : -1);
+    selectPalette((next + palItems.length) % palItems.length, true);
+  } else if (e.key === 'Enter'){
+    e.preventDefault();
+    runPalette(palSel);
+  }
 };
+if (!('closedBy' in HTMLDialogElement.prototype)){
+  const outside = e => {
+    const r = palette.getBoundingClientRect();
+    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+  };
+  let pressedOutside = false;
+  palette.addEventListener('pointerdown', e => { pressedOutside = outside(e); });
+  palette.addEventListener('pointerup', e => { if (pressedOutside && outside(e)) palette.close(); });
+}
 window.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); $('#pal').classList.contains('hidden') ? openPalette() : closePalette(); }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){
+    e.preventDefault();
+    if (palette.open) palette.close();
+    else openPalette();
+  }
 });
 window.addEventListener('message', e => {
-  if (e.origin === location.origin && e.data && e.data.type === 'openatk-palette' && [...frames.values()].some(f => f.contentWindow === e.source)) openPalette();
+  if (e.origin !== location.origin || e.data?.type !== 'openatk-palette') return;
+  const frame = frames.get(parseHash()?.key);
+  if (frame && frame.contentWindow === e.source) openPalette(frame);
 });
 renderDevices();
 </script>
