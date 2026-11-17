@@ -143,7 +143,7 @@ The catalog covers one CID, `87`, with 160 MIDs in 34 groups. It names no models
 | 133-136 | ZywOo | 3955 | NRF52833 | 42000 | - |
 | 141 | General | 3955 | NRF52833 | 42000 | - |
 
-The mouse MCU is `NRF52833` for every group except the one whose catalog value is `54` (28 MIDs, all with the 3955 sensor). I do not know which part `54` refers to.
+The mouse MCU is `NRF52833` for every group except the one whose catalog value is `54` (28 MIDs, all with the 3955 sensor). The bundle does not say which part `54` is. Pulsar's spec page lists "TenZ: Nordic nRF52833" and "TenZ 2.0: Nordic nRF54L15", so `54` is most likely the nRF54L15 and the 28 MIDs with it are the newer generation. That mapping is inferred, not read from the bundle. The catalog gives MIDs 122 and 123 (TenZ theme) the nRF52833 value.
 
 The catalog also lists these dongle firmware files:
 
