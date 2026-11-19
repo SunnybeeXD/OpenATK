@@ -18,6 +18,13 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 .intro p{margin:0;color:var(--dim)}
 .warn{margin:0 0 22px;border-left:2px solid var(--warn)}
 .warn b{color:var(--ink);font-weight:600}
+.fix{margin:0 0 22px;border:1px solid var(--line);border-radius:var(--r);font-size:13px;line-height:1.5}
+.fix summary{padding:10px 14px;cursor:pointer;font-weight:600;color:var(--ink)}
+.fix[open] summary{border-bottom:1px solid var(--line)}
+.fix>*:not(summary){margin:0;padding:10px 14px 0;color:var(--dim)}
+.fix>*:last-child{padding-bottom:14px}
+.fix h3{font-size:13px;font-weight:600;color:var(--ink);padding-top:14px}
+.fix ol,.fix ul{padding-left:34px}
 .tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 18px}
 .search{flex:1 1 280px;display:flex;align-items:center;gap:10px;padding:0 12px;height:36px;border-radius:7px;border:1px solid var(--line2)}
 .search:focus-within{border-color:var(--dim)}
@@ -99,6 +106,28 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
 </section>
 
 <p class="warn"><b>Flash only the file for your exact VID:PID.</b> Some products share a name but use different chips. These are encrypted vendor images. Flash them with ATK's own hub, since a wrong file can brick the device.</p>
+<details class="fix">
+  <summary>Mouse sleeps or stops working after an update?</summary>
+  <p>This is caused by a firmware version mismatch between the mouse and the receiver.</p>
+  <h3>Recovery</h3>
+  <ol>
+    <li>Unplug the receiver.</li>
+    <li>Connect the mouse to the computer with a USB cable.</li>
+    <li>Re-flash the mouse firmware to restore it.</li>
+  </ol>
+  <h3>Correct update order (to prevent it)</h3>
+  <ol>
+    <li>Update the receiver firmware first. The update applies to the receiver while it is plugged in.</li>
+    <li>Then update the mouse firmware. The update applies to the mouse while it is connected with a cable.</li>
+  </ol>
+  <h3>Key rules</h3>
+  <ul>
+    <li>Mouse and receiver firmware are independent and must be flashed separately.</li>
+    <li>On a major version upgrade, update both so they stay in sync. Otherwise the receiver becomes unusable.</li>
+    <li>If you only have one data cable, flashing the mouse first leaves you unable to use the mouse to update the receiver afterwards.</li>
+  </ul>
+</details>
+
 
 <section class="gate" id="gate">
   <h2>Find your firmware</h2>
