@@ -2316,14 +2316,15 @@ async function autoConnect(){
 async function attach(picked){
   if (!picked.opened) await picked.open();
 
-  /* which vendor interface did we actually get? */
-  let page = null;
-  for (const c of picked.collections)
-    if (c.usagePage === 0xFF05 || c.usagePage === 0xFF04) page = c.usagePage;
-
   const pidKey = picked.productId.toString(16).padStart(4,'0');
   const entry  = REGISTRY.pids[pidKey];
   const flags  = entry?.[1] ?? '';
+
+  const pages = new Set();
+  for (const c of picked.collections)
+    if (c.usagePage === 0xFF05 || c.usagePage === 0xFF04) pages.add(c.usagePage);
+  const page = pages.size === 2 ? (flags.startsWith('cx') ? 0xFF04 : 0xFF05)
+             : pages.size === 1 ? [...pages][0] : null;
   const family = page === 0xFF04 ? 'cx' : page === 0xFF05 ? 'bm'
                : flags.startsWith('cx') ? 'cx' : 'bm';
 
@@ -2353,7 +2354,7 @@ $('#connect').onclick = connect;
 $('#connect2').onclick = connect;
 $('#refresh').onclick = () => refresh();
 
-let reading = null, rereadWanted = false, pushTimer = null;
+let reading = null, rereadWanted = false, pushTimer = null, wakeTimer = null;
 function refresh(){
   if (reading){ rereadWanted = true; return reading; }
   reading = (async () => {
@@ -2397,6 +2398,7 @@ function disconnected(){
   $('#pairModel').innerHTML = '';
   $('#app').classList.add('hidden');
   if (!IS_MOBILE) $('#hero').classList.remove('hidden');
+  clearTimeout(wakeTimer);
   $('#status').className = 'status off';
   $('#status').textContent = 'Not connected';
   $('#devName').textContent = 'ATK Mouse';
@@ -2805,6 +2807,11 @@ async function readAll(){
   else setDeviceArt(null, null);
 
   showBattery(s);
+  const asleep = !DEMO && s.battery == null && s.rateHz == null && !s.cidMid;
+  clearTimeout(wakeTimer);
+  $('#status').className = 'status';
+  $('#status').innerHTML = asleep ? '<b>Mouse asleep</b> · move it or press a button' : '<b>Connected</b>';
+  if (asleep && drv) wakeTimer = setTimeout(refresh, 4000);
   $('#sConn').textContent = s.conn ?? (drv instanceof CompxDriver ? 'Wireless' : '—');
 
   if (s.rateHz){ mark('#segRate', s.rateHz); info.push(['Polling rate', s.rateHz + ' Hz']); }
