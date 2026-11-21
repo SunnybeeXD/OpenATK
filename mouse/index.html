@@ -1687,7 +1687,8 @@ function renderButtons(){
   $('#btnItem').classList.toggle('hidden', !buttons);
   if (!buttons) return;
   const shown = hasDpiButton() ? buttons : buttons.slice(0, 5);
-  $('#btnArt').classList.toggle('nodpi', shown.length < 6);
+  for (const e of document.querySelectorAll('#btnArt [data-n="6"], #btnArt .mp[data-part="5"]'))
+    e.style.display = shown.length < 6 ? 'none' : '';
   shown.forEach((a, i) => {
     const row = document.createElement('div');
     row.className = 'btnrow';
