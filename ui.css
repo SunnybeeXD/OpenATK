@@ -206,6 +206,7 @@ label.inline{font-size:13px;color:var(--dim);display:flex;align-items:center;gap
 .mp{stroke:transparent;stroke-width:4;cursor:pointer;transition:fill .12s,stroke .12s}
 .mp:hover{fill:rgba(255,255,255,.08);stroke:var(--dimmer)}
 .mp.hl{fill:rgba(var(--acc-rgb),.25);stroke:var(--acc)}
+#btnArt.nodpi [data-n="6"],#btnArt.nodpi .mp[data-part="5"]{display:none}
 .editor{margin-top:14px;padding:16px;border:1px solid var(--line2);border-radius:var(--r);background:var(--card)}
 .editor .et{font:600 14px/1.4 var(--sans)}
 .erow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
