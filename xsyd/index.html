@@ -425,9 +425,18 @@ function displayName() {
   return a || n || "XSYD keyboard";
 }
 
+function layoutArt() {
+  const cells = S && S.style ? mapCells() : [];
+  if (!cells.length) return null;
+  const u = 40, W = Math.max(...cells.map(k => k.x + k.w)) * u, H = Math.max(...cells.map(k => k.y + k.h)) * u, m = 18;
+  const keys = cells.map(k => `<rect x="${k.x * u + 1.5}" y="${k.y * u + 1.5}" width="${k.w * u - 3}" height="${k.h * u - 3}" rx="5" fill="#2b343f" stroke="#303a46"/>`).join("");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W + 2 * m} ${H + 2 * m}"><rect x="1" y="1" width="${W + 2 * m - 2}" height="${H + 2 * m - 2}" rx="14" fill="#14181d" stroke="#48566a" stroke-width="2"/><g transform="translate(${m} ${m})">${keys}</g></svg>`;
+  return "data:image/svg+xml;base64," + btoa(svg);
+}
+
 function applyLook() {
   const p = custom().pic;
-  $("#devArt img").src = typeof p === "string" && p.startsWith("data:image/") ? p : "../assets/xsyd/keyboard.svg";
+  $("#devArt img").src = typeof p === "string" && p.startsWith("data:image/") ? p : layoutArt() || "../assets/xsyd/keyboard.svg";
   $("#aliasIn").value = custom().alias || "";
 }
 
@@ -472,7 +481,7 @@ function remember() {
     const k = "openatk.dev." + devId(S.dev);
     const old = JSON.parse(localStorage.getItem(k) || "{}");
     const patch = { name: displayName(), kind: "xsyd", at: Date.now() };
-    patch.img = typeof old.pic === "string" ? old.pic : null;
+    patch.img = typeof old.pic === "string" ? old.pic : layoutArt();
     if (S.power && S.power.battery != null) {
       patch.battery = S.power.battery;
       patch.charging = S.power.charging;
