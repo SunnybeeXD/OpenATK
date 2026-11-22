@@ -275,7 +275,7 @@ function card(d){
   const a = el('a', 'dev');
   a.href = hashFor(kind, id);
   const shot = el('div', 'shot'), img = el('img');
-  const photo = typeof info.img === 'string' && info.img.startsWith('https://bpcdn.atkgear.com/') ? info.img : null;
+  const photo = typeof info.img === 'string' && (info.img.startsWith('https://bpcdn.atkgear.com/') || info.img.startsWith('data:image/')) ? info.img : null;
   const stock = STOCK[kind] || 'assets/mouse.webp';
   img.src = photo ?? stock;
   img.alt = '';
