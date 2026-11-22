@@ -269,3 +269,10 @@ test("v2 demo stores id, range and coefficient per key", async () => {
   lying.drv.writes = true;
   await assert.rejects(() => lying.drv.run(R.perfSet(0, 0, { ...cur, axisRangeMax: 4000 })), /axisRangeMax/);
 });
+
+test("custom name and picture are stored locally and shown on the hub", () => {
+  assert.match(page, /id="aliasIn"/);
+  assert.match(page, /id="picFile"/);
+  assert.match(page, /patch\.img = typeof old\.pic/);
+  assert.match(hub, /info\.img\.startsWith\('data:image\/'\)/);
+});

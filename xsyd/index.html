@@ -254,6 +254,17 @@ html.starting .startup{display:block}
 
     <section class="panel hidden" id="device" role="tabpanel">
       <div class="phead"><div><h2>Device</h2><p>What the keyboard reports about itself.</p></div></div>
+      <div class="item">
+        <h3>Name and picture</h3>
+        <p>Shown on the start page and in this tab. Saved only in this browser on this PC, never sent to the keyboard.</p>
+        <div class="row2">
+          <input type="text" id="aliasIn" maxlength="40" placeholder="Keyboard name" aria-label="Keyboard name">
+          <button class="btn" id="aliasSave" type="button">Save name</button>
+          <button class="btn ghost" id="picPick" type="button">Choose picture</button>
+          <button class="btn ghost" id="lookReset" type="button">Reset</button>
+          <input type="file" id="picFile" accept="image/*" class="hidden">
+        </div>
+      </div>
       <div class="item"><table class="kv" id="kv"></table>
         <div class="row2"><button class="btn ghost" id="refreshDetails" type="button">Refresh from device</button></div></div>
       <div class="item">
@@ -403,9 +414,49 @@ function seg(box, items, current, onPick, write) {
   }));
 }
 
+function custom() {
+  if (DEMO || !S) return {};
+  try { return JSON.parse(localStorage.getItem("openatk.dev." + devId(S.dev)) || "{}") || {}; } catch { return {}; }
+}
+
 function displayName() {
+  const a = typeof custom().alias === "string" ? custom().alias.trim() : "";
   const n = (S.dev.productName || "").trim();
-  return n || "XSYD keyboard";
+  return a || n || "XSYD keyboard";
+}
+
+function applyLook() {
+  const p = custom().pic;
+  $("#devArt img").src = typeof p === "string" && p.startsWith("data:image/") ? p : "../assets/xsyd/keyboard.svg";
+  $("#aliasIn").value = custom().alias || "";
+}
+
+function saveLook(patch) {
+  if (DEMO) { toast("Demo mode: not saved", true); return; }
+  try {
+    const k = "openatk.dev." + devId(S.dev);
+    localStorage.setItem(k, JSON.stringify({ ...JSON.parse(localStorage.getItem(k) || "{}"), ...patch }));
+  } catch { toast("Could not save in this browser", true); return; }
+  remember();
+  renderStats();
+  applyLook();
+}
+
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const r = Math.min(1, 320 / Math.max(im.width, im.height));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(im.width * r));
+      c.height = Math.max(1, Math.round(im.height * r));
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL("image/webp", 0.85));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("bad image")); };
+    im.src = url;
+  });
 }
 
 function features() {
@@ -421,6 +472,7 @@ function remember() {
     const k = "openatk.dev." + devId(S.dev);
     const old = JSON.parse(localStorage.getItem(k) || "{}");
     const patch = { name: displayName(), kind: "xsyd", at: Date.now() };
+    patch.img = typeof old.pic === "string" ? old.pic : null;
     if (S.power && S.power.battery != null) {
       patch.battery = S.power.battery;
       patch.charging = S.power.charging;
@@ -541,6 +593,7 @@ function drawMap(box, o) {
 function renderStats() {
   $("#headerName").textContent = displayName();
   $("#devName").textContent = displayName();
+  applyLook();
   const i = S.info;
   $("#devInfo").textContent = DEMO ? "Simulated device" : `Board ${K.hex4(i.boardId >> 16)}${(i.boardId & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")} / firmware ${i.app}`;
   $("#sRate").textContent = S.rate != null ? U.RATES[S.rate] : "-";
@@ -1075,6 +1128,15 @@ $("#axV2Apply").onclick = () => op("Set switch data", async () => {
   await writeSwitch(S.selP.slice(), { axisV2Id: id, axisRangeMax: um(mm), axisCoefficient: coef }, `Set id ${id}, range ${mm} mm, coefficient ${coef}`);
 }, true);
 $("#perfApply").onclick = () => op("Write trigger settings", applyPerf, true);
+$("#aliasSave").onclick = () => saveLook({ alias: $("#aliasIn").value.trim().slice(0, 40) });
+$("#picPick").onclick = () => $("#picFile").click();
+$("#picFile").onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  try { saveLook({ pic: await shrink(f) }); } catch { toast("Could not read that image", true); }
+};
+$("#lookReset").onclick = () => saveLook({ alias: "", pic: null });
 $("#logClear").onclick = () => { $("#log").replaceChildren(); };
 $("#logCopy").onclick = async () => {
   try {
