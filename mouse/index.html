@@ -1220,7 +1220,7 @@ class CompxDriver {
         const v = await this.read(CX_ADDR.paw3955Dpi + 6*i, 6);
         rows.push(Array.from({length:6}, (_,k) => v.u8(k)));
       }
-      log('', 'DPI ', 'paw3955 rows ' + rows.map(r => hex(r)).join(' | '));
+      log('', 'DPI ', 'probe 0x1B00 rows ' + rows.map(r => hex(r)).join(' | '));
       const crcOk = rows.every(r => r[5] === ((85 - (r[0]+r[1]+r[2]+r[3]+r[4])) & 0xFF));
       cands.push({ group:'M', crcOk, stages: rows.map(r => ({
         x: ((r[0] | (r[1]<<8)) + 1) * ((r[4] & 1)  ? 2 : 1),
@@ -1233,7 +1233,7 @@ class CompxDriver {
         const v = await this.read(a, 8);
         rows.push(Array.from({length:8}, (_,k) => v.u8(k)));
       }
-      log('', 'DPI ', 'packed rows  ' + rows.map(r => hex(r)).join(' | '));
+      log('', 'DPI ', 'probe packed rows ' + rows.map(r => hex(r)).join(' | '));
       const flat = rows.flat();
       for (const g of ['A','B']){
         const dec = CX_CODEC[g].dec;
