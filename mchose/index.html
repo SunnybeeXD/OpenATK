@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'; base-uri 'none'; form-action 'none'; img-src 'self' data:">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>{const d=new URLSearchParams(location.search).get('demo');if(d!==null&&!['0','false','off','no'].includes(d.toLowerCase()))document.documentElement.classList.add('demo')}
+try{const t=localStorage.getItem('openatk.theme');if(t)document.documentElement.dataset.theme=t.replace(/[^a-z]/g,'').slice(0,12)}catch{}
+addEventListener('storage',e=>{if(e.key==='openatk.theme')document.documentElement.dataset.theme=String(e.newValue||'').replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('message',e=>{if(e.source===parent&&e.origin===location.origin&&e.data&&e.data.type==='openatk-theme')document.documentElement.dataset.theme=String(e.data.theme).replace(/[^a-z]/g,'').slice(0,12)});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==window){e.preventDefault();parent.postMessage({type:'openatk-palette'},location.origin)}});</script>
+
+<title>MCHOSE Mouse Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../ui.css">
+<style>
+html.demo #hero{display:none}
+.hero .art.reel{width:min(300px,100%);margin-left:auto;margin-right:auto}
+.hero .art svg,.devcard .art svg{display:block;width:100%;height:auto;color:var(--dim)}
+.warn.exp{margin:14px 0 0;font-size:13px}
+.warn.exp b{color:var(--warn);font-weight:600}
+.dpi-axes{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.dpi-axes label{display:flex;align-items:center;gap:8px}
+.slider+.slider{margin-top:10px}
+.sub{font:500 12px var(--sans);color:var(--dim);margin:12px 0 4px}
+#connectionDetails #log{display:block;white-space:pre-wrap;overflow-wrap:anywhere}
+#logCopy{width:100%;min-height:160px;margin-top:12px;background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:6px;padding:10px 12px;font:12px/1.5 var(--mono)}
+.note-inferred{color:var(--warn)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="brand" href="../index.html" aria-label="OpenATK">
+    <span class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" style="color:var(--acc)" stroke-width="1.8" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></span>
+    <b>Open<span>ATK</span></b>
+  </a>
+  <div class="devhead" style="flex:1;min-width:0">
+    <h1 id="name">MCHOSE Mouse</h1>
+    <div class="status off" id="status">Not connected</div>
+  </div>
+  <a class="btn ghost lead" href="../keyboard/index.html" title="ATK keyboard configurator"
+     style="display:inline-flex;align-items:center;gap:8px"><svg viewBox="0 0 20 14" width="19" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x=".65" y=".65" width="18.7" height="12.7" rx="2"/><path d="M4 4.5h1M7 4.5h1M10 4.5h1M13 4.5h1M15.8 4.5h.4M4 7.5h1M7 7.5h1M10 7.5h1M13 7.5h1M15.8 7.5h.4M6.5 10.5h7" stroke-linecap="round"/></svg><span class="lbl">Keyboard</span></a>
+  <a class="btn ghost icon" href="https://github.com/SunnybeeXD/OpenATK"
+     target="_blank" rel="noopener noreferrer"
+     aria-label="Source on GitHub" title="Source on GitHub"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
+  <button class="btn" id="connect">Connect</button>
+</header>
+<div class="demobar hidden" id="demoBar" role="status">
+  <span><b>Demo mode.</b> This is a simulated mouse, not a real device. Nothing is sent to hardware and nothing is saved.</span>
+  <a href="?" target="_top">Exit demo</a>
+</div>
+<div class="warn exp" id="expBanner" role="note"><b>Experimental.</b> This page was written from the vendor's public web app and has not been tested on any real MCHOSE mouse. Every write is read back and checked, but expect rough edges and report what you find.</div>
+<div class="hero" id="hero">
+  <div class="art reel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".7" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></div>
+  <div class="kicker">WebHID configurator</div>
+  <h2>Tune your MCHOSE mouse, right in the browser</h2>
+  <p>Plug in the cable or the 2.4 GHz receiver, then connect. Close MCHOSE HUB first if it is running,
+     since only one program can talk to the mouse at a time. Works in Chrome, Edge, Brave and Opera.</p>
+  <button class="btn" id="connect2">Connect mouse</button>
+  <p style="margin:20px auto 0"><a href="?demo=1" id="demoLink" style="color:var(--dim);font-size:13px">Try a simulated mouse</a></p>
+</div>
+<div class="hero hidden" id="blocked">
+  <div class="art reel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".7" aria-hidden="true"><path d="M12 2.5c3.7 0 5.6 2.6 5.7 6.6l.3 6.4c.2 4.1-2.3 6.5-6 6.5s-6.2-2.4-6-6.5l.3-6.4C6.4 5.1 8.3 2.5 12 2.5Z"/><path d="M12 2.8v6.4M6.5 9.6c3.6 1 7.4 1 11 0" stroke-linecap="round"/></svg></div>
+  <h2>This needs a desktop</h2>
+  <p>OpenATK talks to your mouse over WebHID. Open this page on a computer, in Chrome, Edge, Brave or Opera.</p>
+  <a href="?demo=1" style="color:var(--dim);font-size:13px">Try a simulated mouse</a>
+</div>
+<div id="app" class="hidden">
+  <aside>
+    <div class="devcard">
+      <div class="art photo" id="devArt"><img id="deviceImage" src="../assets/mouse.webp" alt="MCHOSE mouse illustration" width="688" height="494"></div>
+      <div class="gauges">
+        <div class="ring">
+          <svg viewBox="0 0 96 96" aria-hidden="true"><circle class="trk" cx="48" cy="48" r="38"/><circle id="sBattBar" cx="48" cy="48" r="38"/></svg>
+          <div class="mid"><div>
+            <div class="v batt-row"><span id="sBatt">…</span>
+              <svg id="sCharge" class="chg-bolt hidden" viewBox="0 0 24 24" width="13" height="13"
+                fill="currentColor" role="img" aria-label="Charging"><title>Charging</title>
+                <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg></div>
+            <div class="k">BATTERY</div></div></div>
+        </div>
+        <div class="minis">
+          <div class="mini"><div class="k">Sensitivity</div><div class="v" id="sDpi">…</div></div>
+          <div class="mini"><div class="k">Connection</div><div class="v" id="sConn">…</div></div>
+        </div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="basics" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Basics</button>
+      <button data-tab="tracking" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Tracking</button>
+      <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
+    </nav>
+    <p class="foot">Changes save to the mouse immediately and survive unplugging.
+      Button remapping and macros are not included.</p>
+  </aside>
+  <main>
+    <fieldset id="controls">
+    <section class="panel" data-panel="basics">
+      <div class="phead"><div><h2>Basics</h2><p>Speed, polling and click timing. The stuff you feel every second.</p></div></div>
+      <div class="item" id="itemDpi">
+        <div class="t">Sensitivity</div>
+        <div class="d">How far the cursor moves for each inch the mouse moves. Higher DPI means
+          less hand movement. This sets the stage the mouse is on now; the DPI button on the
+          mouse switches between stages.</div>
+        <div class="seg" id="segDpi" aria-label="Sensitivity"></div>
+        <details class="advanced"><summary>DPI stages and custom sensitivity</summary>
+          <div class="erow"><label for="stage">Active stage</label><select class="sel" id="stage"></select>
+            <label for="count">Enabled stages</label><select class="sel" id="count"></select></div>
+          <div class="erow dpi-axes"><label>X DPI <input class="num" type="number" id="dpiX" required></label>
+            <label id="dpiYLabel">Y DPI <input class="num" type="number" id="dpiY" required></label><button class="btn ghost" id="saveDpi">Save DPI</button></div>
+          <p class="d" id="dpiRange"></p>
+        </details>
+      </div>
+      <div class="item" id="itemRate">
+        <div class="t">Polling rate</div>
+        <div class="d">Higher mouse polling rate reduces input delay. Higher rates use more battery and more CPU. 4K and 8K need a
+          capable PC; drop back to 1K if a game stutters.</div>
+        <div class="seg" id="segRate" aria-label="Polling rate"></div>
+        <p class="d hidden" id="rateNote"></p>
+      </div>
+      <div class="item" id="itemLod">
+        <div class="t">Lift-off distance</div>
+        <div class="d">The height at which the sensor stops tracking as you lift the mouse. Actual height varies with
+          surface and skate thickness; if tracking drops on special surfaces, choose the highest level.</div>
+        <div class="seg" id="segLod" aria-label="Lift-off distance"></div>
+      </div>
+      <div class="item" id="itemDebounce">
+        <div class="t" id="debTitle">Click debounce</div>
+        <div class="d">Lower values give faster click response, higher values help prevent unintended double clicks. Avoid setting this too low.</div>
+        <div class="slider"><input type="range" id="debPress" aria-label="Click debounce"><output id="debPressOut" for="debPress"></output></div>
+        <div class="slider" id="debReleaseRow"><input type="range" id="debRelease" aria-label="Release debounce"><output id="debReleaseOut" for="debRelease"></output></div>
+      </div>
+      <div class="item" id="itemSleep">
+        <div class="t">Sleep timer</div>
+        <div class="d">When the mouse is idle for this long on the wireless connection, it goes to sleep to save battery. It wakes the moment you move it.</div>
+        <div class="seg" id="segSleep" aria-label="Sleep timer"></div>
+        <details class="advanced"><summary>Custom timeout</summary><div class="erow">
+          <label>Minutes <input class="num" type="number" id="sleep" step="1"></label>
+          <button class="btn ghost" id="saveSleep">Save timeout</button></div></details>
+      </div>
+      <div class="item" id="itemProfile">
+        <div class="t">Onboard profile</div>
+        <div class="d">The mouse keeps a full set of settings in each profile. Switching loads that profile's settings.</div>
+        <div class="seg" id="segProfile" aria-label="Onboard profile"></div>
+      </div>
+    </section>
+    <section class="panel hidden" data-panel="tracking">
+      <div class="phead"><div><h2>Tracking</h2><p>How the sensor reads the surface and what it does to your movement.</p></div></div>
+      <p class="d hidden" id="trackEmpty">This model has no tracking options to change.</p>
+      <div class="item" id="itemMode">
+        <div class="t">Mode selection</div>
+        <div class="d">Performance gives low-latency response for everyday use. Gaming responds faster for competitive play. Extreme mode needs up to date mouse and receiver firmware. Higher modes use more battery.</div>
+        <div class="seg" id="segMode" aria-label="Mode selection"></div>
+      </div>
+      <div class="item" id="itemAngle">
+        <div class="t">Sensor rotation</div>
+        <div class="d">Adjust the sensor angle to match your grip for more precise control. Leave it at zero unless your straight swipes drift up or down.</div>
+        <div class="slider"><input type="range" id="angle" min="-30" max="30" step="1" value="0" aria-label="Sensor rotation"><output id="angleOut" for="angle">0</output></div>
+      </div>
+      <div class="sect" id="sectMotion">Motion processing</div>
+      <div class="item row" id="itemMotionSync"><div><label for="motionSync" class="t">Motion sync</label><div class="d">Synchronizes sensor data with the polling rate for more consistent cursor movement.</div></div><input class="sw" type="checkbox" id="motionSync"></div>
+      <div class="item row" id="itemRipple"><div><label for="ripple" class="t">Ripple control</label><div class="d">Applies motion smoothing to reduce cursor jitter. Can soften very small movements.</div></div><input class="sw" type="checkbox" id="ripple"></div>
+      <div class="item row" id="itemAngleSnap"><div><label for="angleSnap" class="t">Angle snapping</label><div class="d">Adjusts cursor movement to produce straighter lines. In games it fights small aim corrections, so keep it off there.</div></div><input class="sw" type="checkbox" id="angleSnap"></div>
+      <div class="sect" id="sectSurface">Surface</div>
+      <div class="item row" id="itemGlass"><div><label for="glass" class="t">Glass surface mode</label><div class="d">Enable this mode when using the mouse on glass or other transparent surfaces to improve tracking. It may also change the lift-off distance.</div></div><input class="sw" type="checkbox" id="glass"></div>
+    </section>
+    </fieldset>
+    <section class="panel hidden" data-panel="device">
+      <div class="phead"><div><h2>Device</h2><p>Connection details and diagnostics.</p></div></div>
+      <div class="item">
+        <table class="kv" id="kv"></table>
+        <p class="d note-inferred hidden" id="inferredNote">This USB ID was inferred from the vendor software and has not been confirmed on a real device.</p>
+        <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+          <button class="btn ghost" id="refresh">Refresh</button>
+          <button class="btn ghost" id="togglelog">Show activity log</button>
+          <button class="btn quiet" id="disconnect">Disconnect</button>
+        </div>
+      </div>
+      <div class="item"><div class="t">MCHOSE support</div>
+        <div class="d">Experimental. No hardware has been tested. Only the settings on these tabs are supported; button remapping, macros, lighting, pairing, factory reset and firmware updates are not included.</div></div>
+    </section>
+  </main>
+</div>
+<div class="item hidden" id="picker" role="dialog" aria-label="Choose your mouse model">
+  <div class="t">Which mouse is this?</div>
+  <div class="d">Several MCHOSE models share this USB ID, so the page cannot tell them apart. Pick yours. The choice is remembered for this USB ID. Picking the wrong model can lead to wrong settings being written.</div>
+  <div class="seg" id="pickList" aria-label="Mouse model"></div>
+  <button class="btn quiet" id="pickCancel" style="margin-top:12px">Cancel</button>
+</div>
+<p class="hidden" id="connectError" role="alert" style="color:var(--bad);margin:22px 2px"></p>
+<details class="item hidden" id="connectionDetails" style="margin-top:22px">
+  <summary>Connection details and activity log</summary>
+  <p class="d">If a connection fails, copy these details to include the detected USB IDs, HID collections and error.</p>
+  <button class="btn ghost" id="copylog">Copy connection details</button>
+  <div id="log" aria-label="HID activity log"></div>
+  <textarea class="hidden" id="logCopy" readonly aria-label="Connection details to copy"></textarea>
+</details>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="./registry.js"></script>
+<script src="./driver-new.js"></script>
+<script src="./driver-legacy.js"></script>
+<script src="./driver-g.js"></script>
+<script>
+// UI start.
+const $ = s => document.querySelector(s);
+const QS = new URLSearchParams(location.search);
+if(QS.get('embed')==='1')document.body.classList.add('embed');
+const DEMO = QS.has('demo') && !['0','false','off','no'].includes(QS.get('demo').toLowerCase());
+let driver=null,busy=false,refreshQueued=false;
+const DR = window.MchoseDrivers = window.MchoseDrivers || {};
+const hex4 = n => Number(n).toString(16).toUpperCase().padStart(4,'0');
+const devId = d => `${Number(d.vendorId).toString(16)}:${Number(d.productId).toString(16)}`;
+function log(label,bytes){
+  const detail=typeof bytes==='string'?bytes:Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join(' ');
+  const row=document.createElement('div');row.textContent=`${new Date().toISOString().slice(11,23)} ${label} ${detail}`;
+  $('#log').append(row);if($('#log').childElementCount>400)$('#log').firstChild.remove();$('#log').scrollTop=$('#log').scrollHeight;
+}
+let toastTimer;
+function toast(message,bad=false){$('#toast').textContent=message;$('#toast').className='show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').className='',4000);}
+function option(select,value,label){const o=document.createElement('option');o.value=String(value);o.textContent=label;select.append(o);}
+function fillSeg(id,rows,current,onPick){
+  const host=$(id);host.replaceChildren();
+  const choices=rows.map(row=>({value:row[0],label:row[1],known:true}));
+  if(current!==undefined&&current!==null&&!choices.some(row=>row.value===current))choices.push({value:current,label:'Unknown ('+current+')',known:false});
+  for(const choice of choices){
+    const button=document.createElement('button');button.type='button';button.textContent=choice.label;
+    button.setAttribute('aria-pressed',String(choice.value===current));button.disabled=busy||!driver.ready||!choice.known;
+    button.onclick=()=>{if(!busy&&driver?.ready&&choice.value!==current)action(d=>onPick(d,choice.value));};
+    host.append(button);
+  }
+}
+// Registry and driver discovery. Any script may be missing; its models are then not offered.
+let ART={};
+const STOCK_ART='../assets/mouse.webp';
+const artKey=id=>String(id).replace(/[^a-z0-9]/gi,'').toLowerCase();
+function artFor(model){
+  const file=Object.entries(ART).find(([k])=>artKey(k)===artKey(model.id))?.[1];
+  return file?'../assets/mchose/'+file:STOCK_ART;
+}
+$('#deviceImage').onerror=()=>{if($('#deviceImage').getAttribute('src')!==STOCK_ART)$('#deviceImage').src=STOCK_ART;};
+if(typeof fetch==='function')fetch('../assets/mchose/images.json').then(r=>r.json()).then(j=>{if(j&&typeof j==='object'){ART=j;if(driver)render();}}).catch(()=>{});
+const pickKey=d=>'mchose:pick:'+devId(d);
+function pickGet(d){try{return localStorage.getItem(pickKey(d));}catch{return null;}}
+function pickSet(d,id){try{localStorage.setItem(pickKey(d),id);}catch{}}
+const isPending=m=>!!m.extra?.protocolPending||typeof DR[m.family]?.open!=='function';
+function allModels(){
+  const r=window.MchoseModels;
+  const list=Array.isArray(r)?r:Array.isArray(r?.models)?r.models:r&&typeof r==='object'?Object.values(r):[];
+  const models=list.filter(m=>m&&m.caps&&m.family&&Array.isArray(m.filters));
+  return DEMO?[...models,DEMO_MODEL]:models;
+}
+function buildFilters(models){
+  const seen=new Set(),out=[];
+  for(const m of models){if(m.family==='demo')continue;
+    for(const pid of [...(m.wired||[]),...(m.receiver||[])])for(const f of m.filters){
+      const filter={vendorId:m.vid,productId:pid,usagePage:f.usagePage};if(f.usage!==undefined)filter.usage=f.usage;
+      const key=JSON.stringify(filter);if(!seen.has(key)){seen.add(key);out.push(filter);}
+    }}
+  return out;
+}
+function resolve(device){
+  const all=allModels();
+  for(const family of new Set(all.map(m=>m.family))){
+    const drv=DR[family];if(typeof drv?.open!=='function'||!drv.matches)continue;
+    const model=drv.matches(device,all.filter(m=>m.family===family));
+    if(model&&drv.isConfigInterface?.(device))return {device,model};
+  }
+  const cands=all.filter(m=>m.pids?.some(p=>p.vid===device.vendorId&&p.pid===device.productId)&&(DR[m.family]?.isConfigInterface?.(device)??true));
+  if(!cands.length)return;
+  const saved=pickGet(device),hit=cands.find(m=>m.id===saved);
+  if(hit)return {device,model:hit};
+  return cands.length===1?{device,model:cands[0]}:{device,candidates:cands};
+}
+function best(list){return list.find(r=>r.model)||list[0];}
+function choose(picked,granted=[]){
+  const direct=best(picked.map(resolve).filter(Boolean)||[]);if(direct)return direct;
+  const same=[...new Set(granted)].filter(d=>picked.some(p=>p.vendorId===d.vendorId&&p.productId===d.productId)).map(resolve).filter(Boolean);
+  if(same.length>1)throw new Error('More than one matching MCHOSE interface is authorized. Select the configuration interface for this mouse.');
+  return same[0];
+}
+function pickModel(cands){
+  return new Promise(done=>{
+    const host=$('#pickList');host.replaceChildren();
+    const finish=m=>{$('#picker').classList.add('hidden');done(m);};
+    for(const m of cands){const b=document.createElement('button');b.type='button';b.textContent=m.name;b.setAttribute('aria-pressed','false');b.onclick=()=>finish(m);host.append(b);}
+    $('#pickCancel').onclick=()=>finish(null);
+    $('#picker').classList.remove('hidden');
+  });
+}
+function describeDevice(device){
+  const h=n=>'0x'+hex4(n).toLowerCase();
+  return {name:device.productName||'',vendorId:h(device.vendorId),productId:h(device.productId),opened:device.opened,
+    collections:(device.collections||[]).map(c=>({usagePage:h(c.usagePage),usage:h(c.usage)}))};
+}
+function dpiError(dpi,v){
+  if(!Number.isInteger(v)||v<dpi.min||v>dpi.max)return 'DPI must be a whole number from '+dpi.min.toLocaleString()+' to '+dpi.max.toLocaleString();
+  if((v-dpi.min)%dpi.step!==0)return 'DPI must be a multiple of '+dpi.step+' (from '+dpi.min.toLocaleString()+')';
+  return '';
+}
+function isInferred(model,device){
+  const pid=device.productId,i=model.inferred??model.inferredPids;
+  return !!model.pids?.some(p=>p.pid===pid&&p.inferred)||i===true||(Array.isArray(i)&&i.includes(pid));
+}
+function visibleRates(){
+  const c=driver.model.caps;let list=c.rates||[];
+  try{list=window.MchoseModels?.ratesFor?.(driver.model,driver.device.productId)||list;}catch{}
+  return list.filter(r=>driver.wired||!c.wirelessMaxRate||r<=c.wirelessMaxRate);
+}
+const rateLabel=r=>r>=1000?r/1000+'K':String(r);
+function debounceValues(s){
+  const v=s.debounce;
+  return v&&typeof v==='object'?{press:v.press,release:v.release}:{press:v,release:v};
+}
+function render(){
+  if(!driver||!driver.state)return;
+  const s=driver.state,m=driver.model,c=m.caps;
+  $('#name').textContent=m.name.startsWith('MCHOSE')?m.name:'MCHOSE '+m.name;document.title=m.name+' · OpenATK';
+  $('#status').className='status'+(driver.ready&&!driver.faulted?'':' off');
+  $('#status').textContent=driver.faulted?'Mouse stopped responding. Reconnect to keep editing':!driver.ready?'Refresh or reconnect before editing':DEMO?'Demo · simulated mouse':driver.wired?'Connected · USB cable':'Connected · wireless receiver';
+  const bat=s.battery;
+  $('#sBatt').textContent=bat?bat.percent+'%':'…';
+  $('#sBattBar').style.strokeDashoffset=String(238.76*(1-(bat?.percent||0)/100));
+  $('#sCharge').classList.toggle('hidden',!bat?.charging);
+  const stage=s.stages[s.active]||s.stages[0]||{x:0,y:0};
+  const cur=stage.x===stage.y?stage.x:stage.x+'/'+stage.y;
+  $('#sDpi').textContent=String(cur);$('#sConn').textContent=driver.wired?'USB cable':'Wireless';
+  $('#deviceImage').src=artFor(m);
+  const dpi=c.dpi;
+  $('#itemDpi').classList.toggle('hidden',!dpi);
+  if(dpi){
+    const rows=[400,800,1600,3200,6400].filter(v=>!dpiError(dpi,v)).map(v=>[v,v.toLocaleString()+' DPI']);
+    if(!rows.some(r=>r[0]===cur))rows.push([cur,typeof cur==='number'?cur.toLocaleString()+' DPI':cur+' DPI']);
+    fillSeg('#segDpi',rows,cur,(d,v)=>d.setDpi(s.active,v,v));
+    const sel=$('#stage');sel.replaceChildren();s.stages.forEach((st,i)=>option(sel,i,'Stage '+(i+1)+' · '+st.x+(st.x!==st.y?'/'+st.y:'')));sel.value=String(s.active);
+    const cnt=$('#count');cnt.replaceChildren();for(let i=1;i<=dpi.maxStages;i++)option(cnt,i,String(i));cnt.value=String(s.stages.length);
+    for(const axis of ['X','Y']){const input=$('#dpi'+axis);input.min=dpi.min;input.max=dpi.max;input.step=dpi.step;input.value=stage[axis.toLowerCase()];}
+    $('#dpiYLabel').classList.toggle('hidden',!dpi.independentXY);
+    $('#dpiRange').textContent=dpi.min.toLocaleString()+' to '+dpi.max.toLocaleString()+' DPI in steps of '+dpi.step+'.'+(dpi.independentXY?' Use equal X and Y values for normal sensitivity.':' X and Y share one value on this model.');
+  }
+  const rates=visibleRates();
+  $('#itemRate').classList.toggle('hidden',!rates.length);
+  fillSeg('#segRate',rates.map(r=>[r,rateLabel(r)]),s.rate,(d,v)=>d.setRate(v));
+  const capped=!driver.wired&&c.wirelessMaxRate&&(c.rates||[]).some(r=>r>c.wirelessMaxRate);
+  $('#rateNote').classList.toggle('hidden',!capped);if(capped)$('#rateNote').textContent='Over the 2.4 GHz receiver this model is limited to '+rateLabel(c.wirelessMaxRate)+'. Connect the cable for higher rates.';
+  const lod=Array.isArray(c.lod)&&c.lod.length?c.lod:null;
+  $('#itemLod').classList.toggle('hidden',!lod);
+  if(lod)fillSeg('#segLod',lod.map(v=>[v,v+' mm']),s.lod,(d,v)=>d.setLod(v));
+  const deb=c.debounce;
+  $('#itemDebounce').classList.toggle('hidden',!deb);
+  if(deb){
+    const v=debounceValues(s);
+    $('#debTitle').textContent=deb.split?'Press and release debounce':'Click debounce';
+    $('#debReleaseRow').classList.toggle('hidden',!deb.split);
+    for(const [id,val,name] of [['debPress',v.press,deb.split?'Press debounce':'Click debounce'],['debRelease',v.release,'Release debounce']]){
+      const input=$('#'+id);input.min=deb.min;input.max=deb.max;input.step=deb.step;input.value=val??deb.min;input.disabled=busy||!driver.ready;input.setAttribute('aria-label',name);
+      $('#'+id+'Out').textContent=(deb.split?(id==='debPress'?'Press ':'Release '):'')+(val??'…')+' ms';
+    }
+  }
+  const sl=c.sleep;
+  $('#itemSleep').classList.toggle('hidden',!sl);
+  if(sl){
+    const presets=[2,5,10,15,30,60].filter(v=>v>=Math.max(sl.min,1)&&v<=sl.max);
+    if(s.sleep>0&&!presets.includes(s.sleep)&&s.sleep>=sl.min&&s.sleep<=sl.max)presets.push(s.sleep);presets.sort((a,b)=>a-b);
+    const rows=presets.map(v=>[v,v===60?'1 hr':v+' min']);if(sl.never)rows.push([0,'Never']);
+    fillSeg('#segSleep',rows,s.sleep,(d,v)=>d.setSleep(v));
+    const inp=$('#sleep');inp.min=sl.min;inp.max=sl.max;if(s.sleep)inp.value=s.sleep;inp.disabled=busy||!driver.ready;
+  }
+  const modes=Array.isArray(c.modes)&&c.modes.length?c.modes:null;
+  $('#itemMode').classList.toggle('hidden',!modes);
+  if(modes)fillSeg('#segMode',modes.map(x=>[x.id,x.name]),s.mode,(d,v)=>d.setMode(v));
+  $('#itemAngle').classList.toggle('hidden',!c.rotation);
+  if(c.rotation){const a=s.angle??0;$('#angle').value=a;$('#angleOut').textContent=String(a);$('#angle').disabled=busy||!driver.ready;}
+  const flags=[['motionSync','itemMotionSync'],['ripple','itemRipple'],['angleSnap','itemAngleSnap'],['glass','itemGlass']];
+  for(const [key,item] of flags){$('#'+item).classList.toggle('hidden',!c[key]);$('#'+key).checked=!!s[key];$('#'+key).disabled=busy||!driver.ready;}
+  $('#sectMotion').classList.toggle('hidden',!(c.motionSync||c.ripple||c.angleSnap));
+  $('#sectSurface').classList.toggle('hidden',!c.glass);
+  $('#trackEmpty').classList.toggle('hidden',!!(modes||c.rotation||c.motionSync||c.ripple||c.angleSnap||c.glass));
+  const profs=s.profiles||[];
+  $('#itemProfile').classList.toggle('hidden',profs.length<2);
+  if(profs.length>1)fillSeg('#segProfile',profs.map(p=>[p.slot,p.name||'Profile '+(p.slot+1)]),s.profile,async(d,v)=>{await d.setProfile(v);await d.readState();});
+  const rows=[['Model',m.name],['Family',m.family],['Connection',driver.wired?'USB cable':'Wireless receiver'],['USB identity',hex4(driver.device.vendorId)+':'+hex4(driver.device.productId)],['Battery',bat?bat.percent+'%'+(bat.charging?' (charging)':''):'…']];
+  $('#kv').replaceChildren(...rows.map(([key,value])=>{const tr=document.createElement('tr');for(const text of [key,value]){const td=document.createElement('td');td.textContent=String(text);tr.append(td);}return tr;}));
+  $('#inferredNote').classList.toggle('hidden',!isInferred(m,driver.device));
+  $('#controls').disabled=!driver.ready;$('#refresh').disabled=busy;$('#disconnect').disabled=busy;
+  $('#connect').disabled=busy;$('#connect2').disabled=busy;
+  $('#saveDpi').disabled=busy||!driver.ready;$('#saveSleep').disabled=busy||!driver.ready;
+}
+async function action(fn,message='Saved and verified'){
+  if(busy||!driver)return;const current=driver;busy=true;render();
+  try{await fn(current);if(driver===current)toast(message);}
+  catch(e){toast(e.message||'Could not save',true);log('ERROR',new TextEncoder().encode(e.message||'Unknown error'));try{if(driver===current&&!current.closed&&!current.faulted)await current.readState();}catch{current.ready=false;}}
+  finally{busy=false;render();if(refreshQueued){refreshQueued=false;refresh();}}
+}
+function refresh(){return action(d=>d.readState(),'Settings refreshed');}
+function queueRefresh(){if(busy){refreshQueued=true;return;}refresh();}
+for(const button of document.querySelectorAll('[data-tab]'))button.onclick=()=>{
+  for(const b of document.querySelectorAll('[data-tab]'))b.setAttribute('aria-pressed',String(b===button));
+  for(const panel of document.querySelectorAll('[data-panel]'))panel.classList.toggle('hidden',panel.dataset.panel!==button.dataset.tab);
+};
+$('#stage').onchange=e=>{const v=Number(e.target.value);action(d=>d.setStage(v));};
+$('#count').onchange=e=>{const v=Number(e.target.value);action(d=>d.setStageCount(v));};
+$('#saveDpi').onclick=()=>{
+  if(!driver)return;const dpi=driver.model.caps.dpi,i=driver.state.active,x=Number($('#dpiX').value),y=dpi.independentXY?Number($('#dpiY').value):x;
+  const bad=dpiError(dpi,x)||dpiError(dpi,y);
+  if(bad){toast(bad,true);render();return;}
+  action(d=>d.setDpi(i,x,y));
+};
+function debSend(){
+  const deb=driver.model.caps.debounce,p=Number($('#debPress').value),r=Number($('#debRelease').value);
+  action(d=>d.setDebounce(deb.split?{press:p,release:r}:p));
+}
+for(const id of ['debPress','debRelease']){
+  $('#'+id).oninput=()=>{const split=driver.model.caps.debounce.split;$('#'+id+'Out').textContent=(split?(id==='debPress'?'Press ':'Release '):'')+$('#'+id).value+' ms';};
+  $('#'+id).onchange=debSend;
+}
+$('#angle').oninput=()=>{$('#angleOut').textContent=$('#angle').value;};
+$('#angle').onchange=e=>{const v=Number(e.target.value);action(d=>d.setAngle(v));};
+for(const key of ['motionSync','ripple','angleSnap','glass'])$('#'+key).onchange=e=>{const on=!!e.target.checked;action(d=>d.setFlag(key,on));};
+$('#saveSleep').onclick=()=>{
+  const sl=driver.model.caps.sleep,v=Number($('#sleep').value);
+  if(!Number.isInteger(v)||v<sl.min||v>sl.max){toast('Sleep timer must be a whole number of minutes from '+sl.min+' to '+sl.max,true);return;}
+  action(d=>d.setSleep(v));
+};
+$('#refresh').onclick=refresh;
+$('#togglelog').onclick=e=>{const hidden=$('#connectionDetails').classList.toggle('hidden');$('#connectionDetails').open=!hidden;e.target.textContent=hidden?'Show activity log':'Hide activity log';};
+$('#copylog').onclick=async()=>{
+  const text=Array.from($('#log').children,row=>row.textContent).join('\n')||'No connection attempt has been recorded. Press Connect first.';
+  try{await navigator.clipboard.writeText(text);toast('Connection details copied');}
+  catch{$('#logCopy').value=text;$('#logCopy').classList.remove('hidden');$('#logCopy').focus();$('#logCopy').select();toast('Copy the selected connection details');}
+};
+async function detach(){
+  const old=driver;driver=null;refreshQueued=false;if(old){try{old.close();}catch{}try{await old.device.close();}catch{}}
+  $('#app').classList.add('hidden');$('#hero').classList.remove('hidden');$('#status').className='status off';$('#status').textContent='Not connected';$('#name').textContent='MCHOSE Mouse';$('#connect').textContent='Connect';$('#connect').disabled=false;$('#connect2').disabled=false;document.title='MCHOSE · OpenATK';
+}
+$('#disconnect').onclick=async()=>{await detach();if(DEMO)location.href='?';};
+async function attach(found){
+  const {device,model}=found;
+  await detach();if(!device.opened)await device.open();
+  const next=await DR[model.family].open(device,model,{log});
+  next.device=next.device||device;next.model=next.model||model;
+  driver=next;
+  next.onChange=()=>{if(driver===next&&!busy)render();};next.onProfile=()=>{if(driver===next)queueRefresh();};
+  busy=true;$('#connect').disabled=$('#connect2').disabled=true;
+  try{
+    const st=await next.readState();if(driver!==next)return;
+    if(!next.state)next.state=st;
+    $('#hero').classList.add('hidden');$('#blocked').classList.add('hidden');$('#app').classList.remove('hidden');$('#connectionDetails').classList.add('hidden');$('#togglelog').textContent='Show activity log';$('#connect').textContent=DEMO?'Demo':'Change device';
+    if(!DEMO)try{localStorage.setItem('mchose:last',devId(device));}catch{}
+  }catch(e){if(driver===next)await detach();throw e;}
+  finally{busy=false;render();}
+}
+async function connect(){
+  if(busy||DEMO)return;
+  if(!navigator.hid){toast('Use desktop Chrome, Edge, Brave or Opera for WebHID.',true);return;}
+  $('#connectError').classList.add('hidden');
+  try{
+    const models=allModels();
+    if(!models.length)throw new Error('No MCHOSE models are loaded. Reload the page.');
+    const picked=await navigator.hid.requestDevice({filters:buildFilters(models)});if(!picked.length)return;
+    for(const d of picked)log('SELECTED',JSON.stringify(describeDevice(d)));
+    let found=choose(picked);
+    if(!found){const granted=await navigator.hid.getDevices();for(const d of granted.filter(d=>picked.some(p=>p.vendorId===d.vendorId&&p.productId===d.productId)))log('AUTHORIZED',JSON.stringify(describeDevice(d)));found=choose(picked,granted);}
+    if(!found)throw new Error('No MCHOSE configuration interface was found for the selected device. Copy the connection details below.');
+    if(found.candidates){const m=await pickModel(found.candidates);if(!m)return;pickSet(found.device,m.id);found={device:found.device,model:m};}
+    if(isPending(found.model)){const msg=found.model.name+' was recognised, but support for this model is still in progress. Nothing was changed.';$('#connectError').textContent=msg;$('#connectError').classList.remove('hidden');toast(msg,true);return;}
+    await attach(found);
+  }catch(e){const message=e.message||'Could not connect';log('CONNECT ERROR',message);$('#connectError').textContent=message;$('#connectError').classList.remove('hidden');$('#connectionDetails').classList.remove('hidden');$('#connectionDetails').open=true;toast(message,true);}
+}
+$('#connect').onclick=$('#connect2').onclick=connect;
+
+// Demo family: implements the driver contract in memory so the whole page works without hardware.
+const DEMO_CAPS={dpi:{min:200,max:26000,step:50,maxStages:6,defaults:[400,800,1600,3200,6400,12800],independentXY:true},
+  rates:[125,250,500,1000,2000,4000,8000],wirelessMaxRate:1000,lod:[0.7,1,1.4,1.7,2],debounce:{min:1,max:20,step:1,split:true},sleep:{min:1,max:100,never:true},
+  modes:[{id:0,name:'Performance'},{id:1,name:'Gaming'},{id:2,name:'Extreme'}],motionSync:true,ripple:true,angleSnap:true,glass:true,rotation:true,profiles:3,remap:false,extra:{}};
+const DEMO_MODEL={id:'demo',name:'Demo Mouse',family:'demo',vid:0x3837,wired:[0xde00],receiver:[0xde01],filters:[{usagePage:0xff01}],caps:DEMO_CAPS,image:null};
+if(DEMO){
+  class DemoMouse{
+    constructor(device,model,opts){
+      this.device=device;this.model=model;this.log=opts?.log||(()=>{});this.wired=device.productId===model.wired[0];
+      this.ready=true;this.faulted=false;this.closed=false;this.onChange=null;this.onProfile=null;
+      const base=()=>({stages:[400,800,1600,3200].map(v=>({x:v,y:v})),active:1,rate:1000,lod:0.7,debounce:{press:4,release:8},sleep:10,motionSync:true,ripple:false,angleSnap:false,glass:false,angle:0,mode:0});
+      this.cfg=[base(),base(),base()];this.cfg[1].rate=500;this.cfg[2].stages[0]={x:1200,y:1200};
+      this.profile=0;this.battery={percent:78,charging:false};this.sync();
+    }
+    sync(){this.state={profile:this.profile,profiles:[{slot:0,name:'Everyday'},{slot:1,name:'Competitive'},{slot:2,name:'Creative'}],...structuredClone(this.cfg[this.profile]),battery:this.battery};}
+    get c(){return this.cfg[this.profile];}
+    async readState(){this.log('RX',[0xde,0x01]);this.sync();return this.state;}
+    async put(label,fn){if(this.closed||this.faulted)throw new Error('Demo mouse is closed');this.log('TX',new TextEncoder().encode(label));fn();this.sync();this.onChange?.();}
+    chk(ok,msg){if(!ok)throw new Error(msg);}
+    async setStage(i){this.chk(Number.isInteger(i)&&i>=0&&i<this.c.stages.length,'Stage out of range');await this.put('stage',()=>{this.c.active=i;});}
+    async setStageCount(n){const d=DEMO_CAPS.dpi;this.chk(Number.isInteger(n)&&n>=1&&n<=d.maxStages,'Stage count out of range');
+      await this.put('count',()=>{const s=this.c.stages;while(s.length<n)s.push({x:d.defaults[s.length],y:d.defaults[s.length]});s.length=n;this.c.active=Math.min(this.c.active,n-1);});}
+    async setDpi(i,x,y){const d=DEMO_CAPS.dpi;this.chk(!dpiError(d,x)&&!dpiError(d,y),'DPI value is not allowed');this.chk(i>=0&&i<this.c.stages.length,'Stage out of range');await this.put('dpi',()=>{this.c.stages[i]={x,y};});}
+    async setRate(hz){this.chk(visibleRatesFor(this).includes(hz),'Polling rate not allowed on this connection');await this.put('rate',()=>{this.c.rate=hz;});}
+    async setLod(mm){this.chk(DEMO_CAPS.lod.includes(mm),'Lift-off distance not allowed');await this.put('lod',()=>{this.c.lod=mm;});}
+    async setDebounce(v){const d=DEMO_CAPS.debounce;const ok=x=>Number.isInteger(x)&&x>=d.min&&x<=d.max;this.chk(ok(v.press)&&ok(v.release),'Debounce out of range');await this.put('debounce',()=>{this.c.debounce={press:v.press,release:v.release};});}
+    async setSleep(m){const s=DEMO_CAPS.sleep;this.chk(Number.isInteger(m)&&(m===0||(m>=s.min&&m<=s.max)),'Sleep timer out of range');await this.put('sleep',()=>{this.c.sleep=m;});}
+    async setFlag(name,on){this.chk(['motionSync','ripple','angleSnap','glass'].includes(name)&&typeof on==='boolean','Unknown option');await this.put(name,()=>{this.c[name]=on;});}
+    async setAngle(a){this.chk(Number.isInteger(a)&&a>=-30&&a<=30,'Rotation out of range');await this.put('angle',()=>{this.c.angle=a;});}
+    async setMode(id){this.chk(DEMO_CAPS.modes.some(m=>m.id===id),'Mode not supported');await this.put('mode',()=>{this.c.mode=id;});}
+    async setProfile(slot){this.chk([0,1,2].includes(slot),'Profile out of range');await this.put('profile',()=>{this.profile=slot;});}
+    close(){this.closed=true;this.ready=false;}
+  }
+  const visibleRatesFor=m=>DEMO_CAPS.rates.filter(r=>m.wired||r<=DEMO_CAPS.wirelessMaxRate);
+  DR.demo={family:'demo',matches:d=>d.vendorId===DEMO_MODEL.vid&&[...DEMO_MODEL.wired,...DEMO_MODEL.receiver].includes(d.productId)?DEMO_MODEL:undefined,isConfigInterface:()=>true,
+    async open(device,model,opts){return new DemoMouse(device,model,opts);}};
+}
+function makeDemoDevice(){
+  const dongle=['dongle','receiver'].includes(QS.get('demo'));
+  return {vendorId:DEMO_MODEL.vid,productId:dongle?DEMO_MODEL.receiver[0]:DEMO_MODEL.wired[0],productName:'Simulated MCHOSE mouse',opened:false,collections:[{usagePage:0xff01,usage:1}],
+    async open(){this.opened=true;},async close(){this.opened=false;},addEventListener(){},removeEventListener(){}};
+}
+async function start(){
+  if(DEMO){$('#demoBar').classList.remove('hidden');$('#demoLink').classList.add('hidden');const d=makeDemoDevice();await attach(resolve(d));return;}
+  const mobile=navigator.userAgentData?.mobile||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(!navigator.hid||mobile){$('#hero').classList.add('hidden');$('#blocked').classList.remove('hidden');$('#connect').disabled=true;return;}
+  navigator.hid.addEventListener('disconnect',e=>{if(driver?.device===e.device)detach().then(()=>toast('Mouse disconnected',true));});
+  navigator.hid.addEventListener('connect',e=>{if(!driver&&resolve(e.device)?.model)toast('MCHOSE mouse detected. Press Connect to choose it.');});
+  let want=QS.get('d');if(!want)try{want=localStorage.getItem('mchose:last');}catch{}
+  const found=(await navigator.hid.getDevices()).map(resolve).filter(r=>r?.model&&!isPending(r.model));
+  const hit=found.find(f=>devId(f.device)===want)||(found.length===1?found[0]:undefined);
+  if(hit)await attach(hit);
+}
+const started=start().catch(e=>toast(e.message||'Could not read mouse settings',true));
+</script>
+</body>
+</html>
