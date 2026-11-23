@@ -177,29 +177,56 @@
   ];
   legacy.forEach(function (row) { models.push(legacyModel(row[0], row[1])); });
 
+  var G_RATES = [125, 250, 500, 1000];
+  var G_MODES = [{ id: 0, name: 'Standard' }, { id: 1, name: 'eSports mode' }];
+
   function gModel(name, pids, o) {
     o = o || {};
-    return build({
+    var m = build({
       name: name, aliases: o.aliases, family: 'g', pids: pids,
       filters: o.filters || FILTERS_G,
       caps: {
         dpi: null, lod: null, debounce: null, sleep: null, modes: null,
         motionSync: null, ripple: null, angleSnap: null, glass: null, rotation: null,
         profiles: null, remap: null,
-        extra: { protocolPending: true }
+        extra: { protocolPending: true, reason: 'write-only protocol, not supported' }
       }
     });
+    if (o.tier) {
+      var pro = o.tier === 'pro', base = o.tier === 'simple';
+      var max = pro ? 26000 : 12000;
+      m.caps = {
+        dpi: { min: 200, max: max, step: 50, maxStages: 6, defaults: [400, 800, 1600, 3200, 6400, max], independentXY: false },
+        rates: G_RATES.slice(), wirelessMaxRate: null,
+        lod: pro ? [1, 2] : null,
+        debounce: { min: 0, max: 20, step: 1, split: false },
+        sleep: { min: 1, max: 100, never: true },
+        modes: pro ? G_MODES.slice() : null,
+        motionSync: pro ? true : null, ripple: pro ? true : null,
+        angleSnap: pro || base ? true : null,
+        glass: null, rotation: pro ? true : null,
+        profiles: 1, remap: null,
+        extra: {
+          scrollDirection: true,
+          rotationRange: pro ? 30 : null,
+          rotationMinFw: pro ? '2.3.5' : null,
+          wiredRateFixed: 1000,
+          inferred: ['dpiStep', 'sleepUnit', 'rotationUnit', 'rateCodes125to1000']
+        }
+      };
+    }
+    return m;
   }
 
   var GA = 0xA8A4, GB = 0xA8A5;
   [
-    gModel('G3 V2 Pro', [pe(0x4042, V, 'wired')]),
-    gModel('G3 V2', [pe(0x418C, V, 'wired'), pe(0x4245, V, 'receiver', null, 1)]),
-    gModel('A7e Pro', [pe(0x4013, V, 'wired'), pe(0x1008, V, 'receiver', null, 1)]),
-    gModel('A7e', [pe(0x4012, V, 'wired'), pe(0x1008, V, 'receiver', null, 1)]),
-    gModel('G3 A', [pe(0x2255, GA, 'wired'), pe(0x2255, GB, 'receiver')], { aliases: ['2.4G Wireless'] }),
-    gModel('G7', [pe(0x2255, GA, 'wired'), pe(0x2255, GB, 'receiver')]),
-    gModel('G7 Pro', [pe(0x2255, GA, 'wired'), pe(0x2255, GB, 'receiver')]),
+    gModel('G3 V2 Pro', [pe(0x4042, V, 'wired')], { tier: 'pro' }),
+    gModel('G3 V2', [pe(0x418C, V, 'wired'), pe(0x4245, V, 'receiver', null, 1)], { tier: 'reduced' }),
+    gModel('A7e Pro', [pe(0x4013, V, 'wired'), pe(0x1008, V, 'receiver', null, 1)], { tier: 'simple' }),
+    gModel('A7e', [pe(0x4012, V, 'wired'), pe(0x1008, V, 'receiver', null, 1)], { tier: 'simple' }),
+    gModel('G3 A', [pe(0x2255, GA, 'wired'), pe(0x2255, GB, 'receiver')], { aliases: ['2.4G Wireless'], tier: 'simple' }),
+    gModel('G7', [pe(0x2255, GA, 'wired'), pe(0x2255, GB, 'receiver')], { tier: 'simple' }),
+    gModel('G7 Pro', [pe(0x2255, GA, 'wired'), pe(0x2255, GB, 'receiver')], { tier: 'pro' }),
     gModel('G7 Max', [pe(0x1204, E4, 'wired'), pe(0x1001, E4, 'receiver', null, 1), pe(0x1003, E4, 'receiver', null, 1)],
       { filters: FILTERS_G7MAX })
   ].forEach(function (m) { models.push(m); });

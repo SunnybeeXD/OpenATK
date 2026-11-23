@@ -246,7 +246,7 @@ if(typeof fetch==='function')fetch('../assets/mchose/images.json').then(r=>r.jso
 const pickKey=d=>'mchose:pick:'+devId(d);
 function pickGet(d){try{return localStorage.getItem(pickKey(d));}catch{return null;}}
 function pickSet(d,id){try{localStorage.setItem(pickKey(d),id);}catch{}}
-const isPending=m=>!!m.extra?.protocolPending||typeof DR[m.family]?.open!=='function';
+const isPending=m=>!!(m.extra?.protocolPending||m.caps?.extra?.protocolPending)||typeof DR[m.family]?.open!=='function';
 function allModels(){
   const r=window.MchoseModels;
   const list=Array.isArray(r)?r:Array.isArray(r?.models)?r.models:r&&typeof r==='object'?Object.values(r):[];

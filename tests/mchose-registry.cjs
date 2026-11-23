@@ -74,11 +74,45 @@ test('caps sanity: DPI min < max, rates ascending, lists consistent', () => {
   }
 });
 
-test('G-series caps are null, never guessed', () => {
-  for (const m of models.filter((x) => x.family === 'g')) {
-    assert.equal(m.caps.rates, null);
-    assert.equal(m.caps.dpi, null);
-    assert.equal(m.caps.extra.protocolPending, true);
+test('G7 Max stays protocol pending with null caps', () => {
+  const c = byName('G7 Max').caps;
+  assert.equal(c.rates, null);
+  assert.equal(c.dpi, null);
+  assert.equal(c.extra.protocolPending, true);
+  assert.equal(c.extra.reason, 'write-only protocol, not supported');
+});
+
+test('G-series caps follow the gmouse sub-app', () => {
+  const gs = models.filter((x) => x.family === 'g' && x.name !== 'G7 Max');
+  assert.equal(gs.length, 7);
+  for (const m of gs) {
+    const c = m.caps;
+    assert.equal(c.extra.protocolPending, undefined, m.name);
+    assert.deepEqual(c.rates, [125, 250, 500, 1000]);
+    assert.equal(c.profiles, 1);
+    assert.equal(c.dpi.step, 50);
+    assert.equal(c.dpi.maxStages, 6);
+    assert.equal(c.dpi.independentXY, false);
+    assert.deepEqual(c.debounce, { min: 0, max: 20, step: 1, split: false });
+    assert.deepEqual(c.sleep, { min: 1, max: 100, never: true });
+    assert.equal(c.glass, null);
+  }
+  for (const n of ['G3 V2 Pro', 'G7 Pro']) {
+    const c = byName(n).caps;
+    assert.equal(c.dpi.max, 26000);
+    assert.deepEqual(c.lod, [1, 2]);
+    assert.equal(c.modes.length, 2);
+    assert.ok(c.motionSync && c.ripple && c.angleSnap && c.rotation);
+    assert.equal(c.extra.rotationMinFw, '2.3.5');
+  }
+  const v2 = byName('G3 V2').caps;
+  assert.equal(v2.dpi.max, 12000);
+  assert.ok(!v2.lod && !v2.modes && !v2.motionSync && !v2.ripple && !v2.angleSnap && !v2.rotation);
+  for (const n of ['G3 A', 'G7', 'A7e', 'A7e Pro']) {
+    const c = byName(n).caps;
+    assert.equal(c.dpi.max, 12000);
+    assert.equal(c.angleSnap, true);
+    assert.ok(!c.lod && !c.modes && !c.motionSync && !c.ripple && !c.rotation);
   }
 });
 
