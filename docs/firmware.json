@@ -2002,16 +2002,6 @@
  {
   "name": "VXE V3 NK",
   "vid": "373b",
-  "pid": "12d2",
-  "mark": "v3",
-  "version": "1.0.20",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/51c7c6dce8687f78ad6eed399e38f25a.bin",
-  "notes": "Initial Firmware",
-  "date": "2026-09-30"
- },
- {
-  "name": "VXE V3 NK",
-  "vid": "373b",
   "pid": "135d",
   "mark": "v3",
   "version": "1.0.22",
