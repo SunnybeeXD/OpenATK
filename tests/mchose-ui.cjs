@@ -183,17 +183,29 @@ test('A shared USB ID asks the user, remembers the pick, and never guesses',asyn
   const cancel=create('',{models,drivers:{new:fakeDrivers().drv},hid:hid()});await wait(cancel);
   const c2=cancel.app.connect();await new Promise(r=>setTimeout(r,20));cancel.$('pickCancel').click();await c2;
   assert.equal(cancel.app.driver,null);
-  const storage={'mchose:pick:3837:32':'p1'};
-  const again=create('',{models,drivers:{new:fakeDrivers().drv},storage,hid:hid({async getDevices(){return[device(50)];}})});await wait(again);
+  const again=create('',{models,drivers:{new:fakeDrivers().drv},hid:hid({async getDevices(){return[device(50)];}})});await wait(again);
   assert.equal(again.app.driver,null,'no remembered pick: no auto connect');
   const saved=create('',{models,drivers:{new:fakeDrivers().drv},storage:{'mchose:pick:3837:32':'p2'},hid:hid({async getDevices(){return[device(50)];}})});await wait(saved);
   assert.equal(saved.app.driver.model.id,'p2','remembered pick reused on auto reconnect');
 });
 
 test('Models without a protocol yet show a support-in-progress state',async()=>{
-  const g=mk('gx',[40,41],NULL_CAPS,{family:'g',extra:{protocolPending:true}});
+  const g=mk('gx',[40,41],NULL_CAPS,{family:'g',extra:{protocolPending:true},pids:[{pid:40,vid:0x3837,inferred:false}]});
   const p=create('',{models:[g],drivers:{new:fakeDrivers().drv},hid:{async getDevices(){return[];},async requestDevice(){return[device(40)];}}});await wait(p);
   await p.app.connect();await wait(p);
   assert.equal(p.app.driver,null);assert.ok(p.$('connectError').textContent.includes('still in progress'));
   assert.ok(p.$('app').classList.contains('hidden'));
+});
+
+test('Left and right debounce state renders two sliders and writes both',async()=>{
+  const {drv,opened}=fakeDrivers();
+  const c={...FULL_CAPS,debounce:{min:1,max:20,step:1,split:true}};
+  const orig=drv.open;drv.open=async(d,m)=>{const i=await orig(d,m);i.state.debounce={left:3,right:5};i.state.glass=false;i.setDebounce=async function(v){this.calls.push(['deb',v]);this.state.debounce=v;};i.setFlag=async function(){};i.setLod=async function(v){this.calls.push(['lod',v]);};return i;};
+  const p=create('',{models:[mk('lr',[1,2],c)],drivers:{new:drv},hid:{async getDevices(){return[device(1)];}}});await wait(p);
+  assert.ok(!p.$('debReleaseRow').classList.contains('hidden'));
+  p.$('debRelease').value=9;p.$('debRelease').onchange({target:p.$('debRelease')});await wait(p);
+  assert.deepEqual(opened[0].calls[0],['deb',{left:3,right:9}]);
+  p.$('glass').checked=true;p.$('glass').onchange({target:p.$('glass')});await wait(p);
+  assert.deepEqual(opened[0].calls[1],['lod',2]);
+  opened[0].readOnly=true;p.app.driver.onChange();assert.equal(p.$('controls').disabled,true);
 });

@@ -25,6 +25,7 @@ html.demo #hero{display:none}
 .sub{font:500 12px var(--sans);color:var(--dim);margin:12px 0 4px}
 #connectionDetails #log{display:block;white-space:pre-wrap;overflow-wrap:anywhere}
 #logCopy{width:100%;min-height:160px;margin-top:12px;background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:6px;padding:10px 12px;font:12px/1.5 var(--mono)}
+.slider output{min-width:104px;text-align:center}
 .note-inferred{color:var(--warn)}
 </style>
 </head>
@@ -170,6 +171,7 @@ html.demo #hero{display:none}
       <div class="phead"><div><h2>Device</h2><p>Connection details and diagnostics.</p></div></div>
       <div class="item">
         <table class="kv" id="kv"></table>
+        <p class="d note-inferred hidden" id="readOnlyNote">Read-only: this mouse reports a vendor ID that differs from the registry, so changes are disabled.</p>
         <p class="d note-inferred hidden" id="inferredNote">This USB ID was inferred from the vendor software and has not been confirmed on a real device.</p>
         <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
           <button class="btn ghost" id="refresh">Refresh</button>
@@ -309,9 +311,11 @@ function visibleRates(){
   return list.filter(r=>driver.wired||!c.wirelessMaxRate||r<=c.wirelessMaxRate);
 }
 const rateLabel=r=>r>=1000?r/1000+'K':String(r);
-function debounceValues(s){
+function debounceShape(s){
   const v=s.debounce;
-  return v&&typeof v==='object'?{press:v.press,release:v.release}:{press:v,release:v};
+  if(v&&typeof v==='object'&&'left' in v)return {keys:['left','right'],names:['Left button','Right button'],a:v.left,b:v.right};
+  if(v&&typeof v==='object')return {keys:['press','release'],names:['Press','Release'],a:v.press,b:v.release};
+  return {keys:null,names:['Click debounce','Release'],a:v,b:v};
 }
 function render(){
   if(!driver||!driver.state)return;
@@ -350,13 +354,13 @@ function render(){
   const deb=c.debounce;
   $('#itemDebounce').classList.toggle('hidden',!deb);
   if(deb){
-    const v=debounceValues(s);
-    $('#debTitle').textContent=deb.split?'Press and release debounce':'Click debounce';
-    $('#debReleaseRow').classList.toggle('hidden',!deb.split);
-    for(const [id,val,name] of [['debPress',v.press,deb.split?'Press debounce':'Click debounce'],['debRelease',v.release,'Release debounce']]){
+    const v=debounceShape(s),two=!!v.keys;
+    $('#debTitle').textContent=two?'Click debounce (two buttons)':'Click debounce';
+    $('#debReleaseRow').classList.toggle('hidden',!two);
+    [['debPress',v.a,v.names[0]],['debRelease',v.b,v.names[1]]].forEach(([id,val,name])=>{
       const input=$('#'+id);input.min=deb.min;input.max=deb.max;input.step=deb.step;input.value=val??deb.min;input.disabled=busy||!driver.ready;input.setAttribute('aria-label',name);
-      $('#'+id+'Out').textContent=(deb.split?(id==='debPress'?'Press ':'Release '):'')+(val??'…')+' ms';
-    }
+      $('#'+id+'Out').textContent=(two?name+' ':'')+(val??'…')+' ms';
+    });
   }
   const sl=c.sleep;
   $('#itemSleep').classList.toggle('hidden',!sl);
@@ -383,7 +387,7 @@ function render(){
   const rows=[['Model',m.name],['Family',m.family],['Connection',driver.wired?'USB cable':'Wireless receiver'],['USB identity',hex4(driver.device.vendorId)+':'+hex4(driver.device.productId)],['Battery',bat?bat.percent+'%'+(bat.charging?' (charging)':''):'…']];
   $('#kv').replaceChildren(...rows.map(([key,value])=>{const tr=document.createElement('tr');for(const text of [key,value]){const td=document.createElement('td');td.textContent=String(text);tr.append(td);}return tr;}));
   $('#inferredNote').classList.toggle('hidden',!isInferred(m,driver.device));
-  $('#controls').disabled=!driver.ready;$('#refresh').disabled=busy;$('#disconnect').disabled=busy;
+  $('#controls').disabled=!driver.ready||!!driver.readOnly;$('#readOnlyNote').classList.toggle('hidden',!driver.readOnly);$('#refresh').disabled=busy;$('#disconnect').disabled=busy;
   $('#connect').disabled=busy;$('#connect2').disabled=busy;
   $('#saveDpi').disabled=busy||!driver.ready;$('#saveSleep').disabled=busy||!driver.ready;
 }
@@ -408,16 +412,16 @@ $('#saveDpi').onclick=()=>{
   action(d=>d.setDpi(i,x,y));
 };
 function debSend(){
-  const deb=driver.model.caps.debounce,p=Number($('#debPress').value),r=Number($('#debRelease').value);
-  action(d=>d.setDebounce(deb.split?{press:p,release:r}:p));
+  const sh=debounceShape(driver.state),a=Number($('#debPress').value),b=Number($('#debRelease').value);
+  action(d=>d.setDebounce(sh.keys?{[sh.keys[0]]:a,[sh.keys[1]]:b}:a));
 }
 for(const id of ['debPress','debRelease']){
-  $('#'+id).oninput=()=>{const split=driver.model.caps.debounce.split;$('#'+id+'Out').textContent=(split?(id==='debPress'?'Press ':'Release '):'')+$('#'+id).value+' ms';};
+  $('#'+id).oninput=()=>{const sh=debounceShape(driver.state);$('#'+id+'Out').textContent=(sh.keys?sh.names[id==='debPress'?0:1]+' ':'')+$('#'+id).value+' ms';};
   $('#'+id).onchange=debSend;
 }
 $('#angle').oninput=()=>{$('#angleOut').textContent=$('#angle').value;};
 $('#angle').onchange=e=>{const v=Number(e.target.value);action(d=>d.setAngle(v));};
-for(const key of ['motionSync','ripple','angleSnap','glass'])$('#'+key).onchange=e=>{const on=!!e.target.checked;action(d=>d.setFlag(key,on));};
+for(const key of ['motionSync','ripple','angleSnap','glass'])$('#'+key).onchange=e=>{const on=!!e.target.checked;action(async d=>{await d.setFlag(key,on);const lod=d.model.caps.lod;if(key==='glass'&&on&&lod?.length)await d.setLod(Math.max(...lod));});};
 $('#saveSleep').onclick=()=>{
   const sl=driver.model.caps.sleep,v=Number($('#sleep').value);
   if(!Number.isInteger(v)||v<sl.min||v>sl.max){toast('Sleep timer must be a whole number of minutes from '+sl.min+' to '+sl.max,true);return;}
