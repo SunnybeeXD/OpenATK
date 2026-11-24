@@ -118,6 +118,7 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
       <button data-tab="lod" aria-pressed="false" id="lodTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>LOD</button>
       <button data-tab="bhop" aria-pressed="false" id="bhopTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></svg>Bhop Mode</button>
       <button data-tab="led" aria-pressed="false" id="lightTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Dongle LED</button>
+      <button data-tab="profiles" aria-pressed="false" id="profilesTab" class="hidden"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/></svg>Profiles</button>
       <button data-tab="device" aria-pressed="false" id="deviceTab"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v2M15 3v2M9 19v2M15 19v2M3 9h2M3 15h2M19 9h2M19 15h2"/></svg>Device</button>
     </nav>
     <p class="foot">Changes save to the mouse immediately. Not affiliated with Finalmouse.</p>
@@ -196,6 +197,16 @@ addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='k'&&parent!==
       </div>
     </section>
 
+    <section class="panel hidden" data-panel="profiles">
+      <div class="phead"><div><h2>Profiles</h2><p>All mouse settings are stored in the active profile.</p></div></div>
+      <div class="item">
+        <div id="profList"></div>
+        <div style="margin-top:12px"><button class="btn ghost" id="profAdd">+ Add profile</button></div>
+        <div class="d" id="profNote" style="margin-top:14px"></div>
+        <div class="d" style="margin-top:8px"><b>Hotkey:</b> hold the left, middle and right buttons together, then press the forward side button for the next profile or the back side button for the previous one.</div>
+      </div>
+    </section>
+
     <section class="panel hidden" data-panel="device">
       <div class="phead"><div><h2>Device</h2><p>Firmware, link, sharing and diagnostics.</p></div></div>
       <div class="item" id="shareItem">
@@ -237,6 +248,7 @@ if (EMBED) document.body.classList.add('embed');
 const DEMO_RAW = new URLSearchParams(location.search).get('demo');
 const DEMO = DEMO_RAW !== null && !['0', 'false', 'off', 'no'].includes(DEMO_RAW.toLowerCase());
 const DEMO_SLX = DEMO && DEMO_RAW.toLowerCase() !== 'ulx';
+const DEMO_RECV = DEMO && DEMO_RAW.toLowerCase() === 'dongle';
 if (!DEMO) $('#demoLink').href = '?demo=1';
 else $('#demoLink').classList.add('hidden');
 if (DEMO_SLX) document.title = 'Finalmouse Starlight X';
@@ -257,7 +269,8 @@ const isOurs = d => d.vendorId === VID && (d.productId === 0x100
 const devId = d => `${d.vendorId.toString(16)}:${d.productId.toString(16)}`;
 
 const CMD = { GET_DPI_ULX: 3, GET_RATE_ULX: 4, VBAT: 5, RSSI: 13, SERIAL: 14, MFG: 15, DPI: 16, RATE: 17, MOTION: 18,
-  INDICATOR: 20, LOD: 21, PAW_LOD: 25, CLICK: 31, ACT: 53, MSP: 55, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, ALL: 96 };
+  INDICATOR: 20, LOD: 21, PAW_LOD: 25, CLICK: 31, ACT: 53, MSP: 55, JS_MODE: 23, JS_TIMEOUT: 24, CHARGING: 37, BATTERY: 38, LINK: 36, FW: 12, RF_FW: 11, COLOR: 54, PROFILE: 57, PROFILE_ENABLE: 63, PROFILE_NAME: 62, LED_DATA: 61, ALL: 96 };
+const PROFILE_MAX = 5, PROFILE_NAME_MAX = 31;
 const DPI_PRESETS = [400, 800, 1600, 3200, 6400];
 const RATES = [500, 1000, 2000, 4000, 8000];
 const LOD_PRESETS = [1, 2];
@@ -372,6 +385,10 @@ class Finalmouse {
       case CMD.CHARGING: if (p.length >= 1) s.charging = p[0] !== 0; break;
       case CMD.LINK: if (p.length >= 1) s.link = p[0]; break;
       case CMD.RSSI: if (p.length >= 1) s.rssi = p[0] > 127 ? p[0] - 256 : p[0]; break;
+      case CMD.PROFILE: if (p.length >= 2){ s.profActive = p[0]; s.profCount = p[1]; } break;
+      case CMD.PROFILE_ENABLE: if (p.length >= 3){ s.profActive = p[0]; s.profCount = p[1]; s.profMask = p[2]; } break;
+      case CMD.PROFILE_NAME: if (p.length >= 2 && p[0] < PROFILE_MAX){ const q = p.subarray(1), z = q.indexOf(0); (s.profNames ??= [])[p[0]] = new TextDecoder().decode(z < 0 ? q : q.subarray(0, z)); } break;
+      case CMD.LED_DATA: if (p.length >= 6 && p[0] < PROFILE_MAX) (s.profLed ??= [])[p[0]] = { mode: p[1], brightness: p[2], r: p[3], g: p[4], b: p[5] }; break;
       case CMD.FW: s.fw = this.text(p); break;
       case CMD.RF_FW: s.rfFw = this.text(p); break;
       case CMD.SERIAL: s.serial = this.text(p); break;
@@ -380,12 +397,12 @@ class Finalmouse {
     this.onChange(cmd);
   }
   text(p){ const z = p.indexOf(0); return new TextDecoder('ascii').decode(z < 0 ? p : p.subarray(0, z)); }
-  request(cmd, ms = 700){
+  request(cmd, ms = 700, args = []){
     return new Promise(async resolve => {
       const w = { cmd, done: v => { clearTimeout(t); resolve(v); } };
       const t = setTimeout(() => { const i = this.waiters.indexOf(w); if (i >= 0) this.waiters.splice(i, 1); resolve(null); }, ms);
       this.waiters.push(w);
-      try { await this.send(cmd === CMD.DPI && this.fam === 'ulx' ? CMD.GET_DPI_ULX : cmd === CMD.RATE && this.fam === 'ulx' ? CMD.GET_RATE_ULX : cmd); }
+      try { await this.send(cmd === CMD.DPI && this.fam === 'ulx' ? CMD.GET_DPI_ULX : cmd === CMD.RATE && this.fam === 'ulx' ? CMD.GET_RATE_ULX : cmd, args); }
       catch { w.done(null); }
     });
   }
@@ -395,7 +412,29 @@ class Finalmouse {
     let got = 0;
     for (const c of wanted){ if (await this.request(c)) got++; }
     if (this.info.recv) await this.request(CMD.RF_FW);
+    await this.readProfiles();
     return got;
+  }
+  async readProfiles(){
+    if (!await this.request(CMD.PROFILE, 400)) return false;
+    await this.request(CMD.PROFILE_ENABLE);
+    if (this.info.recv) for (let i = 0; i < this.profileSlots(); i++){ await this.request(CMD.PROFILE_NAME, 700, [i]); await this.request(CMD.LED_DATA, 700, [i]); }
+    return true;
+  }
+  profileSlots(){ return Math.min(this.state.profCount ?? PROFILE_MAX, PROFILE_MAX); }
+  profileOn(i){ const m = this.state.profMask; return m == null || (m & (1 << i)) !== 0; }
+  setProfile(i){ return this.send(CMD.PROFILE, [i & 255]); }
+  setProfileOn(i, on){ return this.send(CMD.PROFILE_ENABLE, [i & 255, on ? 1 : 0]); }
+  setProfileName(i, name){
+    const bytes = [];
+    for (const ch of name){ const b = [...new TextEncoder().encode(ch)]; if (bytes.length + b.length > PROFILE_NAME_MAX) break; bytes.push(...b); }
+    if (!bytes.length) return Promise.reject(new Error('empty name'));
+    return this.send(CMD.PROFILE_NAME, [i & 255, ...bytes]);
+  }
+  setProfileColor(i, c){
+    const l = this.state.profLed?.[i];
+    if (!l) return Promise.reject(new Error('no LED entry'));
+    return this.send(CMD.LED_DATA, [i & 255, l.mode, l.brightness, c[0] & 255, c[1] & 255, c[2] & 255]);
   }
   setDpi(v){ return this.send(CMD.DPI, [v & 255, v >> 8]); }
   setRate(v){ return this.send(CMD.RATE, [v & 255, v >> 8]); }
@@ -493,6 +532,100 @@ buildSeg('#segJs', JS_MODES, async (v, l) => {
 buildSeg('#segJsT', JS_T.map(v => [v, `${v}ms`]), async v => {
   if (await confirmWrite(() => fm.setJsTimeout(v), CMD.JS_TIMEOUT, 'jsTimeout', v, 'Pass-through window')) toast(`Pass-through window ${v}ms`);
 });
+let profSig = '', profEdit = null;
+const profName = i => fm.state.profNames?.[i]?.trim() || `Profile ${i + 1}`;
+function renderProfiles(){
+  const s = fm.state, ok = s.profActive != null;
+  $('#profilesTab').classList.toggle('hidden', !ok);
+  if (!ok) return;
+  const sig = JSON.stringify([s.profActive, s.profCount, s.profMask, s.profNames, s.profLed, fm.info.recv, profEdit]);
+  if (sig === profSig) return;
+  profSig = sig;
+  const host = $('#profList'); host.replaceChildren();
+  const slots = fm.profileSlots();
+  let off = -1;
+  for (let i = 0; i < slots; i++){
+    if (!fm.profileOn(i)){ if (off < 0) off = i; continue; }
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap';
+    if (profEdit === i){
+      const inp = document.createElement('input');
+      inp.className = 'num'; inp.style.width = '200px'; inp.maxLength = PROFILE_NAME_MAX; inp.value = s.profNames?.[i] ?? '';
+      inp.setAttribute('aria-label', `Name for profile ${i + 1}`);
+      inp.onkeydown = e => { if (e.key === 'Enter') profRename(i, inp.value); else if (e.key === 'Escape'){ profEdit = null; renderProfiles(); } };
+      inp.onblur = () => { if (profEdit === i) profRename(i, inp.value); };
+      row.append(inp);
+      host.append(row);
+      setTimeout(() => { inp.focus(); inp.select(); }, 0);
+      continue;
+    }
+    const b = document.createElement('button');
+    b.className = i === s.profActive ? 'btn' : 'btn ghost';
+    b.textContent = profName(i);
+    b.setAttribute('aria-pressed', String(i === s.profActive));
+    b.onclick = () => profSwitch(i);
+    row.append(b);
+    if (fm.info.recv){
+      const r = document.createElement('button');
+      r.className = 'btn ghost'; r.textContent = 'Rename'; r.setAttribute('aria-label', `Rename ${profName(i)}`);
+      r.onclick = () => { profEdit = i; profSig = ''; renderProfiles(); };
+      row.append(r);
+      const led = s.profLed?.[i];
+      if (led){
+        const lab = document.createElement('label'); lab.className = 'swatch'; lab.textContent = 'Color';
+        const c = document.createElement('input'); c.type = 'color'; c.value = rgbToHex([led.r, led.g, led.b]);
+        c.setAttribute('aria-label', `Color for ${profName(i)}`);
+        c.onchange = () => profColor(i, hexToRgb(c.value));
+        lab.append(c); row.append(lab);
+      }
+    }
+    if (i !== 0){
+      const x = document.createElement('button');
+      x.className = 'btn quiet'; x.textContent = 'Remove'; x.setAttribute('aria-label', `Remove ${profName(i)}`);
+      x.onclick = () => profRemove(i);
+      row.append(x);
+    }
+    host.append(row);
+  }
+  $('#profAdd').classList.toggle('hidden', off < 0);
+  $('#profAdd').dataset.slot = String(off);
+  $('#profNote').textContent = fm.info.recv ? 'Rename a profile or give it a color. The color is also the dongle LED\'s Custom Color for that profile.' : 'Connect through the dongle to name and color profiles.';
+}
+let profBusy = false;
+async function profRun(fn, fail){
+  if (!fm || profBusy) return;
+  profBusy = true;
+  try { await fn(); } catch { toast(fail, 1); }
+  finally { profBusy = false; profSig = ''; if (fm) renderProfiles(); }
+}
+const profSwitch = i => i === fm.state.profActive ? 0 : profRun(async () => {
+  await fm.setProfile(i); await sleep(250); await fm.request(CMD.PROFILE);
+  if (fm.state.profActive !== i){ toast('The mouse kept its profile', 1); return; }
+  await refresh(); toast(`Profile: ${profName(i)}`);
+}, 'Could not switch profile');
+const profToggle = (i, on) => profRun(async () => {
+  const was = fm.state.profActive;
+  await fm.setProfileOn(i, on); await sleep(150); await fm.request(CMD.PROFILE_ENABLE);
+  if (fm.profileOn(i) !== on){ toast('The mouse did not change that profile', 1); return; }
+  if (fm.state.profActive !== was) await refresh();
+  toast(on ? `Added ${profName(i)}` : 'Profile removed');
+}, 'Could not change profiles');
+const profRemove = i => profToggle(i, false);
+$('#profAdd').onclick = e => { const i = Number(e.currentTarget.dataset.slot); if (i >= 0) profToggle(i, true); };
+async function profRename(i, value){
+  const name = value.trim();
+  profEdit = null;
+  if (!name || name === (fm.state.profNames?.[i] ?? '')){ profSig = ''; renderProfiles(); return; }
+  await profRun(async () => {
+    await fm.setProfileName(i, name); await sleep(150); await fm.request(CMD.PROFILE_NAME, 700, [i]);
+    toast(`Renamed to ${profName(i)}`);
+  }, 'Could not rename the profile');
+}
+const profColor = (i, c) => profRun(async () => {
+  await fm.setProfileColor(i, c); await sleep(150); await fm.request(CMD.LED_DATA, 700, [i]);
+  toast('Profile color saved');
+}, 'Could not save the color');
+
 function buildInd(list){ buildSeg('#segInd', list, async (v, l) => {
   if (await confirmWrite(() => fm.setIndicator(v), CMD.INDICATOR, 'indicator', v, 'Dongle LED')) toast(`Dongle LED: ${l}`);
   $('#indColorWrap').classList.toggle('hidden', !(v === 2 && fm.fam === 'slx'));
@@ -835,6 +968,7 @@ function show(){
   $('#lightTab').classList.toggle('hidden', !fm.info.recv);
   if ($('#segInd').childElementCount !== (slx ? IND_SLX : IND_ULX).length) buildInd(slx ? IND_SLX : IND_ULX);
   $('#clicksTab').classList.toggle('hidden', !slx);
+  renderProfiles();
   const cur = document.querySelector('#tabs button[aria-pressed=true]');
   if (cur && cur.classList.contains('hidden')) showTab('dpi');
   if (slx) showTmr();
@@ -904,10 +1038,11 @@ async function autoConnect(){
   } catch {}
 }
 
-function makeDemoMouse(slx){
+function makeDemoMouse(slx, recv){
   const st = { pawLod: 2, modeL: 1, modeR: 0, relL: 0, relR: 0, thrL: 30, thrR: 40, hystL: 150, hystR: 150, mspL: 120, mspR: 110, dpi: 1600, rate: 1000, motion: true, lod: 1, indicator: 1, color: [61, 220, 132], jsMode: 0, jsTimeout: 5, soc: 77, mv: 3980, charging: 0, link: 1, rssi: -52 };
+  st.profActive = 0; st.profCount = PROFILE_MAX; st.profMask = 0b00111; st.profNames = ['Default', 'FPS', '', '', '']; st.profLed = [[61, 220, 132], [255, 80, 80], [80, 140, 255], [255, 255, 255], [255, 255, 255]].map(c => ({ mode: 2, brightness: 100, r: c[0], g: c[1], b: c[2] }));
   const ascii = t => [...t].map(c => c.charCodeAt(0));
-  const dev = { vendorId: VID, productId: slx ? 0x310 : 0x100, productName: slx ? 'Starlight X' : 'Ultralight X dongle', opened: false, collections: [{ usagePage: PAGE, usage: 1 }], _l: [],
+  const dev = { vendorId: VID, productId: slx ? (recv ? 0x300 : 0x310) : 0x100, productName: slx ? 'Starlight X' : 'Ultralight X dongle', opened: false, collections: [{ usagePage: PAGE, usage: 1 }], _l: [],
     addEventListener(t, f){ if (t === 'inputreport') this._l.push(f); }, removeEventListener(t, f){ this._l = this._l.filter(x => x !== f); },
     async open(){ this.opened = true; }, async close(){ this.opened = false; },
     async sendReport(id, buf){ const b = Array.from(buf); setTimeout(() => reply(b), 3); } };
@@ -949,6 +1084,25 @@ function makeDemoMouse(slx){
       case 13: out(13, [st.rssi & 255]); break;
       case 12: out(12, ascii('8.0.3\0')); break;
       case 11: out(11, ascii('8.0.3\0')); break;
+      case 57: if (!slx) break; if (get) out(57, [st.profActive, st.profCount]); else if (p[0] < st.profCount && (st.profMask & (1 << p[0]))) st.profActive = p[0]; break;
+      case 63:
+        if (!slx) break;
+        if (get) out(63, [st.profActive, st.profCount, st.profMask]);
+        else if (p[0] < st.profCount){
+          st.profMask = p[1] ? st.profMask | (1 << p[0]) : p[0] === 0 ? st.profMask : st.profMask & ~(1 << p[0]);
+          if (!(st.profMask & (1 << st.profActive))) st.profActive = 0;
+        }
+        break;
+      case 62:
+        if (!slx) break;
+        if (n === 1) out(62, [p[0], ...new TextEncoder().encode(st.profNames[p[0]] ?? ''), 0]);
+        else if (p[0] < PROFILE_MAX) st.profNames[p[0]] = new TextDecoder().decode(new Uint8Array(p.slice(1)));
+        break;
+      case 61:
+        if (!slx) break;
+        if (n === 1){ const l = st.profLed[p[0]]; if (l) out(61, [p[0], l.mode, l.brightness, l.r, l.g, l.b]); }
+        else if (n >= 6 && p[0] < PROFILE_MAX) st.profLed[p[0]] = { mode: p[1], brightness: p[2], r: p[3], g: p[4], b: p[5] };
+        break;
       case 14: out(14, ascii('DEMO-0001\0')); break;
       case 15: out(15, ascii('2025-01-01\0')); break;
     }
@@ -1095,7 +1249,7 @@ $('#heroArt').innerHTML = $('#devArt').innerHTML = MOUSE_ART;
 async function startDemo(){
   document.title += ' (demo)';
   $('#demoBar').classList.remove('hidden');
-  await attach(makeDemoMouse(DEMO_SLX));
+  await attach(makeDemoMouse(DEMO_SLX, DEMO_RECV));
 }
 if (DEMO) startDemo(); else autoConnect();
 </script>
