@@ -700,6 +700,26 @@
   "date": "2026-05-25"
  },
  {
+  "name": "ATK F1 V3 ULTIMATE",
+  "vid": "373b",
+  "pid": "1344",
+  "mark": "f1",
+  "version": "1.1.7",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e5fa09b70db118b39288b38f625beed1.bin",
+  "notes": "Initial Firmware",
+  "date": "2026-11-24"
+ },
+ {
+  "name": "ATK F1 V3 ULTIMATE",
+  "vid": "373b",
+  "pid": "1344",
+  "mark": "f1",
+  "version": "1.1.7",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/e05df3f9a6323404a319f60ecd809d88.bin",
+  "notes": "Initial Firmware",
+  "date": "2026-11-24"
+ },
+ {
   "name": "ATK F1 V3 ULTIMATE +",
   "vid": "373b",
   "pid": "12a7",
@@ -788,6 +808,16 @@
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/b9f437bb5299483d9346bc2774857458.zip",
   "notes": "Headset driver handling",
   "date": "2026-10-27"
+ },
+ {
+  "name": "ATK Mouse 8K Dongle",
+  "vid": "373b",
+  "pid": "11a7",
+  "mark": "dongle",
+  "version": "2.12",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/c335c3863c3fdbbd09d3749c53451f53.bin",
+  "notes": "Daily update",
+  "date": "2026-11-24"
  },
  {
   "name": "ATK N9 V2 PRO",
@@ -1610,16 +1640,6 @@
   "date": "2026-09-28"
  },
  {
-  "name": "MAD R",
-  "vid": "373b",
-  "pid": "132b",
-  "mark": "mad-r",
-  "version": "3.01",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ed488e313ecd163c7bccd9a624af091a.bin",
-  "notes": "Routine update",
-  "date": "2026-09-28"
- },
- {
   "name": "MAD R +",
   "vid": "373b",
   "pid": "104b",
@@ -1648,6 +1668,16 @@
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/daf071e91d8e8abae38af86d723b1cdd.bin",
   "notes": "June update #1:\n\n1. Updated the competitive firmware MAX (20000 fps or higher)",
   "date": "2025-06-20"
+ },
+ {
+  "name": "MAD R+",
+  "vid": "373b",
+  "pid": "132b",
+  "mark": "mad-r",
+  "version": "3.01",
+  "file": "https://bpcdn.atkgear.com/hub-cloud/file/ed488e313ecd163c7bccd9a624af091a.bin",
+  "notes": "Routine update",
+  "date": "2026-09-28"
  },
  {
   "name": "Mouse",
@@ -1998,16 +2028,6 @@
   "file": "https://bpcdn.atkgear.com/hub-cloud/file/3a32d2f1ba49f9f296123636635fba2a.bin",
   "notes": "Routine update",
   "date": "2026-06-03"
- },
- {
-  "name": "VXE V3 NK",
-  "vid": "373b",
-  "pid": "12d2",
-  "mark": "v3",
-  "version": "1.0.20",
-  "file": "https://bpcdn.atkgear.com/hub-cloud/file/51c7c6dce8687f78ad6eed399e38f25a.bin",
-  "notes": "Initial Firmware",
-  "date": "2026-09-30"
  },
  {
   "name": "VXE V3 NK",
