@@ -777,8 +777,8 @@ class Keyboard {
     device.oninputreport = e => this.onInput(new Uint8Array(e.data.buffer));
   }
 
-  frame(commandId, bytes = []){
-    const b = new Uint8Array(SIZE);
+  frame(commandId, bytes = [], size = SIZE){
+    const b = new Uint8Array(size);
     b[0] = commandId;
     bytes.forEach((v, i) => b[BASE + i] = v & 0xFF);
     return b;
@@ -801,10 +801,10 @@ class Keyboard {
     p.resolve(raw);
   }
 
-  send(commandId, bytes){
+  send(commandId, bytes, size){
     const run = async () => {
       if (this.gone) throw new Error('device unavailable');
-      const buf = this.frame(commandId, bytes);
+      const buf = this.frame(commandId, bytes, size);
       log('tx', 'TX  ', hex(buf.slice(0, 14)) + ' …');
       for (let attempt = 0; attempt < 3; attempt++){
         const p = new Promise((resolve, reject) => {
@@ -823,8 +823,8 @@ class Keyboard {
     return this.queue;
   }
 
-  getCustom(channel, extra = []){
-    return this.send(CMD.getKeyboardValue, [CUSTOM, channel, ...extra]);
+  getCustom(channel, extra = [], size){
+    return this.send(CMD.getKeyboardValue, [CUSTOM, channel, ...extra], size);
   }
   setCustom(channel, data){
     return this.send(CMD.setKeyboardValue, [CUSTOM, channel, ...data]);
@@ -1144,7 +1144,7 @@ class Keyboard {
   }
   async swTravel(ids){
     try {
-      const r = await this.getCustom(CH_SW, [0, 0, SW.travel]);
+      const r = await this.getCustom(CH_SW, [0, 0, SW.travel], 384);
       const n = r[6];
       if (n !== ids.length || 7 + 2 * n > r.length) return null;
       const out = new Map();
