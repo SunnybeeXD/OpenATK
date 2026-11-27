@@ -625,7 +625,7 @@ const GP_PRESETS = [
 ];
 
 const CH_SW = 0x10;
-const SW = { getBuf:4, setKey:5, supported:8, travel:9 };
+const SW = { getBuf:4, setKey:5, supported:8, travel:9, keyTravel:10 };
 const SW_TRAVEL_MIN = 500, SW_TRAVEL_MAX = 10000;
 const fmtMm = v => { const t = Number(v.toFixed(2)); return Number.isInteger(t) ? t.toFixed(1) : String(t); };
 const SW_PER_FRAME = 23;
@@ -1154,6 +1154,22 @@ class Keyboard {
         out.set(ids[e], u / 1000);
       }
       return out;
+    } catch { return null; }
+  }
+  async swKeyTravel(ids, matrix){
+    try {
+      const r = await this.getCustom(CH_SW, [0, 0, SW.keyTravel], 384);
+      log('rx', 'SW  ', 'key travel ' + hex(r.slice(0, 40)));
+      const seen = new Map();
+      for (let i = 0; i < matrix.length && 7 + 2 * i < r.length; i++){
+        const u = (r[6 + 2 * i] << 8) | r[7 + 2 * i];
+        if (!u || !ids.includes(matrix[i])) continue;
+        if (u < SW_TRAVEL_MIN || u > SW_TRAVEL_MAX) return null;
+        const prev = seen.get(matrix[i]);
+        seen.set(matrix[i], prev === undefined || prev === u ? u : -1);
+      }
+      const out = new Map([...seen].filter(([, u]) => u > 0).map(([id, u]) => [id, u / 1000]));
+      return out.size ? out : null;
     } catch { return null; }
   }
   async swReadMatrix(){
@@ -2143,6 +2159,7 @@ async function readSwitches(){
     const ids = (await kb.swSupported()).filter(id => SW_BY_ID.has(id));
     if (!ids.length) return;
     hy = { ids, matrix: await kb.swReadMatrix(), busy: false, travel: await kb.swTravel(ids) };
+    hy.travel ??= await kb.swKeyTravel(ids, hy.matrix);
     if (!hy.travel) log('er', 'SW  ', 'switch travel not available, showing no distances');
   } catch { hy = null; log('er', 'SW  ', 'hybrid shaft not available'); return; }
   $('#hyTab').classList.remove('hidden');
