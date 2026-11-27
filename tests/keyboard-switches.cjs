@@ -13,7 +13,7 @@ function load(){
 }
 const api=load();
 const R=5,C=14;
-function fixture({supported=[1,7,8,12],statuses=[],corrupt=false,unsupported=false,travel=[4000,3500,3750,3300],count}={}){
+function fixture({supported=[1,7,8,12],statuses=[],corrupt=false,unsupported=false,travel=[4000,3500,3750,3300],count,keyTravel}={}){
   const sent=[];
   const m=new Array(R*C).fill(1);
   const dev={oninputreport:null,
@@ -24,10 +24,11 @@ function fixture({supported=[1,7,8,12],statuses=[],corrupt=false,unsupported=fal
         const sub=b[5];
         if(sub===8){r[6]=supported.length;supported.forEach((v,i)=>r[7+i]=v);}
         else if(sub===9){r[6]=count??travel.length;travel.forEach((v,i)=>{r[7+2*i]=v>>8;r[8+2*i]=v&255;});}
+        else if(sub===10&&keyTravel){keyTravel.forEach((v,i)=>{r[6+2*i]=v>>8;r[7+2*i]=v&255;});}
         else if(sub===4){const off=(b[6]<<8)|b[7],n=b[8];r[8]=n;for(let k=0;k<n;k++)r[9+k]=m[off+k];}
         else if(sub===5){const s=statuses.length?statuses.shift():0;if(s===0&&!corrupt)m[b[3]*C+b[4]]=b[6];r[7]=s;}
       }
-      setTimeout(()=>dev.oninputreport({data:new DataView(new Uint8Array(r.slice(0,32)).buffer)}),0);
+      setTimeout(()=>dev.oninputreport({data:new DataView(new Uint8Array(r.slice(0,b.length)).buffer)}),0);
     }};
   const kb=new api.Keyboard(dev,{m:[R,C]});
   kb.swWait=0;
@@ -116,8 +117,25 @@ test('bad travel replies are ignored without throwing',async()=>{
   assert.equal(await fixture({travel:[4000,0,3750,3300]}).kb.swTravel(ids),null);
   assert.equal(await fixture({travel:[4000,3500,400,3300]}).kb.swTravel(ids),null);
   assert.equal(await fixture({travel:[4000,3500,3750,10001]}).kb.swTravel(ids),null);
-  const ids30=Array.from({length:30},(_,i)=>i+1);
-  assert.equal(await fixture({travel:new Array(30).fill(3500),count:30}).kb.swTravel(ids30),null);
+  const ids200=Array.from({length:200},(_,i)=>i+1);
+  assert.equal(await fixture({travel:[],count:200}).kb.swTravel(ids200),null);
   const f=fixture();f.kb.getCustom=async()=>{throw new Error('timeout');};
   assert.equal(await f.kb.swTravel(ids),null);
+});
+
+test('per-key travel (sub 10) gives each switch its mm when sub 9 is empty',async()=>{
+  const kt=new Array(R*C).fill(3500);kt[3]=4000;kt[4]=0;
+  const {kb,sent,m}=fixture({keyTravel:kt});
+  m[3]=7;m[4]=8;
+  const t=await kb.swKeyTravel([1,7,8,12],m);
+  assert.equal(hex(sent[0]),'02 96 10 00 00 0a 00 00 00 00');
+  assert.equal(sent[0].length,384);
+  assert.deepEqual([...t],[[1,3.5],[7,4]]);
+});
+test('per-key travel drops switches whose keys disagree and rejects junk',async()=>{
+  const kt=new Array(R*C).fill(3500);kt[5]=3600;
+  assert.equal(await fixture({keyTravel:kt}).kb.swKeyTravel([1],new Array(R*C).fill(1)),null);
+  const bad=new Array(R*C).fill(3500);bad[2]=20000;
+  assert.equal(await fixture({keyTravel:bad}).kb.swKeyTravel([1],new Array(R*C).fill(1)),null);
+  assert.equal(await fixture().kb.swKeyTravel([1],new Array(R*C).fill(1)),null);
 });
