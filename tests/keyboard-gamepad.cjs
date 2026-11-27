@@ -163,7 +163,7 @@ test('targets: ids are unique and HID-only ids are 16..20',()=>{
   assert.ok(ids.includes(96)&&ids.includes(97));
 });
 test('gating: section only for registered keyboards with version >= 2',()=>{
-  assert.match(html,/if \(!kb\.info \|\| !\(kb\.ver >= 2\)\) return;/);
+  assert.match(html,/if \(kb\.info && kb\.ver >= 2\)\{/);
   assert.match(html,/id="padTab" class="hidden"/);
   assert.match(html,/kb\.ver = v;/);
 });

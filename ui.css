@@ -102,6 +102,7 @@ aside{position:sticky;top:20px;display:flex;flex-direction:column;gap:22px;min-w
   border:0;border-radius:6px;background:transparent;color:var(--dim);cursor:pointer;transition:background-color .12s,color .12s}
 .tabs button svg{flex:0 0 auto;width:15px;height:15px;opacity:.7}
 .tabs button:hover{color:var(--ink)}
+.tabs button:disabled{opacity:.45;cursor:progress}
 .tabs button[aria-pressed=true]{color:var(--ink);background:var(--card2)}
 .tabs button[aria-pressed=true] svg{opacity:1}
 .foot,.footer{color:var(--dimmer);font-size:12.5px;margin:0}
