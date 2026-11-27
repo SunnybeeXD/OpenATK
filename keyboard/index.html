@@ -1893,10 +1893,11 @@ async function readAll(){
     keymap = new Array(kb.rows * kb.cols).fill(0x29);
 
   $('#sKeys').textContent = String(allLiveKeys().length);
+  const pre = await probeExtras();
   await readPerKey();
   await readAdvanced();
-  await readGamepad();
-  await readSwitches();
+  await readGamepad(pre.gp);
+  await readSwitches(pre.sw);
   add('Matrix', `${kb.rows} × ${kb.cols}`);
   if (DEMO) info.unshift(['Mode', 'Demo: simulated, not a real device']);
   $('#kv').replaceChildren(...info.map(([k, v]) => {
@@ -2131,34 +2132,53 @@ function gpError(e){
   else toast('Could not write, see activity log', 1);
 }
 
-async function readGamepad(){
+function tabState(id, state){
+  const b = $(id);
+  b.classList.toggle('hidden', state === 'off');
+  b.disabled = state === 'loading';
+}
+
+async function probeExtras(){
+  gp = null; hy = null;
+  const pre = { gp: null, sw: null };
+  tabState('#padTab', 'off');
+  tabState('#hyTab', 'off');
+  if (kb.info && kb.ver >= 2){
+    try { pre.gp = await kb.gpConfig(); tabState('#padTab', 'loading'); }
+    catch { log('er', 'GP  ', 'controller mode not available'); }
+  }
+  const min = SW_MIN_FW[kb.info?.n];
+  if (min === undefined || kb.ver >= min){
+    try {
+      const ids = (await kb.swSupported()).filter(id => SW_BY_ID.has(id));
+      if (ids.length){ pre.sw = ids; tabState('#hyTab', 'loading'); }
+    } catch { log('er', 'SW  ', 'hybrid shaft not available'); }
+  }
+  return pre;
+}
+
+async function readGamepad(cfg){
   gp = null;
-  $('#padTab').classList.add('hidden');
-  if (!kb.info || !(kb.ver >= 2)) return;
+  if (!cfg) return;
   try {
-    const cfg = await kb.gpConfig();
     const map = new Map();
     for (const i of allLiveKeys()){
       const [r, c] = gpPos(i);
       try { const id = await kb.gpGetMap(r, c); if (id) map.set(i, id); } catch {}
     }
     gp = { cfg, map, curves: [null, null, null, null], stick: 0, curve: 0, view: 'map' };
-  } catch { log('er', 'GP  ', 'controller mode not available'); return; }
-  $('#padTab').classList.remove('hidden');
+  } catch { tabState('#padTab', 'off'); log('er', 'GP  ', 'controller mode not available'); return; }
+  tabState('#padTab', 'on');
   renderGp();
 }
 
 let hy = null;
 const hyShort = id => SW_BY_ID.get(id)?.[1] ?? '';
 
-async function readSwitches(){
+async function readSwitches(ids){
   hy = null;
-  $('#hyTab').classList.add('hidden');
-  const min = SW_MIN_FW[kb.info?.n];
-  if (min !== undefined && !(kb.ver >= min)) return;
+  if (!ids) return;
   try {
-    const ids = (await kb.swSupported()).filter(id => SW_BY_ID.has(id));
-    if (!ids.length) return;
     hy = { ids, matrix: await kb.swReadMatrix(), busy: false, travel: await kb.swTravel(ids) };
     hy.travel ??= await kb.swKeyTravel(ids, hy.matrix);
     if (!hy.travel){
@@ -2166,8 +2186,8 @@ async function readSwitches(){
       hy.spec = true;
       log('er', 'SW  ', 'keyboard does not report switch travel, showing spec sheet values');
     }
-  } catch { hy = null; log('er', 'SW  ', 'hybrid shaft not available'); return; }
-  $('#hyTab').classList.remove('hidden');
+  } catch { hy = null; tabState('#hyTab', 'off'); log('er', 'SW  ', 'hybrid shaft not available'); return; }
+  tabState('#hyTab', 'on');
   renderHy();
 }
 
