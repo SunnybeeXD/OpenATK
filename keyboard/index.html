@@ -59,6 +59,24 @@ select{width:100%}
 .sheet .gridbar{margin-top:18px}
 .field{display:flex;gap:10px;align-items:center;margin-top:10px}
 .field label{flex:0 0 auto;width:104px;font-size:12.5px;color:var(--dim)}
+.key.masked{opacity:.3;cursor:not-allowed}
+.gpbody.blocked{opacity:.45;pointer-events:none}
+.item .gpgroup{margin:16px 0 8px}
+.gppal{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.gppal button{border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font:500 12px/1.25 var(--sans);
+  padding:9px 6px;cursor:pointer;min-height:40px}
+.gppal button:hover{border-color:var(--dimmer)}
+.gppal button:disabled{opacity:.4;cursor:not-allowed}
+.gpdesc{margin:8px 0 0;font-size:12.5px;color:var(--dim)}
+.gpdesc b{color:var(--ink);font-weight:600}
+.gpcurve{width:100%;max-width:520px;height:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card);margin-top:12px;display:block}
+.gppre{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin-top:12px}
+.gppre button{border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--dim);font:500 12px var(--sans);padding:6px;cursor:pointer}
+.gppre button:hover{border-color:var(--dimmer);color:var(--ink)}
+.gppre svg{display:block;width:100%;height:34px;margin-bottom:4px}
+.gppts{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 10px;align-items:center;margin-top:12px;max-width:360px;font-size:12.5px;color:var(--dim)}
+.gppts input{width:100%}
+.gpdone{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 @media (max-width:1100px){.cols.two{grid-template-columns:1fr}}
 </style>
 </head>
@@ -125,6 +143,7 @@ select{width:100%}
       <button data-tab="keys" aria-pressed="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M12 8.5v5.5M9.3 11.6 12 14.3l2.7-2.7"/></svg>Keys</button>
       <button data-tab="board" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/></svg>Keyboard</button>
       <button data-tab="adv" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 5.5 13H11l-1 8 7.5-10H12l1-8Z"/></svg>Advanced</button>
+      <button data-tab="pad" id="padTab" class="hidden" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7.5 10.5v4M5.5 12.5h4M16 11.2h.01M18 13.8h.01"/></svg>Controller</button>
       <button data-tab="light" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>Lighting</button>
       <button data-tab="device" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></svg>Device</button>
     </nav>
@@ -286,6 +305,90 @@ select{width:100%}
       </div>
     </div>
   </section>
+
+    <section class="panel hidden" data-panel="pad">
+      <div class="phead"><div><h2>Controller Mode</h2><p>Make the keyboard act as a gamepad. Keys output buttons, triggers and stick directions.</p></div></div>
+      <div class="item row">
+        <div><div class="t">Simulated gamepad switch</div>
+          <div class="d">Turn the simulated gamepad on or off. Settings below apply while it is on.</div></div>
+        <input type="checkbox" class="sw" id="gpEnabled" aria-label="Simulated gamepad switch">
+      </div>
+      <div class="heads hidden" id="gpGone"><span>&#9888;</span><div><b>The keyboard is restarting</b>
+        Changing the input mode makes the keyboard disconnect. Writes are paused. Press Connect to reconnect it.</div></div>
+      <div class="seg" id="segGpTab"></div>
+      <p class="note hidden" id="gpOffNote">Turn the simulated gamepad switch on first to configure mappings and sticks.</p>
+      <div class="gpbody" id="gpBody">
+      <div id="gpMapPane">
+        <div class="boardslot"></div>
+        <div class="cols two">
+          <div>
+            <div class="item">
+              <div class="t">Input mode</div>
+              <div class="d">How the PC sees the keyboard. Changing it restarts the keyboard.</div>
+              <div class="seg" id="segGpMode"></div>
+            </div>
+            <div class="item">
+              <div class="t">Key output mode</div>
+              <select id="gpKeyOut" style="margin-top:10px"></select>
+              <p class="gpdesc"><b>Normal.</b> Mixed input between mapped keys and keyboard key values.</p>
+              <p class="gpdesc"><b>Override Mapped Keys.</b> Mapped gamepad buttons override keyboard key values. Mapped keys have higher priority than keyboard key values.</p>
+              <p class="gpdesc"><b>Disable All.</b> Disable keyboard input. Only mapped gamepad buttons can output in this mode. It is recommended to set a Select/Start button or shortcut to switch the keyboard back, so you can exit a game.</p>
+            </div>
+            <div class="item">
+              <div class="t">Assign to selected keys</div>
+              <div class="d" id="gpHint">Select keys on the board, then pick a target. Dimmed keys already have a remap or advanced binding and cannot be mapped.</div>
+              <h3 class="advh gpgroup">Buttons and triggers</h3><div class="gppal" id="gpPalB"></div>
+              <h3 class="advh gpgroup">Joystick</h3><div class="gppal" id="gpPalS"></div>
+            </div>
+          </div>
+          <div>
+            <h3 class="advh">Configured keys <span id="gpCount">0</span></h3>
+            <div id="gpList"></div>
+            <div class="gridbar"><button class="btn ghost" id="gpClear">Clear all mappings</button>
+              <button class="btn ghost" id="gpReread">Re-read</button></div>
+          </div>
+        </div>
+      </div>
+      <div id="gpStickPane" class="hidden">
+        <div class="cols two">
+          <div>
+            <div class="item">
+              <div class="t">Curve</div>
+              <div class="d">Output value against key press depth. Four control points per curve.</div>
+              <div class="seg" id="segGpCurve"></div>
+              <svg class="gpcurve" id="gpCurveSvg" viewBox="0 0 520 260" role="img" aria-label="Response curve"></svg>
+              <div class="gppts" id="gpPts"></div>
+              <div class="gridbar"><button class="btn ghost" id="gpApplyPts">Apply points</button></div>
+            </div>
+          </div>
+          <div>
+            <div class="item">
+              <div class="t">Preset curves</div>
+              <div class="gppre" id="gpPresets"></div>
+              <p class="note">A preset replaces the curve selected on the left.</p>
+            </div>
+            <div class="item">
+              <div class="t">Stick settings</div>
+              <div class="seg" id="segGpStick"></div>
+              <div class="slider">
+                <span class="lbl">Synthetic angle</span>
+                <input type="range" id="gpAngle" min="0" max="90" step="1" value="45">
+                <output id="gpAngleOut">45</output>
+              </div>
+              <div class="item row">
+                <div><div class="t">Square gate output</div></div>
+                <input type="checkbox" class="sw" id="gpSquare" aria-label="Square gate output">
+              </div>
+              <div class="item row">
+                <div><div class="t">Extreme priority stick</div></div>
+                <input type="checkbox" class="sw" id="gpExtreme" aria-label="Extreme priority stick">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
 
     <section class="panel hidden" data-panel="light">
       <div class="phead"><div><h2>Lighting</h2><p>Backlight, zones and indicator colours.</p></div></div>
@@ -465,6 +568,36 @@ const TAPDANCE_SET = 0x02;
 const SUB_GET = 1;
 const SUB_SET = 3;
 const SLOTS = 20;
+const CH_GP = 0x4C;
+const GP = { mode:0, map:1, clear:2, config:3, angle:4, square:5, extreme:6, keyOut:7, enabled:8, curve:9 };
+const GP_TARGETS = [
+  [1,'Button A','Btn1','A','b'],[2,'Button B','Btn2','B','b'],[3,'Button X','Btn3','X','b'],[4,'Button Y','Btn4','Y','b'],
+  [5,'Left Shoulder (LB)','Btn5','LB','b'],[6,'Right Shoulder (RB)','Btn6','RB','b'],
+  [7,'Back (View)','Btn7','View','b'],[8,'Start (Menu)','Btn8','Menu','b'],[9,'Home','Btn9','Home','b'],
+  [10,'Left Stick Press (L3)','Btn10','L3','b'],[11,'Right Stick Press (R3)','Btn11','R3','b'],
+  [16,'Btn12','Btn12','B12','h'],[17,'Btn13','Btn13','B13','h'],[18,'Btn14','Btn14','B14','h'],
+  [19,'Btn15','Btn15','B15','h'],[20,'Btn16','Btn16','B16','h'],
+  [14,'D-Pad Left','Hat-left','DP\nLeft','b'],[12,'D-Pad Up','Hat-up','DP\nUp','b'],
+  [15,'D-Pad Right','Hat-right','DP\nRight','b'],[13,'D-Pad Down','Hat-down','DP\nDown','b'],
+  [96,'Left Trigger (LT)','LT','LT','b'],[97,'Right Trigger (RT)','RT','RT','b'],
+  [80,'Left Stick Left','L-left','LS\nLeft','s'],[65,'Left Stick Up','L-up','LS\nUp','s'],
+  [64,'Left Stick Right','L-right','LS\nRight','s'],[81,'Left Stick Down','L-down','LS\nDown','s'],
+  [82,'Right Stick Left','R-left','RS\nLeft','s'],[67,'Right Stick Up','R-up','RS\nUp','s'],
+  [66,'Right Stick Right','R-right','RS\nRight','s'],[83,'Right Stick Down','R-down','RS\nDown','s'],
+];
+const GP_BY_ID = new Map(GP_TARGETS.map(t => [t[0], t]));
+const GP_KEYOUT = [[0,'Normal'],[1,'Override Mapped Keys'],[2,'Disable All']];
+const GP_CURVES = ['Left Stick','Right Stick','Left Trigger','Right Trigger'];
+const GP_XMAX = 3300;
+const GP_PRESETS = [
+  ['Linear',[100,1089,2178,3300],[20,85,170,255]],
+  ['Aggressive',[100,561,1254,3300],[20,140,220,255]],
+  ['Slow',[100,2013,2805,3300],[20,60,150,255]],
+  ['Smooth',[100,1056,2310,3300],[20,30,225,255]],
+  ['Steep',[100,462,858,3300],[20,200,240,255]],
+  ['Instant',[100,165,264,3300],[20,255,255,255]],
+  ['Turbo',[100,363,660,3300],[20,180,250,255]],
+];
 
 const MODE = { none:0, rs:1, socd:2, socdKey1:3, socdKey2:4, socdNeutral:5,
                oks:6, aksKey1:7, aksKey2:8, aksNeutral:9 };
@@ -614,6 +747,7 @@ class Keyboard {
 
   send(commandId, bytes){
     const run = async () => {
+      if (this.gone) throw new Error('device unavailable');
       const buf = this.frame(commandId, bytes);
       log('tx', 'TX  ', hex(buf.slice(0, 14)) + ' …');
       for (let attempt = 0; attempt < 3; attempt++){
@@ -839,6 +973,107 @@ class Keyboard {
     return this.send(CMD.setKeyboardValue, b);
   }
 
+  gpGet(sub, row = 0, col = 0){ return this.getCustom(CH_GP, [row, col, sub]); }
+  gpSet(sub, row, col, payload = []){ return this.setCustom(CH_GP, [row, col, sub, ...payload]); }
+
+  gpCheckPos(row, col){
+    if (!Number.isInteger(row) || !Number.isInteger(col) || row < 0 || col < 0 || row >= this.rows || col >= this.cols)
+      throw new Error('key position out of range');
+  }
+
+  async gpConfig(){
+    const r = await this.gpGet(GP.config);
+    const at = o => r[BASE + 5 + o];
+    const cfg = { mode: at(0) || 2, angle: [at(1), at(2)], square: [at(3), at(4)],
+                  extreme: [at(5), at(6)], keyOut: at(7), enabled: at(8) };
+    const flag = v => v === 0 || v === 1;
+    if (![1, 2].includes(cfg.mode) || !cfg.angle.every(a => a <= 90) || !cfg.square.every(flag)
+        || !cfg.extreme.every(flag) || cfg.keyOut > 2 || !flag(cfg.enabled))
+      throw new Error('unexpected controller config reply');
+    return cfg;
+  }
+
+  async gpWrite(sub, stick, value, check){
+    await this.gpSet(sub, stick, 0, [value]);
+    const cfg = await this.gpConfig();
+    if (!check(cfg)) throw new Error('read-back mismatch');
+    return cfg;
+  }
+  async gpSetEnabled(on){
+    const v = on === true ? 1 : on === false ? 0 : null;
+    if (v === null) throw new Error('bad value');
+    return this.gpWrite(GP.enabled, 0, v, c => c.enabled === v);
+  }
+  async gpSetKeyOut(v){
+    if (![0, 1, 2].includes(v)) throw new Error('bad key output mode');
+    return this.gpWrite(GP.keyOut, 0, v, c => c.keyOut === v);
+  }
+  async gpSetAngle(stick, deg){
+    if (![0, 1].includes(stick) || !Number.isInteger(deg) || deg < 0 || deg > 90) throw new Error('bad angle');
+    return this.gpWrite(GP.angle, stick, deg, c => c.angle[stick] === deg);
+  }
+  async gpSetFlag(sub, stick, on){
+    if (![GP.square, GP.extreme].includes(sub) || ![0, 1].includes(stick) || typeof on !== 'boolean') throw new Error('bad value');
+    const key = sub === GP.square ? 'square' : 'extreme', v = on ? 1 : 0;
+    return this.gpWrite(sub, stick, v, c => c[key][stick] === v);
+  }
+  async gpSetMode(v){
+    if (v !== 1 && v !== 2) throw new Error('bad input mode');
+    try {
+      await this.setCustom(CH.restart, [1]);
+      await this.gpSet(GP.mode, 0, 0, [v]);
+      const cfg = await this.gpConfig();
+      if (cfg.mode !== v) throw new Error('read-back mismatch');
+    } catch (e){ this.gone = true; throw e; }
+  }
+
+  gpIdOk(id, hid){
+    const t = GP_BY_ID.get(id);
+    return id === 0 || (!!t && (t[4] !== 'h' || hid === true));
+  }
+  async gpGetMap(row, col){
+    this.gpCheckPos(row, col);
+    const r = await this.gpGet(GP.map, row, col);
+    return r[BASE + 5];
+  }
+  async gpSetMap(row, col, id, hid){
+    this.gpCheckPos(row, col);
+    if (!this.gpIdOk(id, hid)) throw new Error('bad target');
+    await this.gpSet(GP.map, row, col, [id]);
+    const got = await this.gpGetMap(row, col);
+    if (got !== id) throw new Error('read-back mismatch');
+  }
+  async gpClearAll(positions){
+    await this.gpSet(GP.clear, 0, 0);
+    for (const [r, c] of positions)
+      if (await this.gpGetMap(r, c) !== 0) throw new Error('read-back mismatch');
+  }
+
+  gpCheckCurve(i, pts){
+    if (![0, 1, 2, 3].includes(i)) throw new Error('bad curve');
+    if (!Array.isArray(pts) || pts.length !== 4) throw new Error('a curve needs 4 points');
+    pts.forEach((p, k) => {
+      if (!p || !Number.isInteger(p.x) || p.x < 0 || p.x > GP_XMAX) throw new Error(`point ${k + 1}: depth must be 0 to 3.3 mm`);
+      if (!Number.isInteger(p.y) || p.y < 0 || p.y > 255) throw new Error(`point ${k + 1}: output must be 0 to 255`);
+      if (k && p.x < pts[k - 1].x) throw new Error('points must go left to right');
+    });
+  }
+  async gpGetCurve(i){
+    const r = await this.gpGet(GP.curve, i);
+    const pts = [0, 1, 2, 3].map(k => {
+      const o = BASE + 5 + 3 * k;
+      return { x: r[o] | (r[o + 1] << 8), y: r[o + 2] };
+    });
+    this.gpCheckCurve(i, pts);
+    return pts;
+  }
+  async gpSetCurve(i, pts){
+    this.gpCheckCurve(i, pts);
+    await this.gpSet(GP.curve, i, 0, pts.flatMap(p => [p.x & 255, p.x >> 8, p.y]));
+    const got = await this.gpGetCurve(i);
+    if (got.some((p, k) => p.x !== pts[k].x || p.y !== pts[k].y)) throw new Error('read-back mismatch');
+  }
+
   async getKeymap(){
     const total = this.rows * this.cols * 2;
     const out = [];
@@ -907,14 +1142,19 @@ function renderGrid(){
       b.className = 'key';
       b.style.flexGrow = String(w);
       if (selected.has(k.i)) b.classList.add('sel');
-      const label = keyLabel(keymap[k.i]);
+      const gpOn = curTab === 'pad' && gp;
+      const gid = gpOn ? gp.map.get(k.i) : 0;
+      const masked = gpOn && !gid && gpMasked(k.i);
+      const label = gid ? gpShort(gid) : keyLabel(keymap[k.i]);
+      b.disabled = !!masked;
+      b.classList.toggle('masked', !!masked);
       const t = travelValues[k.i];
       const rt = rtValues[k.i];
       b.innerHTML =
         `<em>${t != null ? t.toFixed(2) : ''}</em>` +
         `<span>${label}</span>` +
         `<i>${rt && rt.on ? `${rt.press.toFixed(2)}/${rt.release.toFixed(2)}` : ''}</i>`;
-      b.title = `row ${r}, col ${k.c}`;
+      b.title = `row ${r}, col ${k.c}` + (masked ? ' (has a remap or advanced binding)' : '');
       b.onclick = () => {
         if (selected.has(k.i)) selected.delete(k.i); else selected.add(k.i);
         renderGrid();
@@ -1442,7 +1682,7 @@ async function readAll(){
   const add = (k, v) => info.push([k, v]);
 
   try { add('Protocol', await kb.getProtocolVersion()); } catch {}
-  try { const v = await kb.getVersion(); kb.v2 = v >= 2.1; add('Firmware', v.toFixed(2)); $('#sFw').textContent = v.toFixed(2); } catch {}
+  try { const v = await kb.getVersion(); kb.ver = v; kb.v2 = v >= 2.1; add('Firmware', v.toFixed(2)); $('#sFw').textContent = v.toFixed(2); } catch {}
   try { limits = await kb.getTravelInfo();
         add('Travel range', `${limits.travelMin}–${limits.travelMax} mm`);
         add('RT range', `${limits.rtMin}–${limits.rtMax} mm`);
@@ -1516,6 +1756,7 @@ async function readAll(){
   $('#sKeys').textContent = String(allLiveKeys().length);
   await readPerKey();
   await readAdvanced();
+  await readGamepad();
   add('Matrix', `${kb.rows} × ${kb.cols}`);
   if (DEMO) info.unshift(['Mode', 'Demo: simulated, not a real device']);
   $('#kv').replaceChildren(...info.map(([k, v]) => {
@@ -1558,6 +1799,7 @@ async function applyToSelection(fn, label){
 }
 
 function showTab(name){
+  curTab = name;
   for (const b of document.querySelectorAll('#tabs button'))
     b.setAttribute('aria-pressed', String(b.dataset.tab === name));
   for (const p of document.querySelectorAll('.panel'))
@@ -1566,6 +1808,11 @@ function showTab(name){
   if (slot && $('#board').parentElement !== slot) slot.append($('#board'));
   $('#grid').classList.toggle('plain', name !== 'keys');
   $('#board').classList.toggle('plain', name !== 'keys');
+  if (kb){
+    if (name === 'pad') selected = new Set([...selected].filter(i => !gpMasked(i)));
+    renderGrid(); updateSelectionCount();
+  }
+  if (name === 'pad' && gp && gp.view === 'stick') gpLoadCurve();
 }
 
 let advSlots = [];
@@ -1728,7 +1975,265 @@ async function addAdvanced(){
   } catch (e) { if (!e?.shown) toast('Could not write — see activity log', 1); }
 }
 
+let gp = null;
+let curTab = 'keys';
+let angleTimer;
+
+const gpHid = () => gp?.cfg.mode === 1;
+const gpTargetName = id => { const t = GP_BY_ID.get(id); return t ? (gpHid() ? t[2] : t[1]) : `Target 0x${id.toString(16)}`; };
+const gpShort = id => (GP_BY_ID.get(id)?.[3] ?? `0x${id.toString(16)}`);
+const gpPos = i => [Math.floor(i / kb.cols), i % kb.cols];
+function gpMasked(i){
+  return advSlots.some(s => s && s.mode && [s.key1, s.key2].some(p => p[0] * kb.cols + p[1] === i));
+}
+function gpError(e){
+  if (e?.message === 'read-back mismatch') toast('Keyboard did not keep the value, nothing changed', 1);
+  else toast('Could not write, see activity log', 1);
+}
+
+async function readGamepad(){
+  gp = null;
+  $('#padTab').classList.add('hidden');
+  if (!kb.info || !(kb.ver >= 2)) return;
+  try {
+    const cfg = await kb.gpConfig();
+    const map = new Map();
+    for (const i of allLiveKeys()){
+      const [r, c] = gpPos(i);
+      try { const id = await kb.gpGetMap(r, c); if (id) map.set(i, id); } catch {}
+    }
+    gp = { cfg, map, curves: [null, null, null, null], stick: 0, curve: 0, view: 'map' };
+  } catch { log('er', 'GP  ', 'controller mode not available'); return; }
+  $('#padTab').classList.remove('hidden');
+  renderGp();
+}
+
+function gpFill(host, ids){
+  const el = $(host);
+  el.replaceChildren(...ids.map(id => {
+    const b = document.createElement('button');
+    b.textContent = gpTargetName(id).replace('\n', ' ');
+    b.dataset.id = String(id);
+    b.onclick = () => gpApply(id);
+    return b;
+  }));
+}
+
+function renderGp(){
+  if (!gp) return;
+  const c = gp.cfg;
+  $('#gpEnabled').checked = !!c.enabled;
+  $('#gpBody').classList.toggle('blocked', !c.enabled);
+  $('#gpOffNote').classList.toggle('hidden', !!c.enabled);
+  mark('#segGpTab', gp.view);
+  $('#gpMapPane').classList.toggle('hidden', gp.view !== 'map');
+  $('#gpStickPane').classList.toggle('hidden', gp.view !== 'stick');
+  mark('#segGpMode', c.mode);
+  $('#gpKeyOut').value = String(c.keyOut);
+  const vis = t => t[4] === 's' ? false : (t[4] === 'b' || gpHid());
+  gpFill('#gpPalB', GP_TARGETS.filter(t => t[4] !== 's' && vis(t)).map(t => t[0]));
+  gpFill('#gpPalS', GP_TARGETS.filter(t => t[4] === 's').map(t => t[0]));
+  mark('#segGpStick', gp.stick);
+  mark('#segGpCurve', gp.curve);
+  $('#gpAngle').value = String(c.angle[gp.stick]);
+  $('#gpAngleOut').textContent = `${c.angle[gp.stick]}°${c.angle[gp.stick] === 45 ? ' (default)' : ''}`;
+  $('#gpSquare').checked = !!c.square[gp.stick];
+  $('#gpExtreme').checked = !!c.extreme[gp.stick];
+  renderGpList();
+  renderGpCurve();
+  if (curTab === 'pad') renderGrid();
+}
+
+function renderGpList(){
+  const host = $('#gpList');
+  const rows = [...gp.map].sort((a, b) => a[0] - b[0]);
+  $('#gpCount').textContent = String(rows.length);
+  if (!rows.length){ host.innerHTML = '<div class="advempty">No mapping. Select a key on the board, then pick a target.</div>'; return; }
+  host.replaceChildren(...rows.map(([i, id]) => {
+    const row = document.createElement('div');
+    row.className = 'advrow';
+    const who = document.createElement('div');
+    who.className = 'who';
+    const b = document.createElement('b');
+    b.textContent = (keyLabel(keymap[i] ?? 0) || '?').replace('\n', ' ');
+    const sm = document.createElement('small');
+    sm.textContent = gpTargetName(id);
+    who.append(b, sm);
+    const rm = document.createElement('button');
+    rm.className = 'btn ghost';
+    rm.textContent = 'Delete';
+    rm.title = 'Delete this mapping';
+    rm.onclick = () => gpUnmap(i);
+    row.append(who, rm);
+    return row;
+  }));
+}
+
+async function gpApply(id){
+  const keys = [...selected].filter(i => !gpMasked(i));
+  if (!keys.length){ toast('Select at least one key that is not dimmed', 1); return; }
+  let ok = 0;
+  try {
+    for (const i of keys){
+      const [r, c] = gpPos(i);
+      await kb.gpSetMap(r, c, id, gpHid());
+      gp.map.set(i, id); ok++;
+    }
+    selected = new Set(); updateSelectionCount();
+    toast(`${gpTargetName(id)} mapped to ${ok} key${ok === 1 ? '' : 's'}`);
+  } catch (e){ gpError(e); }
+  renderGp();
+}
+
+async function gpUnmap(i){
+  try {
+    const [r, c] = gpPos(i);
+    await kb.gpSetMap(r, c, 0, gpHid());
+    gp.map.delete(i);
+    toast('Mapping deleted');
+  } catch (e){ gpError(e); }
+  renderGp();
+}
+
+async function gpClearAll(){
+  if (!gp.map.size){ toast('Nothing to clear'); return; }
+  if (!confirm('Are you sure you want to clear all gamepad mappings?')) return;
+  try {
+    await kb.gpClearAll(allLiveKeys().map(gpPos));
+    gp.map.clear();
+    toast('All mappings cleared');
+  } catch (e){ gpError(e); await rereadGpMap(); }
+  renderGp();
+}
+
+async function rereadGpMap(){
+  gp.map = new Map();
+  for (const i of allLiveKeys()){
+    const [r, c] = gpPos(i);
+    try { const id = await kb.gpGetMap(r, c); if (id) gp.map.set(i, id); } catch {}
+  }
+}
+
+async function gpChangeMode(v){
+  if (v === gp.cfg.mode) return;
+  if (!confirm('The keyboard will disconnect and reconnect. Continue?')) return;
+  try {
+    await kb.gpSetMode(v);
+    gp.cfg.mode = v;
+    toast(v === 1 ? 'HID mode' : 'Xbox mode');
+  } catch {
+    $('#gpGone').classList.remove('hidden');
+    $('#status').className = 'status off';
+    $('#status').textContent = 'Reconnect needed';
+    toast('The keyboard is restarting, reconnect it', 1);
+  }
+  renderGp();
+}
+
+async function gpSetCfg(fn){
+  try { gp.cfg = await fn(); }
+  catch (e){ gpError(e); try { gp.cfg = await kb.gpConfig(); } catch {} }
+  renderGp();
+}
+
+function gpCurveSvg(pts, w, h, thumb){
+  const X = x => (thumb ? 2 : 40) + (x / GP_XMAX) * (w - (thumb ? 4 : 52));
+  const Y = y => (thumb ? 2 : 12) + (1 - y / 255) * (h - (thumb ? 4 : 40));
+  const line = [[0, 0], ...pts.map(p => [p.x, p.y])];
+  if (pts[3].x < GP_XMAX) line.push([GP_XMAX, pts[3].y]);
+  const d = line.map(([x, y], k) => `${k ? 'L' : 'M'}${X(x).toFixed(1)} ${Y(y).toFixed(1)}`).join('');
+  let out = '';
+  if (!thumb){
+    for (let k = 0; k <= 4; k++){
+      const gy = Y(k * 63.75);
+      out += `<line x1="${X(0)}" x2="${X(GP_XMAX)}" y1="${gy}" y2="${gy}" stroke="var(--line)"/>`
+           + `<text x="34" y="${gy + 4}" text-anchor="end" font-size="10" fill="var(--dimmer)">${Math.round(k * 63.75)}</text>`;
+    }
+    for (let k = 0; k <= 3; k++){
+      const gx = X(k * 1100);
+      out += `<line y1="${Y(255)}" y2="${Y(0)}" x1="${gx}" x2="${gx}" stroke="var(--line)"/>`
+           + `<text x="${gx}" y="${h - 14}" text-anchor="middle" font-size="10" fill="var(--dimmer)">${(k * 1.1).toFixed(1)}</text>`;
+    }
+    out += `<text x="${w / 2}" y="${h - 2}" text-anchor="middle" font-size="10" fill="var(--dim)">Key press depth (mm)</text>`;
+    out += pts.map(p => `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="5" fill="var(--acc)"/>`).join('');
+  }
+  return `${out}<path d="${d}" fill="none" stroke="var(--acc)" stroke-width="${thumb ? 2 : 2.5}"/>`;
+}
+
+function renderGpCurve(){
+  const pts = gp.curves[gp.curve];
+  const pre = $('#gpPresets');
+  if (!pre.children.length){
+    pre.replaceChildren(...GP_PRESETS.map(([name, xs, ys], n) => {
+      const b = document.createElement('button');
+      b.innerHTML = `<svg viewBox="0 0 80 34" aria-hidden="true">${gpCurveSvg(xs.map((x, k) => ({ x, y: ys[k] })), 80, 34, true)}</svg>`;
+      b.append(name);
+      b.onclick = () => gpSaveCurve(xs.map((x, k) => ({ x, y: ys[k] })));
+      return b;
+    }));
+  }
+  $('#gpCurveSvg').innerHTML = pts ? gpCurveSvg(pts, 520, 260, false) : '';
+  const host = $('#gpPts');
+  if (!pts){ host.innerHTML = '<span class="note">Curve not read yet.</span>'; return; }
+  host.innerHTML = '<span></span><span>Depth (mm)</span><span>Output (0-255)</span>' + pts.map((p, k) =>
+    `<span>Point ${k + 1}</span><input type="number" min="0" max="3.3" step="0.001" id="gpX${k}" value="${(p.x / 1000).toFixed(3)}">` +
+    `<input type="number" min="0" max="255" step="1" id="gpY${k}" value="${p.y}">`).join('');
+}
+
+async function gpLoadCurve(){
+  const i = gp.curve;
+  if (gp.curves[i]) return;
+  try { gp.curves[i] = await kb.gpGetCurve(i); } catch { toast('Could not read this curve', 1); }
+  renderGpCurve();
+}
+
+async function gpSaveCurve(pts){
+  const i = gp.curve;
+  try {
+    await kb.gpSetCurve(i, pts);
+    gp.curves[i] = pts;
+    toast(`${GP_CURVES[i]} curve saved`);
+  } catch (e){
+    if (e?.message === 'read-back mismatch') gpError(e);
+    else if (/^(point|a curve|bad curve|points)/.test(e?.message ?? '')) toast(e.message, 1);
+    else gpError(e);
+    gp.curves[i] = null;
+    await gpLoadCurve();
+  }
+  renderGpCurve();
+}
+
+function gpApplyPoints(){
+  const pts = [0, 1, 2, 3].map(k => ({ x: Math.round(parseFloat($(`#gpX${k}`).value) * 1000), y: Math.round(parseFloat($(`#gpY${k}`).value)) }));
+  try { kb.gpCheckCurve(gp.curve, pts); } catch (e){ toast(e.message, 1); return; }
+  gpSaveCurve(pts);
+}
+
+function wireGp(){
+  buildSeg('#segGpTab', [['map', 'Layout and mapping'], ['stick', 'Stick settings']], v => {
+    gp.view = v; renderGp(); if (v === 'stick') gpLoadCurve(); });
+  buildSeg('#segGpMode', [[2, 'Xbox'], [1, 'HID']], () => {});
+  for (const b of $('#segGpMode').children) b.onclick = () => gpChangeMode(+b.dataset.value);
+  buildSeg('#segGpStick', [[0, 'Left stick'], [1, 'Right stick']], v => { gp.stick = v; renderGp(); });
+  buildSeg('#segGpCurve', GP_CURVES.map((n, k) => [k, n]), async v => { gp.curve = v; renderGp(); await gpLoadCurve(); });
+  fillSelect('#gpKeyOut', GP_KEYOUT);
+  $('#gpEnabled').onchange = e => gpSetCfg(() => kb.gpSetEnabled(e.target.checked));
+  $('#gpKeyOut').onchange = e => gpSetCfg(() => kb.gpSetKeyOut(+e.target.value));
+  $('#gpAngle').oninput = e => {
+    const v = +e.target.value;
+    $('#gpAngleOut').textContent = `${v}°${v === 45 ? ' (default)' : ''}`;
+    clearTimeout(angleTimer);
+    angleTimer = setTimeout(() => gpSetCfg(() => kb.gpSetAngle(gp.stick, v)), 200);
+  };
+  $('#gpSquare').onchange = e => gpSetCfg(() => kb.gpSetFlag(GP.square, gp.stick, e.target.checked));
+  $('#gpExtreme').onchange = e => gpSetCfg(() => kb.gpSetFlag(GP.extreme, gp.stick, e.target.checked));
+  $('#gpClear').onclick = gpClearAll;
+  $('#gpReread').onclick = async () => { await rereadGpMap(); renderGp(); };
+  $('#gpApplyPts').onclick = gpApplyPoints;
+}
+
 function wire(){
+  wireGp();
   for (const b of document.querySelectorAll('#tabs button'))
     b.onclick = () => showTab(b.dataset.tab);
 
@@ -1885,6 +2390,10 @@ function wire(){
 
 function disconnected(){
   kb = null;
+  gp = null;
+  curTab = 'keys';
+  $('#padTab').classList.add('hidden');
+  $('#gpGone').classList.add('hidden');
   selected = new Set();
   keymap = [];
   closeAdv();
@@ -1920,7 +2429,8 @@ function makeDemoKeyboard(){
   const keymap = new Array(R * C).fill(0);
   rows.forEach((row, r) => row.forEach((code, c) => keymap[r * C + c] = code));
   const st = { travel: {}, rt: {}, feature: [0, 0, 0, 0, 1, 0], flags: { 0x1E: 0, 0x1D: 1, 0x25: 0 },
-    sleep: 5, rate: 1, dz: [300, 300], light: { effect: 6, speed: 128, color: [61, 220, 132], brightness: 80, colorful: 0 } };
+    sleep: 5, rate: 1, gp: { mode: 2, angle: [45, 45], square: [0, 0], extreme: [0, 0], ko: 0, en: 0, map: {},
+      curves: [0, 1, 2, 3].map(() => [100, 0, 20, 142, 4, 85, 185, 8, 170, 228, 12, 255]) }, dz: [300, 300], light: { effect: 6, speed: 128, color: [61, 220, 132], brightness: 80, colorful: 0 } };
   for (let i = 0; i < R * C; i++) if (keymap[i]) { st.travel[i] = 1500; st.rt[i] = { on: 0, press: 300, release: 300 }; }
   const dev = {
     vendorId: VID, productId: 0x10b0, productName: 'EDGE 60HE ULTIMATE', opened: false,
@@ -1951,6 +2461,23 @@ function makeDemoKeyboard(){
       else if (ch === 0x07){ const i = b[3] * C + b[4];
         if (set) st.rt[i] = { on: b[5], release: (b[6] << 8) | b[7], press: (b[8] << 8) | b[9] };
         const v = st.rt[i] ?? { on: 0, press: 300, release: 300 }; r[5] = v.on; u16(r, 6, v.release); u16(r, 8, v.press); }
+      else if (ch === 0x20) r.fill(0, 3);
+      else if (ch === 0x4C){
+        const row = b[3], col = b[4], sub = b[5], g = st.gp;
+        if (sub === 1){ const k = row * C + col; if (set) g.map[k] = b[6]; r[6] = g.map[k] ?? 0; }
+        else if (sub === 2 && set) g.map = {};
+        else if (sub === 3){ r[6] = g.mode; r[7] = g.angle[0]; r[8] = g.angle[1]; r[9] = g.square[0]; r[10] = g.square[1];
+          r[11] = g.extreme[0]; r[12] = g.extreme[1]; r[13] = g.ko; r[14] = g.en; }
+        else if (sub === 0 && set) g.mode = b[6];
+        else if (sub === 4 && set) g.angle[row & 1] = b[6];
+        else if (sub === 5 && set) g.square[row & 1] = b[6];
+        else if (sub === 6 && set) g.extreme[row & 1] = b[6];
+        else if (sub === 7 && set) g.ko = b[6];
+        else if (sub === 8 && set) g.en = b[6];
+        else if (sub === 9){ const cv = g.curves[row & 3];
+          if (set) for (let k = 0; k < 12; k++) cv[k] = b[6 + k];
+          for (let k = 0; k < 12; k++) r[6 + k] = cv[k]; }
+      }
       else if (ch === 0x53 || ch === 0x21 || ch === 0x27){ r[3] = 2; r[4] = 0; r[5] = 60; r[6] = 50; r[7] = 34; r[8] = 211; r[9] = 238; }
       else if (ch === 0x4B){ r[3] = b[3]; r[4] = 255; r[5] = 255; r[6] = 255; }
     }
