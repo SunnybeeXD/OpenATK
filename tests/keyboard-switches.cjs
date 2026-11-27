@@ -8,7 +8,7 @@ const stub=new Proxy(function(){},{get:(t,k)=>k===Symbol.toPrimitive?()=>'':stub
 function load(){
   const src=html.slice(html.indexOf('const VID = 0x373B;'),html.indexOf('let kb = null;'));
   const context=vm.createContext({Uint8Array,DataView,setTimeout,clearTimeout,Promise,Math,Number,Array,Map,Set,URLSearchParams,$:()=>stub,document:stub,console,navigator:{},location:{search:''}});
-  vm.runInContext(src+'\nglobalThis.api={fmtMm,Keyboard,SW_LIST,SW_BY_ID,SW_MIN_FW,CH_SW};',context);
+  vm.runInContext(src+'\nglobalThis.api={fmtMm,Keyboard,SW_LIST,SW_BY_ID,SW_MIN_FW,CH_SW,SW_SPEC_MM};',context);
   return context.api;
 }
 const api=load();
@@ -138,4 +138,8 @@ test('per-key travel drops switches whose keys disagree and rejects junk',async(
   const bad=new Array(R*C).fill(3500);bad[2]=20000;
   assert.equal(await fixture({keyTravel:bad}).kb.swKeyTravel([1],new Array(R*C).fill(1)),null);
   assert.equal(await fixture().kb.swKeyTravel([1],new Array(R*C).fill(1)),null);
+});
+test('spec sheet travel only covers known switches with sane values',()=>{
+  for(const [id,mm] of api.SW_SPEC_MM){assert.ok(api.SW_BY_ID.has(id));assert.ok(mm>=3&&mm<=4.5);}
+  assert.ok(!api.SW_SPEC_MM.has(1)&&!api.SW_SPEC_MM.has(29)&&!api.SW_SPEC_MM.has(33));
 });
