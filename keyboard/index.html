@@ -83,6 +83,7 @@ select{width:100%}
 .hyt button:hover{border-color:var(--dimmer)}
 .hyt button:disabled{opacity:.4;cursor:not-allowed}
 .hyt .pic{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px}
+.hyt .mm{color:var(--dim);font-size:11px}
 .hyt .pic img{width:100%;height:100%;object-fit:contain;display:block}
 #grid .key i.swb{display:block;font-size:8px;padding:1px 3px;border-radius:3px;text-overflow:ellipsis}
 #hyDone{margin-top:14px}
@@ -624,7 +625,9 @@ const GP_PRESETS = [
 ];
 
 const CH_SW = 0x10;
-const SW = { getBuf:4, setKey:5, supported:8 };
+const SW = { getBuf:4, setKey:5, supported:8, travel:9 };
+const SW_TRAVEL_MIN = 500, SW_TRAVEL_MAX = 10000;
+const fmtMm = v => { const t = Number(v.toFixed(2)); return Number.isInteger(t) ? t.toFixed(1) : String(t); };
 const SW_PER_FRAME = 23;
 const SW_MIN_FW = { 'EDGE 60HE ULTIMATE': 1.35, 'ATK EDGE75': 1.11, 'ATK RS6 Ultra': 1.40 };
 const SW_CDN = 'https://bpcdn.atkgear.com/device/ossAssets/switches/';
@@ -1139,6 +1142,20 @@ class Keyboard {
     if (ids.some(v => !v) || new Set(ids).size !== n) throw new Error('unexpected switch list reply');
     return ids;
   }
+  async swTravel(ids){
+    try {
+      const r = await this.getCustom(CH_SW, [0, 0, SW.travel]);
+      const n = r[6];
+      if (n !== ids.length || 7 + 2 * n > r.length) return null;
+      const out = new Map();
+      for (let e = 0; e < n; e++){
+        const u = (r[7 + 2 * e] << 8) | r[8 + 2 * e];
+        if (u < SW_TRAVEL_MIN || u > SW_TRAVEL_MAX) return null;
+        out.set(ids[e], u / 1000);
+      }
+      return out;
+    } catch { return null; }
+  }
   async swReadMatrix(){
     const total = this.rows * this.cols, out = [];
     for (let off = 0; off < total; off += SW_PER_FRAME){
@@ -1259,7 +1276,7 @@ function renderGrid(){
         bd.style.background = sw[2];
         bd.style.color = sw[3] || '#111';
       }
-      b.title = `row ${r}, col ${k.c}` + (sw ? `, ${sw[1]} Switch` : '') + (masked ? ' (has a remap or advanced binding)' : '');
+      b.title = `row ${r}, col ${k.c}` + (sw ? `, ${sw[1]} Switch${hy.travel?.get(hy.matrix[k.i]) ? ', ' + fmtMm(hy.travel.get(hy.matrix[k.i])) + ' mm' : ''}` : '') + (masked ? ' (has a remap or advanced binding)' : '');
       b.onclick = () => {
         if (selected.has(k.i)) selected.delete(k.i); else selected.add(k.i);
         renderGrid();
@@ -2125,7 +2142,8 @@ async function readSwitches(){
   try {
     const ids = (await kb.swSupported()).filter(id => SW_BY_ID.has(id));
     if (!ids.length) return;
-    hy = { ids, matrix: await kb.swReadMatrix(), busy: false };
+    hy = { ids, matrix: await kb.swReadMatrix(), busy: false, travel: await kb.swTravel(ids) };
+    if (!hy.travel) log('er', 'SW  ', 'switch travel not available, showing no distances');
   } catch { hy = null; log('er', 'SW  ', 'hybrid shaft not available'); return; }
   $('#hyTab').classList.remove('hidden');
   renderHy();
@@ -2137,7 +2155,8 @@ function renderHy(){
     const t = SW_BY_ID.get(id);
     const b = document.createElement('button');
     b.dataset.id = String(id);
-    b.title = t[1] + ' Switch';
+    const mm = hy.travel?.get(id);
+    b.title = t[1] + ' Switch' + (mm ? ', ' + fmtMm(mm) + ' mm' : '');
     const pic = document.createElement('span');
     pic.className = 'pic';
     pic.style.background = t[2];
@@ -2153,6 +2172,12 @@ function renderHy(){
     const name = document.createElement('span');
     name.textContent = t[1] + ' Switch';
     b.append(pic, name);
+    if (mm){
+      const d = document.createElement('span');
+      d.className = 'mm';
+      d.textContent = fmtMm(mm) + ' mm';
+      b.append(d);
+    }
     b.disabled = hy.busy;
     b.onclick = () => hyApply(id);
     return b;
@@ -2643,6 +2668,7 @@ function makeDemoKeyboard(){
       else if (ch === 0x10){
         const sub = b[5], h = st.hy;
         if (sub === 8){ r[6] = h.ids.length; h.ids.forEach((v, i) => r[7 + i] = v); }
+        else if (sub === 9){ r[6] = h.ids.length; h.ids.forEach((v, i) => u16(r, 7 + 2 * i, 3500 + 250 * (v % 3))); }
         else if (sub === 4){ const off = (b[6] << 8) | b[7], n = b[8]; r[8] = n;
           for (let k = 0; k < n; k++) r[9 + k] = h.m[off + k] ?? 1; }
         else if (sub === 5){ const i = b[3] * C + b[4];
