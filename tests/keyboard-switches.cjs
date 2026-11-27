@@ -142,5 +142,6 @@ test('per-key travel drops switches whose keys disagree and rejects junk',async(
 test('spec sheet travel only covers known switches with sane values',()=>{
   for(const [id,mm] of api.SW_SPEC_MM){assert.ok(api.SW_BY_ID.has(id));assert.ok(mm>=3&&mm<=4.5);}
   assert.equal(api.SW_SPEC_MM.get(1),3.5);
-  assert.ok(!api.SW_SPEC_MM.has(29)&&!api.SW_SPEC_MM.has(33));
+  assert.equal(api.SW_SPEC_MM.get(29),3.3);
+  assert.ok(!api.SW_SPEC_MM.has(33));
 });
