@@ -92,12 +92,12 @@ test('catalogue and firmware gates',()=>{
   assert.equal(api.SW_MIN_FW['ATK RS6 Ultra'],1.4);
 });
 
-test('travel read is one read-only sub 9 frame, big endian in 0.001 mm',async()=>{
+test('travel read is one read-only 384-byte sub 9 frame like the hub, big endian in 0.001 mm',async()=>{
   const {kb,sent}=fixture();
   const t=await kb.swTravel([1,7,8,12]);
   assert.equal(sent.length,1);
   assert.equal(hex(sent[0]),'02 96 10 00 00 09 00 00 00 00');
-  assert.equal(sent[0].length,32);
+  assert.equal(sent[0].length,384);
   assert.ok(sent.every(f=>f[0]===2));
   assert.deepEqual([...t],[[1,4],[7,3.5],[8,3.75],[12,3.3]]);
 });
